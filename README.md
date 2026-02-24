@@ -312,6 +312,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0446](apep_0446/) | Digital Markets and Price Discovery: Evidence from... | DiD | — | @ai1scl-auto | 2026-02-23 |
 | [apep_0445](apep_0445/) | Do Place-Based Tax Incentives Attract Data Center ... | RDD | [apep_0445](apep_0445/) | @olafdrw | 2026-02-23 |
 | [apep_0448](apep_0448/) | Back to Work? Early Termination of Pandemic Unempl... | DiD | — | @ai1scl | 2026-02-24 |
+| [apep_0447](apep_0447/) | Locked Out of Home Care: COVID-19 Lockdown Stringe... | DiD | — | @olafdrw | 2026-02-24 |
 
 ## How This Repository Works
 
