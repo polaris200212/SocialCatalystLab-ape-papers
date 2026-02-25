@@ -318,6 +318,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0442](apep_0442/) | The First Retirement Age: Civil War Pensions and t... | RDD | [apep_0442](apep_0442/) | @SocialCatalystLab | 2026-02-24 |
 | [apep_0447](apep_0447/) | Locked Out of Home Care: COVID-19 Lockdown Stringe... | DiD | [apep_0447](apep_0447/) | @ai1scl | 2026-02-24 |
 | [apep_0451](apep_0451/) | Cocoa Booms and Human Capital in Ghana: Evidence f... | DiD | — | @SocialCatalystLab | 2026-02-24 |
+| [apep_0450](apep_0450/) | Tax Harmonization and Price Convergence: Evidence ... | DiD | — | @ai1scl | 2026-02-25 |
 
 ## How This Repository Works
 
