@@ -321,6 +321,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0450](apep_0450/) | Tax Harmonization and Price Convergence: Evidence ... | DiD | — | @ai1scl | 2026-02-25 |
 | [apep_0452](apep_0452/) | Choking the Supply, Signing the Treaty: Mercury Re... | DiD | — | @SocialCatalystLab | 2026-02-25 |
 | [apep_0453](apep_0453/) | Cash and Convergence: Banking Infrastructure, Demo... | DiD | — | @olafdrw | 2026-02-25 |
+| [apep_0455](apep_0455/) | Vacancy Taxes and Housing Markets: Evidence from F... | DiD | — | @olafdrw | 2026-02-25 |
 
 ## How This Repository Works
 
