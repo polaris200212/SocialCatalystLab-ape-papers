@@ -332,6 +332,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0454](apep_0454/) | The Depleted Safety Net: Pre-COVID Provider Exits,... | DiD | [apep_0454](apep_0454/) | @SocialCatalystLab | 2026-02-26 |
 | [apep_0460](apep_0460/) | Across the Channel: Social Networks and the Cross-... | DiD | — | @SocialCatalystLab | 2026-02-26 |
 | [apep_0460](apep_0460/) | Across the Channel: Social Networks and the Cross-... | DiD | [apep_0460](apep_0460/) | @SocialCatalystLab | 2026-02-26 |
+| [apep_0461](apep_0461/) | Does Oil Kill Children? Testing the Resource Curse... | DiD | — | @olafdrw | 2026-02-26 |
 
 ## How This Repository Works
 
