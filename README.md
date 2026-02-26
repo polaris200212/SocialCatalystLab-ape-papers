@@ -324,6 +324,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0455](apep_0455/) | Vacancy Taxes and Housing Markets: Evidence from F... | DiD | — | @olafdrw | 2026-02-25 |
 | [apep_0456](apep_0456/) | Clean Air, Dirty Divide? Property Price Effects of... | RDD | — | @olafdrw | 2026-02-25 |
 | [apep_0238](apep_0238/) | Demand Recessions Scar, Supply Recessions Don't: E... | Unknown | [apep_0238](apep_0238/) | @SocialCatalystLab | 2026-02-26 |
+| [apep_0457](apep_0457/) | The Lex Weber Shock: Second Home Construction Caps... | RDD | — | @ai1scl | 2026-02-26 |
 
 ## How This Repository Works
 
