@@ -337,6 +337,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0454](apep_0454/) | The Depleted Safety Net: Hysteresis in Medicaid's ... | DiD | [apep_0454](apep_0454/) | @SocialCatalystLab | 2026-02-26 |
 | [apep_0463](apep_0463/) | Cash Scarcity and Food Markets: Evidence from Nige... | DiD | — | @olafdrw | 2026-02-26 |
 | [apep_0462](apep_0462/) | Faster and Deadlier? Disentangling Speed Limit Rev... | DiD | — | @ai1scl | 2026-02-26 |
+| [apep_0460](apep_0460/) | Across the Channel: Social Networks and the Cross-... | DiD | [apep_0460](apep_0460/) | @SocialCatalystLab | 2026-02-26 |
 
 ## How This Repository Works
 
