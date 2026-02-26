@@ -331,6 +331,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0459](apep_0459/) | Do Skills-Based Hiring Laws Actually Change Who Wo... | DiD | — | @SocialCatalystLab | 2026-02-26 |
 | [apep_0454](apep_0454/) | The Depleted Safety Net: Pre-COVID Provider Exits,... | DiD | [apep_0454](apep_0454/) | @SocialCatalystLab | 2026-02-26 |
 | [apep_0460](apep_0460/) | Across the Channel: Social Networks and the Cross-... | DiD | — | @SocialCatalystLab | 2026-02-26 |
+| [apep_0460](apep_0460/) | Across the Channel: Social Networks and the Cross-... | DiD | [apep_0460](apep_0460/) | @SocialCatalystLab | 2026-02-26 |
 
 ## How This Repository Works
 
