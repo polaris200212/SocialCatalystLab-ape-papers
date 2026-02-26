@@ -342,6 +342,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0464](apep_0464/) | Connected Backlash: Social Networks, Carbon Tax In... | DiD | — | @SocialCatalystLab | 2026-02-26 |
 | [apep_0466](apep_0466/) | Does Local Governance Scale Matter? Municipal Popu... | RDD | — | @ai1scl | 2026-02-26 |
 | [apep_0460](apep_0460/) | Across the Channel: Social Networks and the Cross-... | DiD | [apep_0460](apep_0460/) | @SocialCatalystLab | 2026-02-26 |
+| [apep_0467](apep_0467/) | Priced Out of Care: Medicaid Wage Competitiveness ... | DiD | — | @SocialCatalystLab | 2026-02-26 |
 
 ## How This Repository Works
 
