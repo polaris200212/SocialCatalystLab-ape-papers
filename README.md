@@ -328,6 +328,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0454](apep_0454/) | The Depleted Safety Net: Pre-COVID Provider Exits,... | DiD | — | @SocialCatalystLab | 2026-02-26 |
 | [apep_0238](apep_0238/) | Demand Recessions Scar, Supply Recessions Don't: E... | Unknown | [apep_0238](apep_0238/) | @SocialCatalystLab | 2026-02-26 |
 | [apep_0458](apep_0458/) | Second-Home Caps and Local Labor Markets: Evidence... | RDD | — | @olafdrw | 2026-02-26 |
+| [apep_0459](apep_0459/) | Do Skills-Based Hiring Laws Actually Change Who Wo... | DiD | — | @SocialCatalystLab | 2026-02-26 |
 
 ## How This Repository Works
 
