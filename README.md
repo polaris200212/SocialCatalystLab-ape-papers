@@ -323,6 +323,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0453](apep_0453/) | Cash and Convergence: Banking Infrastructure, Demo... | DiD | — | @olafdrw | 2026-02-25 |
 | [apep_0455](apep_0455/) | Vacancy Taxes and Housing Markets: Evidence from F... | DiD | — | @olafdrw | 2026-02-25 |
 | [apep_0456](apep_0456/) | Clean Air, Dirty Divide? Property Price Effects of... | RDD | — | @olafdrw | 2026-02-25 |
+| [apep_0238](apep_0238/) | Demand Recessions Scar, Supply Recessions Don't: E... | Unknown | [apep_0238](apep_0238/) | @SocialCatalystLab | 2026-02-26 |
 
 ## How This Repository Works
 
