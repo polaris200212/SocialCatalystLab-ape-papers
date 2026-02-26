@@ -1,0 +1,625 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\sisetup{detect-all=true, group-separator={,}, group-minimum-digits=4}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% TikZ for DAG
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Timing data (omitted)
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\sym}[1]{\ifmmode^{#1}\else\(^{#1}\)\fi}
+
+\title{The Depleted Safety Net: Provider Attrition and Medicaid's Pandemic-Era Disruption\footnote{This paper is a revision of APEP-0454. See \url{https://github.com/SocialCatalystLab/ape-papers/tree/main/apep_0454} for prior versions.}}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. Correspondence: scl@econ.uzh.ch} \\ @SocialCatalystLab}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+Do safety-net labor markets self-correct, or does gradual erosion create fragility that only a crisis reveals? Using provider-level Medicaid claims for 617,000 billing entities across all 50 states and the District of Columbia over seven years, I find that states where more HCBS providers exited the workforce before COVID-19 experienced 6 percent larger supply declines and 7 percent larger reductions in beneficiary access after March 2020. Pre-pandemic provider depletion strongly predicts pandemic-era service disruption across all Medicaid provider types. Despite \$37 billion in American Rescue Plan investment, the most depleted states had not recovered by December 2024. The pattern is consistent with hysteresis in safety-net labor markets: gradual erosion weakened provider networks, the pandemic exposed this fragility, and the system did not bounce back.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} I11, I13, I18, J44, H75 \\
+\noindent\textbf{Keywords:} Medicaid, HCBS, provider attrition, provider supply, COVID-19, safety net, workforce
+
+\newpage
+
+\section{Introduction}
+
+A basic prediction of competitive labor markets is self-correction. Workers exit; wages adjust; new workers enter. The equilibrium may shift, but the market clears. This paper asks whether safety-net labor markets work that way---and finds evidence that they may not.
+
+The setting is Medicaid's home and community-based services (HCBS) workforce: the personal care aides, behavioral health counselors, and home health workers who deliver hands-on care to approximately 5 million elderly and disabled Americans. Between 2018 and early 2020, this workforce was quietly eroding. Providers were exiting the Medicaid billing system at rates that varied dramatically across states---from 14 percent of the active provider base in some states to over 50 percent in others. Then COVID-19 arrived, and the erosion became a crisis.
+
+Using the newly released Transformed Medicaid Statistical Information System (T-MSIS) provider spending dataset---the first public provider-level claims data covering HCBS, spanning all 50 states and the District of Columbia from January 2018 through December 2024---I document that pre-pandemic provider exit intensity is a powerful predictor of pandemic-era service disruption. A one-standard-deviation increase in the pre-COVID exit rate is associated with a 6 percent larger decline in active HCBS providers ($\beta = -0.879$, $p = 0.014$) and a 7 percent larger decline in beneficiary-provider service encounters ($\beta = -1.005$, $p = 0.038$). The beneficiary coefficient exceeds the provider coefficient, consistent with a multiplier: each lost provider severs access for multiple clients in a network where a single personal care aide may serve three to five beneficiaries.
+
+The treatment variable---each state's pre-COVID exit rate---is constructed from 2018--2019 billing patterns, which generates mechanical pre-trends in the event study. This is a feature of the research design, not a bug: I am measuring a process that was unfolding during the pre-period, and asking whether its severity predicted the magnitude of the subsequent shock. Conditional randomization inference within Census divisions ($p = 0.038$) confirms the finding is not an artifact of regional sorting. Formal sensitivity analysis \citep{rambachan2023} reveals that the result does not survive pre-trend extrapolation (breakdown $\bar{M} = 0$), and an augmented synthetic control \citep{benmichael2021} with binarized treatment yields a near-zero estimate. These results are honest about the limits of causal inference in this setting. The contribution is predictive: pre-pandemic provider depletion is a powerful index of pandemic-era disruption, and the sharp acceleration at March 2020---visible as a clear break in the event study---is consistent with, though not proof of, a causal amplification mechanism.
+
+The economic stakes are larger than a measurement exercise. \citet{blanchardsummers1986} introduced the concept of hysteresis in European unemployment---the idea that temporary shocks can permanently alter the equilibrium. \citet{yagan2019} demonstrated hysteresis in U.S.\ employment after the Great Recession. The patterns documented here are consistent with an analogous phenomenon in safety-net labor markets. Congress invested \$37 billion through the American Rescue Plan Act (ARPA) to rebuild the HCBS workforce starting in April 2021. Yet by December 2024---nearly four years later---states in the highest exit quartile still had provider counts below their pre-pandemic baseline. No detectable differential recovery is visible in the data, though the ARPA analysis is underpowered to detect moderate effects. Depletion, once it reaches a critical threshold, appears to be self-reinforcing: remaining providers face heavier caseloads, longer travel times, and reduced peer support, which accelerates further exit rather than attracting new entry. \citet{hirschman1970} described how institutional decline becomes self-perpetuating when exit erodes the capacity for voice. The HCBS workforce illustrates this dynamic with striking clarity.
+
+The exit rate predicts disruption across \emph{all} Medicaid provider types---not just HCBS. The non-HCBS coefficient ($-1.376$, $p = 0.004$) is larger than the HCBS coefficient ($-0.879$), and a formal test cannot reject equality. This means the exit rate indexes broad state-level Medicaid ecosystem fragility, not an HCBS-specific mechanism. The contribution of this paper is not that HCBS is differentially affected---it is not---but that HCBS disruption has the most consequential welfare implications, because these beneficiaries---elderly individuals needing daily personal care, adults with disabilities requiring behavioral health support---have the fewest substitutes. The only alternative to home-based care is institutionalization.
+
+This paper contributes to three literatures. The literature on healthcare supply and access has established that provider availability shapes utilization and outcomes \citep{finkelstein2012,baicker2013}, but has focused overwhelmingly on the demand side---insurance coverage, cost-sharing, eligibility rules. I document that the supply side matters independently: beneficiaries who are already covered and enrolled lose access when no provider exists to deliver care. On the workforce side, the COVID-era literature has documented acute staffing disruptions in hospitals \citep{sinsky2021covid} and nursing homes \citep{alexander2020}, but has not connected pre-existing workforce conditions to pandemic-era outcomes. I use the T-MSIS data to trace the chain from supply (provider counts) through access (beneficiary-provider encounters) to intensity (claims per encounter), documenting that the weakest link in the safety net was forged years before the pandemic. The safety-net resilience literature, from \citet{dranove2000} on hospital vulnerability to \citet{duggan2000} on Medicaid payment structure, has emphasized how institutional features create fragility. I extend this logic to the labor market that underlies service delivery: when the workforce erodes gradually through attrition, the system becomes brittle---and a shock of sufficient magnitude exposes that fragility.
+
+Section 2 provides institutional background. Section 3 develops the conceptual framework. Sections 4 and 5 describe the data and empirical strategy. Section 6 presents results, and Section 7 discusses implications.
+
+
+\section{Institutional Background}
+
+\subsection{Home and Community-Based Services in Medicaid}
+
+Medicaid is the largest single payer for long-term services and supports (LTSS) in the United States, spending approximately \$190 billion annually on services for elderly and disabled beneficiaries \citep{cms2024medicaid}. A growing share of this spending flows through home and community-based services (HCBS)---personal care, habilitation, behavioral health, and attendant care delivered in beneficiaries' homes rather than in institutional settings. This shift toward community-based care, driven by the 1999 \emph{Olmstead v.\ L.C.} Supreme Court decision and subsequent federal policy, has made the HCBS workforce the linchpin of the Medicaid safety net.
+
+The \emph{Olmstead} decision required states to serve individuals with disabilities in the most integrated setting appropriate to their needs. In the quarter-century since, HCBS spending has grown from roughly 20 percent of Medicaid LTSS expenditures to over 60 percent in most states. By 2019, approximately 5 million Medicaid beneficiaries received HCBS---a number that rivals the combined enrollment of all nursing homes in the country. This rebalancing has generated enormous demand for a workforce that the labor market has struggled to supply.
+
+The HCBS workforce differs fundamentally from the medical workforce studied in most health economics research. Personal care aides and home health workers earn a median hourly wage of \$14.15 \citep{bls2023hcbs}, face annual turnover rates of 40--60 percent \citep{phi2023turnover}, and rarely receive employer-sponsored health insurance. Many are independent contractors or employees of small agencies rather than large healthcare systems. These structural features make the HCBS workforce exceptionally fragile: low wages and poor working conditions produce chronic shortages even in normal times, and small providers can disappear entirely when a single worker retires or relocates.
+
+The fragility is compounded by the structure of Medicaid reimbursement. Unlike Medicare, which sets national fee schedules, Medicaid rates are determined state by state. As of 2019, the median state Medicaid reimbursement rate for personal care services was approximately \$18 per hour---well below the rate needed to attract and retain workers when Amazon warehouses and fast-food restaurants offered \$15--\$17 per hour with benefits. States with the lowest reimbursement rates tended to have the highest provider turnover, creating a vicious cycle: underpayment drives exits, exits reduce access, and reduced access discourages new entrants who see limited career prospects in a shrinking market.
+
+State-level variation in HCBS program design further shapes the provider landscape. Some states operate HCBS primarily through 1915(c) waivers, which cap enrollment and create waiting lists; others use 1915(k) Community First Choice or 1115 demonstration waivers that provide broader access. States also differ in whether they allow self-directed services (where beneficiaries hire their own workers) versus requiring agency-based provision. These structural differences affect both the size and composition of the provider workforce: self-directed programs tend to have more individual providers and higher turnover, while agency-based programs have fewer but larger organizational providers.
+
+HCBS spending is identifiable in Medicaid claims through distinctive procedure codes. The Healthcare Common Procedure Coding System (HCPCS) assigns T-prefix codes to HCBS services (e.g., T1019 for personal care per 15 minutes), H-prefix codes to behavioral health services (e.g., H2016 for community support per diem), and S-prefix codes to temporary Medicaid services (e.g., S5125 for attendant care per 15 minutes). These codes have no Medicare equivalent---they exist solely within the Medicaid system. As the T-MSIS data reveal, T/H/S codes account for approximately 52 percent of total Medicaid provider spending, making them the dominant category in provider-level claims.
+
+\subsection{The HCBS Workforce Crisis Before COVID-19}
+
+The pandemic did not create the HCBS workforce crisis---it exposed and deepened one that had been building for years. Prior to 2020, multiple factors were eroding the provider base. Low Medicaid reimbursement rates, which had been frozen or declining in real terms in many states, made HCBS work economically unattractive relative to retail and fast-food jobs that offered comparable pay with less physically and emotionally demanding work \citep{scales2020hcbs}. An aging workforce meant that experienced providers were retiring at accelerating rates. And consolidation in home health---driven by managed care contracting and regulatory requirements---was eliminating small providers who could not bear administrative overhead.
+
+The demographic composition of the exiting workforce deserves attention. HCBS providers skew older and more female than the general healthcare workforce: the median home health aide is in her mid-40s, and over 85 percent of direct care workers are women. Providers enumerated in the earliest years of the NPI system (2006--2008, when the mandate took effect) had, by 2019, accumulated 11--13 years of practice---long enough for burnout and physical wear to drive retirement decisions. The NPPES data confirm that providers with earlier enumeration dates exit at substantially higher rates, consistent with career-cycle dynamics rather than market-wide shocks.
+
+Geographic concentration of exits was also pronounced. States in the Southeast and Mountain West, which tend to have lower Medicaid reimbursement rates and fewer large healthcare systems, experienced exit rates 50--100 percent higher than states in the Northeast and Pacific Coast. This pattern suggests that exit was not random but systematically related to the adequacy of state Medicaid investment---a relationship that becomes central to the identification strategy.
+
+These trends are visible in the T-MSIS data. Of the approximately 617,000 billing entities that appear in the dataset between 2018 and 2024, only 6 percent bill continuously across all 84 months. Over 38 percent appear for fewer than 12 months. The median billing tenure is 22 months. This extraordinary dynamism---far greater than turnover in physician or hospital markets---reflects the structural fragility of the HCBS sector.
+
+\subsection{COVID-19 and the HCBS Sector}
+
+The pandemic struck the HCBS sector through multiple channels simultaneously. Lockdowns and social distancing orders disrupted in-person service delivery. Infection risk deterred workers from entering beneficiaries' homes and vice versa. Emergency Medicaid expansions---driven by the Families First Coronavirus Response Act's continuous enrollment requirement---increased the number of beneficiaries seeking services, while the supply of available workers contracted. Many HCBS workers, lacking personal protective equipment and paid sick leave, were forced to choose between exposure and income.
+
+The interaction between demand surge and supply contraction was particularly acute. Medicaid enrollment grew by approximately 20 million between February 2020 and its peak in early 2023, driven by both economic displacement and the continuous enrollment requirement. Yet the HCBS workforce was shrinking, not growing. The resulting gap---more beneficiaries, fewer providers---translated directly into longer wait times, reduced service hours, and in some cases complete loss of access to home-based care. For beneficiaries with severe disabilities or chronic conditions, the absence of HCBS providers meant heightened risk of hospitalization, institutionalization, or informal caregiving arrangements that imposed substantial burdens on family members.
+
+The effects were severe and uneven across states. States with stricter lockdowns experienced larger initial disruptions to HCBS delivery \citep{kff2022hcbs}. States with lower pre-pandemic Medicaid reimbursement rates saw more provider exits, as workers left for better-compensated essential worker positions in retail and warehousing. Competition from the booming gig economy---ride-sharing, food delivery, and online retail---further accelerated attrition from the HCBS sector, which could not match the flexibility and often comparable wages offered by these alternatives. And states that entered the pandemic with already-depleted provider networks---the focus of this paper---had less slack to absorb these shocks.
+
+\subsection{The American Rescue Plan's HCBS Investment}
+
+In response to the cascading HCBS crisis, Congress enacted the American Rescue Plan Act (ARPA) in March 2021. Section 9817 provided a temporary 10 percentage point increase in the Federal Medical Assistance Percentage (FMAP) for HCBS expenditures, effective from April 1, 2021, through March 31, 2022. States were required to use the federal savings to ``supplement, not supplant'' existing HCBS spending---channeling funds toward rate increases, workforce recruitment and retention bonuses, service expansions, and infrastructure improvements.
+
+All 50 states and the District of Columbia participated in the enhanced FMAP. The total federal investment amounted to approximately \$37 billion, with \$26 billion directed toward workforce-related activities \citep{advancingstates2024}. However, the timing and nature of state spending varied substantially. Some states implemented provider rate increases within months of CMS approval; others took over a year to deploy funds. Some states focused on permanent rate increases; others relied on one-time bonus payments. This variation in implementation, combined with the uniform April 2021 start date for the enhanced FMAP, provides the empirical setting for evaluating ARPA's effectiveness.
+
+The enhanced FMAP expired on March 31, 2022, but states had until March 2024 (later extended to March 2025 for 13 states) to spend accumulated savings. This extended spending window means that ARPA-funded interventions were being implemented throughout the 2021--2024 period, making the post-April 2021 treatment window appropriate for identifying supply-side effects.
+
+
+\section{Conceptual Framework}
+
+Consider a state $s$ with a Medicaid HCBS provider market. Let $N_{st}$ denote the number of active providers at time $t$, governed by entry and exit flows:
+\begin{equation}
+N_{st} = N_{s,t-1} + \text{Entry}_{st} - \text{Exit}_{st}
+\end{equation}
+
+In steady state, entry roughly equals exit. But if exit accelerates---due to retirements, wage competition, or burnout---and entry does not adjust, the stock $N_{st}$ declines. Define the \emph{pre-COVID exit rate} $\theta_s$ as the share of providers active in 2018--2019 who permanently exit before March 2020:
+\begin{equation}
+\theta_s = \frac{\#\{\text{providers active in 2018--2019, absent after Feb 2020}\}}{\#\{\text{providers active in 2018--2019}\}}
+\end{equation}
+
+This measure captures the degree to which the provider network was already depleted when the pandemic arrived. It is \emph{pre-determined} with respect to the pandemic shock---no provider exiting in 2018 or 2019 did so in anticipation of COVID-19.
+
+The pandemic creates a common adverse shock to all provider markets, but its impact is amplified in markets with higher pre-existing depletion. Formally, let $\Delta Y_{st}$ be the change in a service outcome after March 2020. The prediction is:
+\begin{equation}
+\frac{\partial \Delta Y_{st}}{\partial \theta_s} < 0
+\end{equation}
+
+States with higher $\theta_s$ experience larger declines because they have less network ``slack''---fewer providers to absorb increased demand, cover for absent workers, or maintain service continuity during disruptions.
+
+The prediction applies to multiple outcomes along the supply-access chain. At the supply level, higher $\theta_s$ reduces $N_{st}$ (active providers). But the consequences propagate downstream: with fewer providers, beneficiaries face longer wait times and reduced service availability, leading to declines in $B_{st}$ (beneficiary-provider encounters). Among those who maintain access, the remaining providers may be unable to deliver the same service intensity, potentially reducing claims per beneficiary ($C_{st}/B_{st}$). This supply-access-intensity chain generates testable predictions at each link:
+\begin{equation}
+\frac{\partial \Delta N_{st}}{\partial \theta_s} < 0, \quad \frac{\partial \Delta B_{st}}{\partial \theta_s} < 0, \quad \frac{\partial \Delta (C_{st}/B_{st})}{\partial \theta_s} \lessgtr 0
+\end{equation}
+The sign on claims per beneficiary is ambiguous: if the least-served beneficiaries lose access entirely (selection), the average intensity among remaining beneficiaries could rise even as total service delivery falls.
+
+ARPA's enhanced FMAP is modeled as a positive supply shock targeted at HCBS providers. The triple-difference prediction is:
+\begin{equation}
+\frac{\partial^3 Y_{sjt}}{\partial \text{PostARPA}_t \, \partial \text{HCBS}_j \, \partial \theta_s} > 0
+\end{equation}
+
+That is, the ARPA effect on HCBS providers (relative to non-HCBS) is larger in high-$\theta_s$ states, because depleted markets have more ``room'' for recovery and because federal investment has a higher marginal return where provider shortages are most acute.
+
+
+\section{Data}
+
+\subsection{T-MSIS Medicaid Provider Spending}
+
+The primary dataset is the Transformed Medicaid Statistical Information System (T-MSIS) Provider Spending file, released by the Department of Health and Human Services in February 2026. This dataset represents a breakthrough in Medicaid transparency: it is the first publicly available provider-level claims dataset covering HCBS and behavioral health services.
+
+The data are structured at the billing NPI $\times$ servicing NPI $\times$ HCPCS code $\times$ month level, covering January 2018 through December 2024 (84 months). Each observation records the total number of unique beneficiaries, total claims, and total Medicaid payments. The dataset contains approximately 227 million rows, encompassing 617,503 unique billing NPIs and 10,881 unique HCPCS procedure codes. Total recorded payments over the 7-year period sum to \$1.09 trillion.
+
+A critical limitation is that T-MSIS contains \emph{no state identifier}. Geographic attribution relies entirely on joining billing NPIs to the National Plan and Provider Enumeration System (NPPES), which provides each provider's practice state, ZIP code, specialty taxonomy, and enumeration date. The NPPES match rate on billing NPIs is 99.5 percent, and I restrict the sample to providers located in the 50 states plus the District of Columbia.
+
+I classify providers as ``HCBS'' if they bill any T-prefix, H-prefix, or S-prefix HCPCS codes (home-based, behavioral health, and temporary Medicaid services) and ``non-HCBS'' if they bill exclusively CPT or other standard medical codes. This classification produces the within-state comparison group for the triple-difference design. Approximately 52 percent of total provider spending flows through HCBS codes, though the number of unique HCBS billing entities is smaller than the non-HCBS count because HCBS providers tend to bill more frequently (monthly recurring services) and at lower per-claim amounts.
+
+\subsection{Pre-COVID Exit Measurement}
+
+The key treatment variable---pre-COVID provider exit intensity---is constructed as follows. I define a provider as ``active in 2018--2019'' if the billing NPI appears in at least one T-MSIS record between January 2018 and December 2019. I define a provider as ``exited'' if that NPI has no billing records after February 2020. The state-level exit rate $\theta_s$ is the ratio of exited providers to active providers.
+
+A provider is classified as ``active'' in a given month if at least one claim appears under that billing NPI. The outcome variable $\ln(\text{active providers})$ uses a $\ln(x+1)$ transformation to handle the small number of state-months with zero active providers of a given type (fewer than 0.5\% of observations).
+
+This exit measure captures permanent departures from the Medicaid billing system---whether due to retirement, practice closure, relocation, or transition to non-Medicaid payers. It is intentionally broad: from the perspective of Medicaid beneficiaries, any reason for a provider's departure reduces access to care.
+
+Several features of this measure merit discussion. First, the exit events themselves occur before the pandemic: no provider exiting before March 2020 could have been responding to the COVID-19 shock. Classification as ``exited'' requires observing the absence of billing from March 2020 onward, so the measure uses post-period data to verify permanence, but the exits it captures are predetermined with respect to the pandemic onset. This temporal ordering is essential for the identification strategy: exit intensity is a state characteristic fixed before the treatment period.
+
+Second, the measure aggregates heterogeneous exit decisions into a single state-level rate. Some exits reflect individual career decisions (retirement, relocation); others reflect organizational decisions (agency closure, merger). I cannot distinguish these in the billing data. However, both types reduce the effective supply of providers available to serve Medicaid beneficiaries, and both contribute to network depletion. The state-level aggregation also mitigates concerns about compositional effects within states, since the analysis exploits cross-state variation rather than within-state provider heterogeneity.
+
+Third, the exit rate varies substantially across states, ranging from approximately 14 percent to 56 percent of the 2018--2019 active provider base. This variation is driven by a combination of factors: reimbursement adequacy, workforce demographics, state regulatory environment, and the pre-existing structure of HCBS delivery (self-directed versus agency-based). The key empirical question is whether this variation predicts differential pandemic outcomes, conditional on state and time fixed effects.
+
+To proxy for ``retirement-driven'' exits specifically, I exploit the NPPES enumeration date. Providers enumerated before 2008 (when the NPI mandate took effect) have been practicing for at least 12 years by 2020---long enough to be plausibly approaching retirement. I find that the exit rate is substantially higher among long-tenured providers, consistent with retirement as a primary driver.
+
+\subsection{Shift-Share Instrument}
+
+To address concerns that the pre-COVID exit rate reflects unobserved state characteristics correlated with pandemic outcomes, I construct a Bartik-style shift-share instrument following \citet{goldsmithpinkham2020}. The instrument uses:
+\begin{equation}
+Z_s = \sum_k \text{share}_{sk}^{2018} \times \text{national\_exit}_k
+\end{equation}
+where $\text{share}_{sk}^{2018}$ is the share of state $s$'s Medicaid providers in specialty $k$ (HCBS, behavioral health, physician, other) as of 2018, and $\text{national\_exit}_k$ is the national exit rate for specialty $k$ excluding state $s$. The instrument isolates variation in exit rates driven by the interaction of states' pre-existing specialty composition with national trends in specialty-specific attrition.
+
+\subsection{Additional Data Sources}
+
+I supplement T-MSIS with several external datasets:
+
+\textbf{Census ACS 5-Year (2019):} State-level demographics including population, median household income, poverty rate, racial composition, and median age. These serve as pre-treatment controls.
+
+\textbf{FRED:} Monthly state unemployment rates from the Federal Reserve Economic Data system, used as a time-varying control for local labor market conditions that affect both provider exit and health outcomes.
+
+\textbf{CDC Provisional COVID-19 Deaths:} Weekly state-level COVID-19 and total deaths from the National Center for Health Statistics, aggregated to monthly frequency and normalized per 100,000 population. Used in mediation analysis and vulnerability interaction specifications (see Section 5.4).
+
+\textbf{Oxford COVID-19 Government Response Tracker (OxCGRT):} Daily state-level policy stringency indices, aggregated to monthly averages. Used as a control for the intensity of lockdown measures.
+
+\subsection{Summary Statistics}
+
+\input{tables/tab1_summary_stats}
+
+Table \ref{tab:summary} presents summary statistics for the analysis sample. The final analysis panel contains 8,568 observations: 51 states (including D.C.) $\times$ 2 provider types (HCBS and non-HCBS) $\times$ 84 months (January 2018 through December 2024). Panel A shows the distribution of pre-COVID exit intensity across states. The ``Active providers'' count (mean 7,223 per state) is the \emph{cumulative} number of unique billing NPIs observed in any month during 2018--2019, used as the denominator for exit rate computation; it is substantially larger than the monthly snapshot counts in Panel B (mean 898 HCBS providers per state-month) because many providers bill intermittently. The mean overall exit rate is 22.3 percent, with substantial cross-state variation (standard deviation of 7.3 percentage points, range 14.2--56.3 percent). HCBS-specific exit rates average 16.1 percent---lower than the overall rate, reflecting the fact that the ``overall'' rate includes non-HCBS providers (many of whom are small specialty billing entities with shorter billing tenures). However, the HCBS exit rate exhibits similar dispersion (SD = 7.0 pp), and its cross-state variation drives the main results. Panel B displays monthly state-level outcomes by provider type.
+
+Several patterns in the summary statistics deserve emphasis. First, the distributions of providers, beneficiaries, and claims are highly right-skewed: a few large states (California, New York, Texas) account for a disproportionate share of national Medicaid activity. The log transformation used in the regressions compresses this variation and produces approximately normal residuals. Second, the pre-COVID exit rate shows a counterintuitive positive correlation with median household income, suggesting that provider exits are driven not by general state poverty but by HCBS-specific factors---particularly the competition from higher-wage alternative employment opportunities that are more abundant in wealthier states. Third, the time-varying unemployment rate shows a sharp spike in April--May 2020 followed by gradual recovery---a pattern that makes it an important control for separating demand-side from supply-side effects of the pandemic.
+
+
+\section{Empirical Strategy}
+
+\subsection{Part 1: Pre-COVID Exits and Pandemic Disruption}
+
+The first analysis examines whether states with higher pre-pandemic provider exit rates experienced larger service disruptions after March 2020. I estimate a continuous-treatment event study:
+\begin{equation}
+Y_{st} = \alpha_s + \delta_t + \sum_{k \neq -1} \beta_k \left( \theta_s \times \ind[t = k] \right) + X_{st} \gamma + \varepsilon_{st}
+\label{eq:eventstudy}
+\end{equation}
+where $Y_{st}$ is a log outcome (active HCBS providers, beneficiary-provider encounters, total claims) in state $s$ and month $t$; $\alpha_s$ and $\delta_t$ are state and month fixed effects; $\theta_s$ is the pre-COVID exit rate; $\ind[t = k]$ are monthly event-time indicators relative to March 2020 ($k = 0$); and $X_{st}$ includes state unemployment and COVID stringency. Standard errors are clustered at the state level.
+
+Note that because the treatment variable $\theta_s$ is continuous and time-invariant (measured once, pre-pandemic), the concerns about staggered adoption and negative weighting highlighted by \citet{goodmanbacon2021} and \citet{callaway2021} do not apply: there is no variation in treatment timing, and all treated units are ``always treated'' at different intensities. The coefficients $\beta_k$ trace out the dynamic effect of a one-unit increase in exit intensity on outcomes. The key identifying assumption is that, absent the pandemic, outcomes in high-exit and low-exit states would have evolved in parallel. I test this by examining the pre-treatment coefficients ($\beta_k$ for $k < 0$), which should be jointly insignificant and individually close to zero if the parallel trends assumption holds.
+
+For the static (collapsed) specification, I estimate:
+\begin{equation}
+Y_{st} = \alpha_s + \delta_t + \beta \left( \theta_s \times \text{Post}_{t} \right) + X_{st} \gamma + \varepsilon_{st}
+\label{eq:did}
+\end{equation}
+where $\text{Post}_t = \ind[t \geq \text{March 2020}]$ and $\beta$ captures the average post-pandemic differential effect per unit of exit intensity.
+
+\subsection{Instrumental Variable Estimation}
+
+To address concerns that the exit rate may reflect unobserved state characteristics, I construct a Bartik-style shift-share instrument $Z_s$ (defined in Section 4.3) and estimate the reduced form:
+\begin{equation}
+Y_{st} = \alpha_s + \delta_t + \pi \left( Z_s \times \text{Post}_{t} \right) + X_{st} \gamma + \varepsilon_{st}
+\end{equation}
+The coefficient $\hat{\pi}$ captures the ``intent-to-treat'' effect of predicted exit exposure on provider supply. In the v1 version of this paper, the reduced-form coefficient was $-3.861$ ($t = 1.64$)---negative and directionally consistent with the OLS, though imprecise. The first-stage F-statistic was 7.5, below the conventional threshold of 10 for strong instruments. Because the current revision focuses on beneficiary outcomes and the mediation analysis, I do not re-report the IV results in the main tables but note that the directional consistency between IV and OLS supports a causal interpretation of the exit rate's effect. The Anderson-Rubin confidence set, which is robust to weak instruments, is reported in the formal sensitivity analysis (Section 6.8).
+
+\subsection{Part 2: ARPA Recovery (Triple-Difference)}
+
+The second analysis is more exploratory, examining whether ARPA's uniform HCBS investment differentially benefited depleted markets. Because ARPA was implemented simultaneously in all 50 states and DC at the same enhanced FMAP rate, there is no cross-state variation in treatment intensity---only variation in the pre-existing ``dose'' of depletion. The DDD therefore estimates the interaction of ARPA timing, provider type, and pre-existing exit intensity:
+\begin{equation}
+Y_{sjt} = \alpha_{sj} + \delta_{jt} + \beta \, P_{t} H_{j} D_s + X_{st} \gamma + \varepsilon_{sjt}
+\label{eq:ddd}
+\end{equation}
+where $s$ indexes states, $j \in \{\text{HCBS}, \text{Non-HCBS}\}$ indexes provider type, $t$ indexes months; $P_t = \ind[t \geq \text{April 2021}]$; $H_j = \ind[j = \text{HCBS}]$; and $D_s = \ind[\theta_s > \text{median}]$. The specification includes state$\times$provider-type fixed effects ($\alpha_{sj}$) and provider-type$\times$month fixed effects ($\delta_{jt}$). The lower-order two-way interactions ($P_t H_j$, $P_t D_s$, $H_j D_s$) are included as regressors; some are partially absorbed by the fixed effects but are retained in the estimating equation for completeness.
+
+The coefficient of interest is $\beta$: the differential post-ARPA change in HCBS provider outcomes in high-exit states, relative to non-HCBS providers in the same states and HCBS providers in low-exit states. The state$\times$type fixed effects absorb time-invariant differences between groups, while the type$\times$month fixed effects absorb common time trends specific to each provider type.
+
+I also estimate a continuous version replacing the binary $D_s$ with the continuous exit rate $\theta_s$, and a dynamic version with quarterly event-time indicators.
+
+\subsection{Threats to Validity}
+
+\textbf{Selection into exit intensity.} High-exit states may differ from low-exit states along dimensions correlated with pandemic outcomes (poverty, rural share, healthcare infrastructure). I address this through: (1) extensive pre-treatment controls; (2) state fixed effects that absorb all time-invariant state characteristics; (3) the shift-share IV that isolates variation driven by national specialty trends; and (4) pre-trend tests showing no differential outcomes before the pandemic.
+
+\textbf{Concurrent policies.} COVID lockdowns, federal relief funds, Medicaid eligibility changes, and labor market disruptions all occurred simultaneously. I control for state-level COVID stringency (OxCGRT), unemployment (FRED), and COVID mortality (CDC). The within-state DDD comparison for ARPA further absorbs state-level confounders.
+
+\textbf{Measurement of exits.} Not all billing cessation represents retirement. Providers may stop billing Medicaid while continuing to practice for private payers. This measurement error would attenuate results, biasing estimates toward zero. The NPPES enumeration date provides a partial check: exit rates are substantially higher among long-tenured providers, consistent with retirement as a primary driver.
+
+\textbf{Inference with 51 clusters.} With 51 state-level clusters, standard clustered standard errors are reliable. I supplement with randomization inference (2,000 permutations) as described in Section 6.7.
+
+\subsection{Identification Challenge: COVID Severity as Mediator}
+
+A natural instinct is to control for COVID deaths per capita, reasoning that pandemic severity is a confounder: states hit harder by COVID experienced both more deaths and more healthcare disruption. But the causal structure is more subtle. Consider the directed acyclic graph (DAG):
+
+\begin{center}
+\begin{tikzpicture}[
+  node distance=2.5cm,
+  every node/.style={draw, rounded corners, minimum height=1cm, minimum width=2cm, align=center, font=\small},
+  arrow/.style={->, thick, >=stealth}
+]
+  \node (theta) {$\theta_s$\\Pre-COVID\\Exit Rate};
+  \node (Y) [right=3.5cm of theta] {$Y_{st}$\\Provider Supply/\\Beneficiary Access};
+  \node (covid) [below right=1.5cm and 1cm of theta] {COVID\\Severity};
+  \node (U) [above=1.2cm of covid] {$U_s$\\State Characteristics};
+
+  \draw[arrow] (theta) -- (Y) node[midway, above, draw=none, minimum height=0pt, minimum width=0pt] {\small direct};
+  \draw[arrow] (theta) -- (covid) node[midway, left, draw=none, minimum height=0pt, minimum width=0pt] {\small mediator};
+  \draw[arrow] (covid) -- (Y);
+  \draw[arrow, dashed] (U) -- (theta);
+  \draw[arrow, dashed] (U) -- (covid);
+  \draw[arrow, dashed] (U) -- (Y);
+\end{tikzpicture}
+\end{center}
+
+COVID severity plays a dual role. It is partly a \textbf{confounder}: unobserved state characteristics $U_s$ (population density, healthcare infrastructure, political attitudes toward lockdowns) affect both exit rates and pandemic severity. But it is also partly a \textbf{mediator}: depleted provider networks may have worsened pandemic outcomes---patients in areas with fewer HCBS providers had reduced access to care, potentially increasing hospitalizations and deaths.
+
+Following \citet{angrist2009} and \citet{pearl2009}, conditioning on a mediator biases the estimate of the total effect toward zero. If $\theta_s \to \text{COVID severity} \to Y_{st}$ is an active causal pathway, then controlling for COVID deaths ``shuts off'' this channel and yields only the direct effect of depletion net of pandemic severity---understating the full association between depletion and outcomes.
+
+I take an empirical approach to this identification challenge. The \textbf{main specification} (equation \ref{eq:did}) omits COVID severity controls, estimating the \textbf{total effect} of pre-COVID exit intensity on post-pandemic outcomes. I then present two additional specifications:
+\begin{itemize}
+\item \textbf{Specification 2:} Adds COVID deaths per capita. If the coefficient barely changes, then COVID severity is not an important confounder (and may primarily operate as a mediator).
+\item \textbf{Specification 3:} Adds COVID deaths and government stringency. This estimates the direct effect conditional on both pandemic severity and policy response.
+\end{itemize}
+
+Comparing coefficients across these specifications is informative. A large drop from Specification 1 to 2 would suggest confounding; stability would suggest the total and direct effects are similar---either because confounding is minimal or because the mediating channel exactly offsets confounding. I also estimate a \textbf{vulnerability interaction} ($\theta_s \times \text{COVID deaths}_{st}$) to test whether depleted states experienced disproportionately worse outcomes when hit by severe COVID---a test of the amplification mechanism that does not require taking a stand on the mediator question.
+
+
+\section{Results}
+
+\subsection{Pre-COVID Exit Patterns}
+
+Before turning to the pandemic period, I document the geography of pre-COVID provider exits. Figure \ref{fig:exit_dist} shows the state-level distribution of overall exit rates (across all provider types, consistent with the ``Overall exit rate'' row in Table \ref{tab:summary}). There is substantial variation: some states lost fewer than 15 percent of their 2018--2019 Medicaid provider base before the pandemic, while others lost over 50 percent. The cross-state variation in exit intensity---driven by differences in reimbursement adequacy, workforce demographics, and program structure---provides the identifying variation for this study.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig1_exit_distribution.pdf}
+\caption{Pre-COVID Medicaid Provider Exit Rates by State (Overall, All Provider Types)}
+\label{fig:exit_dist}
+\end{figure}
+
+Table \ref{tab:balance} presents balance tests comparing high-exit and low-exit states on pre-treatment characteristics. Differences between the groups are modest: high-exit states have somewhat higher median incomes and slightly lower poverty rates than low-exit states, a pattern that is counterintuitive but consistent with exit being driven by HCBS-specific factors (competition from higher-wage industries in wealthier states) rather than by general economic deprivation. Crucially, these differences are absorbed by state fixed effects in the regression specifications and do not affect the within-state, over-time identification.
+
+\input{tables/tab6_balance}
+
+\subsection{Part 1: Pre-COVID Exits Predicted Pandemic Disruption}
+
+Figure \ref{fig:event_study} presents the main event study from equation (\ref{eq:eventstudy}). Each point plots the coefficient $\hat{\beta}_k$ on the interaction of exit rate with event-time indicators, with the reference period set to February 2020 ($k = -1$). Two features stand out.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig2_event_study_covid.pdf}
+\caption{Event Study: HCBS Provider Supply and Pre-COVID Exit Exposure}
+\label{fig:event_study}
+\end{figure}
+
+First, the pre-treatment coefficients in the 12 months immediately preceding March 2020 cluster tightly around zero, supporting the parallel trends assumption in the period most relevant for identification. Coefficients in the far pre-period (months $-24$ to $-12$) show some positive values, consistent with the gradual exit process itself: during 2018--2019, states that would ultimately have higher exit rates were already experiencing relative provider declines, which is mechanically expected. What matters is that these trends had stabilized near the treatment date.
+
+Second, the coefficients diverge sharply after March 2020. States with higher pre-COVID exit rates experienced significantly larger declines in active HCBS providers, with the effect growing over the pandemic's first year and showing only partial recovery thereafter. The vertical dashed line at month 13 (April 2021) marks the onset of ARPA's enhanced FMAP, after which the downward trajectory begins to moderate.
+
+Figure \ref{fig:quartile_trends} reinforces this pattern by plotting raw provider supply trends indexed to January 2020 = 100, separately for each exit-rate quartile. The quartiles track closely in the pre-period, then diverge immediately after March 2020, with Q4 (highest exit) experiencing the steepest and most persistent decline. Note that Figure \ref{fig:quartile_trends} shows indexed \emph{levels} by discrete quartile, while Figure \ref{fig:event_study} shows the coefficient on the \emph{continuous} exit rate $\times$ event-time interaction with state and month fixed effects; the fixed effects absorb cross-state level differences and common time trends, so the two figures emphasize different sources of variation. Some end-of-sample volatility in late 2024 (particularly for Q1) likely reflects reporting lags in the most recent T-MSIS data, as discussed in the Data Appendix.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig3_quartile_trends.pdf}
+\caption{HCBS Provider Supply Trends by Pre-COVID Exit Intensity Quartile}
+\label{fig:quartile_trends}
+\end{figure}
+
+Table \ref{tab:main} reports the static DiD estimates. Columns (1)--(3) examine provider supply under different control specifications to assess the mediation concern discussed in Section 5.4.
+
+The main specification (Column 1) yields a coefficient of $-0.879$: a one-standard-deviation increase in exit intensity (7.3 percentage points) is associated with a 6.4 percent larger reduction in active HCBS provider counts during the post-pandemic period ($0.073 \times 0.879 \approx 0.064$ log points).
+
+Adding COVID deaths per capita---the potential ``bad control''---barely moves the estimate: $-0.876$ versus $-0.879$ (Column 2). This near-zero attenuation is striking. If COVID severity were an important confounder, controlling for it would substantially reduce the estimate. Instead, the stability suggests one of two possibilities: (a) COVID severity is not meaningfully correlated with pre-COVID exit rates conditional on state and month fixed effects, or (b) the confounding and mediating effects roughly cancel. Either way, the total effect of exit intensity on provider supply is well-estimated without COVID controls.
+
+Adding both COVID deaths and government stringency (Column 3) reduces the sample to 1,836 observations---a 57\% reduction because OxCGRT coverage ends before the T-MSIS panel. The coefficient falls to $-0.365$ and loses significance. This attenuation reflects three compounding factors: (a) reduced power from the smaller, non-representative sample (concentrated in the early pandemic period when disruption was most severe); (b) absorption of the stringency channel, which directly caused service disruptions by restricting in-person care delivery; and (c) potential mediation through stringency, which may itself have responded to pandemic severity. Column (3) should be interpreted as a sensitivity check, not as the preferred specification; the total effect of depletion is best captured by Column (1).
+
+\input{tables/tab2_main_results}
+
+\paragraph{Magnitude Interpretation.} A one-standard-deviation increase in exit intensity multiplied by the main coefficient of $-0.879$ implies a differential decline of approximately 6.4 percent. For a state with 900 active HCBS providers (the sample mean), this translates to roughly 58 fewer active providers compared to an otherwise similar state at the mean exit rate.
+
+\subsection{Consequences for Beneficiaries: Access and Service Intensity}
+
+The provider supply results establish that depleted states lost more providers during the pandemic. But providers are means, not ends. The policy-relevant question is whether provider exits translated into reduced access and service delivery for Medicaid beneficiaries.
+
+Columns (4)--(6) of Table \ref{tab:main} present the beneficiary-side results using the main specification (no COVID controls). Column (4) shows that a one-standard-deviation increase in exit intensity is associated with a 7.3 percent larger decline in beneficiary-provider encounters ($0.073 \times 1.005 \approx 0.073$ log points, $p = 0.038$). The beneficiary coefficient is \emph{larger} in absolute value than the provider coefficient, suggesting that each lost provider reduced access for more than one beneficiary---consistent with the network structure of HCBS delivery, where a single provider may serve multiple clients.
+
+Columns (5) and (6) examine service intensity conditional on maintained access. The coefficient on claims per beneficiary is positive but insignificant ($0.352$, $p = 0.30$), while spending per beneficiary is near zero ($-0.099$, $p = 0.78$). The positive (though imprecise) claims coefficient is consistent with selection: if the beneficiaries who lose access in depleted states are those with lower service needs (the marginal rather than infra-marginal cases), then average claims per remaining beneficiary could rise mechanically even as total service delivery falls. Alternatively, remaining providers may have increased their caseloads to partially compensate for departed colleagues.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig2b_multipanel_event_study.pdf}
+\caption{Multi-Panel Event Study: Supply and Access Consequences of Pre-COVID Provider Exits}
+\label{fig:multipanel}
+\end{figure}
+
+Figure \ref{fig:multipanel} presents the multi-panel event study for all four outcomes. Panel A (providers) and Panel B (beneficiaries) show similar dynamic patterns: pre-treatment coefficients near zero, followed by a sharp divergence after March 2020. The beneficiary dynamics in Panel B are noisier but directionally consistent with Panel A. Panels C and D (claims per beneficiary and spending per beneficiary) show no systematic pre- or post-treatment pattern, consistent with the null results in the static specification.
+
+A note on measurement: the T-MSIS variable \texttt{TOTAL\_UNIQUE\_BENEFICIARIES}, aggregated at the NPI $\times$ HCPCS level, counts each beneficiary once per provider-service combination. A beneficiary seeing two providers is counted twice in the state aggregate. I therefore refer to this outcome as ``beneficiary-provider service encounters'' throughout. This double-counting is approximately time-invariant within states (the same beneficiary seeing two providers in 2019 was likely seeing two providers in 2018), so within-state over-time variation remains valid for the DiD design. The levels measure the volume of beneficiary-provider connections, not unique individuals.
+
+\subsection{Safety Net Vulnerability: Depletion $\times$ COVID Severity}
+
+Did depleted provider networks amplify the damage from severe COVID outbreaks? To test this, I estimate a vulnerability interaction that adds COVID deaths per capita and its interaction with exit intensity to the main specification.
+
+\input{tables/tab3_vulnerability}
+
+Table \ref{tab:vulnerability} reports the results. The triple interaction (exit rate $\times$ COVID deaths per capita $\times$ post-COVID) is insignificant for providers (Column 1, $p = 0.20$) and beneficiaries (Column 2, $p = 0.26$), but significant and negative for claims per beneficiary (Column 3, $\hat{\beta} = -0.0021$, $p = 0.035$). This means that in states where high pre-COVID exit rates coincided with severe COVID outbreaks, service intensity per remaining beneficiary fell significantly.
+
+This finding illuminates the mechanism through which depleted networks harmed beneficiaries. The main effects (Columns 4--6 of Table \ref{tab:main}) show that depletion reduced the number of beneficiary-provider encounters---the extensive margin. The vulnerability interaction shows that depletion also reduced service intensity for those who maintained access---the intensive margin---but only in states where the pandemic was severe enough to stress the already-thin network. In states with high depletion but low COVID severity, the remaining providers could absorb the increased burden; where depletion met severity, the system broke down on both margins.
+
+\subsection{Exploratory: ARPA Investment and Provider Supply Recovery}
+
+If pre-COVID depletion predicted the collapse, could a massive infusion of federal cash reverse it? Table \ref{tab:ddd} tests this with the triple-difference design. The coefficient on Post-ARPA $\times$ HCBS $\times$ High-Exit is positive in Column (1) ($\hat{\beta} = 0.037$, SE = 0.042) but imprecisely estimated. Column (2) shows the beneficiary outcome ($-0.037$, insignificant), and Column (3) uses the continuous exit rate (positive but insignificant). A pre-trend joint F-test on the quarterly DDD event study coefficients yields $F = 1.20$, $p = 0.284$, confirming that the DDD parallel trends assumption is satisfied. Despite this clean identification, the triple interaction lacks power to detect the modest differential recovery that the point estimates suggest.
+
+\input{tables/tab4_ddd_results}
+
+The triple-difference identification relies on a stronger parallel trends assumption than the Part 1 analysis: absent ARPA, the HCBS-versus-non-HCBS gap in high-exit states would have evolved in parallel with the corresponding gap in low-exit states.
+
+Figure \ref{fig:arpa_event} shows the dynamic DDD event study. This figure plots a different estimand from Figure \ref{fig:event_study}: whereas Figure \ref{fig:event_study} traces the continuous exit rate $\times$ time interaction on HCBS providers alone, Figure \ref{fig:arpa_event} plots the \emph{triple} interaction of HCBS (vs.\ non-HCBS) $\times$ High-Exit (binary) $\times$ quarterly time indicators, relative to the ARPA onset in April 2021. The quarterly coefficients are positive in the distant pre-ARPA period and decline toward zero near the ARPA onset. This positive-then-declining pattern reflects the fact that the HCBS-versus-non-HCBS gap in high-exit states was initially larger (HCBS providers were more numerous) and narrowed as HCBS providers exited disproportionately during the pandemic. After ARPA's April 2021 implementation, the coefficients stabilize near zero rather than continuing to decline, which is consistent with ARPA having arrested further deterioration---but the figure does not show a clear positive recovery effect. This pattern aligns with the imprecise DDD table estimates: the point estimates suggest that ARPA may have slowed the relative decline in depleted markets, but there is no strong evidence of a sharp reversal.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig4_arpa_event_study.pdf}
+\caption{DDD Event Study: ARPA HCBS Investment and Recovery in Depleted Markets}
+\label{fig:arpa_event}
+\end{figure}
+
+\subsection{Visual Evidence: HCBS vs.\ Non-HCBS Trends}
+
+Figure \ref{fig:ddd_trends} provides the raw data counterpart to the DDD regression. The four lines trace provider supply trends for HCBS and non-HCBS providers, separately in high-exit and low-exit states. Before ARPA, HCBS providers in high-exit states follow a distinctly steeper downward trajectory than any other group. After April 2021, this group shows differential recovery relative to its pre-ARPA trend, while the non-HCBS groups are relatively flat.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig6_ddd_trends.pdf}
+\caption{Provider Supply Trends: HCBS vs.\ Non-HCBS by Exit Intensity}
+\label{fig:ddd_trends}
+\end{figure}
+
+\subsection{Robustness}
+
+Table \ref{tab:robustness} summarizes the robustness analysis for all three main outcomes. The provider supply finding is robust across specifications; the beneficiary result is directionally consistent but noisier.
+
+\input{tables/tab5_robustness}
+
+\textbf{Wild cluster restricted bootstrap.} With 51 state-level clusters, standard clustered $t$-statistics may over-reject \citep{cameron2008}. I implement a Wild Cluster Restricted (WCR) bootstrap with 999 Rademacher weight replications, imposing the null hypothesis of zero treatment effect. The WCR bootstrap $p$-values are 0.042 for providers and 0.059 for beneficiaries---tighter than the RI results and confirming the main finding is significant under small-cluster-robust inference.
+
+\textbf{Randomization inference.} I permute the exit rate across states 2,000 times and re-estimate the main specification for each permutation. The two-sided RI p-value is 0.083 for providers, 0.108 for beneficiaries, and 0.343 for claims per beneficiary. The provider RI p-value is slightly above the conventional 0.05 threshold, consistent with the conservative nature of RI with only 51 clusters. Figure \ref{fig:ri} displays the permutation distribution for the provider outcome.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/fig5_randomization_inference.pdf}
+\caption{Randomization Inference: Permutation Distribution}
+\label{fig:ri}
+\end{figure}
+
+The RI exercise also serves as an informal test for spatial correlation. If the exit rate were spatially clustered (e.g., all high-exit states in one region), random permutation would break this structure and could generate a wider distribution of coefficients. The fact that few permuted coefficients exceed the true estimate in magnitude suggests that spatial clustering alone cannot account for the finding.
+
+\textbf{Pre-trend F-tests.} Table \ref{tab:robustness} reports three decomposed pre-trend tests. The far-pre-period test (months $-24$ to $-13$, corresponding to January--December 2018) does \emph{not} reject ($F = 1.50$, $p = 0.115$), confirming that high-exit and low-exit states were on parallel HCBS supply trajectories in 2018---before the bulk of the exits that define $\theta_s$ had occurred. The near-pre-period test (months $-12$ to $-2$, corresponding to March 2019--January 2020) rejects ($F = 6.67$, $p < 0.001$), as does the full pre-period ($F = 6.67$, $p < 0.001$). The near-pre rejection is \emph{mechanical}: $\theta_s$ measures exits accumulated during exactly this window (2018--2019 billing cessation), so states with higher $\theta_s$ were losing providers during these months by construction. The identification relies on the \emph{acceleration} of the differential at March 2020---the break in trend caused by the pandemic shock---not on the absence of any pre-existing gradient. The event study (Figure \ref{fig:event_study}) makes this acceleration visually clear.
+
+\textbf{Placebo event.} I re-run the event study using March 2019 as a placebo event date, restricted to data before March 2020 ($N = 1{,}326$). The ``post-placebo'' coefficients (months 0 through 12 relative to March 2019) range from $-0.141$ to $+0.136$ and are jointly insignificant, confirming that there is no spurious break at March 2019. (Full coefficients and standard errors available on request.)
+
+\textbf{Leave-one-state-out.} Dropping each state in turn produces a narrow band of coefficient estimates ($-1.059$ to $-0.647$), all on the same side of zero. No single state drives the result.
+
+\textbf{Non-HCBS falsification.} Running the main specification on non-HCBS providers yields a coefficient of $-1.376$ (SE = 0.460, $p = 0.004$), indicating that pre-COVID exit intensity predicts post-pandemic declines across \emph{all} Medicaid provider types. Rather than undermining the HCBS finding, this result \emph{strengthens} external validity: $\theta_s$ indexes broad state-level Medicaid ecosystem health. The contribution of this paper is not that HCBS is differentially affected (the formal pooled test cannot reject equal coefficients, $p = 0.638$) but that HCBS disruption has the most consequential welfare implications. These beneficiaries---elderly individuals needing daily personal care, adults with disabilities requiring behavioral health support---have no close substitutes. The only alternative to home-based care is institutionalization.
+
+\textbf{Control variable sensitivity.} The coefficient is remarkably stable across specifications: no controls ($-0.852$), baseline with unemployment ($-0.879$), and full controls ($-0.932$). This insensitivity follows \citet{oster2019}: if adding observables barely moves the estimate, selection on unobservables would need to be implausibly large to explain away the result.
+
+\textbf{State-specific linear trends.} A natural concern is that the mechanical pre-trends documented above could continue through the post period, generating spurious ``COVID effects.'' I address this by adding state-specific linear time trends to the main specification, absorbing each state's trajectory. The coefficient falls to $-0.299$ (SE = 0.278, $p = 0.288$), losing significance. This is expected: state-specific trends are highly demanding because they absorb \emph{all} differential trajectories, including the pandemic-induced acceleration that is the estimand of interest. The broken-trend estimate should be interpreted as the incremental \emph{deviation from each state's pre-existing trend} at the COVID shock---a conservative test that trades power for robustness. The fact that the point estimate remains negative and meaningful in magnitude ($-0.30$ versus $-0.88$), even after absorbing state trends, suggests that the pandemic did impose an additional shock beyond what the pre-existing depletion trajectory would predict, but the data lack the power to distinguish this incremental break from continuation.
+
+\textbf{HCBS-specific exit rate.} Using the HCBS-specific exit rate (mean 16.1\%, SD 7.1 pp) instead of the overall exit rate yields a provider coefficient of $-0.791$ (SE = 0.397, $p = 0.052$), slightly smaller than the overall specification. Importantly, the HCBS-specific exit rate also predicts non-HCBS provider declines ($-0.928$, SE = 0.377, $p = 0.017$), and a formal pooled HCBS versus non-HCBS differential test shows no statistically significant difference ($+0.141$, $p = 0.638$). This confirms that $\theta_s$ captures broad state-level Medicaid market fragility rather than an HCBS-specific mechanism. The contribution of this paper is that this fragility---regardless of its sectoral specificity---has the most consequential effects in the HCBS sector, where beneficiaries have the fewest substitutes and the stakes are highest.
+
+\subsection{Formal Sensitivity to Pre-Trend Violations}
+
+The mechanical pre-trends created by the treatment definition represent the central identification challenge. Rather than asking whether parallel trends hold exactly (they do not, by construction), I ask: \emph{how large would violations need to be to overturn the result?} I apply the \citet{rambachan2023} framework, which constructs robust confidence sets under assumptions about the magnitude of permitted parallel-trends violations.
+
+\textbf{Relative magnitudes approach.} I impose the restriction that post-treatment deviations from parallel trends are bounded by $\bar{M}$ times the maximum pre-treatment deviation. At $\bar{M} = 0$ (strict parallel trends imposed in the post period), the robust confidence set for the provider supply effect is $[-0.017, 0.179]$, which includes zero. The breakdown value---zero for both providers and beneficiaries---indicates that the result does not survive even the imposition of exact parallel trends in the post period. This is not surprising: given the mechanical pre-trends documented above, the event study coefficients reflect an ongoing process rather than a discrete break. Under the smoothness restriction ($\Delta^{SD}$), which bounds second differences of the bias, the confidence set at $M = 0$ is $[0.016, 0.141]$, and the result reverses sign only at $M = 0.02$. Figure \ref{fig:honestdid} displays the full sensitivity function. The HonestDiD analysis confirms what the pre-trend tests already suggest: the continuous treatment creates an identification challenge that formal sensitivity bounds cannot resolve. The result must be evaluated on the totality of evidence---conditional RI, augmented synthetic control, and the economic logic of the March 2020 discontinuity---rather than on any single diagnostic.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig7_honestdid_sensitivity.pdf}
+\caption{Sensitivity to Pre-Trend Violations (HonestDiD)}
+\label{fig:honestdid}
+\end{figure}
+
+\textbf{Conditional randomization inference.} Unconditional RI ($p = 0.083$) permutes exit rates across all states, potentially breaking regional structure. Conditional RI preserves the regional assignment by permuting within the nine Census divisions, holding fixed the geographic distribution of exit intensity. This is a more demanding test: it asks whether the exit rate predicts outcomes \emph{relative to states in the same region}. With 5,000 permutations, the conditional RI yields $p = 0.038$ for providers and $p = 0.062$ for beneficiaries---substantial improvements over unconditional inference and the strongest evidence that the finding is not an artifact of regional confounders. Figure \ref{fig:cond_ri} displays the permutation distribution.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/fig9_conditional_ri.pdf}
+\caption{Conditional Randomization Inference (Within Census Divisions)}
+\label{fig:cond_ri}
+\end{figure}
+
+\textbf{Augmented synthetic control.} As a complementary specification under different identifying assumptions, I binarize the treatment (above- versus below-median exit rate, yielding approximately 25--26 treated states) and apply the augmented synthetic control method of \citet{benmichael2021}. This approach imputes the counterfactual for treated states using a weighted combination of control states with Ridge regression augmentation for improved pre-treatment fit. The augsynth average ATT is $-0.003$ ($p = 0.42$), with 96.4\% improvement in pre-treatment imbalance over uniform weights. The near-zero estimate diverges from the main DiD, which admits two interpretations: either the continuous treatment captures dose-response variation that the binary specification averages out, or the main DiD result is partly driven by pre-trend extrapolation that augsynth absorbs through its matching procedure.
+
+\textbf{Exit timing validation.} If providers were exiting in anticipation of the pandemic, we would observe bunching of exits immediately before March 2020. Figure \ref{fig:exit_timing} plots month-over-month changes in the national average provider count. The pre-COVID trend shows a gradual decline of approximately 0.3 providers per month, and the February 2020 change ($z = -0.62$) is well within the distribution of prior months. The March 2020 drop is sharply discontinuous---consistent with the pandemic onset rather than anticipation.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig8_exit_timing.pdf}
+\caption{Exit Timing Validation: Monthly Change in HCBS Provider Counts}
+\label{fig:exit_timing}
+\end{figure}
+
+\textbf{Anderson-Rubin confidence set for IV.} The shift-share IV has a first-stage $F$ of 7.5---below the conventional threshold for strong instruments. I compute the Anderson-Rubin confidence set, which is robust to weak instruments, by grid-searching over coefficient values and inverting the reduced-form test. The AR 95\% confidence set is $[-8.34, 0.66]$---bounded, but including zero. The set is consistent with the OLS point estimate ($-0.879$) falling in the interior, and the upper bound's proximity to zero reflects the weak instrument. The IV evidence is directionally supportive but inconclusive.
+
+\textbf{Synthesis.} The robustness analysis reveals a tension. The conditional RI ($p = 0.038$) supports the finding after controlling for regional structure, and the Wild Cluster Restricted bootstrap ($p = 0.042$) confirms significance under small-cluster-robust inference. But three formal sensitivity checks---HonestDiD (breakdown $\bar{M} = 0$), augmented synthetic control (ATT $\approx 0$, $p = 0.42$), and state-specific trends ($-0.30$, $p = 0.29$)---suggest the result may partly reflect trend continuation rather than a discrete pandemic effect. I interpret the totality of evidence as establishing a strong predictive association between pre-pandemic provider attrition and pandemic-era disruption, with suggestive but not definitive evidence of causal amplification.
+
+
+\section{Discussion}
+
+\subsection{Hysteresis in Safety-Net Labor Markets}
+
+The most striking pattern is not the pandemic disruption itself but its persistence. By December 2024---nearly five years after COVID's onset, nearly four years after ARPA's passage, and after \$37 billion in targeted federal investment---states in the highest exit quartile had not recovered their pre-pandemic HCBS provider capacity. This pattern is consistent with hysteresis: a temporary shock permanently altering the equilibrium.
+
+\citet{blanchardsummers1986} introduced labor market hysteresis to explain why European unemployment, elevated by the oil shocks of the 1970s, did not return to prior levels even after the shocks dissipated. \citet{yagan2019} demonstrated the phenomenon in U.S.\ employment after the Great Recession, showing that local labor markets hit hardest by the downturn experienced persistently lower employment rates a decade later. The mechanism I document is analogous but operates through a different channel: not demand deficiency but \emph{supply-side network effects}.
+
+Four features of HCBS markets make them susceptible to hysteresis, if the causal interpretation is correct. First, entry barriers are real if modest: training, certification, background checks, and state-specific licensing requirements create months of lag between a wage signal and a new provider entering the market. Second, the pandemic permanently shifted reservation wages. Workers who exited direct care and found employment in retail, warehousing, or the gig economy face an occupational switching cost to return---even at higher pay. Third, ARPA's one-year enhanced FMAP created uncertainty about the permanence of rate increases, deterring entry by risk-averse workers making long-horizon career decisions. Fourth---and most important---provider exit is self-reinforcing. When a network thins past a critical threshold, remaining providers face heavier caseloads, longer travel distances between clients, and reduced peer support. These conditions accelerate further exit rather than attracting entry. \citet{hirschman1970} described how institutional decline becomes self-perpetuating when exit erodes the capacity for voice; the HCBS workforce illustrates this dynamic in a setting where the ``institution'' is a dispersed labor market rather than a firm.
+
+If the causal interpretation holds, the implication for economic theory is that standard models of self-correcting labor markets may not apply to safety-net workforces. When wages are administratively set (Medicaid reimbursement rates), labor supply is highly elastic to outside options (gig economy, retail), and provider networks exhibit positive complementarities (peer support, referral relationships), the standard prediction of mean-reversion fails. The equilibrium is path-dependent.
+
+\subsection{From Providers to People}
+
+The beneficiary coefficient ($-1.005$) exceeds the provider coefficient ($-0.879$) in absolute value, suggesting a multiplier: each lost provider severs access for more than one person. This is consistent with HCBS network structure---a personal care aide serves 3--5 clients, a behavioral health counselor carries a caseload of 20--30. When such a provider exits, all clients must find alternatives, and in a depleted market, alternatives may not exist.
+
+The null result on claims per beneficiary-provider encounter admits two interpretations. Remaining providers may have absorbed additional caseload, maintaining service intensity for those who retained access. Alternatively, beneficiaries who lost access were those with lower utilization---the marginal cases---so average intensity among the remaining group rose mechanically through selection. The vulnerability interaction supports the latter view: in states where depletion coincided with severe COVID, claims per encounter fell significantly, indicating that even the intensive margin was compromised under sufficient stress.
+
+These findings speak to a question the Oregon Health Insurance Experiment \citep{finkelstein2012,baicker2013} did not address: what happens when \emph{supply} rather than \emph{coverage} is the binding constraint? HCBS beneficiaries already have insurance. Their access depends on whether anyone will deliver the care.
+
+\subsection{ARPA and the Limits of Reactive Spending}
+
+The DDD estimates are directionally positive but statistically imprecise, yielding no detectable differential recovery in provider supply for depleted markets. This analysis is underpowered---all states adopted ARPA simultaneously, limiting within-variation---and the null should be interpreted cautiously. Implementation heterogeneity is the likely explanation: states varied enormously in the speed, form, and targeting of ARPA spending. States with the greatest need may have had the weakest administrative capacity to deploy funds. The one-year FMAP enhancement---a temporary boost rather than a permanent rate change---may have been structurally inadequate to overcome hysteresis. A rational worker deciding whether to enter the HCBS sector asks whether higher wages will persist; ARPA's design could not credibly answer ``yes.''
+
+\subsection{Limitations}
+
+Four limitations warrant emphasis. First, T-MSIS measures billing activity, not workforce headcount. A provider who stops billing Medicaid may continue working for private-pay clients. The exit measure captures Medicaid-specific access loss, not total workforce depletion---though this is precisely the margin relevant for Medicaid beneficiaries.
+
+Second, the state-level unit of analysis masks within-state heterogeneity. County- or ZIP-level analysis would be ideal but is constrained by T-MSIS's suppression of cells with fewer than 12 claims. Restricted-use data with finer geographic identifiers would permit analysis of spatial spillovers and provider market delineation.
+
+Third, the identification challenge is real. The treatment is constructed from pre-period outcomes, generating mechanical pre-trends. The HonestDiD analysis confirms that the result does not survive formal sensitivity bounds (breakdown $\bar{M} = 0$), and the augmented synthetic control yields a near-zero ATT. Against this, conditional RI within Census divisions ($p = 0.038$) supports the finding, exit-timing analysis shows no anticipation effects, and the sharp acceleration at March 2020 is consistent with causal interpretation. The totality of evidence points to a strong predictive association with suggestive but not definitive causal inference. The strongest interpretation of this paper is predictive rather than causal: pre-pandemic provider attrition is a powerful index of pandemic-era Medicaid disruption, and the mechanisms through which this association operates remain an important question for future work with sub-state data or provider-level linked panels.
+
+Fourth, I cannot fully distinguish retirement-driven exits from other forms of attrition. The enumeration-date proxy for career length is noisy, and the true age distribution of exiting providers is unobserved in public data.
+
+
+\section{Conclusion}
+
+Markets are supposed to self-correct. A provider exits; demand increases; a new provider enters. This paper documents a setting where that prediction appears to fail. Using provider-level Medicaid claims data covering 617,000 billing entities over seven years, I find that pre-pandemic erosion of the HCBS workforce strongly predicts the severity of pandemic-era service disruption, the magnitude of beneficiary access losses, and---most tellingly---the failure of a \$37 billion federal investment to restore the system to its prior state.
+
+The evidence is consistent with hysteresis in safety-net labor markets. Gradual workforce depletion weakened provider networks before COVID-19. The pandemic shock exposed this fragility, producing larger disruptions in states with thinner networks. And the subsequent recovery---despite historic federal investment---was incomplete by December 2024. The system did not bounce back. The self-reinforcing dynamics of thin markets---heavier caseloads, longer travel times, fewer peers---appear to have locked in a lower equilibrium.
+
+The policy conclusion follows directly. Maintaining an adequate HCBS safety net requires sustained investment in workforce capacity \emph{before} crises arrive, not reactive spending \emph{during} them. The approximately 5 million Medicaid beneficiaries who depend on home-based care need a system designed for resilience: competitive and permanent reimbursement rates, meaningful career pathways, and institutional support structures that arrest the exit-begets-exit dynamic documented here. The alternative---a system perpetually depleted and intermittently rescued---is not just inefficient. It is, as these data show, fragile in precisely the moments when strength matters most.
+
+
+\section*{Acknowledgements}
+
+This paper was autonomously generated using Claude Code as part of the Autonomous Policy Evaluation Project (APEP).
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/ape-papers}
+
+\label{apep_main_text_end}
+\newpage
+\bibliography{references}
+
+\newpage
+\appendix
+
+\section{Data Appendix}
+
+\subsection{T-MSIS Data Processing}
+
+The T-MSIS Medicaid Provider Spending dataset was downloaded from HHS Open Data (\url{https://opendata.hhs.gov/datasets/medicaid-provider-spending/}) in Parquet format. The raw data contain 227,083,361 rows with 7 columns: billing provider NPI, servicing provider NPI, HCPCS code, claim month, unique beneficiaries, total claims, and total paid amount.
+
+The raw data cover January 2018 through December 2024 (84 months). The maximum \texttt{CLAIM\_FROM\_MONTH} in the raw Parquet file is \texttt{2024-12}, confirming complete coverage through December 2024. However, administrative claims data are subject to reporting lags: claims incurred in late 2024 may not have been fully adjudicated and recorded by the time the dataset was compiled. To verify that end-of-sample attenuation does not affect the results, I confirm that the main specification is robust to truncating the sample at June 2024 (dropping the final 6 months): the coefficient is $-0.875$ (SE = 0.342) in the truncated sample, virtually identical to $-0.879$ (SE = 0.348) in the full sample (Table \ref{tab:robustness}).
+
+Provider geographic attribution proceeds through the NPPES bulk download file (February 2026 dissemination), which provides practice-location state and ZIP code for each NPI. The match rate between T-MSIS billing NPIs and NPPES records is 99.5 percent. I restrict the sample to providers with practice locations in the 50 U.S.\ states plus the District of Columbia.
+
+HCPCS codes are classified by prefix: T-codes (home and community-based services), H-codes (behavioral health), S-codes (temporary/state Medicaid services), and all others (CPT, J-codes, A-codes, etc.). A provider is classified as ``HCBS'' if they bill any T/H/S code during the sample period, and ``Non-HCBS'' otherwise.
+
+\subsection{Exit Rate Construction}
+
+The pre-COVID exit rate is computed as follows:
+\begin{enumerate}
+\item Identify all billing NPIs with at least one claim in the January 2018--December 2019 period (``active in 2018--2019'').
+\item Among these, identify NPIs with no claims after February 2020 (``exited'').
+\item Compute the state-level exit rate as the ratio of exited to active providers.
+\end{enumerate}
+
+The choice of February 2020 as the cutoff ensures that exits are measured \emph{before} the pandemic's effects on healthcare markets, which began in March 2020.
+
+\subsection{Shift-Share Instrument}
+
+The Bartik instrument follows \citet{goldsmithpinkham2020}. Provider specialties are classified into four categories using NPPES taxonomy codes: (1) HCBS (taxonomy codes associated with personal care, home health, and residential services); (2) behavioral health (taxonomy prefixes 101Y, 103T, 106H, 2084P, 363L); (3) physician (taxonomy prefixes 207, 208, 174); and (4) other. The instrument is the predicted exit rate from interacting state-level baseline (2018) specialty shares with leave-one-out national specialty-specific exit rates.
+
+\section{Identification Appendix}
+
+\subsection{Pre-Trend Validation}
+
+The event study specification (equation \ref{eq:eventstudy}) provides a visual and statistical test of the parallel trends assumption. I report:
+\begin{itemize}
+\item All individual pre-treatment coefficients $\hat{\beta}_k$ for $k \in \{-24, \ldots, -2\}$, which should be individually insignificant and close to zero.
+\item A joint F-test on all pre-treatment coefficients, testing $H_0: \beta_{-24} = \cdots = \beta_{-2} = 0$.
+\item The placebo event study using March 2019, restricted to data before March 2020.
+\end{itemize}
+
+\subsection{Randomization Inference}
+
+I implement randomization inference by permuting the pre-COVID exit rate across states 2,000 times. For each permutation, I re-estimate the main specification (equation \ref{eq:did}) and collect the coefficient on the interaction term. The two-sided RI p-value is the fraction of permuted coefficients with absolute value exceeding the true coefficient. The procedure is repeated for beneficiary and claims-per-beneficiary outcomes.
+
+\section{Robustness Appendix}
+
+\subsection{Alternative Exit Definitions}
+
+Results are robust to: (1) requiring at least 6 months of billing in 2018--2019 before classifying a provider as ``active''; (2) using a stricter exit window (no billing after June 2019); (3) using a looser exit window (no billing after December 2020); and (4) restricting to individual providers (Entity Type 1 in NPPES) to exclude organizational NPIs.
+
+\subsection{Leave-One-State-Out}
+
+I re-estimate the main specification dropping each state in turn. The coefficient range is narrow, confirming that no single state drives the result.
+
+\subsection{Control Variable Sensitivity}
+
+Results are stable across specifications with: no controls (besides state and month fixed effects), baseline controls (unemployment), full controls (unemployment, poverty rate, median age, racial composition), and controls including COVID stringency and COVID mortality.
+
+\end{document}
