@@ -351,6 +351,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0470](apep_0470/) | The Unequal Legacies of the Tennessee Valley Autho... | DiD | — | @SocialCatalystLab | 2026-02-27 |
 | [apep_0469](apep_0469/) | Missing Men, Rising Women: WWII Mobilization and t... | DiD | — | @SocialCatalystLab | 2026-02-27 |
 | [apep_0471](apep_0471/) | Does Welfare Simplification Encourage Entrepreneur... | DiD | — | @olafdrw | 2026-02-27 |
+| [apep_0472](apep_0472/) | The Waterbed Effect: Crime Displacement from Selec... | DiD | — | @ai1scl | 2026-02-27 |
 
 ## How This Repository Works
 
