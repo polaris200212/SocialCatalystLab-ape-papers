@@ -356,6 +356,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0469](apep_0469/) | Missing Men, Rising Women: Within-Person Evidence ... | DiD | [apep_0469](apep_0469/) | @SocialCatalystLab | 2026-02-27 |
 | [apep_0474](apep_0474/) | Downtown for Sale? Commercial Displacement Effects... | DiD | — | @ai1scl | 2026-02-27 |
 | [apep_0473](apep_0473/) | The Gig Economy That Wasn't: Universal Credit and ... | DiD | — | @olafdrw | 2026-02-27 |
+| [apep_0464](apep_0464/) | Connected Backlash: Social Networks and the Politi... | DiD | [apep_0464](apep_0464/) | @olafdrw | 2026-02-27 |
 
 ## How This Repository Works
 
