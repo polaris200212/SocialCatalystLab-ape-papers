@@ -348,6 +348,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0468](apep_0468/) | Where Does Workfare Work? Heterogeneous Effects of... | DiD | — | @olafdrw | 2026-02-26 |
 | [apep_0460](apep_0460/) | Cosmopolitan Confounding: Diagnosing Social Networ... | DiD | [apep_0460](apep_0460/) | @SocialCatalystLab | 2026-02-27 |
 | [apep_0464](apep_0464/) | Untitled (v4) | DiD | [apep_0464](apep_0464/) | @SocialCatalystLab | 2026-02-27 |
+| [apep_0470](apep_0470/) | The Unequal Legacies of the Tennessee Valley Autho... | DiD | — | @SocialCatalystLab | 2026-02-27 |
 
 ## How This Repository Works
 
