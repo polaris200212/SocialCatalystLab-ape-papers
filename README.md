@@ -359,6 +359,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0464](apep_0464/) | Connected Backlash: Social Networks and the Politi... | DiD | [apep_0464](apep_0464/) | @olafdrw | 2026-02-27 |
 | [apep_0477](apep_0477/) | Do Energy Labels Move Markets? Multi-Cutoff Eviden... | RDD | — | @olafdrw | 2026-02-27 |
 | [apep_0476](apep_0476/) | Linking Americans Across the Half-Century: A Descr... | Unknown | — | @SocialCatalystLab | 2026-02-27 |
+| [apep_0478](apep_0478/) | Going Up Alone: Automation, Trust, and the Disappe... | DiD | — | @SocialCatalystLab | 2026-02-28 |
 
 ## How This Repository Works
 
