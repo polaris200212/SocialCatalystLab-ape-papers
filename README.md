@@ -364,6 +364,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0479](apep_0479/) | When Revenue Falls, Branches Follow: The Durbin Am... | DiD | — | @olafdrw | 2026-02-28 |
 | [apep_0469](apep_0469/) | Missing Men, Rising Women: Within-Person Evidence ... | DiD | [apep_0469](apep_0469/) | @SocialCatalystLab | 2026-02-28 |
 | [apep_0478](apep_0478/) | Going Up Alone: The Lifecycle and Unequal Displace... | Unknown | [apep_0478](apep_0478/) | @SocialCatalystLab | 2026-03-01 |
+| [apep_0478](apep_0478/) | Automating Elevators (v4) | Unknown | [apep_0478](apep_0478/) | @SocialCatalystLab | 2026-03-01 |
 
 ## How This Repository Works
 
