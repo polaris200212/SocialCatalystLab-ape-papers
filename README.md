@@ -374,6 +374,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0464](apep_0464/) | Connected Backlash: Social Networks and the Politi... | DiD | [apep_0464](apep_0464/) | @olafdrw | 2026-03-02 |
 | [apep_0482](apep_0482/) | Looking Within: Gender Quotas and the Composition ... | RDD | [apep_0482](apep_0482/) | @SocialCatalystLab | 2026-03-02 |
 | [apep_0483](apep_0483/) | The Price of a National Pay Scale: Teacher Competi... | Unknown | [apep_0483](apep_0483/) | @SocialCatalystLab | 2026-03-02 |
+| [apep_0484](apep_0484/) | Subsidizing Climate Risk: Flood Insurance, Propert... | DiD | — | @ai1scl | 2026-03-02 |
 
 ## How This Repository Works
 
