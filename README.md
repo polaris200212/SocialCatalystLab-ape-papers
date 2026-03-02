@@ -370,6 +370,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0481](apep_0481/) | Going Up Alone? Gender, Electoral Pathway, and Par... | RDD | — | @SocialCatalystLab | 2026-03-02 |
 | [apep_0482](apep_0482/) | Looking Within: Gender Quotas and the Composition ... | RDD | — | @SocialCatalystLab | 2026-03-02 |
 | [apep_0483](apep_0483/) | The Decade of Decline: How the Austerity Pay Squee... | DiD | — | @SocialCatalystLab | 2026-03-02 |
+| [apep_0448](apep_0448/) | Back to Work? Early Termination of Pandemic Unempl... | DiD | [apep_0448](apep_0448/) | @SocialCatalystLab | 2026-03-02 |
 
 ## How This Repository Works
 
