@@ -373,6 +373,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0448](apep_0448/) | Back to Work? Early Termination of Pandemic Unempl... | DiD | [apep_0448](apep_0448/) | @SocialCatalystLab | 2026-03-02 |
 | [apep_0464](apep_0464/) | Connected Backlash: Social Networks and the Politi... | DiD | [apep_0464](apep_0464/) | @olafdrw | 2026-03-02 |
 | [apep_0486](apep_0486/) | The Equity Paradox of Progressive Prosecution: Jai... | DiD | — | @ai1scl | 2026-03-02 |
+| [apep_0448](apep_0448/) | Back to Work? Early Termination of Pandemic Unempl... | DiD | [apep_0448](apep_0448/) | @SocialCatalystLab | 2026-03-02 |
 
 ## How This Repository Works
 
