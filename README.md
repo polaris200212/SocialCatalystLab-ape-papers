@@ -1,8 +1,6 @@
-# APEP Working Papers
+# APE Working Papers
 
-**Autonomous Policy Evaluation Project**
-
-Empirical research papers produced by AI agents, targeting the rigor of top economics journals (AER, QJE, JPE, AEJ: Economic Policy).
+**Autonomous Policy Evaluation**
 
 This repository contains the complete, publicly available archive of all APEP working papers—including PDFs, LaTeX source, analysis code, and replication data.
 
@@ -177,10 +175,207 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0176](apep_0176/) | Shining Light on Nothing? Null Effects of Salary T... | DiD | [apep_0174](apep_0174/) | @SocialCatalystLab | 2026-02-03 |
 | [apep_0177](apep_0177/) | The Atlas of Self-Employment in America: Incorpora... | RDD | [apep_0055](apep_0055/) | @SocialCatalystLab | 2026-02-03 |
 | [apep_0178](apep_0178/) | Does Incorporation Pay? Legal Form, Gender, and th... | Unknown | [apep_0175](apep_0175/) | @SocialCatalystLab | 2026-02-03 |
+| [apep_0179](apep_0179/) | Coverage Cliffs and the Cost of Discontinuity: Hea... | RDD | [apep_0177](apep_0177/) | @SocialCatalystLab | 2026-02-04 |
+| [apep_0180](apep_0180/) | The Marginal Value of Public Funds for Uncondition... | Unknown | — | @SocialCatalystLab | 2026-02-04 |
+| [apep_0181](apep_0181/) | State Earned Income Tax Credit Generosity and Crim... | DiD | [apep_0076](apep_0076/) | @SocialCatalystLab | 2026-02-04 |
+| [apep_0182](apep_0182/) | The Marginal Value of Public Funds for Uncondition... | DiD | [apep_0180](apep_0180/) | @SocialCatalystLab | 2026-02-04 |
+| [apep_0183](apep_0183/) | High on Employment? A Spatial Difference-in-Discon... | DiD | — | @SocialCatalystLab | 2026-02-04 |
+| [apep_0184](apep_0184/) | The Marginal Value of Public Funds for Uncondition... | DiD | [apep_0182](apep_0182/) | @SocialCatalystLab | 2026-02-04 |
+| [apep_0185](apep_0185/) | Social Network Minimum Wage Exposure: A New County... | DiD | — | @SocialCatalystLab | 2026-02-04 |
+| [apep_0186](apep_0186/) | Social Network Minimum Wage Exposure: A New County... | DiD | [apep_0185](apep_0185/) | @SocialCatalystLab | 2026-02-05 |
+| [apep_0187](apep_0187/) | Social Network Minimum Wage Exposure: Causal Evide... | Unknown | [apep_0186](apep_0186/) | @SocialCatalystLab | 2026-02-05 |
+| [apep_0188](apep_0188/) | Social Network Minimum Wage Exposure: Causal Evide... | Unknown | [apep_0187](apep_0187/) | @SocialCatalystLab | 2026-02-06 |
+| [apep_0189](apep_0189/) | Information Volume Matters: Causal Evidence on Net... | Unknown | [apep_0188](apep_0188/) | @SocialCatalystLab | 2026-02-06 |
+| [apep_0190](apep_0190/) | Information Volume Matters: Causal Evidence on Net... | Unknown | [apep_0189](apep_0189/) | @SocialCatalystLab | 2026-02-06 |
+| [apep_0191](apep_0191/) | Friends in High Places: How Social Networks Transm... | Unknown | [apep_0190](apep_0190/) | @SocialCatalystLab | 2026-02-06 |
+| [apep_0192](apep_0192/) | The Marginal Value of Public Funds for Uncondition... | DiD | [apep_0184](apep_0184/) | @SocialCatalystLab | 2026-02-06 |
+| [apep_0193](apep_0193/) | Friends in High Places: How Social Networks Transm... | Unknown | [apep_0191](apep_0191/) | @SocialCatalystLab | 2026-02-06 |
+| [apep_0194](apep_0194/) | Digital Exodus or Digital Magnet? How State Data P... | DiD | — | @SocialCatalystLab | 2026-02-06 |
+| [apep_0195](apep_0195/) | Shining Light on Paychecks: The Effects of Salary ... | Unknown | [apep_0162](apep_0162/) | @SocialCatalystLab | 2026-02-06 |
+| [apep_0196](apep_0196/) | Do State College Promise Programs Increase Enrollm... | DiD | — | @olafdrw | 2026-02-06 |
+| [apep_0197](apep_0197/) | Friends in High Places: How Social Networks Transm... | Unknown | [apep_0193](apep_0193/) | @SocialCatalystLab | 2026-02-06 |
+| [apep_0198](apep_0198/) | The Marginal Value of Public Funds for Uncondition... | DiD | [apep_0184](apep_0184/) | @olafdrw | 2026-02-06 |
+| [apep_0199](apep_0199/) | The Marginal Value of Public Funds for Uncondition... | DiD | [apep_0184](apep_0184/) | @SocialCatalystLab | 2026-02-06 |
+| [apep_0200](apep_0200/) | Environmental Regulation and Housing Supply: Sub-N... | DiD | [apep_0128](apep_0128/) | @SocialCatalystLab | 2026-02-06 |
+| [apep_0201](apep_0201/) | Friends in High Places: How Social Networks Transm... | Unknown | [apep_0197](apep_0197/) | @SocialCatalystLab | 2026-02-06 |
+| [apep_0202](apep_0202/) | Friends in High Places: How Social Networks Transm... | Unknown | [apep_0201](apep_0201/) | @SocialCatalystLab | 2026-02-06 |
+| [apep_0203](apep_0203/) | Friends in High Places: Social Network Connections... | Unknown | [apep_0202](apep_0202/) | @SocialCatalystLab | 2026-02-06 |
+| [apep_0204](apep_0204/) | Shining Light on Paychecks: The Effects of Salary ... | Unknown | [apep_0195](apep_0195/) | @SocialCatalystLab | 2026-02-06 |
+| [apep_0205](apep_0205/) | Friends in High Places: Social Network Connections... | Unknown | [apep_0203](apep_0203/) | @SocialCatalystLab | 2026-02-07 |
+| [apep_0206](apep_0206/) | Making Wages Visible: Labor Market Dynamics Under ... | Unknown | [apep_0204](apep_0204/) | @SocialCatalystLab | 2026-02-07 |
+| [apep_0207](apep_0207/) | Friends in High Places: Social Network Connections... | Unknown | [apep_0205](apep_0205/) | @SocialCatalystLab | 2026-02-07 |
+| [apep_0208](apep_0208/) | Making Wages Visible: Labor Market Dynamics Under ... | Unknown | [apep_0206](apep_0206/) | @SocialCatalystLab | 2026-02-07 |
+| [apep_0209](apep_0209/) | Making Wages Visible: Labor Market Dynamics Under ... | Unknown | [apep_0208](apep_0208/) | @SocialCatalystLab | 2026-02-07 |
+| [apep_0210](apep_0210/) | Does Local Climate Policy Build Demand for Nationa... | RDD | [apep_0133](apep_0133/) | @SocialCatalystLab | 2026-02-07 |
+| [apep_0211](apep_0211/) | Friends in High Places: Social Network Connections... | Unknown | [apep_0207](apep_0207/) | @SocialCatalystLab | 2026-02-07 |
+| [apep_0212](apep_0212/) | Moral Foundations Under Digital Pressure: Does Bro... | Unknown | [apep_0052](apep_0052/) | @SocialCatalystLab | 2026-02-07 |
+| [apep_0194](apep_0194/) | Digital Exodus or Digital Magnet? How State Data P... | DiD | [apep_0194](apep_0194/) | @olafdrw | 2026-02-08 |
+| [apep_0054](apep_0054/) | Shining Light on Nothing? Null Effects of Salary T... | DiD | [apep_0054](apep_0054/) | @olafdrw | 2026-02-08 |
+| [apep_0088](apep_0088/) | Does Local Climate Policy Build Demand for Nationa... | RDD | [apep_0088](apep_0088/) | @olafdrw | 2026-02-09 |
+| [apep_0185](apep_0185/) | Friends in High Places: Social Network Connections... | Unknown | [apep_0185](apep_0185/) | @ai1scl | 2026-02-09 |
+| [apep_0038](apep_0038/) | Betting on Jobs? The Employment Effects of Legal S... | DiD | [apep_0038](apep_0038/) | @olafdrw | 2026-02-09 |
+| [apep_0049](apep_0049/) | Does Federal Transit Funding Improve Local Labor M... | RDD | [apep_0049](apep_0049/) | @olafdrw | 2026-02-09 |
+| [apep_0055](apep_0055/) | Coverage Cliffs and the Cost of Discontinuity: Hea... | RDD | [apep_0055](apep_0055/) | @ai1scl | 2026-02-09 |
+| [apep_0149](apep_0149/) | Does the Safety Net Bite Back? Medicaid Postpartum... | DiD | [apep_0149](apep_0149/) | @olafdrw | 2026-02-09 |
+| [apep_0180](apep_0180/) | The Marginal Value of Public Funds for Uncondition... | DiD | [apep_0180](apep_0180/) | @ai1scl | 2026-02-10 |
+| [apep_0069](apep_0069/) | The Thermostatic Voter: Why Local Policy Success F... | RDD | [apep_0069](apep_0069/) | @ai1scl | 2026-02-10 |
+| [apep_0213](apep_0213/) | Legislating the Schoolyard Online: Do Anti-Cyberbu... | DiD | — | @ai1scl | 2026-02-10 |
+| [apep_0215](apep_0215/) | The Innovation Cost of Privacy: How State Data Pri... | DiD | — | @ai1scl | 2026-02-10 |
+| [apep_0216](apep_0216/) | The Innovation Cost of Privacy: How State Data Pri... | DiD | — | @ai1scl | 2026-02-10 |
+| [apep_0219](apep_0219/) | The Distress Label Trap: Place-Based Aid and Econo... | RDD | — | @SocialCatalystLab | 2026-02-11 |
+| [apep_0220](apep_0220/) | Who Believes God Forgives? A Comprehensive Cross-C... | Unknown | — | @SocialCatalystLab | 2026-02-11 |
+| [apep_0219](apep_0219/) | The Distress Label Trap: Place-Based Aid and Econo... | RDD | [apep_0219](apep_0219/) | @SocialCatalystLab | 2026-02-11 |
+| [apep_0220](apep_0220/) | Who Believes God Forgives? Divine Punishment Belie... | Unknown | [apep_0220](apep_0220/) | @SocialCatalystLab | 2026-02-11 |
+| [apep_0222](apep_0222/) | The Dog That Didn't Bark: Educational Content Rest... | DiD | — | @SocialCatalystLab | 2026-02-11 |
+| [apep_0219](apep_0219/) | The Limits of Marginal Aid: A Regression Discontin... | RDD | [apep_0219](apep_0219/) | @SocialCatalystLab | 2026-02-11 |
+| [apep_0224](apep_0224/) | The Dog That Didn't Bark: School Suicide Preventio... | DiD | — | @ai1scl | 2026-02-11 |
+| [apep_0219](apep_0219/) | The Limits of Marginal Aid: A Regression Discontin... | RDD | [apep_0219](apep_0219/) | @SocialCatalystLab | 2026-02-11 |
+| [apep_0119](apep_0119/) | Do Energy Efficiency Resource Standards Reduce Ele... | DiD | [apep_0119](apep_0119/) | @SocialCatalystLab | 2026-02-11 |
+| [apep_0222](apep_0222/) | The Dog That Didn't Bark: Educational Content Rest... | DiD | [apep_0222](apep_0222/) | @SocialCatalystLab | 2026-02-11 |
+| [apep_0119](apep_0119/) | Do Energy Efficiency Resource Standards Reduce Ele... | DiD | [apep_0119](apep_0119/) | @SocialCatalystLab | 2026-02-11 |
+| [apep_0038](apep_0038/) | Betting on Jobs? The Employment Effects of Legal S... | DiD | [apep_0038](apep_0038/) | @SocialCatalystLab | 2026-02-11 |
+| [apep_0227](apep_0227/) | Can Drug Checking Save Lives? Evidence from Stagge... | DiD | — | @ai1scl | 2026-02-11 |
+| [apep_0230](apep_0230/) | Your Backyard, Your Rules? The Capitalization of C... | DiD | — | @ai1scl | 2026-02-11 |
+| [apep_0232](apep_0232/) | The Geography of Monetary Transmission: Household ... | Unknown | — | @SocialCatalystLab | 2026-02-12 |
+| [apep_0235](apep_0235/) | Who Bears the Burden of Monetary Tightening? Heter... | Unknown | — | @SocialCatalystLab | 2026-02-12 |
+| [apep_0236](apep_0236/) | Licensing to Log In: The Interstate Medical Licens... | DiD | — | @ai1scl | 2026-02-12 |
+| [apep_0238](apep_0238/) | Demand Recessions Scar, Supply Recessions Don't: E... | Unknown | — | @SocialCatalystLab | 2026-02-12 |
+| [apep_0240](apep_0240/) | Licensing to Disclose: Do State Flood Risk Disclos... | DiD | — | @ai1scl | 2026-02-12 |
+| [apep_0240](apep_0240/) | Licensing to Disclose: Do State Flood Risk Disclos... | DiD | [apep_0240](apep_0240/) | @ai1scl | 2026-02-12 |
+| [apep_0238](apep_0238/) | Demand Recessions Scar, Supply Recessions Don't: E... | Unknown | [apep_0238](apep_0238/) | @SocialCatalystLab | 2026-02-12 |
+| [apep_0238](apep_0238/) | Demand Recessions Scar, Supply Recessions Don't: E... | Unknown | [apep_0238](apep_0238/) | @SocialCatalystLab | 2026-02-12 |
+| [apep_0238](apep_0238/) | Demand Recessions Scar, Supply Recessions Don't: E... | Unknown | [apep_0238](apep_0238/) | @SocialCatalystLab | 2026-02-12 |
+| [apep_0252](apep_0252/) | Brewing Dynasties and Broken Ladders: State Prohib... | DiD | — | @ai1scl | 2026-02-12 |
+| [apep_0264](apep_0264/) | The Quiet Life Goes Macro: Anti-Takeover Laws and ... | DiD | — | @olafdrw | 2026-02-12 |
+| [apep_0238](apep_0238/) | Demand Recessions Scar, Supply Recessions Don't: E... | Unknown | [apep_0238](apep_0238/) | @SocialCatalystLab | 2026-02-13 |
+| [apep_0276](apep_0276/) | Registered but Not Voting: Felon Voting Rights Res... | DiD | — | @ai1scl | 2026-02-13 |
+| [apep_0280](apep_0280/) | From Workplace to Living Room: Do Indoor Smoking B... | DiD | — | @ai1scl | 2026-02-13 |
+| [apep_0292](apep_0292/) | Shining Light on Nothing? The Null Effect of Manda... | RDD | — | @ai1scl | 2026-02-13 |
+| [apep_0238](apep_0238/) | Demand Recessions Scar, Supply Recessions Don't: E... | Unknown | [apep_0238](apep_0238/) | @SocialCatalystLab | 2026-02-15 |
+| [apep_0294](apep_0294/) | Inside the Black Box of Medicaid: Provider-Level S... | DiD | — | @SocialCatalystLab | 2026-02-15 |
+| [apep_0294](apep_0294/) | Inside the Black Box of Medicaid: Provider-Level S... | DiD | [apep_0294](apep_0294/) | @SocialCatalystLab | 2026-02-15 |
+| [apep_0238](apep_0238/) | Demand Recessions Scar, Supply Recessions Don't: E... | Unknown | [apep_0238](apep_0238/) | @SocialCatalystLab | 2026-02-15 |
+| [apep_0307](apep_0307/) | Resilient Networks: HCBS Provider Supply and the 2... | DiD | — | @SocialCatalystLab | 2026-02-15 |
+| [apep_0308](apep_0308/) | The Geography of Medicaid's Invisible Workforce: A... | Unknown | — | @SocialCatalystLab | 2026-02-15 |
+| [apep_0309](apep_0309/) | The Balloon Effect: How Neighboring States' Prescr... | DiD | — | @ai1scl | 2026-02-16 |
+| [apep_0312](apep_0312/) | Compensating Danger: Workers' Compensation Laws an... | DiD | — | @ai1scl | 2026-02-16 |
+| [apep_0324](apep_0324/) | Fear and Punitiveness in America: Doubly Robust Ev... | Unknown | — | @ai1scl | 2026-02-16 |
+| [apep_0327](apep_0327/) | State Minimum Wage Increases and the HCBS Provider... | DiD | — | @ai1scl | 2026-02-17 |
+| [apep_0339](apep_0339/) | Minimum Wages and Medicaid's Invisible Workforce: ... | DiD | — | @olafdrw | 2026-02-17 |
+| [apep_0341](apep_0341/) | Paying More, Getting Less? The Perverse Effects of... | DiD | — | @ai1scl | 2026-02-17 |
+| [apep_0341](apep_0341/) | Paying More, Getting Less? The Perverse Effects of... | DiD | [apep_0341](apep_0341/) | @ai1scl | 2026-02-18 |
+| [apep_0353](apep_0353/) | Tight Labor Markets and the Crisis in Home Care: W... | DiD | — | @ai1scl | 2026-02-18 |
+| [apep_0355](apep_0355/) | The Elasticity of Medicaid's Safety Net: Market Re... | DiD | — | @ai1scl | 2026-02-18 |
+| [apep_0358](apep_0358/) | Does Coverage Create Capacity? Medicaid Postpartum... | DiD | — | @ai1scl | 2026-02-18 |
+| [apep_0370](apep_0370/) | Click to Prescribe: Do Electronic Prescribing Mand... | DiD | — | @olafdrw | 2026-02-19 |
+| [apep_0373](apep_0373/) | Does Raising the Floor Lift Graduates? Minimum Wag... | Unknown | — | @olafdrw | 2026-02-19 |
+| [apep_0416](apep_0416/) | The Safety Net Holds: Null Effects of Medicaid Unw... | DiD | — | @ai1scl-auto | 2026-02-19 |
+| [apep_0417](apep_0417/) | Where Medicaid Goes Dark: A Claims-Based Atlas of ... | DiD | — | @SocialCatalystLab | 2026-02-19 |
+| [apep_0418](apep_0418/) | Where the Sun Don't Shine: The Null Effect of IRA ... | RDD | — | @olafdrw | 2026-02-19 |
+| [apep_0419](apep_0419/) | No Snow Day Left Behind: How Virtual Instruction P... | DiD | — | @olafdrw | 2026-02-19 |
+| [apep_0417](apep_0417/) | Where Medicaid Goes Dark: A Claims-Based Atlas of ... | DiD | [apep_0417](apep_0417/) | @SocialCatalystLab | 2026-02-20 |
+| [apep_0417](apep_0417/) | Where Medicaid Goes Dark: A Claims-Based Atlas of ... | DiD | [apep_0417](apep_0417/) | @SocialCatalystLab | 2026-02-20 |
+| [apep_0420_v1](apep_0420_v1/) | The Visible and the Invisible: Traffic Exposure, P... | Unknown | — | @olafdrw | 2026-02-20 |
+| [apep_0421](apep_0421/) | Does Water Access Build Human Capital? Evidence fr... | DiD | — | @SocialCatalystLab | 2026-02-20 |
+| [apep_0422](apep_0422/) | Can Clean Cooking Save Lives? Evidence from India'... | DiD | — | @olafdrw | 2026-02-20 |
+| [apep_0424](apep_0424/) | Paying for Pixels: The Null Effect of Telehealth P... | DiD | — | @ai1scl-auto | 2026-02-20 |
+| [apep_0426](apep_0426/) | Did India's Employment Guarantee Transform the Rur... | DiD | — | @olafdrw | 2026-02-20 |
+| [apep_0427](apep_0427/) | The 6,000 Question: Do Apprenticeship Subsidies Cr... | DiD | — | @olafdrw | 2026-02-20 |
+| [apep_0427](apep_0427/) | The 6,000 Question: Do Apprenticeship Subsidies Cr... | DiD | [apep_0427](apep_0427/) | @olafdrw | 2026-02-20 |
+| [apep_0428](apep_0428/) | Connecting the Most Remote: Road Eligibility and D... | RDD | — | @olafdrw | 2026-02-20 |
+| [apep_0429](apep_0429/) | The Long Arc of Rural Roads: A Dynamic Regression ... | RDD | — | @olafdrw | 2026-02-20 |
+| [apep_0430](apep_0430/) | Does Workfare Catalyze Long-Run Development? Fifte... | DiD | — | @olafdrw | 2026-02-20 |
+| [apep_0431](apep_0431/) | Roads Without Revolution: Rural Connectivity and t... | RDD | — | @olafdrw | 2026-02-21 |
+| [apep_0432](apep_0432/) | Roads Don't Break Purdah---But They Disrupt Educat... | RDD | — | @SocialCatalystLab | 2026-02-21 |
+| [apep_0433](apep_0433/) | Parity Without Payoff: Gender Quotas in French Loc... | RDD | — | @olafdrw | 2026-02-21 |
+| [apep_0434](apep_0434/) | Guaranteed Employment and the Geography of Structu... | DiD | — | @olafdrw | 2026-02-21 |
+| [apep_0435](apep_0435/) | The Convergence of Gender Attitudes: Forty Years o... | Unknown | — | @SocialCatalystLab | 2026-02-21 |
+| [apep_0433](apep_0433/) | Parity Without Payoff? Gender Quotas in French Loc... | RDD | [apep_0433](apep_0433/) | @olafdrw | 2026-02-21 |
+| [apep_0436](apep_0436/) | Guaranteed Work or Guaranteed Stagnation? MGNREGA ... | DiD | — | @olafdrw | 2026-02-21 |
+| [apep_0437](apep_0437/) | Does Political Alignment Drive Local Development? ... | RDD | — | @olafdrw | 2026-02-21 |
+| [apep_0438](apep_0438/) | Secret Ballots and Women's Political Voice: Eviden... | RDD | — | @SocialCatalystLab | 2026-02-21 |
+| [apep_0433](apep_0433/) | Parity Without Payoff? Gender Quotas, Public Facil... | RDD | [apep_0433](apep_0433/) | @olafdrw | 2026-02-21 |
+| [apep_0439](apep_0439/) | Where Cultural Borders Cross: Gender Equality at t... | RDD | — | @SocialCatalystLab | 2026-02-21 |
+| [apep_0439](apep_0439/) | Where Cultural Borders Cross: Gender Equality at t... | RDD | [apep_0439](apep_0439/) | @SocialCatalystLab | 2026-02-22 |
+| [apep_0439](apep_0439/) | Where Cultural Borders Cross: Gender Equality at t... | RDD | [apep_0439](apep_0439/) | @SocialCatalystLab | 2026-02-22 |
+| [apep_0440](apep_0440/) | Unlocking Better Matches? Social Insurance Eligibi... | RDD | — | @olafdrw | 2026-02-22 |
+| [apep_0441](apep_0441/) | Smaller States, Bigger Growth? Two Decades of Evid... | DiD | — | @olafdrw | 2026-02-22 |
+| [apep_0441](apep_0441/) | Smaller States, Bigger Growth? Two Decades of Evid... | DiD | [apep_0441](apep_0441/) | @olafdrw | 2026-02-22 |
+| [apep_0439](apep_0439/) | Where Cultural Borders Cross: Gender Equality at t... | RDD | [apep_0439](apep_0439/) | @SocialCatalystLab | 2026-02-22 |
+| [apep_0442](apep_0442/) | The First Retirement Age: Civil War Pensions and E... | RDD | — | @SocialCatalystLab | 2026-02-22 |
+| [apep_0443](apep_0443/) | Roads to Nowhere? Rural Infrastructure and the Per... | RDD | — | @olafdrw | 2026-02-23 |
+| [apep_0444](apep_0444/) | Does Sanitation Drive Development? Satellite Evide... | DiD | — | @olafdrw | 2026-02-23 |
+| [apep_0445](apep_0445/) | Building the Cloud in Distressed Communities: Do O... | RDD | — | @olafdrw | 2026-02-23 |
+| [apep_0445](apep_0445/) | Do Place-Based Tax Incentives Attract Data Center ... | RDD | [apep_0445](apep_0445/) | @olafdrw | 2026-02-23 |
+| [apep_0442](apep_0442/) | The First Retirement Age: Civil War Pensions and E... | RDD | [apep_0442](apep_0442/) | @SocialCatalystLab | 2026-02-23 |
+| [apep_0445](apep_0445/) | Do Place-Based Tax Incentives Attract Data Center ... | RDD | [apep_0445](apep_0445/) | @olafdrw | 2026-02-23 |
+| [apep_0446](apep_0446/) | Digital Markets and Price Discovery: Evidence from... | DiD | — | @ai1scl-auto | 2026-02-23 |
+| [apep_0445](apep_0445/) | Do Place-Based Tax Incentives Attract Data Center ... | RDD | [apep_0445](apep_0445/) | @olafdrw | 2026-02-23 |
+| [apep_0448](apep_0448/) | Back to Work? Early Termination of Pandemic Unempl... | DiD | — | @ai1scl | 2026-02-24 |
+| [apep_0447](apep_0447/) | Locked Out of Home Care: COVID-19 Lockdown Stringe... | DiD | — | @olafdrw | 2026-02-24 |
+| [apep_0442](apep_0442/) | The First Retirement Age: Civil War Pensions and t... | RDD | [apep_0442](apep_0442/) | @SocialCatalystLab | 2026-02-24 |
+| [apep_0449](apep_0449/) | Criminal Politicians and the Composition of Local ... | RDD | — | @ai1scl | 2026-02-24 |
+| [apep_0442](apep_0442/) | The First Retirement Age: Civil War Pensions and t... | RDD | [apep_0442](apep_0442/) | @SocialCatalystLab | 2026-02-24 |
+| [apep_0447](apep_0447/) | Locked Out of Home Care: COVID-19 Lockdown Stringe... | DiD | [apep_0447](apep_0447/) | @ai1scl | 2026-02-24 |
+| [apep_0451](apep_0451/) | Cocoa Booms and Human Capital in Ghana: Evidence f... | DiD | — | @SocialCatalystLab | 2026-02-24 |
+| [apep_0450](apep_0450/) | Tax Harmonization and Price Convergence: Evidence ... | DiD | — | @ai1scl | 2026-02-25 |
+| [apep_0452](apep_0452/) | Choking the Supply, Signing the Treaty: Mercury Re... | DiD | — | @SocialCatalystLab | 2026-02-25 |
+| [apep_0453](apep_0453/) | Cash and Convergence: Banking Infrastructure, Demo... | DiD | — | @olafdrw | 2026-02-25 |
+| [apep_0455](apep_0455/) | Vacancy Taxes and Housing Markets: Evidence from F... | DiD | — | @olafdrw | 2026-02-25 |
+| [apep_0456](apep_0456/) | Clean Air, Dirty Divide? Property Price Effects of... | RDD | — | @olafdrw | 2026-02-25 |
+| [apep_0238](apep_0238/) | Demand Recessions Scar, Supply Recessions Don't: E... | Unknown | [apep_0238](apep_0238/) | @SocialCatalystLab | 2026-02-26 |
+| [apep_0457](apep_0457/) | The Lex Weber Shock: Second Home Construction Caps... | RDD | — | @ai1scl | 2026-02-26 |
+| [apep_0454](apep_0454/) | The Depleted Safety Net: Pre-COVID Provider Exits,... | DiD | — | @SocialCatalystLab | 2026-02-26 |
+| [apep_0238](apep_0238/) | Demand Recessions Scar, Supply Recessions Don't: E... | Unknown | [apep_0238](apep_0238/) | @SocialCatalystLab | 2026-02-26 |
+| [apep_0458](apep_0458/) | Second-Home Caps and Local Labor Markets: Evidence... | RDD | — | @olafdrw | 2026-02-26 |
+| [apep_0459](apep_0459/) | Do Skills-Based Hiring Laws Actually Change Who Wo... | DiD | — | @SocialCatalystLab | 2026-02-26 |
+| [apep_0454](apep_0454/) | The Depleted Safety Net: Pre-COVID Provider Exits,... | DiD | [apep_0454](apep_0454/) | @SocialCatalystLab | 2026-02-26 |
+| [apep_0460](apep_0460/) | Across the Channel: Social Networks and the Cross-... | DiD | — | @SocialCatalystLab | 2026-02-26 |
+| [apep_0460](apep_0460/) | Across the Channel: Social Networks and the Cross-... | DiD | [apep_0460](apep_0460/) | @SocialCatalystLab | 2026-02-26 |
+| [apep_0461](apep_0461/) | Does Oil Kill Children? Testing the Resource Curse... | DiD | — | @olafdrw | 2026-02-26 |
+| [apep_0454](apep_0454/) | The Depleted Safety Net: Hysteresis in Medicaid's ... | DiD | [apep_0454](apep_0454/) | @SocialCatalystLab | 2026-02-26 |
+| [apep_0454](apep_0454/) | The Depleted Safety Net: Hysteresis in Medicaid's ... | DiD | [apep_0454](apep_0454/) | @SocialCatalystLab | 2026-02-26 |
+| [apep_0463](apep_0463/) | Cash Scarcity and Food Markets: Evidence from Nige... | DiD | — | @olafdrw | 2026-02-26 |
+| [apep_0462](apep_0462/) | Faster and Deadlier? Disentangling Speed Limit Rev... | DiD | — | @ai1scl | 2026-02-26 |
+| [apep_0460](apep_0460/) | Across the Channel: Social Networks and the Cross-... | DiD | [apep_0460](apep_0460/) | @SocialCatalystLab | 2026-02-26 |
+| [apep_0454](apep_0454/) | The Depleted Safety Net: Provider Attrition and Me... | DiD | [apep_0454](apep_0454/) | @SocialCatalystLab | 2026-02-26 |
+| [apep_0464](apep_0464/) | Connected Backlash: Social Networks, Carbon Tax In... | DiD | — | @SocialCatalystLab | 2026-02-26 |
+| [apep_0466](apep_0466/) | Does Local Governance Scale Matter? Municipal Popu... | RDD | — | @ai1scl | 2026-02-26 |
+| [apep_0460](apep_0460/) | Across the Channel: Social Networks and the Cross-... | DiD | [apep_0460](apep_0460/) | @SocialCatalystLab | 2026-02-26 |
+| [apep_0467](apep_0467/) | Priced Out of Care: Medicaid Wage Competitiveness ... | DiD | — | @SocialCatalystLab | 2026-02-26 |
+| [apep_0454](apep_0454/) | The Depleted Safety Net: Provider Attrition and Me... | DiD | [apep_0454](apep_0454/) | @SocialCatalystLab | 2026-02-26 |
+| [apep_0464](apep_0464/) | Untitled (v3) | DiD | [apep_0464](apep_0464/) | @SocialCatalystLab | 2026-02-26 |
+| [apep_0468](apep_0468/) | Where Does Workfare Work? Heterogeneous Effects of... | DiD | — | @olafdrw | 2026-02-26 |
+| [apep_0460](apep_0460/) | Cosmopolitan Confounding: Diagnosing Social Networ... | DiD | [apep_0460](apep_0460/) | @SocialCatalystLab | 2026-02-27 |
+| [apep_0464](apep_0464/) | Untitled (v4) | DiD | [apep_0464](apep_0464/) | @SocialCatalystLab | 2026-02-27 |
+| [apep_0470](apep_0470/) | The Unequal Legacies of the Tennessee Valley Autho... | DiD | — | @SocialCatalystLab | 2026-02-27 |
+| [apep_0469](apep_0469/) | Missing Men, Rising Women: WWII Mobilization and t... | DiD | — | @SocialCatalystLab | 2026-02-27 |
+| [apep_0471](apep_0471/) | Does Welfare Simplification Encourage Entrepreneur... | DiD | — | @olafdrw | 2026-02-27 |
+| [apep_0472](apep_0472/) | The Waterbed Effect: Crime Displacement from Selec... | DiD | — | @ai1scl | 2026-02-27 |
+| [apep_0464](apep_0464/) | Connected Backlash: Social Networks and the Politi... | DiD | [apep_0464](apep_0464/) | @olafdrw | 2026-02-27 |
+| [apep_0469](apep_0469/) | Missing Men, Rising Women: Within-Person Evidence ... | DiD | [apep_0469](apep_0469/) | @SocialCatalystLab | 2026-02-27 |
+| [apep_0474](apep_0474/) | Downtown for Sale? Commercial Displacement Effects... | DiD | — | @ai1scl | 2026-02-27 |
+| [apep_0473](apep_0473/) | The Gig Economy That Wasn't: Universal Credit and ... | DiD | — | @olafdrw | 2026-02-27 |
+| [apep_0464](apep_0464/) | Connected Backlash: Social Networks and the Politi... | DiD | [apep_0464](apep_0464/) | @olafdrw | 2026-02-27 |
+| [apep_0477](apep_0477/) | Do Energy Labels Move Markets? Multi-Cutoff Eviden... | RDD | — | @olafdrw | 2026-02-27 |
+| [apep_0476](apep_0476/) | Linking Americans Across the Half-Century: A Descr... | Unknown | — | @SocialCatalystLab | 2026-02-27 |
+| [apep_0478](apep_0478/) | Going Up Alone: Automation, Trust, and the Disappe... | DiD | — | @SocialCatalystLab | 2026-02-28 |
+| [apep_0478](apep_0478/) | Going Up Alone: Automation, Trust, and the Disappe... | DiD | [apep_0478](apep_0478/) | @SocialCatalystLab | 2026-02-28 |
+| [apep_0479](apep_0479/) | When Revenue Falls, Branches Follow: The Durbin Am... | DiD | — | @olafdrw | 2026-02-28 |
+| [apep_0469](apep_0469/) | Missing Men, Rising Women: Within-Person Evidence ... | DiD | [apep_0469](apep_0469/) | @SocialCatalystLab | 2026-02-28 |
+| [apep_0478](apep_0478/) | Going Up Alone: The Lifecycle and Unequal Displace... | Unknown | [apep_0478](apep_0478/) | @SocialCatalystLab | 2026-03-01 |
+| [apep_0478](apep_0478/) | Automating Elevators (v4) | Unknown | [apep_0478](apep_0478/) | @SocialCatalystLab | 2026-03-01 |
+| [apep_0478](apep_0478/) | Automating Elevators (v5) | Unknown | [apep_0478](apep_0478/) | @SocialCatalystLab | 2026-03-01 |
+| [apep_0480](apep_0480/) | When the Machines Stop: Betting Shop Closures, Cri... | DiD | — | @olafdrw | 2026-03-01 |
+| [apep_0481](apep_0481/) | Going Up Alone? Gender, Electoral Pathway, and Par... | RDD | — | @SocialCatalystLab | 2026-03-02 |
+| [apep_0482](apep_0482/) | Looking Within: Gender Quotas and the Composition ... | RDD | — | @SocialCatalystLab | 2026-03-02 |
+| [apep_0483](apep_0483/) | The Decade of Decline: How the Austerity Pay Squee... | DiD | — | @SocialCatalystLab | 2026-03-02 |
+| [apep_0448](apep_0448/) | Back to Work? Early Termination of Pandemic Unempl... | DiD | [apep_0448](apep_0448/) | @SocialCatalystLab | 2026-03-02 |
+| [apep_0464](apep_0464/) | Connected Backlash: Social Networks and the Politi... | DiD | [apep_0464](apep_0464/) | @olafdrw | 2026-03-02 |
 
 ## How This Repository Works
 
-This is a **public mirror** of the APEP papers archive. It syncs automatically:
+This is a **public mirror** of the APE papers archive. It syncs automatically:
 
 1. Papers are produced in a private repository
 2. When a paper is published, a GitHub Action automatically copies the `papers/` folder here

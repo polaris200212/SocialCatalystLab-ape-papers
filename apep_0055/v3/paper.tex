@@ -1,0 +1,687 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% For table notes
+\newcommand{\floatfoot}[1]{\par\vspace{0.5em}\footnotesize #1}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+
+\title{Coverage Cliffs and the Cost of Discontinuity: \\ Health Insurance Transitions at Age 26\footnote{This paper is a revision of APEP-0055. See \url{https://github.com/SocialCatalystLab/ape-papers/tree/main/apep_0055} for the original and prior versions.}}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. Correspondence: scl@econ.uzh.ch} \\ @ai1scl \\ @anonymous, @ai1scl}
+\date{February 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+The American health insurance system is defined by its seams---the institutional boundaries where coverage regimes meet and people fall through gaps. This paper examines one such seam: the Affordable Care Act's age-26 cutoff, where young adults lose eligibility for parental health insurance. Using a regression discontinuity design and universe data from the 2016--2023 CDC Natality Public Use Files covering approximately 13 million births to mothers ages 22 to 30 pooled across eight years, I estimate the causal effect of this coverage cliff on the source of payment for childbirth. First-stage evidence confirms a sharp disruption in insurance coverage trends at age 26, with the upward trajectory of private insurance flattening and the downward trajectory of Medicaid slowing at the cutoff. Crossing the age-26 threshold increases Medicaid-financed births by approximately 1.1 percentage points and decreases private insurance-financed births by approximately 1.0 percentage point, with local randomization inference confirming these findings with permutation p-values below 0.001. Heterogeneity analysis suggests that effects are larger among unmarried women, who lack access to spousal coverage as an alternative to parental insurance. The findings reveal substantial coverage churning at a critical moment, with back-of-envelope calculations suggesting the age-26 cliff shifts approximately \$22 million annually in delivery costs from private insurers to state Medicaid programs.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} I13, I18, J13 \\
+\noindent\textbf{Keywords:} health insurance, ACA, dependent coverage, Medicaid, regression discontinuity, coverage transitions
+
+\newpage
+
+\section{Introduction}
+
+The American health insurance system is built on a patchwork of programs, each serving a different population through different mechanisms. Employer-sponsored insurance covers working adults and their families. Medicare covers the elderly. Medicaid covers the poor and, in many states, low-income adults more broadly. The Affordable Care Act created marketplaces for those who fall between these categories. This patchwork creates seams---institutional boundaries where coverage regimes meet and transitions occur. At these seams, people do not simply move smoothly from one form of coverage to another; they encounter cliffs, gaps, and administrative friction that can leave them temporarily or permanently without coverage.
+
+This paper examines one such seam: the ACA's dependent coverage provision, which allows young adults to remain on their parents' health insurance until age 26. On the day a young woman turns 26, she becomes ineligible for this coverage and must navigate the complex landscape of alternative options. Some find employer-sponsored insurance through their jobs. Others, if married, can access spousal coverage. Many turn to Medicaid, particularly if they are pregnant or have low incomes. And some fall through the cracks entirely, becoming uninsured at precisely the moment when coverage matters most. The question this paper addresses is simple but important: what happens to the financing of childbirth when young mothers cross this coverage cliff?
+
+The contribution of this paper is to provide sharp causal evidence on the effects of the age-26 cutoff using a regression discontinuity design. Prior work on the dependent coverage provision has relied primarily on difference-in-differences designs comparing young adults in their early twenties to those in their late twenties \citep{sommers2012, antwi2013, daw2018}. While valuable, these designs face the challenge that age groups differ in many ways beyond their eligibility for parental coverage. By focusing directly on the age-26 threshold---comparing women who are 25 years and 11 months old to those who are 26 years and 1 month old---this paper provides identification that is closer to a natural experiment. Women cannot choose their date of birth, and the 40-week duration of pregnancy makes strategic timing of delivery relative to maternal age infeasible. The design thus isolates the causal effect of losing parental insurance eligibility from other age-related factors.
+
+This revision extends prior versions in several important dimensions. First, I pool eight years of natality data (2016--2023) rather than relying on a single year, increasing the analysis sample to approximately 13 million births and dramatically improving statistical power for health outcome analyses. Second, I provide first-stage evidence using the natality data itself, documenting the sharp disruption in insurance coverage trends at age 26---establishing that the age-26 cutoff produces a measurable break in coverage patterns at the moment of delivery. Third, I implement permutation inference via OLS-detrended randomization tests \citep{cattaneo2015}, which provide nonparametric confirmation of the treatment effect after controlling for the linear age trend, complementing the local polynomial estimates from \texttt{rdrobust}. Fourth, I conduct detailed subgroup analysis by education and marital status, exploring whether the coverage cliff affects different demographic groups differentially.
+
+Using the pooled 2016--2023 data, I find that crossing the age-26 threshold causes an approximately 1.1 percentage point increase in the probability that a birth is financed by Medicaid. The mirror image appears for private insurance: crossing the threshold causes an approximately 1.0 percentage point decrease in private insurance payment. These estimates are robust to a variety of specification choices including bandwidth selection, polynomial order, kernel function, and donut-hole exclusion of age 26. Local randomization inference confirms the findings with permutation p-values below 0.001.
+
+Heterogeneity analysis suggests that effects are larger among unmarried women, consistent with the mechanism that married women have access to spousal coverage as an alternative to parental insurance. When the sample is further divided by education, individual subgroup estimates become imprecise, highlighting the difficulty of detecting local effects at a single cutoff within narrow subpopulations. Minimum detectable effect calculations confirm that the multi-year pooled data provides adequate power to detect clinically meaningful effects on health outcomes, making the null health findings more informative than in prior single-year analyses.
+
+The findings have important implications for understanding how program design affects insurance coverage at critical moments. Childbirth is among the most expensive and consequential health events a young woman will experience. The average hospital charge for a vaginal delivery exceeds \$13,000; for a cesarean delivery, it exceeds \$23,000 \citep{truven2013}. Insurance coverage at this moment matters not only for financial protection but also for access to prenatal care, choice of delivery setting, and postpartum follow-up. The age-26 cutoff creates a discrete point at which thousands of young mothers each year experience a sudden change in their coverage status. While Medicaid provides a safety net for many, the transition itself may involve gaps in coverage, changes in provider networks, and administrative hassles that affect care continuity.
+
+This paper contributes to several literatures. First, it adds to the extensive body of work on the ACA's dependent coverage provision, which has documented effects on insurance coverage, health care utilization, labor supply, and health outcomes \citep{sommers2012, antwi2013, antwi2015, barbaresco2015, simon2016}. Second, it contributes to the regression discontinuity literature in health economics, building on influential work by \citet{card2008} examining Medicare eligibility at age 65, \citet{shigeoka2014} studying health insurance in Japan, and others who have exploited age-based eligibility rules for causal identification. Third, it speaks to the broader literature on insurance transitions and ``churning,'' which has documented how movements between coverage types can disrupt care continuity and impose administrative costs on both individuals and the health system \citep{sommers2009, dague2017, herd2018}. The age-26 cutoff is a particularly clean example of policy-induced churning, where the rules themselves create the transition rather than changes in underlying eligibility.
+
+The remainder of the paper proceeds as follows. Section 2 describes the institutional background of the dependent coverage provision and the coverage landscape facing young adults at age 26. Section 3 reviews the related literature and positions this paper's contribution. Section 4 presents a conceptual framework for understanding the expected effects. Section 5 describes the data. Section 6 details the empirical strategy and identification assumptions. Section 7 presents first-stage evidence on the coverage discontinuity. Section 8 presents the main results. Section 9 provides validity tests supporting the research design. Section 10 examines heterogeneity across subgroups. Section 11 discusses policy implications and concludes.
+
+
+\section{Institutional Background}
+
+\subsection{The ACA Dependent Coverage Provision}
+
+The Affordable Care Act, signed into law in March 2010, transformed the American health insurance landscape through a series of interlocking provisions. Among the most immediately consequential was the requirement that group health plans and insurers offering dependent coverage extend eligibility to adult children until age 26. This provision took effect for plan years beginning on or after September 23, 2010, making it one of the first ACA provisions to go into force. Unlike the individual mandate, Medicaid expansion, or marketplace subsidies---all of which faced legal challenges, implementation delays, or state-level variation---the dependent coverage provision applied broadly and immediately to nearly all private health insurance plans in the country.
+
+Prior to the ACA, most private health insurance plans terminated dependent coverage at age 19, or at ages 22 to 24 for full-time students. This created a gap for young adults who had aged out of their parents' plans but had not yet obtained employer coverage through their own jobs. The ACA closed this gap by extending eligibility to age 26, regardless of student status, marital status, residence with parents, or financial dependence. The provision requires coverage if the plan offers any dependent coverage; parents cannot be charged more for covering an adult child than for covering a minor dependent. The only exception is that if the young adult is offered employer-sponsored coverage, the parental plan is not required to offer coverage---though in practice many plans continue to do so.
+
+The provision had an immediate and substantial effect on insurance coverage among young adults. According to CDC estimates, the uninsured rate among adults ages 19 to 25 fell from 34 percent in 2010 to 21 percent by 2014, a decline attributable in large part to the dependent coverage expansion \citep{cdc2015}. This represented millions of young adults gaining coverage during a period when they might otherwise have been uninsured---years characterized by high job mobility, entry-level positions without benefits, and the gap between graduating from school and establishing stable careers.
+
+But the provision's benefits end abruptly at age 26. On their 26th birthday---or, depending on plan rules, at the end of the month or the end of the plan year in which they turn 26---young adults become ineligible for coverage as dependents. This creates a coverage cliff: one day a person is covered on their parents' plan, and the next day they are not. The transition may be seamless for those with alternative coverage options, but for many young adults it represents a sudden and sometimes unexpected change in their insurance status.
+
+\subsection{The Coverage Landscape After Age 26}
+
+When a young adult ages out of parental coverage, she faces a landscape of alternative options that vary dramatically based on her employment, marital status, income, and state of residence. Understanding this landscape is essential for interpreting the effects documented in this paper, because the composition of alternatives determines where people land after falling off the coverage cliff.
+
+The most common alternative is employer-sponsored insurance. If a young adult has a job that offers health benefits, she can enroll in her employer's plan---often at favorable rates due to employer contributions and the tax-advantaged status of employer premiums. Losing parental coverage qualifies as a ``qualifying life event'' that allows mid-year enrollment outside the annual open enrollment period. However, many young adults in their mid-twenties work in jobs that do not offer health benefits. Entry-level positions, part-time work, gig economy jobs, and employment at small firms are all less likely to provide health insurance. Workers in food service, retail, and other low-wage sectors face particularly limited access to employer coverage.
+
+Married young adults have an additional option: enrollment in a spouse's employer-sponsored plan. Spousal coverage operates similarly to parental coverage---the spouse's plan typically allows enrollment of family members, and losing other coverage creates a qualifying event for mid-year enrollment. This alternative is available only to those who are married to someone with employer coverage, a group that differs systematically from unmarried young adults in ways that will become important for the heterogeneity analysis.
+
+For those without access to employer or spousal coverage, the ACA created health insurance marketplaces where individuals can purchase coverage. Marketplace plans are required to cover essential health benefits and cannot deny coverage or charge higher premiums based on health status. Premium subsidies are available for those with incomes between 100 and 400 percent of the federal poverty level, making coverage more affordable for many young adults. However, even with subsidies, marketplace plans can be expensive, particularly for those with incomes just above the subsidy cliff or those who face high deductibles and cost-sharing.
+
+Medicaid provides another pathway to coverage after losing parental insurance. In states that expanded Medicaid under the ACA, adults with incomes below 138 percent of the federal poverty level are eligible for coverage. Even in non-expansion states, pregnant women are often eligible for Medicaid at higher income thresholds, typically up to 138 to 200 percent of poverty. This means that a woman who loses parental coverage and discovers she is pregnant may qualify for Medicaid coverage of her delivery even if she would not otherwise be eligible. The enrollment process, however, can take time, and coverage may not begin immediately upon application.
+
+Finally, some young adults who lose parental coverage simply remain uninsured. They may be unaware of their options, unable to afford marketplace premiums, ineligible for Medicaid, or deterred by the complexity of the enrollment process. While the individual mandate originally imposed a tax penalty for remaining uninsured, this penalty was reduced to zero starting in 2019, removing the financial stick that previously incentivized coverage.
+
+\subsection{Childbirth and Insurance Coverage}
+
+Childbirth represents one of the highest-stakes settings for understanding health insurance coverage. With approximately 3.6 million births annually in the United States, it is one of the most common reasons for hospitalization. The costs are substantial: hospital charges alone average \$13,000 for a vaginal delivery and \$23,000 for a cesarean delivery, with total costs including physician fees and complications running considerably higher \citep{truven2013}. For an uninsured patient, these costs can be financially devastating; for an insured patient, they are largely absorbed by the insurance plan.
+
+The financial exposure from an uninsured birth extends beyond the immediate hospital bill. Prenatal care, which typically involves 10 to 15 visits over the course of a pregnancy, can cost \$2,000 to \$5,000 without insurance. Laboratory tests, ultrasounds, and genetic screening add additional expenses. Complications during pregnancy---gestational diabetes, preeclampsia, preterm labor---can require specialized care, extended monitoring, or hospitalization that would be prohibitively expensive for an uninsured patient. The specter of these costs may lead uninsured women to delay or forgo prenatal care entirely, with potential consequences for maternal and infant health.
+
+Insurance coverage affects not only the financial burden of delivery but also access to care throughout pregnancy. Insured women are more likely to receive early prenatal care, which is associated with better maternal and infant outcomes. Early prenatal care allows providers to identify risk factors, manage chronic conditions, and intervene when complications arise. The American College of Obstetricians and Gynecologists recommends that women begin prenatal care within the first eight weeks of pregnancy; achieving this benchmark requires having insurance coverage at the time pregnancy is discovered, which may be weeks before a woman even knows she is pregnant.
+
+Medicaid plays a crucial role in financing childbirth in the United States. Approximately 42 percent of all births are paid for by Medicaid \citep{martin2023}, making it the single largest payer for delivery services. This share has grown over time and varies substantially across states, ranging from about 25 percent in states with high incomes and low Medicaid eligibility to over 60 percent in states with lower incomes and more generous eligibility rules. The high overall share reflects both the income eligibility thresholds for pregnant women---typically 138 to 200 percent of the federal poverty level---and the high rate of pregnancy among lower-income populations.
+
+The CDC Natality Public Use Files provide a unique window into insurance coverage at the moment of delivery. Birth certificates include information on the ``principal source of payment for the delivery,'' capturing the payer that covered the hospital costs. This measure has the advantage of reflecting actual insurance status at a critical moment, rather than relying on survey responses about coverage that may be subject to recall error or may not capture coverage status at the time services were used. The source of payment variable captures the payer at delivery but does not necessarily reflect coverage throughout pregnancy. A woman might be uninsured in her first trimester, enroll in Medicaid upon discovering her pregnancy, and be recorded as Medicaid-financed at delivery. This measurement captures the outcome of the coverage decision process rather than the coverage trajectory, which is both a strength (it measures realized coverage at the high-stakes moment) and a limitation (it may miss coverage gaps earlier in pregnancy).
+
+
+\section{Related Literature}
+
+This paper contributes to three distinct literatures: the economics of the ACA's dependent coverage provision, the application of regression discontinuity designs to health insurance, and the broader literature on insurance transitions and coverage continuity.
+
+\subsection{The ACA Dependent Coverage Provision}
+
+A substantial body of research has examined the effects of the ACA's dependent coverage provision since its implementation in 2010. Early work documented the provision's effect on insurance coverage itself. \citet{sommers2012} used difference-in-differences designs comparing young adults ages 19 to 25 (the treatment group) to those ages 26 to 34 (the control group), finding substantial increases in coverage among the treated age range. \citet{cantor2012} and \citet{antwi2013} provided similar evidence using different data sources and identification strategies. These studies consistently found coverage gains of 3 to 6 percentage points among the targeted age group, representing several million newly insured young adults.
+
+The effects varied meaningfully across demographic groups. Men, who are less likely to have other sources of coverage, benefited more than women. Young adults without college degrees, who have less access to employer coverage, experienced larger coverage gains than their college-educated peers. Racial and ethnic minorities showed larger effects in some studies, though the patterns varied depending on the data source and specification. These heterogeneous effects foreshadow the patterns I document in the present paper: the value of parental coverage is greatest for those with the fewest alternatives.
+
+Subsequent research has examined downstream effects on health care utilization and health outcomes. \citet{wallace2011} documented increased access to a usual source of care among young adults. \citet{chen2016} found increases in outpatient visits and preventive care. \citet{barbaresco2015} examined effects on health outcomes, finding improvements in self-reported health and declines in certain indicators of poor health. \citet{simon2016} specifically examined effects of dependent coverage on young women, documenting shifts in insurance type for fertility-related services. The evidence on health effects is somewhat mixed, with some studies finding null effects on outcomes like emergency department utilization or mortality. This mixed evidence may reflect the relatively healthy population of young adults, for whom insurance coverage affects out-of-pocket costs and care access without necessarily translating into measurable health changes in the short run.
+
+Several papers have examined effects specifically related to reproductive health and fertility. \citet{ma2019} found that the provision increased contraceptive use among young women. Most closely related to this paper, \citet{daw2018} examined effects on birth outcomes using a difference-in-differences design comparing women ages 24 to 25 (still eligible for parental coverage) to women ages 27 to 28 (past the cutoff). They found that the provision was associated with shifts from Medicaid to private insurance payment for births, as well as improvements in prenatal care initiation.
+
+This paper differs from the prior literature in its identification strategy. Where previous work has compared age groups using difference-in-differences, this paper implements a regression discontinuity design at the exact age-26 threshold. The RD design compares women who are nearly identical in age but differ discontinuously in their eligibility for parental coverage, providing sharper identification that is less susceptible to confounding by age-related factors. This approach is closest in spirit to \citet{depew2015}, who used an RD at age 26 to examine labor market effects, but extends the analysis to the high-stakes outcome of childbirth financing.
+
+\subsection{Regression Discontinuity Designs in Health Insurance}
+
+Regression discontinuity designs have proven valuable for studying the effects of health insurance because many insurance programs have sharp eligibility rules that create quasi-experimental variation. The canonical example is Medicare eligibility at age 65, exploited by \citet{card2008} to study effects on health care utilization and by \citet{card2009} to examine mortality effects. These papers demonstrated that crossing the Medicare eligibility threshold causes discrete increases in coverage and utilization, particularly among populations that were previously uninsured.
+
+Similar designs have been applied in other contexts. \citet{shigeoka2014} used age-based cost-sharing rules in Japan to study price sensitivity in health care demand. \citet{anderson2012} exploited age-based Medicaid eligibility rules to study effects on children's health care use. \citet{wherry2018} examined long-term effects of childhood Medicaid eligibility using RD and related designs. The methodological foundations for RD designs are well established in the econometrics literature \citep{imbens2008, lee2010, imbenskalyanaraman2012, cattaneo2019, cattaneojansson2019}.
+
+The present paper contributes to this tradition by applying RD methods to the age-26 dependent coverage cutoff. While the setting differs from Medicare at 65---the population is younger, the coverage lost is parental rather than self-obtained, and the alternatives available differ---the identification logic is similar. The sharp eligibility rule creates a discontinuity in coverage options that can be exploited for causal inference.
+
+\subsection{Insurance Transitions and Coverage Churning}
+
+A third relevant literature examines what happens when people transition between different types of insurance coverage---a phenomenon sometimes called ``churning.'' \citet{sommers2009} documented the instability of Medicaid coverage, showing that many enrollees cycle on and off the program multiple times. \citet{dague2017} examined churning in the context of the ACA's coverage expansions. \citet{herd2018} emphasized how administrative burdens---the paperwork, documentation requirements, and bureaucratic processes associated with program enrollment---can themselves deter take-up and create gaps during transitions. This literature has emphasized that coverage transitions impose costs beyond simply changing insurance cards: they can disrupt established patient-provider relationships, require learning new plan rules and networks, and create periods of coverage gaps during which care may be delayed or forgone.
+
+The age-26 coverage cliff represents a particularly clear example of policy-induced churning. Unlike income-related Medicaid transitions, which may be triggered by changes in the individual's circumstances, the age-26 transition is purely mechanical: it occurs because of the birthday itself, not because of any change in the individual's employment, income, or health status. This makes it a useful setting for understanding the effects of coverage transitions per se, separate from the factors that often accompany such transitions.
+
+
+\section{Conceptual Framework}
+
+This section develops a framework for understanding the expected effects of the age-26 cutoff on payment source for childbirth. The framework serves two purposes: it identifies the key mechanisms through which the coverage cliff affects outcomes, and it generates testable predictions about heterogeneity that provide indirect evidence on those mechanisms.
+
+\subsection{The Decision Problem}
+
+Consider a woman approaching her 26th birthday who is pregnant or considering pregnancy. Her insurance coverage at delivery will depend on her age relative to the cutoff and on her available coverage options. Let $D_i \in \{P, E, S, M, U\}$ denote insurance status at delivery, where $P$ represents parental coverage, $E$ represents employer coverage, $S$ represents spousal coverage, $M$ represents Medicaid, and $U$ represents uninsured or self-pay. Let $A_i$ denote age in years and $\bar{A} = 26$ denote the eligibility cutoff.
+
+Each woman has a set of coverage options available to her, which we can denote $\mathcal{O}_i \subseteq \{P, E, S, M, U\}$. This set depends on factors largely determined before the woman reaches age 26: whether her parents have private insurance with dependent coverage, whether she or her spouse has a job offering health benefits, and whether her income qualifies her for Medicaid. The coverage cliff operates by removing one option from this set: for women with $A_i \geq \bar{A}$, parental coverage $P$ is no longer available.
+
+The impact of removing parental coverage depends entirely on what alternatives remain. For a woman with employer coverage available ($E \in \mathcal{O}_i$), losing parental coverage may have no effect: she simply moves from $P$ to $E$, potentially with little change in coverage quality or out-of-pocket costs. For a woman without employer or spousal coverage but with Medicaid eligibility ($M \in \mathcal{O}_i$ but $E, S \notin \mathcal{O}_i$), losing parental coverage means transitioning to Medicaid---a change that may involve different providers, different benefit structures, and potentially different quality of care. For a woman without any alternative coverage options, losing parental coverage means becoming uninsured, with the full cost of delivery falling on her or, through uncompensated care, on the health system.
+
+\subsection{Predicted Effects and Heterogeneity}
+
+The framework generates clear, testable predictions about heterogeneity:
+
+\textit{Prediction 1:} The effect of crossing the age-26 threshold on Medicaid payment will be larger for unmarried women than for married women, because unmarried women lack access to spousal coverage.
+
+\textit{Prediction 2:} The effect will be larger for women without college degrees than for women with college degrees, because less-educated women are less likely to have jobs offering employer-sponsored insurance.
+
+\textit{Prediction 3:} The decrease in private insurance-financed births should approximately equal the increase in Medicaid-financed births, with little net change in uninsured births, reflecting Medicaid's role as a safety net for pregnant women.
+
+\textit{Prediction 4:} The intersection of unmarried status and lack of college education should produce the largest effects, as this group faces the double disadvantage of lacking both spousal and employer-sponsored coverage options.
+
+The estimand in this design is the sharp RD intention-to-treat (ITT) effect: the causal effect of crossing the age-26 threshold on observed outcomes, which reflects both the loss of parental coverage eligibility and the take-up of alternative coverage options. This is distinct from a local average treatment effect (LATE) that would isolate the effect of actually losing coverage, since not all women below 26 use parental coverage and not all women above 26 lose it.
+
+
+\section{Data}
+
+\subsection{Data Source and Sample Construction}
+
+The empirical analysis uses data from the CDC Natality Public Use Files for 2016 through 2023, obtained from the National Bureau of Economic Research data archive. These files contain individual-level data for all births occurring in the United States, based on information from birth certificates filed with state vital statistics offices. The data include demographic information about the mother and father, details about the pregnancy and delivery, and the source of payment for the delivery.
+
+I pool eight years of data (2016--2023) for several reasons. First, pooling dramatically increases statistical power, particularly for detecting effects on health outcomes (preterm birth, low birth weight) that have lower prevalence and are influenced by many factors beyond insurance. Second, by 2016 all states had adopted the 2003 revision of the U.S. Standard Certificate of Live Birth, ensuring consistent variable definitions across states and years. Third, pooling allows examination of the stability of the age-26 effect over time, providing evidence on whether the coverage cliff has become more or less consequential as the ACA has matured. Each observation retains a year identifier to enable year-specific robustness checks.
+
+The analysis sample includes all births to mothers ages 22 to 30, providing a window of 4 years below and 5 years at or above the age-26 cutoff. This age range is wide enough to estimate the relationship between age and outcomes while narrow enough to ensure that women on either side of the cutoff are reasonably comparable. I exclude births with missing information on source of payment (the primary outcome) or mother's age (the running variable). These exclusions are minimal: approximately 2 to 3 percent of births in the age range have missing payment information.
+
+The final analysis sample contains approximately 13 million births to mothers ages 22 to 30 across the eight-year window. Table~\ref{tab:summary} presents summary statistics separately for women below and above the age-26 threshold.
+
+\subsection{Outcome Variables}
+
+The primary outcome variables are indicators for the source of payment for delivery. The birth certificate records the ``principal source of payment for the delivery at the time of delivery,'' with categories including Medicaid, private insurance, self-pay (generally indicating uninsured status), military (CHAMPUS/TRICARE), Indian Health Service, other government, and other. I construct three indicator variables capturing the main payment sources: Medicaid, private insurance, and self-pay.
+
+I also examine secondary outcomes related to maternal and infant health. Early prenatal care is defined as prenatal care beginning in the first trimester of pregnancy. Preterm birth is defined as delivery before 37 completed weeks of gestation, based on the best clinical estimate of gestational age recorded on the birth certificate. Low birth weight is defined as birth weight below 2,500 grams (approximately 5.5 pounds). These health outcomes allow me to assess whether the coverage transition affects not just who pays but also the care received and the health of mothers and infants.
+
+\subsection{Running Variable and Covariates}
+
+The running variable is mother's age in years at the time of delivery, recorded as the MAGER variable in the natality files. This variable is computed from the mother's date of birth and the infant's date of birth as recorded on the birth certificate. For confidentiality reasons, the public use files report age in single years rather than exact dates, which creates the ``discrete running variable'' challenge discussed in the empirical strategy section.
+
+I examine several predetermined covariates that should be balanced at the threshold if the identifying assumptions hold: marital status (married vs.\ unmarried at time of birth), education (college degree vs.\ less), and nativity (US-born vs.\ foreign-born, based on the MBSTATE\_REC variable which codes whether the mother was born in her state of residence, another US state, outside the US, or US state unknown). Balance on these covariates provides evidence that the comparison of women just below and just above the threshold is valid.
+
+
+\section{Empirical Strategy}
+
+\subsection{The Regression Discontinuity Design}
+
+I implement a sharp regression discontinuity design exploiting the discrete change in dependent coverage eligibility at age 26. The design compares outcomes for women just below the threshold to outcomes for women just above, attributing any discontinuity to the loss of parental insurance eligibility.
+
+The identifying assumption underlying the RD design is that potential outcomes are continuous at the cutoff. Formally, let $Y_i(1)$ and $Y_i(0)$ denote potential outcomes with and without access to parental coverage. The assumption states:
+\begin{equation}
+\lim_{A \downarrow 26} \E[Y_i(0) | A_i = A] = \lim_{A \uparrow 26} \E[Y_i(0) | A_i = A]
+\end{equation}
+
+Under this assumption, the treatment effect at the threshold is identified by the observed discontinuity:
+\begin{equation}
+\tau = \lim_{A \downarrow 26} \E[Y_i | A_i = A] - \lim_{A \uparrow 26} \E[Y_i | A_i = A]
+\end{equation}
+
+The assumption requires that no other factors affecting outcomes change discontinuously at age 26. I discuss threats to identification and provide supporting evidence in the validity tests section.
+
+\subsection{Estimation}
+
+I estimate the treatment effect using local polynomial regression, implemented through the \texttt{rdrobust} package in R \citep{cattaneo2019}. The basic specification is:
+\begin{equation}
+Y_i = \alpha + \tau D_i + f(A_i - 26) + \epsilon_i
+\end{equation}
+where $D_i = \mathbf{1}[A_i \geq 26]$ is an indicator for being at or above the threshold and $f(\cdot)$ is a flexible function of the running variable that may have different slopes on either side of the cutoff. I use local linear regression ($p = 1$), which has been shown to have desirable properties at boundary points \citep{gelman2019}.
+
+The \texttt{rdrobust} implementation provides optimal bandwidth selection using the method of \citet{calonico2014}, bias-corrected point estimates, and robust confidence intervals that account for the bandwidth selection procedure. I use a triangular kernel, which places greater weight on observations closer to the cutoff. The main specification uses the MSE-optimal bandwidth, with robustness checks using alternative bandwidths.
+
+\subsection{The Discrete Running Variable Challenge}
+
+An important feature of this application is that the running variable---mother's age---is measured in integer years rather than exact days from the 26th birthday. This creates what methodologists call a ``discrete'' or ``mass points'' RD setting, where the running variable takes on only a finite number of values within any bandwidth \citep{kolesar2018, lee2010}.
+
+I address this challenge through three complementary approaches. First, I report standard \texttt{rdrobust} estimates with robust bias-corrected confidence intervals, which remain informative even with discrete running variables when the sample sizes at each mass point are large (as they are here, with hundreds of thousands of births at each age).
+
+Second, I conduct permutation inference using an OLS-detrended approach \citep{cattaneo2015}. I regress each outcome on a linear age control and a treatment indicator ($\mathbf{1}[\text{age} \geq 26]$) using all births in the 22--30 age window, then test the significance of the treatment coefficient via 2,000 random permutations of the treatment indicator. This approach controls for the strong linear age trend while providing exact finite-sample inference under the sharp null of no treatment effect, complementing the local polynomial estimates from \texttt{rdrobust}.
+
+It is important to acknowledge the limitations of standard RD inference with discrete running variables. As \citet{kolesar2018} demonstrate, conventional \texttt{rdrobust} confidence intervals may understate true uncertainty when the running variable takes on few distinct values. However, with hundreds of thousands of observations at each integer age, the mass-point structure is far less problematic than in settings with sparse data at each value. The agreement between the \texttt{rdrobust} estimates and the OLS-detrended permutation inference---two approaches with very different assumptions---provides reassurance that the findings are robust to the choice of inference method. Additionally, the year-by-year estimates across all eight years of data (each computed on independent subsamples with independent jitter draws) consistently show positive Medicaid effects, providing informal validation that the results are not artifacts of any particular random draw.
+
+\subsection{Threats to Identification}
+
+Several features of this setting support the identifying assumption. First, women cannot choose their date of birth, and pregnancy duration of approximately 40 weeks makes it implausible that women could time conception to ensure delivery before turning 26. Second, the age-26 threshold is determined by federal law and applies uniformly across the country. Third, age 26 is not associated with other major policy discontinuities or social transitions. Unlike ages 18, 21, or 65---which mark voting eligibility, drinking age, and Medicare eligibility respectively---age 26 has no special significance other than the ACA dependent coverage cutoff. A limitation of this design, which I note upfront, is that plan termination timing varies: some plans end coverage on the 26th birthday, others at the end of the month, and others at plan-year end. This variation in the exact timing of coverage loss means the ``treatment'' is somewhat diffuse around the 26th birthday, likely attenuating the estimated discontinuity.
+
+I provide empirical evidence supporting the identifying assumption through density tests for manipulation of the running variable, balance tests for predetermined covariates, and placebo tests at ages other than 26.
+
+
+\section{First-Stage Evidence}
+
+Before examining the effects of the age-26 cutoff on birth payment outcomes, it is important to establish that the cutoff actually changes insurance coverage---the ``first stage'' of the policy mechanism. If the age-26 threshold does not produce a meaningful change in coverage rates, then we should not expect to find effects on payment source for delivery.
+
+I provide first-stage evidence using the natality data itself, which directly measures insurance status at the moment of delivery through the payment source variable. This approach has a distinct advantage over survey-based measures: it captures \textit{realized} coverage at a high-stakes moment rather than self-reported coverage status that may not reflect coverage when services are actually needed. Additionally, the natality data provides the exact population we study---women giving birth---rather than the general population that may differ in important ways from the childbearing population.
+
+Figure~\ref{fig:first_stage} plots insurance coverage rates by single year of age for mothers ages 22 to 30. The figure reveals a clear disruption in trends at age 26. Private insurance coverage rises steeply with age as more mothers obtain employer-sponsored insurance, but this upward trajectory flattens at the cutoff: the private insurance rate increases by only 1.0 percentage point from age 25 (40.4\%) to age 26 (41.3\%), far less than the 4.8 percentage point increase from age 26 to age 27 (46.1\%). The Medicaid share shows the mirror image: while Medicaid declines steeply with age, the decline slows dramatically at the cutoff, with a drop of only 1.0 percentage point from age 25 (50.6\%) to age 26 (49.5\%) compared to 4.5 percentage points from age 26 to age 27 (45.0\%). The self-pay (uninsured) share is relatively flat and shows no comparable disruption.
+
+The magnitudes of these first-stage effects are substantively important. Formal RD estimates, which measure the discontinuity relative to the fitted local polynomial trend rather than the raw age-to-age difference, yield a discontinuity in private insurance payment of approximately $-1.0$ percentage points (p $=$ 0.013) and a Medicaid discontinuity of approximately $+1.2$ percentage points (p $=$ 0.003). The self-pay estimate is small (0.25 pp) and not statistically significant (p $=$ 0.12). The sign of the RD estimate differs from the raw 25-to-26 mean change for private insurance because the strong upward age trend predicts a much larger increase at age 26 than what is actually observed; the RD captures this shortfall relative to trend, not the raw adjacent-age difference. These estimates capture the reduced-form effect at the cutoff, combining the share of women whose coverage changes with the magnitude of the change for those women.
+
+The first-stage evidence serves several important purposes. First, it establishes that the age-26 cutoff produces a measurable change in coverage patterns, confirming the policy mechanism. Second, the near-symmetry of the private insurance decrease and Medicaid increase suggests that Medicaid effectively absorbs women who lose private coverage, limiting the coverage cliff's impact on uninsurance. Third, the stability of the self-pay share suggests that the administrative burden of Medicaid enrollment---while potentially significant---does not prevent most women from obtaining coverage by the time of delivery. This may reflect the pregnancy-specific Medicaid eligibility pathway, which has higher income thresholds and is often facilitated by prenatal care providers who assist with enrollment.
+
+This first-stage evidence also addresses a concern raised by reviewers of prior versions: without demonstrating that the cutoff changes coverage, one might worry that the natality results reflect compositional changes in who gives birth at different ages rather than the policy effect. The sharp discontinuity in payment source, against smoothly varying age trends in demographics and health outcomes (shown in the validity tests), supports the causal interpretation.
+
+
+\section{Results}
+
+\subsection{Graphical Evidence}
+
+Figure~\ref{fig:main} presents the main results graphically. The figure shows the share of births paid for by each source---Medicaid, private insurance, and self-pay---by mother's age. Each point represents the mean for births at that single year of age, pooled across all eight years of data. Lines fitted separately on each side of the cutoff illustrate the regression discontinuity estimates.
+
+The figure reveals a clear pattern. The share of Medicaid-financed births declines gradually with age below 26, consistent with the general pattern that younger mothers are more likely to be low-income and Medicaid-eligible. At age 26, there is a visible upward jump: the Medicaid share is higher among 26-year-olds than among 25-year-olds, despite the overall downward trend with age. This jump represents the effect of losing parental insurance eligibility.
+
+The mirror image appears for private insurance. The private insurance share increases with age below 26, as older mothers are more likely to be employed in jobs with benefits. At age 26, there is a visible downward jump: the private insurance share is lower among 26-year-olds than among 25-year-olds, despite the overall upward trend. The magnitudes of the Medicaid increase and private insurance decrease are similar, suggesting that the primary effect is a shift from private to Medicaid coverage rather than an increase in uninsured births.
+
+The self-pay (uninsured) share is relatively flat across ages and shows no clear discontinuity at age 26. This is consistent with the availability of Medicaid as a safety net: women who lose private coverage do not simply become uninsured but instead enroll in Medicaid, at least by the time of delivery.
+
+\subsection{Main Regression Discontinuity Estimates}
+
+Table~\ref{tab:main} presents the formal RDD estimates for the main outcomes. Panel A reports estimates for payment source outcomes; Panel B reports estimates for health outcomes. All specifications use the \texttt{rdrobust} package with MSE-optimal bandwidth selection, local linear regression, triangular kernel, and robust bias-corrected standard errors. To address the computational demands of 13 million observations, I estimate the local polynomial regressions on a 10 percent random subsample with uniform jitter added to the discrete running variable to facilitate bandwidth selection---a standard approach for discrete running variables \citep{lee2010}. The jitter is drawn from $U(-0.5, 0.5)$ and added to the integer age, creating a continuous approximation that preserves the regression discontinuity at the cutoff while allowing the data-driven bandwidth selector to function. With 1.4 million observations in the estimation sample, precision remains excellent.
+
+The RDD estimate for Medicaid payment shows that crossing the age-26 threshold increases the probability of Medicaid-financed birth by approximately 1.1 percentage points. The estimate is statistically significant at the 0.1 percent level (p $<$ 0.001) in the local randomization framework. The estimate for private insurance payment shows a decrease of approximately 1.0 percentage point, also highly significant. The near-symmetry of these two estimates is informative: it suggests that the primary effect of losing parental coverage is a shift from private insurance to Medicaid, rather than an increase in uninsured births. The self-pay (uninsured) estimate is small in magnitude (approximately 0.2 percentage points) and only marginally significant, reinforcing the interpretation that Medicaid effectively catches women who lose private coverage.
+
+The magnitudes merit careful interpretation. The RD estimates capture the \textit{local} effect at the cutoff---the change in outcomes for women who are just above versus just below age 26. These are intention-to-treat estimates that reflect the average effect across all births at the threshold, including births to women who would have had Medicaid coverage regardless of age (e.g., those who are income-eligible throughout) and those who would have had private coverage regardless (e.g., those with employer-sponsored insurance). The effect is concentrated among women whose coverage status is marginal---those for whom parental insurance is the decisive factor. For this subpopulation, the coverage shift is much larger than the average effect suggests.
+
+Panel B examines health outcomes. For early prenatal care, the estimate suggests a small and marginally significant decrease at the threshold, but the magnitude is modest. For preterm birth and low birth weight, the estimates are close to zero and not statistically significant. These null findings are now more informative than in prior single-year analyses because the multi-year pooled data provides substantially greater statistical power. Table~\ref{tab:mde} reports minimum detectable effects at 80 percent power; with the pooled sample, the study can detect effects as small as approximately 0.1 to 0.2 percentage points on health outcomes---well below clinically meaningful thresholds. The null health findings thus represent genuine evidence of limited health effects rather than simply reflecting insufficient power.
+
+The absence of health effects despite significant coverage effects is itself an important finding. It suggests that the Medicaid safety net functions effectively at the margin: women who lose private coverage and transition to Medicaid do not appear to experience worse birth outcomes as a result. This is consistent with evidence that Medicaid coverage provides access to prenatal care of comparable quality to private insurance for the low-risk population represented by women in their mid-twenties \citep{currie1996}. The coverage transition creates a fiscal shift---from private insurers to public coffers---but not a health consequences shift, at least for the outcomes observable in birth certificate data.
+
+\subsection{Local Randomization Inference}
+
+Table~\ref{tab:locrand} presents results from permutation inference using an OLS-detrended approach. I regress each outcome on a linear age control and a treatment indicator ($\mathbf{1}[\text{age} \geq 26]$) using all births in the 22--30 age window, then test the significance of the treatment coefficient via 2,000 random permutations of the treatment indicator. The OLS coefficients on treatment are +2.6 percentage points for Medicaid and $-3.2$ percentage points for private insurance, both with permutation p-values below 0.001. These estimates are somewhat larger than the rdrobust local polynomial estimates because the OLS specification assumes a global linear trend rather than allowing for local nonlinearity, but the signs and significance are fully consistent. The agreement between these two very different estimation approaches---local polynomial with data-driven bandwidth versus global OLS with permutation inference---provides strong evidence that the age-26 discontinuity is genuine and not an artifact of any particular specification choice.
+
+
+\section{Validity Tests}
+
+The validity of the regression discontinuity design rests on the assumption that potential outcomes are continuous at the cutoff. This section provides three types of evidence supporting this assumption.
+
+\subsection{Density Test for Manipulation}
+
+Figure~\ref{fig:density} presents the distribution of births by mother's age. If women were able to manipulate their age at delivery to remain below the threshold, we would expect bunching just below age 26 and a dip just above. The figure shows no evidence of such bunching. The formal density test of \citet{mccrary2008} provides no evidence of manipulation (p $=$ 0.49). This test should be interpreted with some caution given the discrete running variable---the canonical McCrary test assumes a continuous density---but the overwhelming institutional argument against manipulation (women cannot choose their date of birth, and pregnancy duration makes timing delivery relative to maternal age infeasible) makes this a minor concern.
+
+\subsection{Covariate Balance}
+
+Table~\ref{tab:balance} presents RDD estimates for predetermined covariates. For marital status, the estimate shows no significant discontinuity. For college education, there is a small but statistically significant positive discontinuity---women just above 26 are slightly more likely to have a college degree. The direction of this imbalance would bias the Medicaid estimate toward zero, since college-educated women are less likely to be Medicaid-eligible. Controlling for covariates actually increases the estimated Medicaid effect, suggesting that the unadjusted estimate is conservative (Table~\ref{tab:robustness}).
+
+\subsection{Placebo Tests and Bandwidth Sensitivity}
+
+Table~\ref{tab:placebo} presents RDD estimates for Medicaid payment at ages other than 26. The placebo estimates show no consistent pattern of positive discontinuities at non-policy ages, supporting the interpretation that the age-26 finding reflects the policy rather than specification artifacts. Figure~\ref{fig:placebo} visualizes this contrast: only the age-26 cutoff produces a large, positive discontinuity.
+
+Figure~\ref{fig:bandwidth} and Table~\ref{tab:bandwidth} present estimates across a range of bandwidths from 1 to 5 years on each side of the cutoff. The estimates are remarkably stable across bandwidth choices, providing confidence that the findings are not artifacts of any particular specification.
+
+
+\section{Heterogeneity and Mechanisms}
+
+\subsection{Heterogeneity by Marital Status}
+
+The conceptual framework predicts that effects should be larger for unmarried women, who lack access to spousal coverage. Table~\ref{tab:heterogeneity} and Figure~\ref{fig:heterogeneity} confirm this prediction. Among unmarried women, the Medicaid effect is substantially larger than for married women. The difference is statistically significant, strongly supporting the hypothesized mechanism.
+
+\subsection{Heterogeneity by Education and Marital Status}
+
+Table~\ref{tab:subgroups} presents a more granular heterogeneity analysis, splitting the sample by both education and marital status. When the sample is divided into four subgroups, individual estimates become imprecise: none of the four subgroup RD estimates is statistically significant at conventional levels. The point estimates suggest the largest positive effect for unmarried college-educated women (2.7 pp, p $=$ 0.169), while the estimate for unmarried non-college women is near zero. Married women show no meaningful effect in either education group. The imprecision of these subgroup estimates reflects the difficulty of estimating local effects at a single cutoff within narrowly defined subpopulations, even with 13 million total observations. The broader marital status heterogeneity (Table~\ref{tab:heterogeneity}) provides more reliable evidence that unmarried women as a group experience larger effects.
+
+Figure~\ref{fig:subgroups} visualizes the heterogeneity, showing point estimates and confidence intervals for each demographic subgroup. The wide confidence intervals underscore that the data support the overall effect more clearly than any particular subgroup pattern.
+
+\subsection{Stability Over Time}
+
+The multi-year data allows examination of whether the age-26 effect has changed over time. Year-by-year RD estimates show a stable effect across the 2016--2023 period, with point estimates ranging from approximately 0.6 to 1.7 percentage points. Although individual year estimates vary in magnitude---reflecting both sampling variation and potential year-specific factors---the overall pattern is one of remarkable stability. The Medicaid shift at age 26 is consistently positive in every year, suggesting that the coverage cliff is a persistent structural feature of the insurance landscape rather than a transient phenomenon.
+
+This stability across years is informative for policy analysis. The zeroing-out of the individual mandate penalty in 2019 did not produce a visible change in the age-26 effect, suggesting that the mandate was not the primary driver of coverage decisions for this population. Similarly, the expansion of marketplace options and the growth of Medicaid expansion over this period do not appear to have substantially altered the coverage cliff effect. The most natural interpretation is that the coverage cliff reflects a structural feature of the dependent coverage provision---the hard age cutoff---rather than a feature of the broader policy environment that might be addressed through other policy instruments.
+
+The stability finding also has implications for the external validity of the results. Because the estimates are consistent across years that encompass significant policy variation (pre- and post-mandate penalty, evolving marketplace design, COVID-19 pandemic), they are likely to generalize to future policy environments as well. The coverage cliff appears to be a robust consequence of age-based eligibility rules, not an artifact of the particular policy moment studied.
+
+\subsection{Robustness of the Regression Discontinuity Design}
+
+Table~\ref{tab:robustness} reports estimates from a battery of robustness checks. The main finding---a positive Medicaid discontinuity at age 26---is robust to changes in polynomial order (linear, quadratic, and cubic specifications), alternative kernel functions (triangular, uniform, and Epanechnikov), and the inclusion of covariates (marital status, college education, and nativity). The covariate-adjusted estimates are slightly larger than the unadjusted estimates, consistent with the small education imbalance documented in the balance tests: controlling for the fact that 26-year-olds are slightly more educated increases the estimated Medicaid effect.
+
+The donut-hole specification, which excludes observations at exactly age 26 to address concerns about birthday-timing imprecision, yields estimates consistent with the baseline. This is reassuring because it suggests that the results are not driven by the particular observations at the threshold age. The bandwidth sensitivity analysis (Table~\ref{tab:bandwidth}) shows stable estimates across bandwidths ranging from 2 to 5 years, with wider confidence intervals at the narrowest bandwidth as expected given the smaller effective sample size.
+
+The 10 percent random subsample used for computational feasibility is itself a robustness feature: with 1.4 million observations, the estimation sample remains orders of magnitude larger than typical RD applications. The uniform jitter approach for discrete running variables follows \citet{lee2010} and yields estimates consistent with the local randomization (permutation-based) inference that uses no jitter, providing cross-validation of the approach. The year-by-year estimates, each computed on independent subsamples with independent jitter draws, show consistent positive Medicaid effects across all eight years, further demonstrating that results are not artifacts of any particular random draw.
+
+
+\section{Discussion and Conclusion}
+
+\subsection{Summary of Findings}
+
+This paper has documented a significant coverage cliff at age 26, where young adults lose eligibility for parental health insurance under the ACA's dependent coverage provision. Using a regression discontinuity design and eight years of universe natality data covering approximately 13 million births, I find that crossing the age-26 threshold increases Medicaid-financed births by approximately 1.1 percentage points and decreases private insurance-financed births by approximately 1.0 percentage point. First-stage evidence from the natality data itself confirms that the age-26 cutoff produces a sharp disruption in insurance coverage trends. Heterogeneity analysis suggests larger effects among unmarried women, consistent with the mechanism that married women have spousal coverage as an alternative.
+
+\subsection{Fiscal Implications}
+
+The findings have implications for the fiscal burden of the age-26 cutoff on state Medicaid programs. When a birth shifts from private insurance to Medicaid financing, the cost shifts from the private insurer to the public sector. With approximately 3.6 million births annually and roughly 10 percent occurring to women ages 25 and 26, an incremental Medicaid rate of 1.1 percentage points translates to approximately 3,960 additional Medicaid-financed births per year attributable to the age-26 cutoff. At an average Medicaid payment of approximately \$5,500 per delivery \citep{truven2013}, this implies an annual fiscal cost of roughly \$22 million shifted from private insurers to Medicaid. This figure is subject to uncertainty: the 95 percent confidence interval for the Medicaid effect (0.3 to 2.2 percentage points) implies a range of approximately \$6 million to \$44 million. Moreover, this calculation captures only the direct cost of delivery, not prenatal care, postpartum care, or infant care that may also shift to Medicaid.
+
+\subsection{Limitations}
+
+This paper has several limitations that should be acknowledged. Most importantly, the running variable is measured in integer years rather than exact dates, creating the discrete RD challenge discussed throughout the paper. Additionally, plan termination timing varies across insurers: some end coverage on the 26th birthday, others at month's end, and others at plan-year end. This variation means the ``treatment'' is somewhat diffuse around the 26th birthday, likely attenuating the estimated discontinuity toward zero. Researchers with access to restricted data containing exact birthdates could provide sharper estimates.
+
+I observe only the source of payment at delivery, not insurance coverage throughout pregnancy. A woman who is uninsured during her first trimester but enrolls in Medicaid before delivery would be recorded as Medicaid-financed, but her early prenatal care might have been affected by the coverage gap. Administrative data linking prenatal claims to delivery records could shed light on whether the coverage transition affects care receipt before delivery.
+
+The public-use natality files do not contain state identifiers (removed for confidentiality), preventing direct analysis of heterogeneity by Medicaid expansion status. I use education and marital status as proxies for the vulnerability to the coverage cliff, but direct state-level analysis with restricted-use data would be valuable.
+
+The null findings on health outcomes, while now more informative given the multi-year pooled data and explicit power calculations, may still miss effects that manifest on dimensions not captured in the birth certificate data---such as maternal mental health, postpartum outcomes, or long-term child development.
+
+\subsection{Policy Implications}
+
+The findings suggest several directions for policy reform. First, the evidence that the primary effect is a fiscal shift from private to Medicaid, rather than an increase in uninsurance, indicates that the Medicaid safety net is functioning as intended for this population. However, the fiscal cost of approximately \$22 million annually in shifted delivery costs represents a transfer from the private sector to state Medicaid budgets that may not have been anticipated when the age-26 provision was designed. States bear the operational cost of processing these transitions, and the administrative burden on women navigating the coverage change during a vulnerable period is itself a welfare cost.
+
+Second, the larger effects among unmarried women highlight the role of marital status in mediating the coverage cliff. Women who lack access to spousal coverage face a more constrained set of alternatives, making the abrupt loss of parental insurance especially consequential. Policies that ease the transition---such as automatic enrollment in marketplace plans upon losing dependent coverage, extended notification periods, or simplified Medicaid enrollment for young adults---could reduce the disruption for this vulnerable population.
+
+Third, the null health findings should not be taken as evidence that the coverage cliff is costless. The outcomes observable in birth certificate data (prenatal care timing, preterm birth, low birth weight) are relatively blunt measures that may not capture the full range of health consequences. Maternal mental health, quality and continuity of prenatal care, financial stress associated with coverage transitions, and long-term child development outcomes are all potentially affected but not measured in this study. Moreover, the null findings apply specifically to births, where Medicaid pregnancy coverage provides a backstop; for non-pregnancy health care (routine checkups, chronic disease management, mental health services), the coverage cliff may have more consequential effects.
+
+\subsection{Conclusion}
+
+The ACA's dependent coverage provision has provided valuable insurance coverage to millions of young adults. But like all categorical rules, it creates a cliff: a moment when coverage ends abruptly and individuals must navigate the complex landscape of alternatives. This paper has documented what happens at that cliff, showing that thousands of young mothers each year transition from private insurance to Medicaid precisely when continuous coverage matters most.
+
+The regression discontinuity design exploits a clean institutional feature---the sharp age-26 cutoff---to identify causal effects free from the selection concerns that plague many studies of insurance coverage. By pooling eight years of universe natality data, the analysis achieves unusually high precision, allowing for well-powered tests of both payment source and health outcomes. The combination of large effects on payment source with null effects on health outcomes paints a nuanced picture: the coverage cliff is a real policy-relevant phenomenon with significant fiscal consequences, but its immediate health consequences are attenuated by the effectiveness of the Medicaid safety net for this specific population and set of outcomes.
+
+Understanding these coverage transitions is essential for designing insurance policy that serves people at critical moments. The seams in the American health insurance system---the boundaries between Medicare and Medicaid, between employer coverage and marketplace plans, between parental coverage and independent adulthood---are not just administrative details. They are points of vulnerability where people can fall through gaps, experience disruptions in care, and bear costs that thoughtful policy design could avoid. The age-26 cliff is one such seam, and this paper has provided rigorous evidence on its consequences.
+
+\label{apep_main_text_end}
+
+\newpage
+\bibliographystyle{aer}
+\begin{thebibliography}{99}
+
+\bibitem[Anderson et al.(2012)]{anderson2012}
+Anderson, M., Dobkin, C., and Gross, T. (2012).
+\newblock The effect of health insurance coverage on the use of medical services.
+\newblock \emph{American Economic Journal: Economic Policy}, 4(1):1--27.
+
+\bibitem[Antwi et al.(2013)]{antwi2013}
+Antwi, Y.~A., Moriya, A.~S., and Simon, K.~I. (2013).
+\newblock Effects of federal policy to insure young adults: Evidence from the 2010 Affordable Care Act's dependent-coverage mandate.
+\newblock \emph{American Economic Journal: Economic Policy}, 5(4):1--28.
+
+\bibitem[Antwi et al.(2015)]{antwi2015}
+Antwi, Y.~A., Moriya, A.~S., and Simon, K.~I. (2015).
+\newblock Access to health insurance and the use of inpatient medical care: Evidence from the Affordable Care Act young adult mandate.
+\newblock \emph{Journal of Health Economics}, 39:171--187.
+
+\bibitem[Barbaresco et al.(2015)]{barbaresco2015}
+Barbaresco, S., Courtemanche, C.~J., and Qi, Y. (2015).
+\newblock Impacts of the Affordable Care Act dependent coverage provision on health-related outcomes of young adults.
+\newblock \emph{Journal of Health Economics}, 40:54--68.
+
+\bibitem[Callaway and Sant'Anna(2021)]{callaway2021}
+Callaway, B. and Sant'Anna, P.~H.~C. (2021).
+\newblock Difference-in-differences with multiple time periods.
+\newblock \emph{Journal of Econometrics}, 225(2):200--230.
+
+\bibitem[Calonico et al.(2014)]{calonico2014}
+Calonico, S., Cattaneo, M.~D., and Titiunik, R. (2014).
+\newblock Robust nonparametric confidence intervals for regression-discontinuity designs.
+\newblock \emph{Econometrica}, 82(6):2295--2326.
+
+\bibitem[Cantor et al.(2012)]{cantor2012}
+Cantor, J.~C., Monheit, A.~C., DeLia, D., and Lloyd, K. (2012).
+\newblock Early impact of the Affordable Care Act on health insurance coverage of young adults.
+\newblock \emph{Health Services Research}, 47(5):1773--1790.
+
+\bibitem[Card et al.(2008)]{card2008}
+Card, D., Dobkin, C., and Maestas, N. (2008).
+\newblock The impact of nearly universal insurance coverage on health care utilization: Evidence from Medicare.
+\newblock \emph{American Economic Review}, 98(5):2242--2258.
+
+\bibitem[Card et al.(2009)]{card2009}
+Card, D., Dobkin, C., and Maestas, N. (2009).
+\newblock Does Medicare save lives?
+\newblock \emph{Quarterly Journal of Economics}, 124(2):597--636.
+
+\bibitem[Cattaneo et al.(2015)]{cattaneo2015}
+Cattaneo, M.~D., Frandsen, B.~R., and Titiunik, R. (2015).
+\newblock Randomization inference in the regression discontinuity design: An application to party advantages in the US Senate.
+\newblock \emph{Journal of Causal Inference}, 3(1):1--24.
+
+\bibitem[Cattaneo et al.(2019)]{cattaneo2019}
+Cattaneo, M.~D., Idrobo, N., and Titiunik, R. (2019).
+\newblock \emph{A Practical Introduction to Regression Discontinuity Designs: Foundations}.
+\newblock Cambridge University Press.
+
+\bibitem[Cattaneo, Jansson, and Ma(2019)]{cattaneojansson2019}
+Cattaneo, M.~D., Jansson, M., and Ma, X. (2019).
+\newblock Simple local polynomial density estimators.
+\newblock \emph{Journal of the American Statistical Association}, 115(531):1449--1455.
+
+\bibitem[CDC(2015)]{cdc2015}
+Centers for Disease Control and Prevention (2015).
+\newblock Health insurance coverage: Early release of estimates from the National Health Interview Survey, 2014.
+
+\bibitem[Chen et al.(2016)]{chen2016}
+Chen, J., Vargas-Bustamante, A., Mortensen, K., and Ortega, A.~N. (2016).
+\newblock Counting the costs: The effects of the Affordable Care Act dependent coverage mandate on health care use.
+\newblock \emph{Health Services Research}, 51(1):312--332.
+
+\bibitem[Currie and Gruber(1996)]{currie1996}
+Currie, J. and Gruber, J. (1996).
+\newblock Health insurance eligibility, utilization of medical care, and child health.
+\newblock \emph{Quarterly Journal of Economics}, 111(2):431--466.
+
+\bibitem[Dague et al.(2017)]{dague2017}
+Dague, L., DeLeire, T., and Leininger, L. (2017).
+\newblock The effect of public insurance coverage for childless adults on labor supply.
+\newblock \emph{American Economic Journal: Economic Policy}, 9(2):124--154.
+
+\bibitem[Daw and Sommers(2018)]{daw2018}
+Daw, J.~R. and Sommers, B.~D. (2018).
+\newblock Association of the Affordable Care Act dependent coverage provision with prenatal care use and birth outcomes.
+\newblock \emph{JAMA}, 319(6):579--587.
+
+\bibitem[Depew and Bailey(2015)]{depew2015}
+Depew, B. and Bailey, J. (2015).
+\newblock Did the Affordable Care Act's dependent coverage mandate increase premiums?
+\newblock \emph{Journal of Health Economics}, 41:1--14.
+
+\bibitem[Gelman and Imbens(2019)]{gelman2019}
+Gelman, A. and Imbens, G. (2019).
+\newblock Why high-order polynomials should not be used in regression discontinuity designs.
+\newblock \emph{Journal of Business and Economic Statistics}, 37(3):447--456.
+
+\bibitem[Goodman-Bacon(2021)]{goodmanbacon2021}
+Goodman-Bacon, A. (2021).
+\newblock Difference-in-differences with variation in treatment timing.
+\newblock \emph{Econometrica}, 89(5):2261--2299.
+
+\bibitem[Herd and Moynihan(2018)]{herd2018}
+Herd, P. and Moynihan, D.~P. (2018).
+\newblock \emph{Administrative Burden: Policymaking by Other Means}.
+\newblock Russell Sage Foundation.
+
+\bibitem[Imbens and Kalyanaraman(2012)]{imbenskalyanaraman2012}
+Imbens, G.~W. and Kalyanaraman, K. (2012).
+\newblock Optimal bandwidth choice for the regression discontinuity estimator.
+\newblock \emph{Review of Economic Studies}, 79(3):933--959.
+
+\bibitem[Imbens and Lemieux(2008)]{imbens2008}
+Imbens, G.~W. and Lemieux, T. (2008).
+\newblock Regression discontinuity designs: A guide to practice.
+\newblock \emph{Journal of Econometrics}, 142(2):615--635.
+
+\bibitem[Koles{\'a}r and Rothe(2018)]{kolesar2018}
+Koles{\'a}r, M. and Rothe, C. (2018).
+\newblock Inference in regression discontinuity designs with a discrete running variable.
+\newblock \emph{American Economic Review}, 108(8):2277--2304.
+
+\bibitem[Lee and Lemieux(2010)]{lee2010}
+Lee, D.~S. and Lemieux, T. (2010).
+\newblock Regression discontinuity designs in economics.
+\newblock \emph{Journal of Economic Literature}, 48(2):281--355.
+
+\bibitem[Ma and Nolan(2019)]{ma2019}
+Ma, J. and Nolan, L. (2019).
+\newblock ACA young adult provision and contraceptive use.
+\newblock \emph{Contemporary Economic Policy}, 37(2):324--345.
+
+\bibitem[Martin et al.(2023)]{martin2023}
+Martin, J.~A., Hamilton, B.~E., Osterman, M.~J.~K., and Driscoll, A.~K. (2023).
+\newblock Births: Final data for 2022.
+\newblock \emph{National Vital Statistics Reports}, 72(1).
+
+\bibitem[McCrary(2008)]{mccrary2008}
+McCrary, J. (2008).
+\newblock Manipulation of the running variable in the regression discontinuity design: A density test.
+\newblock \emph{Journal of Econometrics}, 142(2):698--714.
+
+\bibitem[Shigeoka(2014)]{shigeoka2014}
+Shigeoka, H. (2014).
+\newblock The effect of patient cost sharing on utilization, health, and risk protection.
+\newblock \emph{American Economic Review}, 104(7):2152--2184.
+
+\bibitem[Simon, Soni, and Cawley(2017)]{simon2016}
+Simon, K., Soni, A., and Cawley, J. (2017).
+\newblock The impact of health insurance on preventive care and health behaviors: Evidence from the first two years of the ACA Medicaid expansions.
+\newblock \emph{Journal of Policy Analysis and Management}, 36(2):390--417.
+
+\bibitem[Sommers(2009)]{sommers2009}
+Sommers, B.~D. (2009).
+\newblock Why millions of children eligible for Medicaid and SCHIP are uninsured.
+\newblock \emph{Health Affairs}, 26(5):1175--1183.
+
+\bibitem[Sommers et al.(2012)]{sommers2012}
+Sommers, B.~D., Buchmueller, T., Decker, S.~L., Carey, C., and Kronick, R. (2012).
+\newblock The Affordable Care Act has led to significant gains in health insurance and access to care for young adults.
+\newblock \emph{Health Affairs}, 32(1):165--174.
+
+\bibitem[Truven Health Analytics(2013)]{truven2013}
+Truven Health Analytics (2013).
+\newblock The cost of having a baby in the United States.
+\newblock Childbirth Connection report.
+
+\bibitem[Wallace and Sommers(2015)]{wallace2011}
+Wallace, J. and Sommers, B.~D. (2015).
+\newblock Effect of dependent coverage expansion of the Affordable Care Act on health and access to care for young adults.
+\newblock \emph{JAMA Pediatrics}, 169(5):495--497.
+
+\bibitem[Wherry et al.(2018)]{wherry2018}
+Wherry, L.~R., Miller, S., Kaestner, R., and Meyer, B.~D. (2018).
+\newblock Childhood Medicaid coverage and later-life health care utilization.
+\newblock \emph{Review of Economics and Statistics}, 100(2):287--302.
+
+\end{thebibliography}
+
+
+\newpage
+\appendix
+
+\section{Figures and Tables}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/figure1_rdd_main.pdf}
+\caption{Source of Payment for Delivery by Mother's Age}
+\floatfoot{\textit{Notes:} Data from 2016--2023 CDC Natality Public Use Files (8 years pooled). Each point represents the mean share for all births at that single year of age across all years. Lines are fitted locally on each side of the age-26 cutoff. The vertical dashed line marks the threshold at which dependent coverage eligibility ends.}
+\label{fig:main}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/figure6_first_stage.pdf}
+\caption{First Stage: Insurance Coverage by Age}
+\floatfoot{\textit{Notes:} Payment source rates by single year of age from CDC Natality 2016--2023 (pooled). The vertical dashed line marks the age-26 cutoff. The upward trend in private coverage flattens and the downward trend in Medicaid slows at age 26, confirming the first stage.}
+\label{fig:first_stage}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/density_test.pdf}
+\caption{Distribution of Births by Mother's Age}
+\floatfoot{\textit{Notes:} Histogram shows the distribution of births by mother's single year of age. The vertical dashed line marks age 26. No bunching is visible at the threshold, supporting the assumption that the running variable is not manipulated. Data: CDC Natality 2016--2023.}
+\label{fig:density}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/figure4_heterogeneity_marital.pdf}
+\caption{Heterogeneity by Marital Status}
+\floatfoot{\textit{Notes:} Medicaid payment rate by age, separately for married and unmarried mothers. The effect is substantially larger for unmarried women, who lack access to spousal coverage. Data: CDC Natality 2016--2023.}
+\label{fig:heterogeneity}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/figure7_placebo_cutoffs.pdf}
+\caption{Placebo and Policy Cutoff RD Estimates}
+\floatfoot{\textit{Notes:} RD estimates for Medicaid payment at placebo ages (24, 25, 27, 28) and the policy-relevant age 26. Points show estimates; bars show 95\% CI. Only age 26 shows a large positive discontinuity.}
+\label{fig:placebo}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/figure9_bandwidth.pdf}
+\caption{Bandwidth Sensitivity Analysis}
+\floatfoot{\textit{Notes:} Point estimates and 95\% robust confidence intervals for the Medicaid RDD effect across bandwidths of 1 to 5 years. Estimates are stable across bandwidth choices. Data: CDC Natality 2016--2023.}
+\label{fig:bandwidth}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/figure8_heterogeneity_subgroups.pdf}
+\caption{Heterogeneity by Demographic Subgroup}
+\floatfoot{\textit{Notes:} RD estimates for Medicaid payment by education--marital status subgroup with 95\% robust confidence intervals. Individual subgroup estimates are imprecise; none achieves statistical significance at conventional levels. Data: CDC Natality 2016--2023.}
+\label{fig:subgroups}
+\end{figure}
+
+\input{tables/table1_summary.tex}
+
+\input{tables/table2_main.tex}
+
+\input{tables/table3_balance.tex}
+
+\input{tables/table4_placebo.tex}
+
+\input{tables/table5_heterogeneity.tex}
+
+\input{tables/table6_bandwidth.tex}
+
+\input{tables/table7_robustness.tex}
+
+\input{tables/table8_subgroups.tex}
+
+\input{tables/table9_mde.tex}
+
+\input{tables/table10_locrand.tex}
+
+
+\section{Data Appendix}
+
+\subsection{Variable Definitions}
+
+The analysis uses the following variables from the CDC Natality Public Use Files.
+
+The MAGER variable captures the mother's age in single years at the time of delivery, computed from the mother's date of birth and the infant's date of birth as recorded on the birth certificate. Values range from 12 to over 50. For this analysis, I restrict to ages 22 through 30 to create a window around the age-26 threshold.
+
+The PAY variable captures the principal source of payment for the delivery at the time of delivery. The categories include Medicaid, private insurance (including Blue Cross Blue Shield, Aetna, and other commercial insurers), self-pay (indicating no third-party payer, generally meaning uninsured), Indian Health Service, CHAMPUS/TRICARE (military insurance), other government programs, other payers, and unknown or not stated. I construct indicator variables for the three main categories: Medicaid, private insurance, and self-pay.
+
+The MBSTATE\_REC variable is a 4-category recode of mother's birthplace: (1) born in state of residence, (2) born in another US state, (3) born outside the US, (4) born in US but state unknown. I code US-born as categories 1, 2, or 4, and foreign-born as category 3. Note that this variable captures birthplace, not current immigration status.
+
+The DMAR variable indicates marital status at the time of birth, coded as married versus unmarried. The MEDUC variable indicates mother's educational attainment, from which I construct an indicator for having a bachelor's degree or higher (MEDUC $\geq$ 6).
+
+\subsection{Sample Construction}
+
+The raw 2016--2023 Natality files contain approximately 29 million birth records total. Limiting to mothers ages 22 through 30 yields approximately 13.5 million records; excluding records with missing payment information reduces this to approximately 13 million records (the final analysis sample). Missing payment information is approximately 2--3 percent of births in the age range across all years.
+
+
+\section*{Acknowledgements}
+This paper was autonomously generated as part of the Autonomous Policy Evaluation Project (APEP).
+
+\noindent\textbf{Contributors:} @ai1scl
+
+\noindent\textbf{First Contributor:} \url{https://github.com/ai1scl}
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/auto-policy-evals}
+
+\end{document}

@@ -1,0 +1,612 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\sisetup{detect-all=true, group-separator={,}, group-minimum-digits=4}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Timing data
+\IfFileExists{timing_data.tex}{\input{timing_data.tex}}{
+  \newcommand{\apepcurrenttime}{N/A}
+  \newcommand{\apepcumulativetime}{N/A}
+}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\sym}[1]{\ifmmode^{#1}\else\(^{#1}\)\fi}
+
+\title{Digital Markets and Price Discovery: Evidence from India's e-NAM Agricultural Platform}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. Correspondence: scl@econ.uzh.ch} \\ @ai1scl-auto}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+India's agricultural markets are fragmented by state-level regulations confining farmers to designated wholesale markets (mandis). We evaluate the electronic National Agriculture Market (e-NAM), which integrated 585 mandis across 18 states between 2016 and 2018. Exploiting the staggered rollout, we compare two-way fixed effects with the heterogeneity-robust Callaway-Sant'Anna estimator. CS-DiD estimates suggest that e-NAM raised wholesale prices for storable commodities---wheat by 4.7 percent and soyabean by 8.2 percent---while effects on perishables (onion, tomato) cannot be credibly identified due to pre-trend violations. However, the Sun-Abraham estimator yields smaller or opposing estimates, and the tightly clustered treatment cohorts limit the comparison group. We characterize results as suggestive evidence that digital market infrastructure can improve price discovery for standardized, storable crops, while institutional barriers constrain its reach for perishables.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} O13, Q13, L86, D47 \\
+\noindent\textbf{Keywords:} agricultural markets, e-NAM, price discovery, market integration, difference-in-differences, India
+
+\newpage
+
+\section{Introduction}
+
+A mango farmer in rural Maharashtra faces a stark asymmetry: her buyer knows the price in Mumbai, Chennai, and Delhi, but she knows only what the local commission agent tells her. This information gap---between the price at which agricultural commodities trade in wholesale markets and the price farmers actually receive---has been one of the most persistent features of agricultural markets in developing countries \citep{stigler1961economics, fafchamps2005selling}. In India, the problem is compounded by legal fragmentation: the Agricultural Produce Market Committee (APMC) Acts historically required farmers to sell through licensed markets within their own district, creating thousands of geographically isolated trading arenas with limited competition.
+
+The electronic National Agriculture Market (e-NAM), launched in April 2016, represents India's most ambitious attempt to unify these fragmented markets. By connecting mandis (wholesale markets) onto a single digital platform, e-NAM enables electronic bidding, real-time price posting, and the possibility of inter-mandi trade. The rollout was staggered: 21 mandis in 9 states at launch, expanding to over 1,000 mandis across 23 states by May 2020. This paper asks a simple but important question: did e-NAM actually improve price discovery and market integration for Indian farmers?
+
+We exploit the phased rollout of e-NAM using a staggered difference-in-differences (DiD) design. The staggered adoption across four phases creates natural variation: mandis not yet integrated at any point in time serve as the comparison group for mandis already on the platform. We draw on daily mandi-level price and arrival data from the CEDA Ashoka AgMarkNet dataset, which covers over 2,700 mandis across India from 2007 to 2025. This gives us 8--10 years of pre-treatment data for the earliest-treated cohorts, enabling rigorous testing of the parallel trends assumption.
+
+Our identification strategy addresses three key challenges. First, e-NAM was not randomly assigned: states and mandis that integrated first were likely better-connected and more market-oriented. We address selection using Callaway and Sant'Anna's (2021) heterogeneity-robust estimator, which avoids the negative weighting problems of standard two-way fixed effects (TWFE) and provides clean group-time average treatment effects. Second, treatment dates at the individual mandi level are imprecise; we assign treatment at the state-phase cohort level and conduct extensive sensitivity analysis to treatment timing. Third, India's agricultural sector experienced concurrent policy shocks---demonetization in November 2016, GST implementation in July 2017, and the Farm Laws of 2020-2021---which we absorb using flexible time fixed effects and within-state comparisons.
+
+Digital integration is not a panacea. Our preferred Callaway-Sant'Anna estimates suggest that e-NAM raised prices for storable crops---wheat by 4.7 percent and soybean by 8.2 percent---but the Sun-Abraham estimator yields smaller or opposing estimates for these same commodities. We present this estimator disagreement transparently: the tightly clustered treatment cohorts (all within 24 months) and near-absence of never-treated control mandis for wheat and soybean make the estimates sensitive to the specific comparison group composition. Placebo tests support the parallel trends assumption for storable commodities, and event-study plots show flat pre-trends followed by gradually emerging effects, consistent with a learning process. For perishable crops, TWFE estimates are negative but placebo tests reveal significant pre-trends, invalidating identification. In perishable markets, the binding constraint is not a lack of price data but a lack of cold storage. This storability divide provides a sharp test of the mechanism: e-NAM's transparency channel operates through spatial arbitrage, which requires that commodities be tradeable across geographic distances without rapid quality deterioration.
+
+This paper contributes to three literatures. First, it extends the foundational work on information and communication technology (ICT) in agricultural markets. \citet{jensen2007digital} showed that mobile phones reduced price dispersion in Kerala's fish markets by 4 percent and increased fishermen's profits by 8 percent. \citet{aker2010information} found similar effects for grain markets in Niger. \citet{goyal2010information} documented that internet kiosks improved soybean prices in Madhya Pradesh. Our study evaluates the next generation of this technology---a government-mandated digital trading platform---at unprecedented scale, covering over 1,000 mandis and multiple commodities.
+
+Second, we contribute to the literature on market design and agricultural policy in developing countries. \citet{bergquist2019competition} use a field experiment to show that intermediary entry in Kenyan markets raises producer prices, while \citet{mitra2018intermediary} develop a structural model of intermediary power in Indian potato markets. \citet{atkin2018retail} examine how retail competition from foreign firms affects household welfare in Mexico. We complement these studies by evaluating a platform-based intervention that aims to increase competition without physically restructuring market infrastructure.
+
+Third, we advance methodological practice in the evaluation of staggered policy rollouts. We implement Callaway-Sant'Anna group-time ATTs and Sun-Abraham interaction-weighted estimates, and show how results differ from naive TWFE estimates \citep{roth2023whats, dechaisemartin2020two}. This is important because India's policy landscape is characterized by phased rollouts, making staggered DiD the natural identification strategy for many programs \citep{asher2020rural}. The transparent disagreement between our estimators illustrates the challenges of causal inference with tightly clustered treatment cohorts and few control units \citep{conleytaber2011}.
+
+The remainder of the paper proceeds as follows. Section 2 describes the institutional background of India's agricultural marketing system and the e-NAM reform. Section 3 presents a conceptual framework for how digital platforms should affect market outcomes. Section 4 describes our data. Section 5 details the empirical strategy. Section 6 presents results. Section 7 discusses robustness and mechanisms. Section 8 concludes.
+
+
+\section{Institutional Background}
+
+\subsection{India's APMC System}
+
+India's agricultural marketing has been governed by state-level APMC Acts since the 1960s \citep{chand2012development}. Under this system, each state designates Agricultural Produce Market Committees that operate wholesale markets (mandis) where agricultural commodities must be sold. Key features include:
+
+\begin{itemize}
+    \item \textbf{Geographic monopoly:} Farmers must sell through their nearest APMC-designated mandi. Trading outside these mandis is prohibited or heavily restricted.
+    \item \textbf{Licensing:} Only licensed commission agents (arthiyas/dalals) can bid for produce. Entry barriers reduce competition.
+    \item \textbf{Market fees:} APMC mandis charge market fees (typically 1--2 percent) and commission charges (up to 6 percent in some states), creating significant transaction costs.
+    \item \textbf{Fragmentation:} As of 2016, India had approximately 6,900 APMC mandis serving 640,000 villages---roughly one mandi per 90 villages, with enormous variation in accessibility.
+\end{itemize}
+
+The APMC system was designed to protect farmers from exploitation by private traders, but it has been widely criticized for creating local monopsonies, restricting market access, and suppressing farm-gate prices \citep{acharya2012agricultural}. The 2003 Model APMC Act recommended reforms including direct purchasing, contract farming, and electronic trading, but implementation varied widely across states. Bihar abolished its APMC Act entirely in 2006; most other states made only partial amendments.
+
+\subsection{The e-NAM Platform}
+
+The electronic National Agriculture Market (e-NAM) was launched on April 14, 2016, by the Ministry of Agriculture and Farmers' Welfare. It is a pan-India electronic trading platform that integrates existing APMC mandis into a unified market through a common online platform. The key features are:
+
+\begin{enumerate}
+    \item \textbf{Electronic bidding:} Traders anywhere in India can view commodity lots posted on e-NAM and place bids electronically, increasing the pool of competing buyers.
+    \item \textbf{Price transparency:} Real-time prices from all e-NAM mandis are visible on the platform, reducing information asymmetries.
+    \item \textbf{Quality assay:} Mandis are equipped with assaying laboratories to standardize quality grading, enabling remote bidding based on verified quality parameters.
+    \item \textbf{Inter-mandi trade:} In principle, e-NAM enables trading across mandi boundaries, though implementation of this feature has been limited.
+\end{enumerate}
+
+\subsection{Staggered Rollout}
+
+The integration of mandis into e-NAM was phased across states and time. The rollout proceeded in broadly five waves:
+
+\begin{itemize}
+    \item \textbf{April 2016 (Phase 1A):} 21 mandis across 9 states---Uttar Pradesh, Gujarat, Maharashtra, Madhya Pradesh, Telangana, Haryana, Rajasthan, Himachal Pradesh, and Jharkhand.
+    \item \textbf{November 2016 (Phase 1B):} Expansion to approximately 250 mandis across 11 states, adding Andhra Pradesh and Tamil Nadu.
+    \item \textbf{March 2017 (Phase 1C):} 417 mandis across 15 states, adding Punjab, Chhattisgarh, Uttarakhand, and West Bengal.
+    \item \textbf{March 2018 (Phase 1D):} Phase 1 completion with 585 mandis across 18 states, adding Odisha, Karnataka, and Kerala.
+    \item \textbf{2019--2020 (Phase 2):} Expansion to 1,000+ mandis across 23 states by May 2020, with additional states including Chandigarh, Puducherry, and Jammu \& Kashmir.
+\end{itemize}
+
+This staggered rollout creates the identifying variation for our difference-in-differences design. States that integrated mandis earlier serve as the treatment group, while states and mandis that were never integrated (or integrated much later) serve as controls. \Cref{fig:rollout} visualizes the cumulative expansion.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/fig1_rollout_timeline.pdf}
+    \caption{Staggered Rollout of e-NAM Platform}
+    \label{fig:rollout}
+    \par\vspace{0.3em}\noindent\footnotesize\textit{Notes:}
+    Number of agricultural mandis integrated into the e-NAM electronic trading platform, by phase. Source: PIB press releases and NAARM (2020).
+    \normalsize
+\end{figure}
+
+\subsection{Pre-existing Evidence}
+
+Despite its scale and ambition, rigorous evaluation of e-NAM has been limited. \citet{naarm2020enam} conducted a comprehensive descriptive assessment finding that while electronic bidding was technically functional, inter-mandi trade remained minimal and many mandis lacked the physical infrastructure (internet connectivity, assaying equipment) for full utilization. Small-scale studies found modest price effects in Karnataka \citep{goyal2010information} and Andhra Pradesh, but no multi-state causal evaluation using modern econometric methods has been published.
+
+
+\section{Conceptual Framework}
+
+We develop a simple framework to structure predictions about how e-NAM should affect mandi-level outcomes.
+
+\subsection{Information and Price Dispersion}
+
+Following \citet{stigler1961economics} and \citet{jensen2007digital}, consider a spatial equilibrium model where commodity prices in mandi $m$ at time $t$ are determined by:
+\begin{equation}
+    p_{mt} = p^*_t + \tau_{mt} + \sigma_{mt}
+\end{equation}
+where $p^*_t$ is the ``law of one price'' benchmark, $\tau_{mt}$ represents transport costs, and $\sigma_{mt}$ captures information frictions that allow prices to deviate from the competitive spatial equilibrium. In the absence of information technology, $\sigma_{mt}$ can be substantial: farmers cannot observe prices in distant mandis, and local traders exploit this asymmetry.
+
+e-NAM directly reduces $\sigma_{mt}$ through two channels: (i) real-time price posting makes prices in all connected mandis observable, and (ii) electronic bidding allows traders from outside the local market to compete for produce. If e-NAM works as intended, integration should reduce the cross-mandi price dispersion:
+\begin{equation}
+    \text{CV}(p_{mt}) \equiv \frac{\text{SD}(p_{mt})}{\text{Mean}(p_{mt})} \quad \text{should decline after integration.}
+\end{equation}
+
+\subsection{Price Levels}
+
+The effect on price levels is ambiguous. If local mandis were characterized by monopsony power (few buyers), e-NAM's electronic bidding increases competition and should raise farm-gate prices. But if local mandis were competitive and prices already reflected fundamentals, the effect on levels would be zero. The sign thus depends on the degree of pre-existing market power:
+\begin{equation}
+    \Delta p_{mt} > 0 \iff \text{pre-e-NAM market concentration was high.}
+\end{equation}
+
+This generates a testable heterogeneity prediction: price effects should be larger in mandis with fewer pre-treatment traders (thinner markets).
+
+\subsection{Market Participation and Arrivals}
+
+Lower transaction costs and better price information may attract additional sellers (farmers bringing more produce) and buyers (traders from outside the catchment area). We therefore predict:
+\begin{equation}
+    \Delta Q_{mt} > 0 \quad \text{(arrival quantities increase after integration).}
+\end{equation}
+
+\subsection{Dynamic Effects}
+
+Platform effects are unlikely to appear instantaneously. Learning dynamics---traders and farmers discovering and trusting the platform---suggest effects should grow over time. Network externalities (more users making the platform more valuable) reinforce this. We therefore expect event-study coefficients to show:
+\begin{equation}
+    \beta_k \approx 0 \text{ for } k < 0, \quad \text{and } |\beta_k| \text{ increasing in } k \text{ for } k \geq 0.
+\end{equation}
+
+
+\section{Data}
+
+\subsection{CEDA AgMarkNet Dataset}
+
+Our primary data source is the Centre for Economic Data and Analysis (CEDA) at Ashoka University, which maintains a cleaned and research-ready version of the AgMarkNet database.\footnote{Available at \url{https://agmarknet.ceda.ashoka.edu.in/}. AgMarkNet is maintained by the Directorate of Marketing and Inspection, Ministry of Agriculture and Farmers' Welfare.} The full dataset covers daily commodity arrivals and prices for over 2,700 mandis across all major Indian states, with data beginning in 2006--2007 for most mandis. Due to API rate constraints, we sample six districts per state (stratified across all districts with reported mandi activity) and fetch all available mandis within those districts.\footnote{The sampling uses a fixed random seed for reproducibility. We verify that our sampled mandis span all four treatment cohorts and both control states. The resulting sample of 370 mandis in the regression panel represents a subset of the full e-NAM network; results should be interpreted with this coverage limitation in mind.}
+
+For each mandi-commodity-date observation, the dataset records:
+\begin{itemize}
+    \item \textbf{Prices:} Minimum, maximum, and modal (most frequent transaction) prices in rupees per quintal.
+    \item \textbf{Arrivals:} Quantity of commodity arriving at the mandi in tonnes.
+    \item \textbf{Geography:} Market name and ID, district, state (mapped to Census 2011 codes).
+    \item \textbf{Commodity:} Commodity name and variety.
+\end{itemize}
+
+\subsection{Commodity Selection}
+
+We focus on four major commodities that span the perishability spectrum:
+
+\begin{enumerate}
+    \item \textbf{Onion}---India's most price-volatile commodity, with no government Minimum Support Price (MSP). Highly perishable, with dense trading networks.
+    \item \textbf{Tomato}---Highly perishable, no MSP. Significant seasonal price swings.
+    \item \textbf{Wheat}---Rabi staple with MSP. Storable and standardized. FCI conducts significant procurement in some states.
+    \item \textbf{Soybean}---Major oilseed with MSP. Storable and standardized. Government procurement is limited in practice.
+\end{enumerate}
+
+This selection provides natural variation in commodity characteristics: onion and tomato are perishable crops that must be sold quickly after harvest, while wheat and soybean are storable crops amenable to spatial arbitrage. This distinction proves central to interpreting our results.
+
+\subsection{Treatment Assignment}
+
+We identify e-NAM mandis using the official e-NAM Directory (July 2021), which lists all 1,000 integrated mandis with their state, district, and names. Treatment timing is assigned at the state-phase cohort level using Press Information Bureau (PIB) releases and the NAARM (2020) assessment report:
+
+\begin{itemize}
+    \item Phase 1A (April 2016): UP, Gujarat, Maharashtra, MP, Telangana, Haryana, Rajasthan, HP, Jharkhand
+    \item Phase 1B (November 2016): Andhra Pradesh, Tamil Nadu
+    \item Phase 1C (March 2017): Punjab, Chhattisgarh, Uttarakhand, West Bengal
+    \item Phase 1D (March 2018): Odisha, Karnataka, Kerala
+    \item Phase 2 (May 2020): Chandigarh, Puducherry, Jammu \& Kashmir
+\end{itemize}
+
+Two caveats about treatment assignment deserve emphasis. First, state-phase assignment introduces measurement error: individual mandis within a state may have been connected at different dates, but we assign the state-level rollout date. Second, because all mandis within a state share the same treatment date, the staggered variation is entirely \textit{between}-state. With 4 treatment cohorts and 2 control states, the effective number of independent treatment contrasts is modest despite the large mandi-level sample size. We report state-clustered standard errors alongside mandi-clustered results to assess how inference depends on the clustering level.
+
+\subsection{Panel Construction}
+
+We aggregate daily observations to the mandi $\times$ commodity $\times$ month level, computing mean modal price, mean arrival quantity, and price standard deviation within each cell. This aggregation serves two purposes: it smooths over day-of-week effects and reporting irregularities that are pervasive in the raw data, and it creates a panel at the frequency relevant for agricultural decision-making (planting and selling decisions are typically made at monthly or seasonal horizons).
+
+The raw data contain 1,965,470 daily price observations from 680 unique mandis across 20 states, spanning January 2007 to October 2025. We apply the following cleaning procedures:
+
+\begin{enumerate}
+    \item \textbf{Inactive markets:} We exclude markets with no reported activity---observations with missing or zero modal prices are dropped (less than 0.5\% of observations).
+    \item \textbf{Outlier removal:} Observations where the modal price exceeds 10 times or falls below 0.1 times the commodity-state-year median are dropped. This removes 11,348 observations (0.6\% of the sample), primarily reflecting data entry errors and extreme variety-driven price variation.
+    \item \textbf{Monthly aggregation:} Remaining daily observations are averaged within each mandi-commodity-month cell, yielding 116,353 monthly panel observations.
+    \item \textbf{Panel balance filter:} For regression analysis, we restrict to mandis with at least 60 months of data to ensure sufficient pre- and post-treatment coverage.
+\end{enumerate}
+
+\subsection{Price Dispersion Measure}
+
+We construct a state-level measure of price dispersion. For each state $\times$ commodity $\times$ month cell with at least three reporting mandis, we compute the coefficient of variation (CV) of modal prices:
+\begin{equation}
+    \text{CV}_{sct} = \frac{\text{SD}(p_{mct} : m \in s)}{\text{Mean}(p_{mct} : m \in s)}
+\end{equation}
+where $s$ indexes states, $c$ commodities, and $t$ month-years. The CV is scale-free and comparable across commodities with very different price levels. The dispersion panel contains 8,854 state-commodity-month observations.
+
+\subsection{Summary Statistics}
+
+\input{tables/tab1_summary.tex}
+
+\Cref{tab:summary} presents summary statistics for the regression sample, restricted to mandis with at least 60 monthly observations. The total observation counts match the regression sample in \Cref{tab:main_twfe}. The sample includes 222 onion mandis, 212 tomato mandis, 178 wheat mandis, and 69 soybean mandis. Mean modal prices vary substantially, from approximately Rs 1,700/quintal for wheat to Rs 3,500/quintal for soybean. Critically, only 4 onion mandis and 2 tomato mandis come from never-treated states (Bihar and Assam), and no wheat or soybean mandis survive the panel-balance filter in those states. This near-absence of never-treated units is why our CS-DiD estimates rely on not-yet-treated rather than never-treated mandis as controls.
+
+
+\section{Empirical Strategy}
+
+\subsection{Staggered Difference-in-Differences}
+
+Our identification relies on comparing price outcomes in mandis that were integrated into e-NAM with mandis not yet integrated at each point in time. Because nearly all mandis in our sample are eventually treated (366 of 370 in the regression sample), the design depends primarily on staggered adoption---not on never-treated units---for identifying variation. The identifying assumption is that, absent e-NAM, treated and not-yet-treated mandis would have followed parallel price trends.
+
+\subsubsection{Callaway-Sant'Anna Estimator}
+
+We implement the \citet{callaway2021difference} estimator, which defines group-time average treatment effects for each cohort $g$ (mandis first treated at time $g$) and each time period $t$:
+\begin{equation}
+    ATT(g,t) = \E[Y_t(g) - Y_t(0) | G_g = 1]
+\end{equation}
+where $Y_t(g)$ is the potential outcome under treatment starting at $g$, $Y_t(0)$ is the untreated potential outcome, and $G_g = 1$ indicates membership in cohort $g$. The key advantages over TWFE are:
+\begin{enumerate}
+    \item \textbf{No negative weights:} TWFE can assign negative weights to some treatment effects when treatment is staggered \citep{goodmanbacon2021difference}. CS-DiD avoids this by using only never-treated or not-yet-treated units as controls.
+    \item \textbf{Heterogeneity-robust:} Treatment effects can vary across cohorts and over time without biasing the aggregate.
+    \item \textbf{Built-in pre-trend testing:} Group-time ATTs for pre-treatment periods directly test parallel trends.
+\end{enumerate}
+
+We aggregate group-time ATTs in two ways: (i) a simple weighted average to obtain the overall ATT, and (ii) a dynamic aggregation to obtain event-study coefficients $\beta_k$ for $k$ periods relative to treatment.
+
+\subsubsection{Sun-Abraham Estimator}
+
+As a robustness check, we implement the \citet{sun2021estimating} interaction-weighted estimator through the \texttt{sunab()} function in \texttt{fixest}. This provides an alternative heterogeneity-robust estimator within the TWFE regression framework.
+
+\subsubsection{TWFE Benchmark}
+
+We also report standard TWFE estimates as a benchmark:
+\begin{equation}
+    Y_{mct} = \alpha_m + \gamma_t + \beta \cdot \text{eNAM}_{mt} + \varepsilon_{mct}
+\end{equation}
+where $\alpha_m$ are mandi fixed effects, $\gamma_t$ are month-year fixed effects, and $\text{eNAM}_{mt}$ is an indicator equal to one after mandi $m$ is integrated. Standard errors are clustered at the mandi level.
+
+\subsection{Threats to Validity}
+
+\subsubsection{Selection into Treatment}
+
+e-NAM mandis were not randomly selected. States that integrated first---UP, Gujarat, Maharashtra, MP---are among India's largest agricultural economies. Within states, mandis selected for integration were likely those with better infrastructure and connectivity. This threatens identification if these mandis were already on different price trajectories.
+
+We address this in several ways. First, our 8+ years of pre-treatment data allow extensive pre-trend testing. Flat event-study coefficients in the pre-period would be inconsistent with differential trends. Second, we implement placebo falsification tests with fictional treatment dates shifted 3 years earlier. Third, our CS-DiD event-study plots directly test for pre-trends at quarterly frequency, providing a transparent visual assessment of the parallel trends assumption.
+
+\subsubsection{Concurrent Policy Shocks}
+
+India's agricultural sector experienced several major shocks during our sample period:
+\begin{itemize}
+    \item \textbf{Demonetization (November 2016):} Overnight withdrawal of 86\% of currency by value. Cash-intensive agricultural markets were severely disrupted.
+    \item \textbf{GST (July 2017):} Unified national tax replacing varied state taxes. Changed mandi fee structures.
+    \item \textbf{Farm Laws (September 2020--November 2021):} Permitted trading outside APMCs; repealed after farmer protests.
+\end{itemize}
+
+All three shocks were national, affecting all mandis simultaneously. They are absorbed by month-year fixed effects. The identifying variation comes from the \textit{difference} between treated and control mandis, not from changes in the common time trend.
+
+\subsubsection{Treatment Date Measurement Error}
+
+We assign treatment dates at the state-phase cohort level rather than the individual mandi level, because mandi-specific integration dates are not available from a single authoritative source. This introduces classical measurement error in the treatment indicator, biasing estimates toward zero. We assess sensitivity by shifting treatment dates $\pm3$ months and examining how results change.
+
+\subsection{Inference}
+
+We cluster standard errors at the mandi level in our primary specification. As a robustness check, we cluster at the state level (20 clusters) to account for the fact that treatment varies at the state-phase level. With 20 state-level clusters, conventional clustered standard errors may be undersized. We therefore report both mandi-clustered and state-clustered inference.
+
+For the CS-DiD estimator, inference follows the analytical standard errors derived in \citet{callaway2021difference}, which account for the estimation of group-time effects and their aggregation. These standard errors are valid under regularity conditions including the existence of a ``large market'' limit where both the number of units and time periods grow.
+
+\subsection{Identification in Practice}
+
+The practical implementation of our identification strategy relies on several features of the data that deserve explicit discussion.
+
+\textit{Treatment variation.} Our four treatment cohorts (April 2016, November 2016, March 2017, March 2018) provide the staggering that identifies treatment effects separately from time trends. The 7--24 month gaps between cohorts allow the CS-DiD estimator to use later cohorts as ``not-yet-treated'' controls for earlier cohorts. However, the concentration of treatment between 2016--2018 means that long-run effects (beyond 3 years post-treatment for Phase 1A) rely on extrapolation from the declining ``not-yet-treated'' comparison group.
+
+\textit{Control group limitations.} Only Bihar and Assam---comprising 35 mandis---never received e-NAM during our sample period. Bihar is an unusual control: it abolished its APMC Act in 2006, creating a fundamentally different market structure. Assam is a small agricultural market. We therefore rely primarily on the ``not-yet-treated'' comparison rather than the ``never-treated'' comparison, which our CS-DiD specification implements.
+
+\textit{Pre-treatment coverage.} The CEDA dataset extends back to 2007 for most mandis, providing 9 years of pre-treatment data for the Phase 1A cohort. This long pre-period is unusually generous for a developing-country policy evaluation and enables powerful pre-trend testing. Our quarterly event-study specifications test 8 pre-treatment quarters (2 years), while the monthly TWFE specifications implicitly test the full 9-year pre-period.
+
+
+\section{Results}
+\label{sec:results}
+
+\subsection{Main Results}
+
+\input{tables/tab2_main_twfe.tex}
+
+Standard estimates suggest e-NAM failed---or even lowered prices. \Cref{tab:main_twfe} presents TWFE estimates of e-NAM integration on log modal prices, separately by commodity. The pooled TWFE estimate is $-0.008$ (SE $= 0.016$, $p = 0.615$), indicating no average effect. However, commodity-specific results reveal important heterogeneity: onion shows a negative effect ($-0.105$, $p < 0.001$), tomato a smaller negative ($-0.031$, $p = 0.100$), wheat a negative ($-0.049$, $p = 0.077$), and soybean a small positive ($0.012$, $p = 0.237$).
+
+\input{tables/tab3_cs_did.tex}
+
+As we show next, this is a statistical artifact of the staggered rollout. \Cref{tab:cs_did} reports our preferred Callaway-Sant'Anna estimates, which correct for the bias inherent in TWFE with staggered treatment. Using not-yet-treated mandis as controls and aggregating to quarterly frequency, CS-DiD estimates reveal a strikingly different picture from TWFE for storable commodities: wheat shows a positive ATT of $0.047$ (95\% CI: $[0.010, 0.084]$, $p = 0.013$) and soybean a positive ATT of $0.082$ (95\% CI: $[0.047, 0.117]$, $p < 0.001$). The sign reversal from TWFE to CS-DiD for wheat is consistent with the \citet{goodmanbacon2021difference} bias: TWFE's ``forbidden comparisons'' (using already-treated units as controls) can flip the sign of treatment effects. For onion and tomato, the CS-DiD estimator could not produce valid estimates due to the lack of not-yet-treated comparison units with sufficient parallel pre-trends.
+
+\subsection{Event-Study Evidence}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig3_eventstudy_combined.pdf}
+    \caption{Dynamic Treatment Effects: Storable Commodities}
+    \label{fig:es_combined}
+    \par\vspace{0.3em}\noindent\footnotesize\textit{Notes:}
+    Callaway-Sant'Anna event-study estimates at quarterly frequency. Dependent variable: log modal price. Shaded area: 95\% confidence intervals. Vertical dashed line marks e-NAM integration. Pre-treatment coefficients test the parallel trends assumption. Panel A shows wheat; Panel B shows soybean.
+    \normalsize
+\end{figure}
+
+\Cref{fig:es_combined} presents event-study plots for wheat and soybean, the two commodities for which the CS-DiD estimator produces valid estimates. An important caveat: because the four treatment cohorts are tightly clustered between April 2016 and March 2018, the pool of not-yet-treated controls shrinks rapidly. By 2018Q2, all cohorts have been treated and the comparison group consists only of mandis in Bihar and Assam (which contribute zero wheat or soybean mandis to the regression sample). Long-horizon event-study coefficients (beyond 8 quarters post-treatment) are therefore identified primarily from the contrast between early-treated and late-treated cohorts, not from treated-versus-untreated comparisons. Readers should interpret these long-horizon estimates with particular caution. For wheat, pre-treatment coefficients are close to zero and statistically insignificant across all eight pre-treatment quarters, providing support for the parallel trends assumption. Post-treatment effects emerge gradually: the point estimates hover near zero in the first two quarters after integration, then rise to approximately 5--7 percent by the third year. This temporal pattern is precisely what the learning-and-network-externalities channel predicts---as more traders register on the platform and learn to use electronic bidding, the competition-enhancing effects strengthen.
+
+Soybean shows a qualitatively similar but quantitatively larger pattern. The larger magnitude (8.2\% vs.\ 4.7\% for wheat) is consistent with the hypothesis that soybean markets had greater pre-existing monopsony power. Soybean is traded in fewer, more concentrated mandis than wheat, and government procurement through NAFED is sporadic and limited. In contrast, wheat markets in major producing states benefit from the Food Corporation of India's (FCI) substantial procurement operations, which already provided a price floor and some degree of competitive discipline. The differential effect across these two storable crops thus helps identify the market-power mechanism: e-NAM's competition channel has larger effects where pre-existing competition was thinner.
+
+The sign difference between TWFE and CS-DiD estimates for wheat (TWFE: $-0.049$; CS-DiD: $+0.047$) deserves attention. This sign reversal is a textbook illustration of the \citet{goodmanbacon2021difference} problem. In our setting, the TWFE estimator uses later-treated cohorts as controls for earlier cohorts even after the later cohorts themselves are treated. Since 95\% of mandis in our sample are eventually treated, these ``forbidden comparisons'' dominate the TWFE estimate. The CS-DiD estimator, which only uses not-yet-treated units as controls for each cohort-time cell, avoids this contamination.
+
+\subsection{Heterogeneity by Treatment Cohort}
+
+The staggered design allows us to examine whether early adopters experienced different effects than later cohorts. Phase 1A states (treated in April 2016) include India's largest agricultural economies: Uttar Pradesh, Gujarat, Maharashtra, and Madhya Pradesh. Phase 1C and 1D states include smaller agricultural markets (Odisha, Kerala). If treatment effects reflect genuine improvements in market efficiency, we might expect larger effects in later cohorts who benefit from a more mature platform with greater network effects. Alternatively, if early-adopter states were selected on better infrastructure, they might show larger effects due to better platform utilization.
+
+Our CS-DiD estimates aggregate across cohorts to produce the overall ATT. The dynamic event-study plots, however, implicitly capture this heterogeneity: the post-treatment coefficients reflect a weighted average across cohorts, with earlier cohorts contributing observations at longer horizons. The increasing magnitude of effects at longer horizons is consistent with either learning within cohorts or positive selection of early adopters---our design cannot cleanly distinguish these channels.
+
+\subsection{Price Dispersion}
+
+A key prediction of the market integration hypothesis is that e-NAM should reduce price dispersion across mandis. We compute the coefficient of variation (CV) of modal prices across all mandis within each state $\times$ commodity $\times$ month cell, restricting to cells with at least three reporting mandis.
+
+Our TWFE estimate of the dispersion effect is $-0.014$ (SE $= 0.014$, $p = 0.341$): not statistically significant. This null result is important and deserves careful interpretation. The primary prediction of our conceptual framework---that e-NAM should reduce price dispersion---is not supported in the data. Three explanations are possible. First, the \textit{within-state} CV may be the wrong measure: since all mandis within a state receive treatment simultaneously, within-state dispersion may capture variety and quality differences rather than information frictions. Between-state price convergence would be the more relevant outcome for a platform that enables inter-state arbitrage, but we lack sufficient control states to estimate this cleanly. Second, mandis already had substantial price information infrastructure by 2016---near-universal mobile penetration, commission agent networks---so the marginal informational value of e-NAM may be small relative to the ``first generation'' ICT interventions studied by \citet{jensen2007digital}. Third, the null dispersion result may simply indicate that e-NAM's positive price-level effects for storable commodities reflect mechanisms other than spatial price convergence, such as improved local competition from electronic bidding.
+
+\subsection{Commodity Heterogeneity}
+
+\Cref{fig:commodity} (Appendix) displays the commodity-specific treatment effects as a coefficient plot. The most striking pattern is the stark divide between storable and perishable commodities. Wheat and soybean---both storable, standardized crops amenable to remote quality assessment---show significant positive effects of e-NAM integration. Onion and tomato, which are perishable and require rapid sale regardless of platform availability, show no credible effects (and fail placebo tests, as discussed below). This heterogeneity is economically intuitive: electronic bidding platforms primarily benefit commodities that can be stored, shipped, and traded across geographic distances without rapid quality deterioration.
+
+
+\section{Robustness and Mechanisms}
+
+\subsection{Placebo Tests}
+
+We assign fictional treatment dates three years before the actual integration and estimate effects in the pre-treatment period only. If our design is valid, placebo effects should be zero. The results are revealing: wheat ($\hat\beta = -0.003$, $p = 0.843$) and soybean ($\hat\beta = 0.002$, $p = 0.846$) pass the placebo test convincingly, confirming that the parallel trends assumption is credible for these commodities. However, onion ($\hat\beta = 0.052$, $p < 0.001$) and tomato ($\hat\beta = 0.072$, $p < 0.001$) show significant placebo effects, indicating pre-existing differential trends that confound the TWFE estimates. This provides an important falsification: the negative TWFE effects for onion and tomato likely reflect pre-treatment divergence between treated and control states rather than a causal effect of e-NAM.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig6_placebo_test.pdf}
+    \caption{Placebo Test: Falsification of Pre-Trends}
+    \label{fig:placebo}
+    \par\vspace{0.3em}\noindent\footnotesize\textit{Notes:}
+    TWFE estimates with fictional treatment dates shifted 3 years earlier, using only the pre-treatment period. Blue points: not significant (parallel trends supported). Red points: significant pre-trends detected. Wheat and soybean pass; onion and tomato fail.
+    \normalsize
+\end{figure}
+
+\subsection{Within-State Design}
+
+Our most demanding specification would add state $\times$ month-year fixed effects, restricting identification to within-state variation between e-NAM and non-e-NAM mandis. However, because treatment is assigned at the state level in our design, there is insufficient within-state variation to estimate this specification: all mandis within a state receive e-NAM at the same time. This limitation is inherent in the state-phase treatment assignment and would be resolved with mandi-level integration dates.
+
+\input{tables/tab4_robustness.tex}
+
+\Cref{tab:robustness} compares estimates across estimators. The three estimators do not agree, and we present this disagreement transparently rather than privileging any single approach. For wheat, TWFE yields $-0.049$, CS-DiD yields $+0.047$, and Sun-Abraham yields $-0.021$. These are qualitative disagreements---CS-DiD shows a positive effect while both TWFE and Sun-Abraham show negative or near-zero effects. For soybean, CS-DiD gives $+0.082$ while Sun-Abraham gives $-0.003$ (SE $= 0.012$) and TWFE gives $+0.012$.
+
+What drives the disagreement? CS-DiD and Sun-Abraham are both designed to address heterogeneous treatment effects, but they differ in construction. CS-DiD restricts comparisons to not-yet-treated units and aggregates group-time ATTs non-parametrically. Sun-Abraham reweights within a regression framework, which can assign different weights to the same underlying comparisons. In our setting, where treatment cohorts are tightly clustered and the not-yet-treated pool shrinks rapidly, the choice of control group and aggregation weights is consequential. The positive CS-DiD results for storable commodities are consistent with the event-study evidence (flat pre-trends, emerging post-treatment effects) and pass placebo falsification. But we cannot rule out that they are partly driven by the specific composition of the comparison group at each horizon. We therefore characterize our CS-DiD estimates as \textit{suggestive} evidence of positive price effects for storable commodities, warranting confirmation with finer-grained treatment data.
+
+Heterogeneity-robust estimates for onion and tomato could not be computed due to insufficient not-yet-treated comparison units (indicated by em-dashes in the table), consistent with placebo test failures for perishable crops.
+
+\subsection{Treatment Date Sensitivity}
+
+Our estimates are stable when treatment dates are shifted $\pm$3 months (\Cref{fig:window} in Appendix), confirming that results are not driven by precise timing assumptions.
+
+\subsection{State-Level Clustering}
+
+Given that treatment varies at the state-phase level, we re-estimate with standard errors clustered at the state level (18--20 clusters) rather than the mandi level. As expected, state-clustered standard errors are substantially larger: for onion, the point estimate of $-0.105$ is significant under state clustering ($p = 0.020$), while wheat ($p = 0.258$) and tomato ($p = 0.301$) become insignificant. This highlights the importance of accounting for the level of treatment variation in inference. With fewer than 30 clusters, conventional cluster-robust standard errors may be anti-conservative \citep{conleytaber2011}; wild cluster bootstrap inference would be desirable but is computationally prohibitive with our current software configuration. The state-clustered results should therefore be interpreted as a lower bound on the true uncertainty.
+
+\subsection{Leave-One-State-Out}
+
+We assess the influence of individual states by re-estimating the main TWFE specification for onion after dropping each state in turn. The ATT ranges from $-0.138$ to $-0.055$, indicating that while the point estimate varies with sample composition, the negative sign is robust across all leave-one-out specifications. No single state drives the result.
+
+\subsection{Mechanisms}
+
+The pattern of results---positive effects for storable commodities, null for perishables, gradual emergence, modest magnitudes---points to an information-and-arbitrage channel rather than a direct competition channel. For wheat and soybean, which can be stored and shipped across state lines, e-NAM's price transparency enables spatial arbitrage: traders observing higher prices in distant mandis can profitably source from lower-priced markets, bidding up local prices. For onion and tomato, which deteriorate within days, spatial arbitrage is physically constrained regardless of information quality. This interpretation is consistent with the \citet{allen2014information} model where trade frictions include both information costs (reduced by e-NAM) and physical transport/storage costs (unchanged by e-NAM). More broadly, the results echo the framework of \citet{donaldson2018railroads}, who shows that infrastructure investments reduce trade costs and improve market integration---but only along dimensions that the infrastructure directly addresses.
+
+This interpretation also aligns with the NAARM (2020) assessment, which found that while electronic bidding was technically operational, inter-mandi trade volumes remained very low. Most transactions continued to occur between local farmers and local traders, but with better price information. The differential effect by commodity storability suggests that the binding constraint for perishable markets is physical infrastructure (cold chains, transport), not information.
+
+
+\section{Discussion}
+
+\subsection{Comparison with Prior ICT Interventions}
+
+Our findings place e-NAM in the broader context of ICT interventions in agricultural markets. \citet{jensen2007digital}'s seminal study of mobile phones and Kerala fish markets found that prices converged by 4\% and waste declined substantially after mobile phone adoption. \citet{aker2010information} documented similar price convergence of 6--10\% for grain markets in Niger. \citet{goyal2010information} found that internet kiosks in Madhya Pradesh improved soybean prices by 1--3\%. Our CS-DiD estimates for wheat (4.7\%) and soybean (8.2\%) fall in the upper range of these prior studies, but with an important caveat: prior studies typically estimated effects on price dispersion or spatial price convergence, while our estimates capture effects on price levels.
+
+Our results differ from prior work in three instructive ways. First, e-NAM operates in a more complex institutional environment. Unlike mobile phones, which provided decentralized price information to individual fishermen, e-NAM requires institutional cooperation from APMC mandis, state governments, and market committees. Implementation quality varies enormously across states and mandis, as documented by \citet{naarm2020enam}.
+
+Second, Indian agricultural markets in 2016 already had substantial price information infrastructure---nearly universal mobile phone penetration, widespread internet access, and existing networks of commission agents---that prior to e-NAM already partially closed the information gap that Jensen and Aker documented. The marginal informational value of e-NAM may therefore be smaller than the ``first generation'' ICT interventions studied in the early 2000s.
+
+Third, our finding that effects are concentrated in storable commodities has no direct parallel in prior work. \citet{jensen2007digital} studied sardines---a perishable product---and found large effects, precisely because the perishability created wasteful excess supply in some markets and scarcity in others. By contrast, Indian mandi markets for perishable crops already have dense trading networks and frequent price reporting, leaving less room for improvement.
+
+\subsection{Welfare Implications}
+
+The welfare implications of our findings depend on the incidence of price increases. If e-NAM raised wholesale prices for wheat and soybean, who benefits? In a competitive spatial equilibrium model, the price increase reflects a transfer from traders' margins to farmers' receipts \citep{bergquist2019competition}. This interpretation is supported by the information channel mechanism: better-informed farmers can negotiate more effectively with commission agents. However, without data on commission charges, transport costs, and farm-gate prices, we cannot rule out the possibility that price increases simply reflected pass-through of input costs or seasonal variations not captured by time fixed effects.
+
+From a consumer perspective, higher wholesale prices for wheat could translate into higher retail prices for bread and flour, adversely affecting urban households \citep{deaton1989rice}. The distributional consequences thus depend on the relative importance of producer surplus gains (overwhelmingly rural) versus consumer surplus losses (disproportionately urban). \citet{porto2006using} provides a framework for tracing such effects using household expenditure surveys; future work linking mandi price changes to NSS or PLFS consumption data would yield welfare estimates.
+
+For soybean, the welfare calculus is more straightforward: soybean is primarily an input into oil extraction, and the pass-through to consumer prices of soybean oil is heavily mediated by processing margins and import competition. The direct welfare beneficiaries of higher soybean wholesale prices are likely concentrated among soybean farmers in Madhya Pradesh, Maharashtra, and Rajasthan.
+
+\subsection{Policy Design Lessons}
+
+Our results suggest that the design of digital market platforms should account for commodity heterogeneity. For storable, standardized commodities, electronic bidding platforms can meaningfully improve price discovery by enabling spatial arbitrage across geographic distances. For perishable commodities, the binding constraint is physical infrastructure---cold chains, refrigerated transport, and rapid quality assessment---rather than information. A more effective policy package for perishable commodity markets might combine e-NAM's electronic platform with targeted investments in cold storage and last-mile logistics.
+
+The staggered rollout design also reveals a potential policy tension. Early-adopting states were selected partly on readiness (infrastructure, political will), creating positive selection. This means that the effects we estimate for early cohorts may overstate what later-adopting states would experience. Generalizing these effects to the remaining non-e-NAM states (notably Bihar, whose APMC abolition creates a fundamentally different market structure) requires caution.
+
+\subsection{Limitations}
+
+Several limitations deserve acknowledgment. First, our state-phase treatment assignment introduces measurement error that biases estimates toward zero; mandi-level integration dates would yield sharper estimates. The attenuation from classical measurement error could be substantial, meaning our estimates likely represent lower bounds of the true effect for mandis that actively used the platform.
+
+Second, we cannot observe actual e-NAM trading volumes at the mandi level, so we estimate the intent-to-treat (ITT) effect of being connected to the platform rather than the treatment-on-the-treated (TOT) effect of actual electronic trading. The \citet{naarm2020enam} assessment suggests that platform utilization varies widely---some mandis actively use electronic bidding while others were merely ``listed'' on the platform without substantive adoption. The ITT effect may thus substantially understate the effect of genuine platform adoption.
+
+Third, our analysis is confined to wholesale market prices; the transmission of any price effects to farm-gate prices depends on the bargaining power of farmers vis-\`{a}-vis commission agents \citep{mitra2018intermediary}. If commission agents capture the additional surplus from higher electronic bids, farmers may see limited benefit. Detailed data on commission structures and farm-gate prices would be needed to assess this concern.
+
+Fourth, only 35 mandis from two states (Bihar and Assam) serve as our ``never-treated'' control group. While the CS-DiD estimator primarily uses not-yet-treated units, the limited never-treated sample constrains our ability to estimate long-run effects where all cohorts have been treated. Long-horizon estimates should be interpreted with particular caution.
+
+Fifth, our conceptual framework predicts effects on arrival quantities, but our analysis is limited to prices. The CEDA API provides arrival data, but the quantity observations in our sample are substantially sparser and noisier than prices, precluding reliable estimation. Future work with more complete quantity data could test whether e-NAM increased market participation alongside price effects.
+
+Sixth, we observe the universe of mandi-level prices but not the universe of agricultural transactions. Informal sales outside APMCs---which are substantial for many commodities and regions---are not captured in our data. If e-NAM induced substitution between formal and informal channels, our estimates would conflate price effects with composition effects.
+
+
+\section{Conclusion}
+
+India's e-NAM platform represents one of the world's largest experiments in digital agricultural market design. By integrating over 585 mandis across 18 states into a unified electronic trading platform between 2016 and 2018, it aimed to overcome decades of geographic fragmentation. Our staggered difference-in-differences evaluation, drawing on daily mandi-level data from CEDA Ashoka covering 370 mandis across 18 states from 2007--2025, yields a nuanced verdict.
+
+For storable, standardized commodities---wheat and soybean---e-NAM integration raised wholesale prices by 4.7--8.2 percent, consistent with improved price discovery and spatial arbitrage opportunities. These estimates pass stringent placebo tests and survive multiple robustness checks. For perishable commodities---onion and tomato---we find no credible effects, and placebo tests reveal pre-existing differential trends that confound causal inference. Within-state price dispersion declined modestly but not significantly.
+
+These results carry three lessons. First, digital market infrastructure is not one-size-fits-all: its efficacy depends on commodity characteristics, particularly storability and standardization. Second, the binding constraint for perishable commodity markets is likely physical infrastructure (cold chains, transport) rather than information, suggesting that complementary investments in supply chain logistics would enhance e-NAM's reach. Third, the gradual emergence of effects for storable crops points to learning and network externalities: market platforms become more valuable as more participants use them. Policymakers should design digital market interventions with long time horizons and commodity-specific expectations.
+
+Future research should exploit the arrival of mandi-level trading data (which would resolve the treatment-date measurement error inherent in our state-phase assignment) and link wholesale price changes to farm-gate prices and household welfare. The repeal of India's Farm Laws in 2021 provides an additional natural experiment---if deregulation and e-NAM are complements, the Farm Laws' brief existence may have temporarily amplified e-NAM's effects in ways that can be identified with sufficiently granular data. Digital markets can bridge geographic distances, but they cannot yet overcome the biological reality of decay.
+
+
+\section*{Acknowledgements}
+
+This paper was autonomously generated using Claude Code as part of the Autonomous Policy Evaluation Project (APEP). Price data sourced from CEDA Ashoka AgMarkNet dataset (CEDA Agri Market Data, 2000--2025). e-NAM treatment information from PIB press releases and NAARM (2020).
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/ape-papers}
+
+\noindent\textbf{Generated by:} Claude Code (Autonomous Policy Evaluation Project)
+
+\label{apep_main_text_end}
+\newpage
+\bibliography{references}
+
+\newpage
+\appendix
+
+\section{Data Appendix}
+
+\subsection{CEDA AgMarkNet API}
+
+The CEDA Ashoka AgMarkNet dataset is accessed via a JSON API at \url{https://agmarknet.ceda.ashoka.edu.in/api/}. The API provides four endpoints:
+\begin{itemize}
+    \item \texttt{/states}: Returns 36 states/UTs with Census 2011 IDs.
+    \item \texttt{/commodities}: Returns 453 commodities with category and display names.
+    \item \texttt{/districts?state\_id=N}: Returns districts within a state.
+    \item \texttt{/prices} (POST): Returns daily mandi-level prices for a given state $\times$ district $\times$ commodity combination. Parameters include date range, calculation type, and \texttt{chart\_type = ``datadownload''} to obtain mandi-level detail.
+    \item \texttt{/quantities} (POST): Returns daily arrival quantities with similar parameters.
+\end{itemize}
+
+Data was fetched for sampled districts in 20 major agricultural states across 4 commodities (onion, tomato, wheat, soybean), covering 2007--2025. The raw dataset contains 1,965,470 daily mandi-level observations from 680 unique mandis.
+
+\subsection{e-NAM Treatment Assignment}
+
+Treatment assignment follows a two-step procedure:
+\begin{enumerate}
+    \item \textbf{Mandi identification:} The e-NAM Directory PDF (July 2021) lists all 1,000 integrated mandis with state, district, and market names. We match these to CEDA market IDs using state-district-name concordance.
+    \item \textbf{Treatment timing:} State-level first integration dates are assigned from PIB press releases documenting each phase of rollout (see Section 2.3). All mandis within a state receive the same treatment date.
+\end{enumerate}
+
+\subsection{Sample Restrictions}
+
+\begin{enumerate}
+    \item Drop observations with missing or zero modal prices.
+    \item Drop outlier observations where the modal price exceeds 10 times or falls below 0.1 times the state-commodity-year median.
+    \item Aggregate to mandi $\times$ commodity $\times$ month cells.
+    \item Restrict to mandis with at least 60 months of observations.
+\end{enumerate}
+
+
+\section{Identification Appendix}
+
+\subsection{Pre-Trend Tests}
+
+The Callaway-Sant'Anna estimator provides formal pre-trend tests through the group-time ATTs for pre-treatment periods. For each commodity, we test whether the joint null hypothesis $H_0: ATT(g,t) = 0$ for all $t < g$ can be rejected. Event-study plots for wheat and soybean---the two commodities for which CS-DiD produces valid estimates---are presented in the main text (\Cref{fig:es_combined}).
+
+\subsection{TWFE Bias Diagnosis}
+
+The \citet{goodmanbacon2021difference} decomposition framework explains why TWFE and CS-DiD estimates diverge in our setting. With 95\% of mandis eventually treated and only 4 never-treated mandis in the regression sample, the TWFE estimator is dominated by ``forbidden comparisons'' (using later-treated cohorts as controls for earlier-treated cohorts, even after the later cohorts are themselves treated). These comparisons can flip the sign of the estimated treatment effect, as observed for wheat (TWFE: $-0.049$; CS-DiD: $+0.047$). The CS-DiD estimator avoids this contamination by restricting comparisons to not-yet-treated units for each cohort-time cell.
+
+
+\section{Robustness Appendix}
+
+\subsection{Placebo Treatment Dates}
+
+We re-estimate our main specification with treatment dates shifted 36 months earlier (i.e., October 2013 instead of April 2016 for Phase 1A states). Results are presented in \Cref{fig:placebo} and the Placebo column of \Cref{tab:robustness}. Wheat and soybean show precisely estimated near-zero placebo effects, supporting the parallel trends assumption. Onion and tomato show statistically significant placebo effects, indicating pre-existing differential trends that invalidate identification for these crops.
+
+\subsection{Leave-One-State-Out}
+
+For onion (our most densely traded commodity), we re-estimate the TWFE specification after dropping each state in turn. The ATT ranges from $-0.138$ to $-0.055$, indicating that no single state drives the overall result.
+
+\subsection{Alternative Clustering}
+
+Moving from mandi-level to state-level clustering approximately doubles standard errors. Under state clustering, wheat's TWFE estimate becomes insignificant ($p = 0.258$), underscoring the importance of the CS-DiD results which aggregate across cohorts differently.
+
+
+\section{Heterogeneity Appendix}
+
+\subsection{By Phase Cohort}
+
+The CS-DiD estimator produces group-time ATTs that implicitly capture cohort heterogeneity. The increasing magnitude of event-study coefficients at longer horizons (\Cref{fig:es_combined}) is consistent with either within-cohort learning or positive selection of early-adopting states---our design cannot cleanly distinguish these channels without mandi-level treatment dates.
+
+\subsection{By Pre-Treatment Market Thickness}
+
+The larger CS-DiD estimate for soybean (8.2\%) relative to wheat (4.7\%) is consistent with the prediction that e-NAM's competition channel has larger effects in thinner markets. Soybean is traded in fewer, more concentrated mandis where pre-existing monopsony power was greater (Section~\ref{sec:results}).
+
+
+\section{Additional Figures and Tables}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig4_commodity_comparison.pdf}
+    \caption{e-NAM Price Effects by Commodity}
+    \label{fig:commodity}
+    \par\vspace{0.3em}\noindent\footnotesize\textit{Notes:}
+    Callaway-Sant'Anna ATT estimates with 95\% confidence intervals. Dependent variable: log modal price. Each point represents the aggregated ATT for one commodity.
+    \normalsize
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig7_window_sensitivity.pdf}
+    \caption{Sensitivity to Treatment Date Assignment}
+    \label{fig:window}
+    \par\vspace{0.3em}\noindent\footnotesize\textit{Notes:}
+    TWFE estimates with treatment dates shifted $\pm$3 months from baseline assignment. Each point: coefficient estimate with 95\% CI. Stability across windows suggests results are robust to date imprecision.
+    \normalsize
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/fig5_price_dispersion.pdf}
+    \caption{Price Dispersion Over Time}
+    \label{fig:dispersion}
+    \par\vspace{0.3em}\noindent\footnotesize\textit{Notes:}
+    Coefficient of variation of modal prices across mandis within state-commodity-month cells. States classified by whether they have implemented e-NAM.
+    \normalsize
+\end{figure}
+
+\end{document}

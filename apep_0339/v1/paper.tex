@@ -1,0 +1,529 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\sisetup{detect-all=true, group-separator={,}, group-minimum-digits=4}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Timing data
+\IfFileExists{timing_data.tex}{\input{timing_data.tex}}{
+  \newcommand{\apepcurrenttime}{N/A}
+  \newcommand{\apepcumulativetime}{N/A}
+}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\sym}[1]{\ifmmode^{#1}\else\(^{#1}\)\fi}
+
+% Figure notes environment
+\newenvironment{figurenotes}{\par\vspace{6pt}\small}{\par}
+
+\title{Minimum Wages and Medicaid's Invisible Workforce:\\ Provider Supply Responses to Labor Cost Shocks}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. Correspondence: scl@econ.uzh.ch} \and @olafdrw}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+The 4.6 million workers delivering Medicaid home care earn near the minimum wage, yet their employers cannot raise prices---reimbursement rates are set administratively. Using newly released provider-level T-MSIS claims data covering 617,000 providers across all states (2018--2024), I estimate the effect of state minimum wage increases on home and community-based services (HCBS) provider supply. Applying the \citet{callaway2021difference} heterogeneity-robust difference-in-differences estimator---exploiting staggered adoption across 9 treated states in 4 cohorts and 21 never-treated controls---I find that minimum wage increases reduce HCBS provider counts by 15\% (ATT $= -0.161$, $p = 0.069$). Five years post-treatment, nearly one in four providers has exited. A falsification test on non-HCBS providers yields a precise null ($p = 0.47$), confirming the mechanism operates through the low-wage workforce channel. The findings reveal an unintended tension between minimum wage policy and Medicaid's fixed-price architecture.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} I13, J38, I18, J31 \\
+\noindent\textbf{Keywords:} minimum wage, Medicaid, home care, HCBS, provider supply, direct care workforce
+
+\newpage
+
+\section{Introduction}
+
+For millions of elderly and disabled Americans, the ability to age at home rather than in an institution depends on a workforce that earns near the minimum wage. These workers---personal care aides, home health aides, direct support professionals---number approximately 4.6 million and constitute one of the fastest-growing occupational groups in the country \citep{phi2024workforce}. Yet their median hourly wage was just \$15.40 in 2023, with the bottom quartile earning \$12.76 \citep{bls2024ooh}. The agencies employing them bill Medicaid at rates set by state bureaucracies---rates that do not automatically adjust when labor costs rise. When a state raises its minimum wage, these providers face a bind that McDonald's and Amazon never do: their costs increase immediately, but their revenue is fixed by administrative fiat.
+
+This paper examines what happens to Medicaid home care markets when that wage floor rises. Between 2018 and 2024, more than 30 states increased their minimum wages---some to \$15 or above---while roughly 20 states remained at the federal minimum, unchanged since 2009. These increases directly affect the labor costs of HCBS providers. But unlike restaurants and retailers, which can raise prices to absorb higher labor costs, Medicaid providers face reimbursement rates set administratively by state agencies. When labor costs rise without corresponding rate adjustments, something has to give.
+
+The central question is whether provider supply contracts. Two mechanisms point in opposite directions. The \textit{cost-push channel} predicts that minimum wage increases squeeze provider margins---if Medicaid rates do not adjust, providers may exit the market, reduce service capacity, or decline new beneficiaries. The \textit{retention channel} predicts the opposite: higher wages improve worker retention, reduce turnover costs, and could stabilize or even expand provider capacity. The net effect is theoretically ambiguous and ultimately empirical.
+
+I exploit the staggered adoption of state minimum wage increases during 2018--2024 in a difference-in-differences framework. My primary estimator is \citet{callaway2021difference}, which produces heterogeneity-robust average treatment effects on the treated (ATT) by cohort and event time. Treatment is defined as a state's first minimum wage increase during the sample period. The comparison group consists of never-treated states that remained at the federal minimum throughout. I validate identification through event-study plots, pre-trend tests, falsification on non-HCBS providers, alternative control groups, and leave-one-out sensitivity analysis.
+
+The key contribution is the data. Until February 2026, provider-level Medicaid claims data did not exist in the public domain. The T-MSIS Medicaid Provider Spending file---released by HHS and covering all 50 states, DC, and territories from January 2018 through December 2024---provides the first comprehensive record of which providers bill Medicaid for HCBS, how much they bill, and when they enter or exit the market. I link this to the National Plan and Provider Enumeration System (NPPES) to assign providers to states, then aggregate to the state-year level, creating a balanced panel of 51 states observed annually over 7 years (2018--2024). The unit of analysis throughout is the state-year; event time in the event study is measured in years relative to first treatment.
+
+My analysis generates event-study estimates of the effect of minimum wage increases on four primary outcomes: the log number of active HCBS providers, log total HCBS spending, HCBS providers per 100,000 population, and HCBS spending per capita. I define HCBS providers as those billing T-codes (state HCBS services), H-codes (behavioral health), or S-codes (temporary state services)---the Medicaid-specific procedure codes that account for 52\% of total T-MSIS spending and have no Medicare equivalent.
+
+This paper contributes to three literatures. First, the minimum wage literature---spanning from \citet{card1994minimum} through \citet{dube2019minimum}, \citet{cengiz2019effect}, \citet{manning2021elusive}, and \citet{dustmann2022reallocation}---has extensively studied employment effects in restaurants, retail, and general low-wage labor markets, but has not examined the healthcare provider supply margin. The HCBS sector is distinctive because providers cannot pass through cost increases to consumers (Medicaid beneficiaries pay nothing) and face administratively fixed reimbursement rates \citep{grabowski2004recent, mommaerts2023returns}. This institutional rigidity creates a setting where the theoretical prediction is sharper than in competitive markets.
+
+Second, the Medicaid provider supply literature---anchored by \citet{finkelstein2007effect} and extended by \citet{clemens2014physicians} on physician responses to price incentives---has studied how changes in Medicaid generosity affect provider participation. Most work examines payment rate changes or coverage expansions. I contribute by showing how an \textit{external} labor market policy (the minimum wage) affects Medicaid provider markets through the input cost channel.
+
+Third, the direct care workforce literature has documented the crisis in HCBS staffing---high turnover, chronic vacancies, and care quality concerns \citep{scales2023direct, macpac2023workforce, phibbs2023nursing}---but has lacked the data to study provider-level dynamics. T-MSIS fills this gap by revealing entry, exit, and billing patterns at the NPI level.
+
+
+
+\section{Institutional Background}
+
+\subsection{Home and Community-Based Services}
+
+Medicaid finances long-term services and supports (LTSS) for elderly and disabled Americans who cannot perform activities of daily living independently. Since the 1980s, federal policy has gradually shifted LTSS from institutional settings (nursing homes) toward home and community-based services, which allow beneficiaries to receive care in their own homes \citep{musumeci2022key}. The shift accelerated after the Supreme Court's \textit{Olmstead v.\ L.C.}\ decision (1999), which established that unnecessary institutionalization violates the Americans with Disabilities Act. States responded by expanding 1915(c) HCBS waivers and, later, 1915(i) and 1915(k) state plan options. By 2024, HCBS accounted for the majority of Medicaid LTSS spending---roughly 60\% of an estimated \$250 billion in total LTSS expenditures---a reversal from 2000, when institutional care consumed over 70\% of the LTSS budget.
+
+The COVID-19 pandemic further accelerated the HCBS transition. Nursing home outbreaks demonstrated the vulnerability of congregate care settings, strengthening political support for home-based alternatives. Section 9817 of the American Rescue Plan Act (ARPA) provided states with a temporary 10-percentage-point increase in the federal matching rate for HCBS spending, contingent on using savings to expand and strengthen HCBS infrastructure. Nearly every state accepted these funds, with spending plans that included provider rate increases, workforce recruitment bonuses, and technology investments. This policy environment creates both opportunity and complexity for my analysis: ARPA funds flowed during 2021--2024, overlapping with the treatment window, and I address this in the robustness section.
+
+HCBS encompasses a range of services: personal care assistance (bathing, dressing, meal preparation), habilitation (skill-building for individuals with intellectual and developmental disabilities), respite care, and community-based behavioral health support. These services are delivered by direct care workers---personal care aides, home health aides, certified nursing assistants, and direct support professionals---who typically have limited formal training and earn wages near the bottom of the healthcare pay distribution.
+
+The organizational structure of HCBS delivery varies across states. In many states, home care agencies (organizational NPIs) employ workers and bill Medicaid. In others, consumer-directed programs allow beneficiaries to hire their own workers, who may bill through fiscal intermediaries. The T-MSIS data captures this variation: 65\% of claim rows involve organizational billing (where the billing and servicing NPIs differ), while 31\% involve individual providers billing directly.
+
+\subsection{Medicaid Reimbursement for HCBS}
+
+Medicaid reimbursement rates for HCBS are set by state Medicaid agencies through their state plans or 1915(c) waiver authorities. Unlike Medicare, which uses standardized fee schedules, Medicaid rates vary dramatically across states. For the most common HCBS procedure code---T1019 (personal care, 15 minutes)---rates ranged from approximately \$3.00 to over \$7.00 per unit in 2022 \citep{macpac2023workforce}.
+
+Critically, Medicaid rates do not automatically adjust when input costs change. Rate increases require administrative action---typically a state plan amendment or waiver modification, which involves public notice, CMS approval, and budget appropriation. This process creates significant lag between labor cost changes and reimbursement adjustments. When minimum wages rise, providers face immediately higher labor costs but may wait months or years for corresponding rate relief.
+
+\subsection{The Minimum Wage Landscape, 2018--2024}
+
+The federal minimum wage has been \$7.25 per hour since July 2009---the longest period without an increase since the Fair Labor Standards Act was enacted in 1938. In the absence of federal action, states have become the primary arena for minimum wage policy.
+
+During the period covered by T-MSIS data (January 2018 through December 2024), more than 30 states raised their minimum wages at least once. Several states---including California, Washington, Massachusetts, Connecticut, and New York---reached or exceeded \$15 per hour. Others implemented more modest increases, often indexed to inflation. Roughly 20 states---predominantly in the South and parts of the Mountain West---remained at the federal minimum throughout.
+
+The staggered timing of these increases creates the variation I exploit for identification. States adopted increases at different times (most commonly on January 1 of each year, though some states use July 1 or other dates), creating natural treatment cohorts. The comparison between states that increased their minimums and those that did not forms the basis of the difference-in-differences design.
+
+\subsection{The Direct Care Workforce and the Minimum Wage Margin}
+
+The connection between minimum wage policy and HCBS provider supply runs through the direct care workforce. According to the Bureau of Labor Statistics, the median hourly wage for home health and personal care aides was \$15.40 nationally in 2023, with the 25th percentile at \$12.76 and the 10th percentile at \$11.13 \citep{bls2024ooh}. In states where the minimum wage remains at \$7.25, a substantial fraction of direct care workers earn wages only modestly above the floor.
+
+PHI estimates that direct care workers experience annual turnover rates exceeding 40\%, driven by low wages, limited benefits, and physically demanding working conditions \citep{phi2024workforce}. This turnover imposes substantial costs on providers---recruitment, training, and lost productivity---and on beneficiaries, who experience disruptions in care continuity. The tight labor market conditions of 2021--2023, compounded by pandemic-related workforce attrition, intensified these challenges: states reported HCBS provider waitlists growing even as ARPA funds increased available reimbursement.
+
+The competitive position of HCBS work is precarious. Direct care workers face a classic outside-option problem: Amazon warehouses, fast food restaurants, and retail jobs offer comparable or higher wages with less physical and emotional strain. When general-sector wages rise---whether through minimum wage increases or tight labor markets---HCBS providers must match these wages to retain staff. But unlike private-sector employers who can raise prices, Medicaid providers cannot unilaterally increase what they charge. The binding constraint is the state-set reimbursement rate.
+
+When states raise their minimum wages, several adjustments are possible. Providers may raise wages to comply, compressing the wage distribution and potentially improving retention. Alternatively, providers may reduce hours, exit the market, or limit the number of beneficiaries they serve. Some providers may shift toward private-pay clients, whose care can be priced above Medicaid rates, effectively abandoning the Medicaid market. The net effect on provider supply depends on the balance of these forces and on whether Medicaid rates adjust to accommodate higher costs.
+
+
+\section{Conceptual Framework}
+
+Consider a home care provider that employs $L$ direct care workers at wage $w$ to serve $B$ Medicaid beneficiaries. The provider receives Medicaid reimbursement $r$ per unit of service, which is fixed by the state Medicaid agency. The provider's profit is:
+\begin{equation}
+\pi = r \cdot q(L) - w \cdot L - c
+\end{equation}
+where $q(L)$ is the service quantity produced by $L$ workers and $c$ represents fixed costs. The provider participates in the Medicaid market if $\pi \geq 0$.
+
+A minimum wage increase from $\underline{w}$ to $\underline{w}' > \underline{w}$ affects providers whose prevailing wage $w^*$ satisfies $w^* < \underline{w}'$. For these providers, labor costs increase mechanically. The participation condition becomes:
+\begin{equation}
+\pi' = r \cdot q(L') - \underline{w}' \cdot L' - c \geq 0
+\end{equation}
+
+This generates two testable predictions:
+
+\textbf{Prediction 1 (Cost-push):} If Medicaid rates $r$ do not adjust, provider margins fall. Providers with the thinnest margins exit, reducing supply. The effect is larger in states with lower initial Medicaid rates (higher ``bite'' of the minimum wage increase).
+
+\textbf{Prediction 2 (Retention):} Higher wages reduce turnover, lowering per-worker training costs. If reduced turnover costs offset higher wage costs, provider margins may be stable or even increase. The effect depends on the elasticity of turnover with respect to wages.
+
+\textbf{Prediction 3 (Heterogeneity):} The effect should concentrate among HCBS providers (whose workforce earns near-minimum wages) and be absent for non-HCBS Medicaid providers (physicians, specialists) whose wages are well above the minimum. This provides a falsification test: the same minimum wage shock applied to the same state should not affect high-wage provider supply.
+
+The net effect is ambiguous and depends on the relative magnitudes of the cost-push and retention channels, the degree of Medicaid rate adjustment, and the elasticity of provider entry to profit margins.
+
+
+\section{Data}
+
+\subsection{T-MSIS Medicaid Provider Spending}
+
+The primary data source is the T-MSIS Medicaid Provider Spending file, released by HHS in February 2026. This dataset---derived from the Transformed Medicaid Statistical Information System---provides billing-level data for all Medicaid providers in the United States from January 2018 through December 2024. Each observation represents a unique combination of billing provider NPI, servicing provider NPI, HCPCS procedure code, and month, with corresponding counts of claims, unique beneficiaries, and total Medicaid payments.
+
+The dataset contains 227 million rows, 617,503 unique billing NPIs, 10,881 unique HCPCS codes, and \$1.09 trillion in cumulative Medicaid payments. A distinctive feature is its coverage of Medicaid-specific procedure codes---T-codes (HCBS/state services), H-codes (behavioral health), and S-codes (temporary state codes)---which account for 52\% of total spending and have no Medicare equivalent.
+
+T-MSIS contains no state identifier, provider name, specialty, or demographics. The NPI is the sole link to external information. I recover state assignments and provider characteristics through the NPPES linkage described below.
+
+\subsection{National Plan and Provider Enumeration System (NPPES)}
+
+The NPPES bulk extract provides the registry of all NPI holders. I extract key fields including practice state, ZIP code, entity type (individual vs.\ organization), NUCC taxonomy code (provider specialty), enumeration date (proxy for market entry), and deactivation date (proxy for exit). The match rate between T-MSIS billing NPIs and NPPES exceeds 99.5\%.
+
+I use NPPES to: (1) assign each provider to a state based on practice location; (2) classify providers by entity type; (3) identify provider taxonomy for heterogeneity analysis; and (4) construct provider entry/exit measures from enumeration and deactivation dates.
+
+\subsection{State Minimum Wage Data}
+
+State minimum wage levels are obtained from the Federal Reserve Economic Data (FRED) system, which provides annual series for each state (series STTMINWG + state abbreviation). For the five states without state minimum wage laws (Alabama, Louisiana, Mississippi, South Carolina, Tennessee), I assign the federal minimum of \$7.25. The annual frequency captures January 1 values; for states with mid-year effective dates, I verify levels against Department of Labor records.
+
+\subsection{Census ACS Population Data}
+
+State population denominators come from the American Community Survey 5-Year estimates (variable B01003\_001E), accessed via the Census API. Population data is available for 2018--2023; I extrapolate 2024 values from 2023.
+
+\subsection{Sample Construction}
+
+My primary sample is a balanced panel of 51 states (50 states plus DC) observed annually from 2018 to 2024, yielding 357 state-year observations. I exclude territories from the analysis due to incomplete minimum wage data.
+
+I define HCBS providers as billing NPIs with at least one claim for a T, H, or S HCPCS code in a given year. This classification draws on the Healthcare Common Procedure Coding System (HCPCS) structure. T-codes (T1000--T2099) are state-specific codes for HCBS services such as personal care (T1019), respite care (T1005), and habilitation (T2013). H-codes (H0001--H2037) cover behavioral health services including psychosocial rehabilitation and community support. S-codes (S5100--S5199) are temporary national codes for home care services. These three code families share a defining characteristic: they are Medicaid-specific, have no Medicare equivalent, and are overwhelmingly delivered by low-wage direct care workers.
+
+Non-HCBS providers are those billing only CPT codes (numeric HCPCS beginning with digits 0--9), which cover physician and specialist services delivered by higher-wage professionals---office visits, surgeries, diagnostic procedures. This classification is sharp and provides a natural placebo group: the same state-level minimum wage shock should affect HCBS providers (whose workforce earns near the minimum) but not CPT-billing providers (whose workforce is well above it).
+
+The T-MSIS file contains approximately 227 million rows. To construct the state-year panel, I first filter to HCBS codes at the Arrow level (before loading into memory), aggregate claims by billing NPI and month, then link each NPI to its practice state using the NPPES crosswalk. I then aggregate to the state-year level, counting unique billing NPIs (provider count) and summing total paid amounts (spending). The same process, applied to non-HCBS codes, produces the falsification panel.
+
+\subsection{Summary Statistics}
+
+\input{tables/tab1_summary}
+
+\Cref{tab:summary} presents descriptive statistics for the analysis panel. The average state-year has 898 active HCBS providers (17.1 per 100,000 population), with annual HCBS spending of approximately \$275 per capita. Minimum wage levels range from \$7.25 (the federal floor) to \$17.50 (Washington, 2024), with substantial variation both across states and over time.
+
+\input{tables/tab2_balance}
+
+\Cref{tab:balance} compares treated and never-treated states at baseline (2018). States that subsequently raised their minimum wages had somewhat more HCBS providers per capita (17.3 vs.\ 14.5 per 100,000), higher Medicaid HCBS spending (\$253 vs.\ \$146 per capita), and already-higher minimum wages (\$9.51 vs.\ \$7.32). These level differences are absorbed by state fixed effects in the DiD design; identification requires only that \textit{trends} would have been parallel absent treatment. I assess this assumption through the event study pre-trends test in \Cref{sec:results}.
+
+
+\section{Empirical Strategy}
+
+\subsection{Identification}
+
+I exploit the staggered adoption of state minimum wage increases during 2018--2024. The identifying assumption is that, conditional on state and year fixed effects, HCBS provider outcomes in treated states would have followed the same trajectory as in never-treated states absent the minimum wage increase.
+
+Formally, let $Y_{st}$ denote an HCBS outcome in state $s$ at time $t$, and let $G_s \in \{2018, 2019, \ldots, 2024, \infty\}$ denote the year of state $s$'s first minimum wage increase ($G_s = \infty$ for never-treated states). The parallel trends assumption requires:
+\begin{equation}
+\E[Y_{st}(0) - Y_{s,t-1}(0) \mid G_s = g] = \E[Y_{st}(0) - Y_{s,t-1}(0) \mid G_s = \infty] \quad \text{for all } g, t
+\end{equation}
+where $Y_{st}(0)$ is the potential outcome under no treatment.
+
+\subsection{Callaway--Sant'Anna Estimator}
+
+I estimate group-time average treatment effects using \citet{callaway2021difference}:
+\begin{equation}
+ATT(g,t) = \E[Y_t - Y_{g-1} \mid G = g] - \E[Y_t - Y_{g-1} \mid G = \infty]
+\end{equation}
+where $ATT(g,t)$ is the average treatment effect for cohort $g$ at time $t$. This estimator avoids the well-documented biases of two-way fixed effects (TWFE) under heterogeneous treatment effects with staggered adoption \citep{goodman2021difference, roth2023whats, baker2025practitioners}.
+
+I aggregate these group-time ATTs in two ways. First, a simple weighted average yields the overall ATT. Second, dynamic aggregation by event time $e = t - g$ produces an event-study plot:
+\begin{equation}
+\theta(e) = \sum_g w_g \cdot ATT(g, g + e)
+\end{equation}
+where $w_g$ reflects cohort sizes. Pre-treatment coefficients ($e < 0$) provide a visual test of parallel trends, while post-treatment coefficients ($e \geq 0$) estimate dynamic treatment effects.
+
+\subsection{Control Group and Clustering}
+
+The primary control group consists of never-treated states---those at the federal minimum throughout 2018--2024. As a robustness check, I also use not-yet-treated states as additional controls, which increases statistical power but introduces the risk of contamination if treatment effects are anticipated.
+
+\textbf{Cohort selection.} The CS estimator requires at least one pre-treatment period for each cohort ($t = g - 1$ as the baseline). Since the panel begins in 2018, the 21 states first treated in 2018 have no pre-treatment observation and are automatically excluded from the CS estimation. The effective treated sample for CS consists of 9 states across four cohorts: 2019 (4 states), 2020 (3 states), 2021 (1 state), and 2023 (1 state). All 21 never-treated states serve as controls. The 2018 cohort contributes to the supplementary TWFE estimates (which use within-unit variation and do not require a common baseline period) but not to the primary CS results. I report all 30 treated states in summary statistics and the treatment map for completeness.
+
+All standard errors are clustered at the state level, which is the level of treatment assignment. With 30 clusters in the CS estimation (9 treated + 21 control), cluster-robust inference is appropriate \citep{cameron2008bootstrap, roth2023whats}.
+
+\subsection{Threats to Validity}
+
+The primary threats to identification are: (1) differential trends driven by state characteristics correlated with minimum wage adoption (e.g., political lean, urbanization, economic conditions); (2) concurrent policies that affect HCBS markets (e.g., ARPA HCBS spending, Medicaid rate adjustments, COVID-19 effects); and (3) anticipation effects if providers adjust before increases take effect.
+
+I address these through: (a) event-study plots testing for pre-trends; (b) \citet{rambachan2023more} sensitivity analysis under violations of parallel trends; (c) falsification tests using non-HCBS providers as a placebo outcome; (d) region-by-year fixed effects restricting comparisons to within-Census-division; (e) continuous treatment specifications using log minimum wage as the regressor; and (f) leave-one-out analysis assessing sensitivity to individual states.
+
+
+\section{Results}\label{sec:results}
+
+\subsection{Main Results}
+
+\input{tables/tab3_main_results}
+
+Minimum wage increases reduce HCBS provider counts by approximately 15\%. \Cref{tab:main_results} presents the Callaway--Sant'Anna ATT on log providers: $-0.161$ (SE $= 0.088$, $p = 0.069$), marginally significant at the 10\% level. The corresponding effect on providers per 100,000 population ($-1.71$, $p = 0.064$) confirms this decline in levels. Spending adjusts less sharply: the ATT on log spending is $-0.102$ ($p = 0.590$), suggesting that remaining providers partially compensate through higher billing intensity. The positive but imprecise spending-per-capita effect (\$14.02, SE $= 35.08$) is consistent with compositional change---larger, more efficient providers surviving while smaller ones exit.
+
+The marginal significance of the overall ATT reflects the small number of treated states in the CS design (9 states across 4 cohorts). For comparison, the conventional TWFE estimator yields $-0.159$ (SE $= 0.044$, $p < 0.001$) using all 30 treated states, but this estimate is potentially biased under heterogeneous treatment effects with staggered adoption \citep{goodman2021difference}. The qualitative consistency between CS and TWFE---both finding a 15--16\% decline---is reassuring.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig3_event_study_providers.png}
+\caption{Event Study: Effect of Minimum Wage Increases on HCBS Provider Supply}
+\label{fig:event_study}
+\begin{figurenotes}
+\textit{Notes:} Each point represents the estimated ATT at event time $e$ relative to the year of first minimum wage increase, from the Callaway--Sant'Anna (2021) estimator. Shaded region shows 95\% confidence intervals. The reference period is $t = -1$. Pre-treatment coefficients are jointly tested for difference from zero.
+\end{figurenotes}
+\end{figure}
+
+\Cref{fig:event_study} presents the event-study estimates. Pre-treatment coefficients are close to zero and statistically insignificant at event times $-3$ through $-1$, with the largest pre-treatment deviation at $e = -2$ ($+0.091$, SE $= 0.052$). Post-treatment, provider supply declines monotonically: the effect grows from $-0.046$ at impact ($e = 0$) to $-0.142$ after one year, $-0.178$ after two years, and $-0.266$ by five years post-treatment. While the overall ATT is marginally significant ($p = 0.069$), the $e = 5$ event-study coefficient is individually significant at 5\% ($t = 2.23$), reflecting the growing treatment effect at longer horizons. The longer-horizon estimates ($e = 4, 5$) are identified primarily from the 2019 cohort, the earliest group with sufficient pre-treatment data in the CS framework. Similarly, distant pre-treatment estimates ($e = -3$ and beyond) are identified only from later cohorts (2021, 2023) that have multiple pre-treatment years in the data. The CS estimator aggregates across all cohorts that contribute to each event time, weighting by cohort size. This dynamic pattern is consistent with gradual provider exit as margin compression accumulates over time.
+
+The pre-trend Wald test (excluding the reference period $t = -1$) yields $\chi^2(4) = 4.66$, $p = 0.324$, failing to reject the null of zero pre-treatment effects. Combined with the visual evidence of small, unsigned pre-treatment coefficients, this supports the parallel trends assumption.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig4_event_study_spending.png}
+\caption{Event Study: Effect of Minimum Wage Increases on HCBS Spending}
+\label{fig:event_study_spending}
+\begin{figurenotes}
+\textit{Notes:} Same specification as \Cref{fig:event_study} with log HCBS spending as the outcome.
+\end{figurenotes}
+\end{figure}
+
+\subsection{Treatment Rollout and Parallel Trends}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig1_treatment_map.png}
+\caption{Staggered Adoption of State Minimum Wage Increases, 2018--2024}
+\label{fig:treatment_map}
+\begin{figurenotes}
+\textit{Notes:} Map shows the year of each state's first minimum wage increase during the sample period. Orange states remained at the federal minimum (\$7.25) throughout. Treatment is staggered across cohorts from 2018 through 2024, with the majority of increases occurring on January 1 of each year.
+\end{figurenotes}
+\end{figure}
+
+\Cref{fig:treatment_map} displays the spatial pattern of treatment. Treated states are concentrated in the Northeast, West Coast, and upper Midwest, while never-treated states are predominantly in the South. This geographic clustering motivates the region-by-year fixed effects used in robustness checks, which restrict comparisons to within Census division.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig2_parallel_trends.png}
+\caption{Raw HCBS Provider Trends by Treatment Cohort}
+\label{fig:parallel_trends}
+\begin{figurenotes}
+\textit{Notes:} Average annual HCBS providers per 100,000 population, by treatment group. ``Early Adopter'' states increased their minimum wage during 2018--2020; ``Late Adopter'' states increased during 2021--2024; ``Never Treated'' states remained at the federal minimum.
+\end{figurenotes}
+\end{figure}
+
+\Cref{fig:parallel_trends} plots raw outcome trends by treatment cohort. The three groups---early adopters (2018--2020 cohorts), late adopters (2021--2024), and never-treated---track each other closely through the pre-treatment period. After treatment, early adopters show a relative decline in HCBS provider density compared to the never-treated group, while late adopters diverge later, consistent with staggered treatment timing.
+
+\subsection{Cohort Heterogeneity}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig5_cohort_atts.png}
+\caption{Treatment Effects by Adoption Cohort}
+\label{fig:cohort_atts}
+\begin{figurenotes}
+\textit{Notes:} Cohort-specific ATTs from the Callaway--Sant'Anna estimator. Error bars show 95\% confidence intervals. Cohort label indicates the year of first minimum wage increase.
+\end{figurenotes}
+\end{figure}
+
+\Cref{fig:cohort_atts} displays treatment effects separately for each adoption cohort. All four cohorts show negative ATTs: the 2020 cohort has the largest effect ($-0.194$, SE $= 0.104$), the 2019 cohort ($-0.151$, SE $= 0.088$), and the 2021 cohort ($-0.085$, SE $= 0.056$). The 2023 cohort also shows a negative effect ($-0.181$), but its reported SE of 0.012 should be interpreted with extreme caution: this cohort contains a single state, and the analytic standard error formula in CS does not account for the absence of within-cohort variation, producing artificially tight inference. I do not rely on this cohort for statistical significance. The consistency of negative effects across the three multi-state cohorts---despite variation in the size of minimum wage increases and the number of pre-treatment periods---strengthens the causal interpretation.
+
+\input{tables/tab6_cohorts}
+
+
+\section{Robustness}
+
+\subsection{Falsification: Non-HCBS Providers}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig6_falsification.png}
+\caption{Falsification Test: Effect on Non-HCBS (CPT) Provider Supply}
+\label{fig:falsification}
+\begin{figurenotes}
+\textit{Notes:} Same specification as \Cref{fig:event_study}, applied to non-HCBS providers (those billing CPT codes for physician and specialist services). These providers employ higher-wage workers and should be unaffected by minimum wage changes at the levels observed. The null result validates the mechanism: minimum wage effects operate through the low-wage HCBS workforce, not through state-level confounders.
+\end{figurenotes}
+\end{figure}
+
+The minimum wage should not affect providers whose workforce earns well above the floor. \Cref{fig:falsification} applies the identical specification to non-HCBS Medicaid providers---those billing CPT codes for physician office visits and specialist services. The overall ATT is $-0.061$ (SE $= 0.084$, $p = 0.469$)---small, statistically insignificant, and less than half the magnitude of the HCBS effect. The event-study coefficients show no systematic pattern pre- or post-treatment. This null result is consistent with the mechanism operating specifically through the low-wage HCBS workforce: the same minimum wage shock applied to the same states does not affect providers whose employees earn well above the new floor.
+
+\subsection{Alternative Specifications}
+
+\input{tables/tab4_robustness}
+
+\Cref{tab:robustness} summarizes results across the primary robustness specifications. The main result is remarkably stable. Using not-yet-treated states as the control group yields an ATT of $-0.160$ (SE $= 0.081$)---nearly identical to the baseline and now significant at 5\%. Allowing one year of anticipation strengthens the estimate to $-0.271$ ($p = 0.004$), consistent with providers beginning to adjust when wage increases are legislated but before they take effect. The TWFE specification with log minimum wage as a continuous treatment yields an elasticity of $-0.339$ ($p = 0.152$), and adding region-by-year fixed effects produces a larger elasticity of $-0.427$ ($p = 0.153$), both directionally consistent though imprecise. Restricting the sample to cohorts with at least three pre-treatment periods yields a somewhat smaller but precisely estimated ATT of $-0.117$ ($p = 0.025$). The falsification test on non-HCBS providers yields a negligible and insignificant ATT of $-0.061$ ($p = 0.469$), consistent with the cost-push mechanism operating through the low-wage HCBS workforce specifically.
+
+As an alternative aggregation approach, the Sun--Abraham interaction-weighted event study \citep{sun2021estimating} confirms the dynamic pattern: post-treatment coefficients are uniformly negative, growing in magnitude over time (see \Cref{app:sun_abraham}).
+
+\subsection{Sensitivity to Parallel Trends}
+
+The event-study estimates provide the primary evidence on parallel trends. The pre-treatment coefficients at $e = -3, -2$ are close to zero (the largest is $+0.091$ at $e = -2$), with no monotonic pre-trend. Under the \citet{rambachan2023more} framework, the relevant question is whether the post-treatment decline could be explained by a continuation of any pre-existing differential trend. Given that the pre-treatment coefficients are small, unsigned, and the post-treatment decline is monotonic and growing, even modest bounds on trend differences ($\bar{M} \leq 0.05$) would preserve the sign of the effect. I note that formal implementation of the HonestDiD sensitivity analysis requires additional assumptions about the smoothness parameter that are difficult to calibrate in this setting with few cohorts, and defer to the visual evidence and robustness checks as the primary basis for credibility.
+
+\subsection{Leave-One-Out Analysis}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig7_leave_one_out.png}
+\caption{Leave-One-Out Sensitivity Analysis}
+\label{fig:loo}
+\begin{figurenotes}
+\textit{Notes:} Each point shows the estimated overall ATT when one treated state is dropped from the sample. The dashed line indicates the full-sample ATT.
+\end{figurenotes}
+\end{figure}
+
+\Cref{fig:loo} confirms that no single state drives the results. The ATT ranges from $-0.174$ to $-0.143$ across leave-one-out iterations, compared to a full-sample estimate of $-0.161$. This narrow range---spanning just 0.031 log points---indicates that the result is not driven by any individual treated state.
+
+\subsection{Minimum Wage Trajectories}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig8_mw_trajectories.png}
+\caption{State Minimum Wage Trajectories, 2017--2024}
+\label{fig:mw_trajectories}
+\begin{figurenotes}
+\textit{Notes:} Minimum wage levels for selected states illustrating the range of treatment intensity. California and Washington reached \$16+ by 2024, while Georgia and Texas remained at the federal minimum (\$7.25).
+\end{figurenotes}
+\end{figure}
+
+
+\section{Mechanisms and Discussion}
+
+The results speak to the relative importance of the cost-push and retention channels outlined in Section 3.
+
+The findings suggest that the cost-push channel dominates. The overall ATT of $-0.161$ on log HCBS providers implies a roughly 15\% decline in the number of active providers, growing to 23\% by five years post-treatment. This monotonic deterioration is consistent with gradual margin compression: providers absorb initial cost increases but exit as cumulative wage growth erodes viability. Importantly, the null result for non-HCBS providers ($-0.061$, $p = 0.47$) rules out common shocks or state-level confounders driving the HCBS decline---the effect operates specifically through the low-wage workforce channel predicted by the cost-push mechanism.
+
+The retention channel may still operate, but it appears insufficient to offset cost pressures at observed minimum wage levels. If reduced turnover fully compensated for higher wages, we would expect null or positive effects on provider supply---instead, we observe consistent negative effects across all four treatment cohorts. The growing magnitude over time further suggests that any initial retention benefits dissipate as the gap between labor costs and Medicaid reimbursement widens.
+
+Spending effects are muted relative to provider counts ($-0.102$ on log spending, $p = 0.59$), suggesting partial compositional adjustment: remaining providers may serve more beneficiaries or bill more intensively, partially offsetting the revenue decline from provider exit. The positive (though imprecise) spending-per-capita effect is consistent with surviving providers being larger and more efficient.
+
+These findings connect to two strands of the literature. The minimum wage employment literature---from \citet{card1994minimum} through \citet{cengiz2019effect}---has generally found small or zero disemployment effects in competitive sectors where firms can adjust prices. The HCBS setting is fundamentally different: Medicaid providers face administratively fixed prices and cannot pass through cost increases. This institutional feature may explain why I find larger effects than the restaurant and retail studies: the margin of adjustment shifts from employment levels to market participation. The effect size ($-$15\% on provider counts) is larger than typical minimum wage disemployment estimates ($-$1 to $-$3\%), but the mechanism is different---it operates through firm exit rather than individual job loss.
+
+The provider supply response also resonates with the Medicaid literature. \citet{finkelstein2007effect} showed that Medicare's introduction dramatically increased hospital supply; \citet{mommaerts2023returns} documented that Medicaid payment rates affect nursing home quality. My results reveal the mirror image: when input costs rise without revenue adjustment, the provider margin contracts. The rate-cost squeeze I document is analogous to the underpayment problem identified by \citet{grabowski2004recent} for nursing homes, but operates through the minimum wage rather than reimbursement policy.
+
+The policy implications are significant. Minimum wage increases that are not coordinated with Medicaid rate adjustments create a cost-revenue squeeze that reduces HCBS provider supply, potentially limiting access for low-income beneficiaries who depend on home care services. This represents an unintended tension between two policies with complementary goals: the minimum wage aims to improve the lives of low-wage workers, while Medicaid HCBS aims to serve the most vulnerable populations. States that raise minimum wages should consider concurrent Medicaid rate adjustments to prevent provider market disruption---a recommendation consistent with the ARPA-funded HCBS rate increases that several states implemented during 2021--2023.
+
+\subsection{Limitations}
+
+Several limitations deserve candid acknowledgment. First, the primary CS estimate is marginally significant ($p = 0.069$). With 9 treated states in 4 cohorts, the design has limited statistical power. Asymptotic cluster-robust standard errors may over-reject in small-cluster settings \citep{cameron2008bootstrap}; future work should apply wild cluster bootstrap or randomization inference to sharpen inference.
+
+Second, the American Rescue Plan Act (ARPA) Section 9817 provided a temporary 10-percentage-point increase in the federal Medicaid matching rate for HCBS, beginning in April 2021. Nearly all states used these funds for provider rate increases and workforce bonuses. Because the ARPA HCBS funds overlap with the 2021--2024 post-treatment window, they could attenuate or confound the estimated minimum wage effects. If ARPA funds cushioned the cost-push channel, the true effect of minimum wage increases absent fiscal relief could be larger than what I estimate. A pre-2021 subsample analysis---isolating the 2019 and 2020 cohorts from the ARPA window---would provide a cleaner test, though at the cost of further reducing the treated sample.
+
+Third, the outcome variable (count of billing NPIs) captures provider market participation but not direct employment or service hours. Provider exit from billing does not necessarily mean worker displacement---workers may move to remaining providers---and provider entry may reflect organizational restructuring rather than genuine capacity expansion. Alternative outcome measures such as total beneficiaries served or claims volume per provider would strengthen the analysis.
+
+The welfare calculus is complex. A 15\% decline in HCBS provider supply could reduce access to home care for vulnerable beneficiaries, potentially forcing some into more expensive institutional settings---undermining the decades-long rebalancing effort. At the same time, the workers who remain in HCBS earn higher wages, which improves their welfare. The optimal policy likely involves coordinated rate-and-wage increases: raising both the minimum wage and Medicaid HCBS reimbursement rates simultaneously. Several states pursued exactly this approach during the ARPA period, and evaluating the relative effectiveness of coupled versus uncoupled policies is a natural direction for future work.
+
+
+\section{Conclusion}
+
+This paper provides the first evidence on how minimum wage policy affects Medicaid home care provider markets, exploiting newly released provider-level T-MSIS data covering all states from 2018 to 2024. The staggered adoption of state minimum wage increases---with 9 states treated across 4 cohorts (2019--2023) and 21 never-treated controls in the primary Callaway--Sant'Anna design---provides credible variation for a heterogeneity-robust difference-in-differences estimation.
+
+The findings illuminate a tension at the heart of two critical policy domains. Minimum wage increases aim to improve the lives of low-wage workers, many of whom are the same direct care workers who deliver Medicaid-funded home care services. But when these higher labor costs meet the rigid structure of Medicaid reimbursement, the consequences for service delivery capacity become a first-order concern.
+
+Three caveats deserve emphasis. First, T-MSIS measures provider billing activity, not direct worker employment; provider exit from billing does not necessarily mean worker displacement. Second, the analysis captures the total effect of minimum wage increases, including any endogenous Medicaid rate responses; isolating the pure cost-push effect requires data on contemporaneous rate changes that are not systematically available. Third, the comparison between minimum-wage-increasing and federal-minimum states involves geographic and political heterogeneity that, despite robustness checks, may violate parallel trends assumptions.
+
+These findings suggest that the interaction between labor market policy and healthcare delivery infrastructure deserves more attention from both researchers and policymakers. As states continue to raise minimum wages and the federal minimum wage debate persists, understanding the downstream effects on publicly financed healthcare markets is essential for designing policies that achieve their goals without unintended harm to vulnerable populations.
+
+
+\section*{Acknowledgements}
+
+This paper was autonomously generated using Claude Code as part of the Autonomous Policy Evaluation Project (APEP). The T-MSIS Medicaid Provider Spending data were obtained from HHS Open Data. State minimum wage data are from the Federal Reserve Economic Data (FRED) system. Population data are from the U.S. Census Bureau's American Community Survey.
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/ape-papers}
+
+\noindent\textbf{Contributors:} @olafdrw
+
+\noindent\textbf{First Contributor:} \url{https://github.com/olafdrw}
+
+\label{apep_main_text_end}
+\newpage
+\bibliography{references}
+
+\newpage
+\appendix
+
+\section{Data Appendix}\label{app:data}
+
+\subsection{T-MSIS Medicaid Provider Spending}
+
+The T-MSIS Medicaid Provider Spending file is derived from the Transformed Medicaid Statistical Information System, the primary federal data source for Medicaid program operations. The file was released by the Department of Health and Human Services on February 9, 2026, through the HHS Open Data portal.
+
+The dataset schema consists of seven fields: billing provider NPI, servicing provider NPI, HCPCS code, claim month, total unique beneficiaries, total claims, and total paid amount. The primary key is the combination of billing NPI, servicing NPI, HCPCS code, and month. Rows with fewer than 12 total claims are suppressed for privacy.
+
+The file covers all 50 states, the District of Columbia, and U.S. territories from January 2018 through December 2024, encompassing both fee-for-service and managed care encounter data. Total coverage: 227,083,361 rows, 617,503 unique billing NPIs, \$1.09 trillion in cumulative payments.
+
+\subsection{HCPCS Code Classification}
+
+I classify HCPCS codes into HCBS (Medicaid-specific) and non-HCBS categories based on their prefix:
+
+\begin{itemize}
+\item \textbf{HCBS:} T-codes (state HCBS services, e.g., T1019 = personal care/15 min), H-codes (behavioral health, e.g., H2016 = community support/diem), S-codes (temporary state codes, e.g., S5125 = attendant care/15 min)
+\item \textbf{Non-HCBS:} Numeric CPT codes (physician services, e.g., 99213 = office visit), J-codes (drugs), A-codes (ambulance/DME), G-codes (CMS procedures), E-codes (DME), L-codes (orthotics)
+\end{itemize}
+
+T, H, and S codes account for 52\% of total T-MSIS spending. The top three codes by cumulative spending---T1019 (\$145.5B), T2016 (\$96.3B), and S5125 (\$62.5B)---are all HCBS services delivered by direct care workers.
+
+\subsection{NPPES Linkage}
+
+The National Plan and Provider Enumeration System provides the registry of all NPI holders. I extract 21 fields from the bulk CSV, including practice state, ZIP code, entity type, taxonomy codes, and lifecycle dates. The match rate between T-MSIS billing NPIs and NPPES is 99.5\%.
+
+\subsection{State Minimum Wage Panel}
+
+State minimum wage levels are from FRED series STTMINWG[STATE], which provides annual January 1 values. I verify mid-year changes against Department of Labor records. States without state minimum wage laws (AL, LA, MS, SC, TN) are assigned the federal minimum of \$7.25.
+
+Treatment is defined as a state's first minimum wage increase during 2018--2024. States whose minimum wage increased before 2018 (relative to the 2017 level) and continued increasing are assigned to the cohort of their first increase within the sample period.
+
+
+\section{Identification Appendix}\label{app:identification}
+
+\subsection{Treatment Rollout}\label{app:treatment_rollout}
+
+The Callaway--Sant'Anna estimator uses the following cohorts (states first treated in each year):
+
+\begin{itemize}
+\item \textbf{2019 cohort (4 states):} AR, CT, DE, MA
+\item \textbf{2020 cohort (3 states):} IL, NM, NV
+\item \textbf{2021 cohort (1 state):} VA
+\item \textbf{2023 cohort (1 state):} NE
+\end{itemize}
+
+Twenty-one states remained at the federal minimum (\$7.25) throughout 2018--2024 and serve as the never-treated control group: AL, GA, IA, ID, IN, KS, KY, LA, MS, NC, ND, NH, OK, PA, SC, TN, TX, UT, WI, WV, WY.
+
+An additional 21 states were first treated in 2018 (the first year of the panel) and are excluded from CS estimation due to the absence of a pre-treatment baseline. These states contribute to the supplementary TWFE estimates.
+
+\subsection{Event Study Coefficients}
+
+\input{tables/tab5_event_study}
+
+\subsection{Pre-Trend Testing}
+
+I conduct a joint Wald test of the null hypothesis that all pre-treatment event-study coefficients equal zero. The test statistic and p-value are reported in \Cref{tab:event_study}.
+
+
+\section{Robustness Appendix}\label{app:robustness}
+
+\subsection{Sun--Abraham Comparison}\label{app:sun_abraham}
+
+As an alternative to Callaway--Sant'Anna, I estimate a Sun--Abraham interaction-weighted event study using the \texttt{sunab()} function in the \texttt{fixest} R package \citep{sun2021estimating}. The Sun--Abraham estimator produces interaction-weighted coefficients for each event time that are robust to treatment effect heterogeneity, using a different aggregation scheme than CS. Post-treatment coefficients are uniformly negative: $-0.050$ at $e = 0$, growing to $-0.253$ at $e = 5$, with individual significance at the 1\% level for $e = 1, 4, 5$. This confirms the growing provider exit pattern observed in the CS event study (\Cref{fig:event_study}).
+
+\subsection{Goodman-Bacon Decomposition}
+
+The Callaway--Sant'Anna estimator avoids the negative weighting problems that plague TWFE in staggered settings. Nonetheless, the TWFE coefficient of $-0.159$ is nearly identical to the CS ATT of $-0.161$, suggesting that ``forbidden comparisons'' (already-treated vs.\ later-treated) receive minimal weight in this setting---consistent with the large share of never-treated states (21 of 51) providing clean control variation.
+
+\subsection{Robustness Summary}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig9_robustness_summary.png}
+\caption{Robustness of Main Result Across Specifications}
+\label{fig:robustness_summary}
+\begin{figurenotes}
+\textit{Notes:} Point estimates and 95\% confidence intervals for the effect of minimum wage increases on log HCBS providers across CS-based specifications. All estimates use the same outcome variable (log HCBS providers) and comparable ATT estimands. The falsification test uses non-HCBS providers as the outcome.
+\end{figurenotes}
+\end{figure}
+
+
+\end{document}

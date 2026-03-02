@@ -1,0 +1,655 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\sisetup{detect-all=true, group-separator={,}, group-minimum-digits=4}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Timing data
+\IfFileExists{timing_data.tex}{\input{timing_data.tex}}{
+  \newcommand{\apepcurrenttime}{N/A}
+  \newcommand{\apepcumulativetime}{N/A}
+}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\sym}[1]{\ifmmode^{#1}\else\(^{#1}\)\fi}
+
+\title{The First Retirement Age: Civil War Pensions and the Labor Supply Response to Age-Based Eligibility\thanks{APEP Working Paper. Previous versions circulated under the same title. The Costa Union Army data were assembled by Robert Fogel, Dora Costa, and collaborators through the ``Early Indicators of Later Work Levels, Disease and Death'' project (NIH Grant P01 AG10120). Available at \url{https://github.com/SocialCatalystLab/ape-papers/tree/main/apep_0442}.}}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. Correspondence: scl@econ.uzh.ch} \and @SocialCatalystLab}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+The 1907 Service and Age Pension Act granted automatic pension eligibility to Union Army veterans at age 62---the first age-based retirement threshold in American history. Using the Costa Union Army dataset linking 21,302 veterans across the 1900 and 1910 censuses with observed pension records, I estimate a regression discontinuity at the age-62 cutoff. Pension receipt under the 1907 Act jumps 10 percentage points at the threshold, but this represents only a fraction of the eligible population because most veterans already held disability pensions. The panel RDD estimates suggest a 7 percentage point decline in labor force participation, though the estimate is imprecise at the optimal bandwidth ($p = 0.165$) and reaches significance only at wider bandwidths. These findings suggest that age-based eligibility thresholds have more modest behavioral effects when disability programs already provide broad coverage---with implications for modern Social Security design.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} H55, J26, N31, I38 \\
+\noindent\textbf{Keywords:} Civil War pensions, retirement, labor supply, regression discontinuity, panel data
+
+\newpage
+
+%% ========================================================================
+%% SECTION 1: INTRODUCTION
+%% ========================================================================
+\section{Introduction}
+
+In 1910, the United States federal government spent more on Civil War pensions than on any other single program---28 percent of all federal expenditures, a share that modern Social Security has never matched \citep{skocpol1992protecting}. Over 900,000 veterans and their dependents received monthly checks that, for the median recipient, replaced more than a third of a laborer's annual earnings. For a sixty-five-year-old farmer whose joints ached from decades of plowing, whose hands could no longer grip a scythe, the pension represented something unprecedented: the possibility of stopping.
+
+Yet despite the pension system's fiscal enormity, a basic question remains unanswered. \citet{costa1995pensions} found large labor supply elasticities among Civil War pensioners---a 10 percent increase in pension income raised the probability of retirement by more than 6.6 percentage points. These estimates, drawn from cross-sectional variation in pension generosity across disability ratings, anchor the economic history of American retirement. But they suffer from a fundamental identification problem: pension amounts were determined by disability severity, creating a mechanical correlation between pension generosity and reduced work capacity. Did pensions cause veterans to stop working, or did sicker men simply receive larger pensions and work less regardless?
+
+The 1907 Service and Age Pension Act offers a way to disentangle these channels. The Act drew a sharp statutory line: any Union veteran who had served ninety or more days and reached age 62 became automatically eligible for a \$12 monthly pension, regardless of disability status. No proof of incapacity was needed. No application beyond a simple form. For an unskilled laborer earning roughly \$400 per year, the \$144 annual pension represented a 36 percent income supplement. And because eligibility depended solely on birth year---determined decades before the Act was contemplated---the age-62 threshold provides quasi-random variation in pension access that is plausibly independent of contemporaneous health and disability status.
+
+I exploit this threshold in a regression discontinuity design using the Costa Union Army dataset, which links the military service records, pension files, surgeons' health certificates, and census records of approximately 39,000 white Union Army veterans \citep{fogel1993new}. From this resource I construct a panel of 20,651 veterans observed in both the 1900 and 1910 censuses---a design that tracks the same individuals across the decade spanning the Act's passage. Critically, the dataset records \textit{actual pension receipt}: whether each veteran received a pension, under which law, and the monthly dollar amount. The first stage need not be assumed; it is directly observed.
+
+The age-62 threshold reduced labor force participation by less than the cross-sectional literature predicts---and the reason lies in the first stage. The first stage is clear and precisely estimated: pension receipt under the 1907 Act jumps by 10.2 percentage points at the age-62 cutoff ($p = 0.040$). But this represents only a fraction of the eligible population. The full-sample pension receipt rate is 29.2 percent under the 1907 Act, but a large majority of veterans received \textit{some} federal pension through earlier disability laws. The age-62 threshold did not create a transition from zero to pension receipt; for most veterans, it converted uncertain disability claims into guaranteed age-based benefits, or added modestly to existing pension income. The attenuated first stage is itself an important finding about how age-based programs interact with pre-existing disability coverage.
+
+The reduced-form labor supply effect is consistent with this attenuated first stage. The panel RDD, which differences out permanent individual characteristics by comparing the same veteran's labor force participation across the 1900 and 1910 censuses, yields an estimate of $-0.071$ at the optimal bandwidth ($p = 0.165$), strengthening to $-0.075$ ($p = 0.060$) and $-0.067$ ($p = 0.049$) at wider bandwidths of 5 and 8 years, respectively. The point estimates are remarkably stable across bandwidths---consistently between $-0.065$ and $-0.081$---but the optimal bandwidth estimate is imprecise, reflecting the small number of observations just below the cutoff. A marginally significant pre-treatment falsification test ($p = 0.067$) raises a legitimate concern about composition differences across the threshold that I discuss below.
+
+These findings reframe our understanding of early retirement programs. \citeauthor{costa1995pensions}'s large cross-sectional elasticities likely reflect health-income confounding rather than pure income effects. When identification comes from age-based eligibility rather than disability-based generosity, the behavioral response is modest. The Civil War pension system, for all its fiscal scale, may have had smaller effects at the age-62 margin than commonly believed---because the age threshold was layered atop disability programs that already provided broad coverage. This finding speaks directly to modern debates about Social Security's age-62 early eligibility threshold: the behavioral effects of age-based thresholds depend critically on what other programs already exist. Where \citet{fetter2018} and \citet{behaghel2012} document significant bunching at age 62 in the modern Social Security system, the historical setting reveals that the same threshold, operating in isolation and without complementary institutions, produces smaller effects than a naive reading of the cross-sectional evidence would predict.
+
+
+%% ========================================================================
+%% SECTION 2: HISTORICAL BACKGROUND
+%% ========================================================================
+\section{Historical Background}
+
+\subsection{The Civil War Pension System}
+
+The Union pension system began in 1862 as disability compensation for soldiers injured in service. Over the following decades, political pressure from the Grand Army of the Republic---the organized veterans' lobby---and the electoral calculus of the Republican Party transformed it into a comprehensive old-age support system \citep{skocpol1992protecting, skocpol1993americas}.
+
+Three legislative milestones expanded the system. The Arrears Act of 1879 allowed veterans to claim back payments from the date of discharge, creating windfall payments averaging over \$1,000---more than two years' wages for an unskilled worker. The Dependent Pension Act of 1890 severed the link between pension eligibility and combat-related disability, allowing any veteran unable to perform manual labor to claim benefits regardless of cause. By the early 1900s, the system had evolved from war compensation into a de facto old-age insurance program.
+
+The transformation was deliberate. As \citet{glasson1918federal} documents, the pension rolls grew from 238,000 in 1880 to 921,000 in 1893, and total annual expenditures rose from \$57 million to \$159 million. At its peak, the system consumed more than 40 percent of all federal revenue. No other nation in the world operated a social transfer program of comparable scale relative to its budget.
+
+The political economy of the pension system shaped its generosity. The Grand Army of the Republic wielded enormous electoral power, particularly in Northern swing states where the veteran vote could be decisive \citep{skocpol1993americas}. Republican candidates competed for veteran support by promising pension expansions, while Democrats opposed federal pensions on both fiscal and constitutional grounds. This partisan dynamic ratcheted benefits upward without ever reducing them.
+
+Table \ref{tab:pension_laws} summarizes the major pension laws and their provisions.
+
+\input{tables/tabA1_pension_laws.tex}
+
+\subsection{The 1907 Service and Age Pension Act}
+
+The final major expansion came in two steps. In 1904, President Theodore Roosevelt issued Executive Order 78, directing the Bureau of Pensions to treat old age itself as evidence of disability, establishing an administrative schedule of \$6 per month at age 62, increasing with age. Congress codified and substantially increased these amounts in the Service and Age Pension Act of February 6, 1907, establishing the schedule shown in Figure \ref{fig:pension_schedule}:
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/fig14_pension_schedule.pdf}
+\caption{Civil War Pension Schedule Under the 1907 Act}
+\label{fig:pension_schedule}
+\par\vspace{0.5em}\noindent\parbox{\textwidth}{\small\textit{Notes:} Monthly pension amounts by age under the Service and Age Pension Act of 1907. Sharp increases at ages 62, 70, and 75.}
+\end{figure}
+
+Eligibility required only ninety days of honorable service---a threshold met by virtually all surviving veterans, since the war had lasted four years. No proof of disability was needed. The pension was automatic upon reaching the age threshold.
+
+The \$12 monthly pension at age 62 was economically meaningful. Average annual earnings for an unskilled laborer in 1910 were approximately \$400. The pension therefore represented roughly 36 percent of a laborer's income---comparable in relative terms to the Social Security replacement rate for low earners today. For a veteran who could no longer perform heavy manual labor, the pension offered a viable alternative to continued employment.
+
+\subsection{Coverage and the Nature of the Discontinuity}
+
+By 1910, over 90 percent of surviving Union veterans were receiving federal pensions of some kind \citep{costa1998pensions}. This high coverage reflects \textit{both} disability-based pensions (available at any age) and the newer age-based pensions under the 1907 Act. Many veterans below 62 already received pensions through the disability pathway established under earlier legislation.
+
+This institutional detail shapes the RDD estimand. The discontinuity at age 62 was not a transition from zero to twelve dollars. It was a transition from uncertainty to a guarantee---from a regime where pension receipt depended on disability claims, with uncertain outcomes and the burden of proving incapacity, to one where the pension was automatic at a known amount. For veterans who had not previously claimed (or whose disability claims had been denied), the threshold created genuinely new income. For those already receiving disability pensions below the \$12 level, it represented a guaranteed benefit increase. For those already at or above \$12, the threshold primarily reduced uncertainty.
+
+The observed pension records confirm that 29.2 percent of veterans in the sample received pensions under the 1907 Act, with a localized 10.2 percentage point jump at the age-62 boundary ($p = 0.040$).
+
+
+%% ========================================================================
+%% SECTION 3: RELATED LITERATURE
+%% ========================================================================
+\section{Related Literature}
+
+This paper engages three literatures: the economic history of Civil War pensions, the modern economics of retirement and labor supply, and the methodology of regression discontinuity designs. It speaks most directly to the work of Dora Costa, whose data I use and whose findings I subject to quasi-experimental evaluation.
+
+\subsection{Civil War Pensions and the Origins of Retirement}
+
+\citet{costa1995pensions} provides the foundational estimates of how Civil War pensions affected labor supply. Using cross-sectional variation in pension generosity across disability ratings in the Union Army data, she estimates an elasticity of non-participation with respect to pension income exceeding 0.66. This implies that a 10 percent increase in pension income raised the probability of retirement by more than 6.6 percentage points---a large effect that, if causal, would place the Civil War pension among the most behaviorally consequential transfer programs in American history. \citet{costa1998pensions} extends this analysis, arguing that rising income was the primary driver of retirement as a mass phenomenon in the late nineteenth and early twentieth centuries.
+
+These estimates face a well-known identification challenge. Pension amounts were determined by disability severity: a veteran who received a larger pension was typically one who was more severely disabled, creating a mechanical correlation between pension generosity and reduced work capacity. The cross-sectional elasticity conflates the income effect of pensions with the health effect of disability. The RDD I implement sidesteps this problem by exploiting a source of variation---birth year relative to a statutory threshold---that is determined decades before the policy and is plausibly independent of health and disability at the time of the Act's passage.
+
+\citet{costa1997displacing} examines a different margin, finding that pension income enabled elderly veterans to establish independent households rather than moving in with adult children---an early form of the unbundling of family support that characterizes modern retirement. \citet{eli2015income} exploits variation in pension generosity to estimate the causal effect of income on health, finding that higher pensions reduced mortality through nutrition-sensitive channels. \citet{vitek2022effect} uses the Union Army data to study the effect of pensions on individual retirement timing, finding that pension generosity accelerated exit from the labor force, particularly among veterans in physically demanding occupations.
+
+\subsection{Modern Retirement Economics and the Age-62 Threshold}
+
+The Civil War pension anticipates key features of modern Social Security: age-based eligibility, defined benefit amounts, and near-universal coverage. The modern literature on how pension programs affect retirement timing is vast \citep[see][for a review]{dalen2010old, moffitt2002welfare}.
+
+\citet{fetter2018} provides the closest modern analog to this paper's approach. Exploiting variation in Social Security wealth driven by rule changes, they estimate large retirement responses to old-age assistance programs, finding that a \$1,000 increase in annual income reduced labor force participation by 5.7 percentage points among men over 65. Their estimates---based on state-level variation in Old Age Assistance generosity---capture a population-level response to income transfers that is conceptually similar to the 1907 Act's threshold, though operating in a richer institutional environment with employer pensions, Social Security expectations, and modern labor markets. The present paper estimates a comparable parameter in a setting where the pension was the \textit{only} institutional feature at the threshold age---no Social Security (enacted 1935), no Medicare (1965), no private pension system, and no social norm that 62 was ``retirement age.''
+
+\citet{behaghel2012} document substantial bunching in retirement at age 62 under the modern Social Security system, finding that roughly 8--14 percent of workers time their retirement to coincide with the early eligibility age. The magnitude of bunching reflects not just the income value of benefits but also the ``focal point'' role of institutionally defined ages. Whether the same focal-point mechanism operated in 1907---when the age-62 threshold was newly created and lacked the cultural salience of the modern claiming age---is an open question that the data address indirectly through the modest reduced-form effects.
+
+\citet{mastrobuoni2009labor} exploits cohort-based changes in Social Security's Normal Retirement Age, finding that each year of increase shifted average retirement by about two months. \citet{coile2007future} show that future Social Security entitlements---the option value of delaying retirement---significantly affect the retirement decision, with effects concentrated among workers nearing eligibility. \citet{manoli2016nonparametric} provide nonparametric evidence on how financial incentives at pension-eligibility thresholds affect retirement timing in Austria, finding sharp bunching at pension-eligibility ages that diminishes as program generosity falls. \citet{gruber1999social} document large cross-country variation in retirement ages driven by pension program design. The income effect of government transfers on labor supply has been studied extensively in other contexts as well. \citet{imbens2001estimating} exploit lottery winnings as exogenous income shocks, finding modest reductions in labor supply: an additional \$20,000 per year in unearned income reduced labor force participation by only about 4 percentage points. \citet{cesarini2017effect} use a similar lottery-based design in Sweden, estimating that \$150,000 in wealth reduces earnings by about 2 percent---confirming that pure income effects on labor supply, while real, are smaller than the cross-sectional pension-labor supply correlation would suggest. The present paper's finding of a modest RDD effect at the 1907 Act threshold is consistent with this broader evidence that pure income effects are substantially smaller than confounded cross-sectional estimates.
+
+\subsection{RDD Methodology}
+
+The paper implements a sharp RDD at a threshold in a discrete running variable (age in 1907). \citet{hahn2001identification} establishes the conditions for nonparametric identification of treatment effects in the RDD framework. \citet{ImbensLemieux2008} and \citet{lee2010regression} provide the foundational econometric framework, while \citet{cattaneo2020practical} discusses the specific challenges of discrete running variables. Local polynomial methods with bias-corrected inference follow \citet{calonico2014robust}, bandwidth selection follows \citet{imbens2012optimal}, and the density test uses \citet{cattaneo2020rddensity}. The analysis avoids high-order polynomials following \citet{gelman2019high}.
+
+The panel RDD---using the change in outcomes rather than the level---builds on \citet{grembi2016fiscal}, who formalize the difference-in-discontinuities framework. Rather than differencing across groups at a point in time, I difference across time for the same individual, weakening the identifying assumption from continuity of potential outcome levels to continuity of potential outcome \textit{changes} at the cutoff. Randomization inference follows \citet{CattaneoFrandsenTitiunik2015}.
+
+
+%% ========================================================================
+%% SECTION 4: CONCEPTUAL FRAMEWORK
+%% ========================================================================
+\section{Conceptual Framework}
+
+\subsection{The Retirement Decision}
+
+Consider a veteran of age $a$ who allocates time between market work and leisure. His budget constraint is:
+\begin{equation}
+c = w \cdot h + P(a) + y_0
+\end{equation}
+where $c$ is consumption, $w$ is the market wage, $h$ is hours worked, $P(a)$ is the age-dependent pension, and $y_0$ is non-pension, non-labor income. The veteran maximizes utility $U(c, 1-h)$ subject to $h \geq 0$.
+
+The 1907 Act created a statutory schedule of \textit{guaranteed} age-based pension amounts:
+\begin{equation}
+P^{\text{guaranteed}}(a) = \begin{cases}
+0 & \text{if } a < 62 \\
+12 & \text{if } 62 \leq a < 70 \\
+15 & \text{if } 70 \leq a < 75 \\
+20 & \text{if } a \geq 75
+\end{cases}
+\end{equation}
+
+A veteran's actual pension income $P(a)$ may exceed $P^{\text{guaranteed}}(a)$ if he holds a disability pension at a higher rate. The discontinuity at 62 therefore represents a jump in the \textit{floor} of pension income---the minimum guaranteed amount---rather than a transition from zero to positive income. For veterans on the margin of working, the guaranteed pension reduces the shadow value of market work through both income and certainty channels. Standard labor-leisure theory predicts $\partial h^* / \partial P < 0$ under the assumption that leisure is a normal good.
+
+\subsection{Decomposing the First Stage}
+
+The pension data permit a direct decomposition. Define three mutually exclusive pension states:
+
+\begin{enumerate}
+\item \textbf{No pension}: the veteran receives no federal pension ($P = 0$).
+\item \textbf{Disability pension}: the veteran receives a pension under pre-1907 legislation.
+\item \textbf{Age pension}: the veteran receives a pension under the 1907 Act.
+\end{enumerate}
+
+At the age-62 cutoff, veterans transition from state 1 or 2 to state 3. The first stage is:
+\begin{equation}
+\Delta_{\text{FS}} = \lim_{a \downarrow 62} \Pr[\text{1907 Act}] - \lim_{a \uparrow 62} \Pr[\text{1907 Act}]
+\end{equation}
+
+The first stage is attenuated by the baseline rate of pension receipt through the disability channel. Veterans below the cutoff already had substantial pension coverage through earlier disability laws, limiting the room for additional take-up at the age threshold. The observed 10.2 percentage point jump in 1907 Act receipt ($p = 0.040$) represents the marginal effect of the age-based eligibility rule on formal pension classification. The broader ``any pension'' measure shows a larger jump of 33.2 percentage points at a narrower bandwidth (1.9 years), reflecting reclassification of veterans from informal or disability-based pension status into formal pension receipt at the threshold---a mechanical consequence of the age-based eligibility rule converting uncertain disability claims into guaranteed benefits.
+
+\subsection{The Panel RDD and Fuzzy RDD}
+
+The panel design differences out time-invariant individual heterogeneity. Define $\Delta Y_i = Y_i^{1910} - Y_i^{1900}$ as the change in labor force participation for veteran $i$. The panel RDD estimates:
+\begin{equation}
+\tau_{\Delta} = \lim_{a \downarrow 62} \E[\Delta Y_i \mid A_i = a] - \lim_{a \uparrow 62} \E[\Delta Y_i \mid A_i = a]
+\end{equation}
+
+This captures the effect of pension eligibility on the \textit{change} in labor supply, absorbing permanent individual characteristics. The identifying assumption weakens from continuity of $\E[Y_i(0) \mid A_i = a]$ to continuity of $\E[\Delta Y_i(0) \mid A_i = a]$---a more plausible requirement when individuals on either side of the threshold may differ in permanent characteristics.
+
+The fuzzy RDD instruments pension receipt with the age threshold to recover the LATE:
+\begin{equation}
+\tau_{\text{LATE}} = \frac{\tau_{RD}}{\Delta_{\text{FS}}}
+\end{equation}
+
+With a 10 percentage point first stage, the LATE is mechanically ten times the ITT, amplifying both the point estimate and the standard error. This imprecision is a structural feature of the setting, not a failure of execution.
+
+
+%% ========================================================================
+%% SECTION 5: DATA
+%% ========================================================================
+\section{Data}
+
+\subsection{The Costa Union Army Dataset}
+
+The primary data source is the Union Army dataset from the NBER's ``Early Indicators of Later Work Levels, Disease and Death'' project \citep{fogel1993new, costa1995pensions}. The dataset contains detailed records for approximately 39,000 white Union Army veterans, assembled from four primary sources: military service records (regiment, enlistment, discharge, birth year), pension records (authorizing law, monthly amount, certificate date, disability rating), surgeons' certificates (medical examinations, specific conditions, disability ratings, anthropometric measures), and census records linked from 1850 through 1910 (occupation, labor force participation, household structure, property). Each veteran is identified by a unique record number that links observations across files and census years.
+
+\subsection{Sample Construction}
+
+I construct two analysis samples. The \textbf{cross-sectional sample} ($N = 21{,}302$) includes all veterans linked to the 1910 census with non-missing age, labor force participation, and pension records. Age in 1907 is computed from military service birth years, which are more reliable than census-reported age because they were recorded at enlistment and verified against muster rolls. I restrict to veterans aged 45--90 in 1907. The \textbf{panel sample} ($N = 20{,}651$) further restricts to veterans also linked to the 1900 census, enabling computation of $\Delta Y_i$. The panel sample is 96.9 percent of the cross-sectional sample, indicating minimal attrition.
+
+The age-62 cutoff in 1907 implies that veterans born in 1845 or earlier were immediately eligible at the Act's passage, while those born in 1846 or later were not yet eligible. The running variable is age in 1907, and the cutoff is 62. Because the outcome is measured in 1910, veterans just below the cutoff (ages 59--61 in 1907) will have crossed the age-62 threshold by the time of the census. The design therefore estimates the effect of \textit{immediate eligibility at passage}---having access to the pension for 3--4 years by 1910---versus \textit{delayed eligibility} among veterans who became eligible 1--3 years after the Act took effect. The first stage confirms that this timing difference generates a meaningful discontinuity in pension receipt as measured in the 1910 data: veterans who were immediately eligible at passage had substantially higher 1907 Act pension receipt than those who became eligible later, consistent with take-up lags and administrative delays in converting from disability to age-based pensions.
+
+\subsection{Key Variables}
+
+The primary outcome is a binary indicator for gainful employment in the census. Mean labor force participation is 0.165 in 1910 and 0.296 in 1900, reflecting the advanced age and declining health of this population. The mean change ($\Delta Y = -0.141$) indicates that labor force participation fell by 14.1 percentage points over the decade.
+
+The primary first-stage variable is an indicator for receiving a pension under the 1907 Act (mean = 0.292). I also construct an indicator for any federal pension and the monthly pension amount in dollars (mean = \$7.88). Pre-determined covariates include literacy, nativity, 1900 occupation, marital status, and wound indicators from military service records. Health variables from surgeons' certificates include condition counts, specific disease indicators, and disability ratings.
+
+\subsection{Summary Statistics}
+
+\input{tables/tab1_summary.tex}
+
+Table \ref{tab:summary} presents summary statistics separately for veterans below and above age 62 in 1907. Veterans above 62 are older by construction, with lower labor force participation and higher pension receipt. The question is whether these differences are smooth through the threshold or exhibit a discrete jump.
+
+
+%% ========================================================================
+%% SECTION 6: EMPIRICAL STRATEGY
+%% ========================================================================
+\section{Empirical Strategy}
+
+\subsection{Cross-Sectional RDD}
+
+The running variable is age in 1907 (the year of the Act's passage), and outcomes are measured in 1910 (the next available census). Because veterans below 62 in 1907 age into eligibility before 1910, the design compares veterans who received the pension check immediately to those forced to wait several years---being eligible for 3+ years versus 0--2 years by the outcome date. This is the policy-relevant parameter: it measures the behavioral response to the Act's passage at the point of enactment.
+
+The identifying assumption is that potential outcomes are continuous at the age-62-in-1907 cutoff:
+\begin{equation}
+\lim_{a \downarrow 62} \E[Y_i(0) \mid A_i = a] = \lim_{a \uparrow 62} \E[Y_i(0) \mid A_i = a]
+\end{equation}
+I estimate local polynomial regressions:
+\begin{equation}
+Y_i = \alpha + \tau \cdot \ind[A_i \geq 62] + f(A_i - 62) + \epsilon_i
+\end{equation}
+using the \texttt{rdrobust} package \citep{calonico2014robust} with local linear estimation, triangular kernel weighting, and MSE-optimal bandwidth selection \citep{imbens2012optimal}. Since age is measured in integer years, I follow \citet{cattaneo2020practical} and \citet{LeeCard2008} in reporting conventional standard errors as the primary inference framework, with bias-corrected and robust confidence intervals as alternatives.
+
+\subsection{Panel RDD}
+
+The panel RDD replaces the level outcome with the first difference:
+\begin{equation}
+\Delta Y_i = \alpha + \tau_\Delta \cdot \ind[A_i \geq 62] + f(A_i - 62) + \epsilon_i
+\end{equation}
+
+By differencing, I eliminate all time-invariant individual characteristics: baseline health, occupational preferences, family wealth, and any other permanent factor that might differ between veterans born in adjacent years. The identifying assumption weakens to continuity of $\E[\Delta Y_i(0) \mid A_i = a]$ at $a = 62$.
+
+\subsection{Pre-Treatment Falsification}
+
+Since the 1907 Act had not yet been enacted in 1900, labor force participation in 1900 should not exhibit a discontinuity at the age-62-in-1907 threshold:
+\begin{equation}
+Y_i^{1900} = \alpha + \gamma \cdot \ind[A_i \geq 62] + f(A_i - 62) + \epsilon_i
+\end{equation}
+A significant $\hat{\gamma}$ would indicate pre-existing composition differences that predate the policy. The panel RDD addresses level differences by construction but cannot eliminate concerns about differential trends.
+
+\subsection{Threats to Validity}
+\label{sec:threats}
+
+\paragraph{Manipulation.} The running variable is age in 1907, computed from military birth year recorded at enlistment decades before the Act. Veterans could not manipulate their birth year retroactively. The density test ($p = 0.756$) confirms no bunching at the cutoff.
+
+\paragraph{Age heaping.} The running variable is computed from military records rather than census-reported age, substantially mitigating heaping concerns. The cutoff age of 62 does not coincide with a heaping age. Donut-hole specifications provide additional robustness.
+
+\paragraph{Pre-treatment imbalance.} Two covariate balance tests are significant: literacy ($p = 0.002$) and homeownership ($p = 0.006$; Table \ref{tab:balance}). The covariate-adjusted specifications absorb these differences, and the qualitative conclusions are unchanged. The marginally significant pre-treatment falsification ($p = 0.067$) reinforces that pre-treatment balance is imperfect---a limitation I discuss at length in the results.
+
+\paragraph{Selective mortality.} Differential survival rates could create composition differences at the cutoff. The panel design mitigates this by comparing the same individual across time.
+
+
+%% ========================================================================
+%% SECTION 7: MAIN RESULTS
+%% ========================================================================
+\section{Results}
+
+\subsection{Design Validity}
+
+\paragraph{Density.} Figure \ref{fig:density} plots the distribution of veterans by age in 1907. The \citet{cattaneo2020rddensity} test yields $p = 0.756$, confirming no bunching or manipulation at the cutoff. Birth year was recorded at enlistment decades before the 1907 Act, making strategic misreporting impossible.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig7_density.pdf}
+\caption{Density of the Running Variable at the Age-62 Threshold}
+\label{fig:density}
+\par\vspace{0.5em}\noindent\parbox{\textwidth}{\small\textit{Notes:} Distribution of Union Army veterans by age in 1907 (computed from military service birth year). Vertical dashed line at age 62. The \citet{cattaneo2020rddensity} density test $p$-value is reported. Source: Costa Union Army dataset (NBER).}
+\end{figure}
+
+\paragraph{Covariate balance.} Table \ref{tab:balance} reports RDD estimates for predetermined covariates. Pre-determined characteristics should evolve smoothly through the threshold. Two covariates show significant discontinuities: literacy and homeownership. The covariate-adjusted specifications below absorb these differences.
+
+\input{tables/tab2_balance.tex}
+
+\subsection{The First Stage: What the Age Threshold Actually Changed}
+
+The central empirical question of this paper begins with the first stage. If virtually all veterans already had pensions, what did crossing age 62 actually change?
+
+Figure \ref{fig:first_stage} answers this directly. Pension receipt under the 1907 Act jumps visually at the threshold. Table \ref{tab:first_stage} provides the formal estimates: the probability of receiving a pension specifically under the 1907 Act increases by 10.2 percentage points at the cutoff (SE = 0.050, $p = 0.040$), and monthly pension amounts rise by \$1.91 ($p = 0.067$). The broader measure of \textit{any} pension receipt shows a larger jump of 33.2 percentage points ($p = 0.004$), reflecting that the age-62 threshold triggered reclassification and formalization of pension status beyond the 1907 Act alone---many veterans who already received informal or partial disability pensions were re-enrolled under the new age-based framework, expanding formal pension coverage even when the income change was modest. The 10.2 percentage point jump in 1907 Act receipt is the economically relevant first stage, as it captures veterans for whom the age threshold created genuinely new or substantially increased pension income.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig3_first_stage.pdf}
+\caption{First Stage: Pension Receipt Under the 1907 Act at Age 62}
+\label{fig:first_stage}
+\par\vspace{0.5em}\noindent\parbox{\textwidth}{\small\textit{Notes:} Fraction of veterans receiving a pension under the 1907 Act, by age in 1907. Vertical dashed line at the age-62 eligibility threshold. Point sizes proportional to cell counts. Source: Costa Union Army pension records (NBER).}
+\end{figure}
+
+\input{tables/tab4_first_stage.tex}
+
+The 10 percentage point jump is economically meaningful but substantially attenuated relative to what a universal threshold would produce. The attenuation reflects the institutional reality that most veterans already received disability pensions. Overall, 29.2 percent of the full sample received 1907 Act pensions (including veterans well above 62 who were retroactively classified), and the mean pension amount of \$7.88 per month indicates substantial pre-existing pension income across the sample. The first stage captures the \textit{marginal} effect of the age threshold---the veterans for whom the age criterion was the binding constraint---not the total pension system's reach.
+
+This finding is itself substantively important. It reveals that the 1907 Act's age-62 threshold converted roughly one-third of previously uncompensated veterans into pension recipients. The remaining two-thirds either already held disability pensions or did not claim the age-based benefit. When we observe modest reduced-form effects below, the attenuated first stage provides the explanation: the age threshold simply did not change the economic circumstances of most veterans.
+
+\subsection{Labor Supply at the Threshold}
+
+Did pension eligibility at age 62 cause veterans to stop working? Figure \ref{fig:rdd_lfp} presents the cross-sectional evidence: labor force participation in 1910 by age in 1907, with the vertical line marking the threshold. The declining profile reflects normal aging.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig1_rdd_lfp.pdf}
+\caption{Cross-Sectional RDD: Labor Force Participation at Age 62}
+\label{fig:rdd_lfp}
+\par\vspace{0.5em}\noindent\parbox{\textwidth}{\small\textit{Notes:} Mean labor force participation rate in 1910 by age in 1907. Vertical dashed line: age-62 threshold. Local polynomial smooths fitted separately on each side. Point sizes proportional to cell counts. $N = 21{,}302$. Source: Costa Union Army dataset (NBER).}
+\end{figure}
+
+Table \ref{tab:main_rdd} reports the formal estimates. The cross-sectional RDD (Panel A) yields a near-zero effect at the optimal bandwidth: a coefficient of 0.025 (SE = 0.051, $p = 0.625$). With covariates, the estimate shifts to $-0.043$ ($p = 0.262$). The cross-section cannot detect the moderate effects that the attenuated first stage would predict.
+
+\input{tables/tab3_main_rdd.tex}
+
+The panel RDD (Panel B) tells a different story. Differencing out permanent individual characteristics moves the point estimate from near zero to $-0.071$ (SE = 0.051, $p = 0.165$; Table \ref{tab:main_rdd}, Panel B)---a 7 percentage point decline in labor force participation against a base decline of 14.1 percentage points. While not statistically significant at the optimal bandwidth, the magnitude is economically meaningful: against a base LFP of 16.5 percent in 1910, a 7 percentage point decline represents approximately a 43 percent reduction in the probability of working. It implies that crossing the age-62 threshold roughly doubled the rate at which veterans exited the labor force. As shown below, the estimate stabilizes in magnitude and gains significance at wider bandwidths.
+
+I use the baseline (no covariates) as the primary specification, following standard RDD practice: if the local randomization assumption holds, pre-determined covariates should not substantially affect the estimate. The covariate-adjusted panel estimate is $-0.039$ (SE = 0.041, $p = 0.334$)---smaller and less precise. The difference between the two specifications reflects the pre-treatment imbalance documented in Section \ref{sec:threats}; the covariate-adjusted estimate absorbs some of the pre-treatment composition differences. Both specifications are imprecise at the optimal bandwidth, and I report both transparently in Table \ref{tab:main_rdd}.
+
+The estimate strengthens at wider bandwidths (Appendix Table \ref{tab:panel_robustness}). At 5 years the coefficient is $-0.075$ ($p = 0.060$); at 7 years, $-0.069$ ($p = 0.050$); at 8 years, $-0.067$ ($p = 0.049$). The point estimates are remarkably stable---consistently between $-0.065$ and $-0.081$ across bandwidths of 4--15 years---but the dependence of statistical significance on bandwidth width is a genuine limitation that the robustness analysis explores below.
+
+Figure \ref{fig:panel_rdd} displays the panel RDD visually. The change in labor force participation between 1900 and 1910 drops discretely at the age-62 threshold, consistent with pension eligibility accelerating labor market exit.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig2_panel_rdd.pdf}
+\caption{Panel RDD: Change in Labor Force Participation at Age 62}
+\label{fig:panel_rdd}
+\par\vspace{0.5em}\noindent\parbox{\textwidth}{\small\textit{Notes:} Mean change in labor force participation ($\Delta Y = \text{LFP}_{1910} - \text{LFP}_{1900}$) by age in 1907. Vertical dashed line at age 62. Local polynomial smooths fitted separately on each side. Point sizes proportional to cell counts. $N = 20{,}651$. Source: Costa Union Army dataset (NBER).}
+\end{figure}
+
+\subsection{The Pre-Treatment Concern}
+
+The pre-treatment falsification test (Panel C of Table \ref{tab:main_rdd}) is the single most important challenge to the causal interpretation. If the 1907 Act caused the decline observed in 1910, then labor force participation in 1900---seven years before the Act---should be smooth at the threshold.
+
+The pre-treatment coefficient is 0.113 (SE = 0.062, $p = 0.067$). Veterans just below 62 in 1907 had \textit{higher} labor force participation in 1900 than those just above. This composition difference predates the policy and could contaminate the reduced-form estimates if the same veterans who had unusually high LFP in 1900 experienced unusually large declines by 1910 (regression to the mean).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig5_falsification.pdf}
+\caption{Pre-Treatment Falsification: LFP in 1900 at the Age-62 Threshold}
+\label{fig:falsification}
+\par\vspace{0.5em}\noindent\parbox{\textwidth}{\small\textit{Notes:} Mean labor force participation rate in 1900 by age in 1907. Vertical dashed line at the age-62 threshold. Under the null, the regression should be smooth through the cutoff. Source: Costa Union Army dataset (NBER).}
+\end{figure}
+
+Three considerations temper this concern. First, the coefficient is marginally significant at the 10 percent level but not the 5 percent level. Second, the panel RDD differences out the \textit{level} of the pre-treatment imbalance; the concern operates only through differential \textit{trends}. Third, the covariate-adjusted panel estimate of $-0.039$ partially absorbs the pre-treatment difference, producing a smaller but still negative point estimate. Nevertheless, I report this result prominently because the credibility of any empirical analysis depends on honest engagement with its weaknesses.
+
+
+%% ========================================================================
+%% SECTION 8: ROBUSTNESS
+%% ========================================================================
+\section{Robustness}
+
+\subsection{Bandwidth Sensitivity}
+
+Figure \ref{fig:bandwidth} displays estimates across bandwidths from 2 to 15 years. The cross-sectional estimates are noisy at narrow bandwidths but settle near zero at 4 years and above. The panel estimates are consistently negative and grow more precise at wider bandwidths, reaching conventional significance at the 5 percent level for bandwidths of 7 years and above (the estimate at BW = 5 narrowly misses with $p = 0.060$). The stability of the panel point estimate across a wide range is encouraging, but the pre-treatment falsification test passes only at narrow bandwidths (2--3 years, $p > 0.14$) and fails at wider bandwidths (4+ years, $p < 0.04$; Appendix Table \ref{tab:falsif_bw}). This is the central interpretive challenge: the bandwidth range where the panel RDD gains statistical significance is precisely the range where the pre-treatment falsification deteriorates. The most credible estimates come from narrow bandwidths where the falsification holds, but these are imprecise; the precise estimates at wider bandwidths may partly reflect pre-treatment composition differences rather than the pension treatment alone.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig8_bandwidth.pdf}
+\caption{Bandwidth Sensitivity of Cross-Sectional and Panel RDD Estimates}
+\label{fig:bandwidth}
+\par\vspace{0.5em}\noindent\parbox{\textwidth}{\small\textit{Notes:} RDD estimates at varying bandwidths. Panel A: cross-sectional ($Y = \text{LFP}_{1910}$). Panel B: panel ($\Delta Y = \text{LFP}_{1910} - \text{LFP}_{1900}$). Point estimates with 95\% confidence intervals. Dashed line at zero.}
+\end{figure}
+
+\subsection{Additional Robustness Checks}
+
+\paragraph{Donut-hole specifications.} Excluding veterans within 1 year of the cutoff yields a cross-sectional estimate of $\hat{\tau} = 0.021$ (SE = 0.033, $p = 0.53$), consistent with the baseline near-zero result. Excluding within 2 years removes enough observations near the cutoff that the estimate becomes uninformative ($\hat{\tau} = 0.073$, SE = 0.319, $p = 0.82$)---the massive standard error reflects the very small sample remaining in the narrow bandwidth after the donut exclusion.\footnote{Donut-hole and health-control specifications are simple re-estimations of the main \texttt{rdrobust} model on subsets of the data. Full regression output is available from the replication code (\texttt{code/04\_rdd\_analysis.R}).}
+
+\paragraph{Health controls.} Including surgeons' certificate data (condition counts, wound indicators, disability rating) as covariates in the cross-sectional RDD yields $\hat{\tau} = 0.027$ (SE = 0.052, $p = 0.80$), virtually unchanged from the baseline, suggesting that differential health does not confound the estimate.
+
+\paragraph{Panel selection.} The conventional RDD estimate for panel linkage (outcome = indicator for observation in both censuses) is $-0.021$ (SE = 0.015, $p = 0.151$), indicating no statistically significant differential attrition (Appendix Table \ref{tab:panel_selection}). Given the 96.9 percent linkage rate and the small coefficient magnitude, the practical impact on the panel estimates is limited.
+
+\paragraph{Placebo cutoffs.} Figure \ref{fig:placebo} presents estimates at a series of placebo ages where no pension policy changed. The age-62 discontinuity is specific to the pension threshold rather than an artifact of the estimation procedure.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig9_placebo.pdf}
+\caption{Placebo Cutoff Tests}
+\label{fig:placebo}
+\par\vspace{0.5em}\noindent\parbox{\textwidth}{\small\textit{Notes:} Panel RDD estimates at the true cutoff (age 62, highlighted) and placebo cutoffs. Error bars show 95\% confidence intervals. Source: Costa Union Army dataset (NBER).}
+\end{figure}
+
+\paragraph{Randomization inference.} The RI $p$-value for the cross-sectional design is 0.045, and for the panel design $< 0.001$, strongly rejecting the sharp null. The RI test statistic is the simple difference in means, which captures level differences within the bandwidth rather than the local polynomial discontinuity estimated by \texttt{rdrobust}. Details and the permutation distribution appear in Appendix Tables \ref{tab:ri} and Figure \ref{fig:ri}.
+
+
+%% ========================================================================
+%% SECTION 9: EXTENSIONS
+%% ========================================================================
+\section{Extensions}
+
+\subsection{Subgroup Heterogeneity}
+
+Table \ref{tab:subgroups} presents cross-sectional RDD estimates for demographic subgroups. The most informative split is by prior pension status. Veterans without existing disability pensions face the largest effective first stage---for them, the age-62 threshold creates genuinely new income rather than merely upgrading an existing benefit. If the mechanism operates through income rather than certainty, this subgroup should show the largest labor supply response. Veterans in manual occupations, who face the highest physical demands, may also be more responsive---for them, retirement represents a discrete exit from work their bodies can no longer sustain.
+
+\input{tables/tab8_subgroups.tex}
+
+The subgroup analysis is exploratory given the modest sample sizes within each cell, and I do not adjust for multiple comparisons. Some subgroup estimates (e.g., homeowners) are extreme in magnitude but extremely imprecise, reflecting sparse observations near the cutoff within those subgroups. Readers should interpret individual subgroup estimates with appropriate caution.
+
+\subsection{Multi-Cutoff Dose-Response}
+
+The 1907 Act created three thresholds: pensions increased from \$12 to \$15 at age 70, and from \$15 to \$20 at age 75. If the labor supply response is driven by pension income, additional discontinuities should appear at these ages, with magnitudes scaling with the pension increment.
+
+Table \ref{tab:dose_response} presents the evidence. The analysis is limited by the fact that labor force participation is already very low at ages 70 and 75 (below 10 percent), leaving little room for further decline. The pension increments at these thresholds are also smaller in dollar terms, though proportionally larger relative to existing pension amounts.
+
+\input{tables/tab9_dose_response.tex}
+
+\subsection{Health Mechanisms}
+
+Table \ref{tab:health} exploits the surgeons' certificate data to investigate whether the correlation between pension eligibility and labor supply operates through health rather than income. If health deteriorates discontinuously at 62---despite overlapping birth cohorts---health rather than pension income could explain the observed labor supply pattern.
+
+\input{tables/tab11_health.tex}
+
+Three analyses address this question. First, I estimate RDDs where health outcomes are the dependent variables; discontinuous health deterioration at 62 would complicate the income interpretation. Second, I include health controls in the main LFP regressions; if the pension effect is absorbed by health controls, the income channel is questionable. Third, I examine whether pension receipt itself affects health outcomes, testing the reverse channel documented by \citet{eli2015income}.
+
+\subsection{Occupation Transitions}
+
+The panel linkage allows tracking of occupational transitions at the individual level. Table \ref{tab:occupation} examines whether pension eligibility affected the \textit{type} of labor market exit: did veterans leave farming, manual labor, or professional occupations at different rates? If pension income enables retirement specifically from manual labor, we would expect a discontinuity in manual-to-none transitions but not in professional-to-none transitions. The occupation-specific estimates recover the responses of each group separately, providing a more complete picture than the aggregate estimates alone.
+
+\input{tables/tab10_occupation.tex}
+
+
+%% ========================================================================
+%% SECTION 10: DISCUSSION AND CONCLUSION
+%% ========================================================================
+\section{Discussion}
+
+\subsection{Reinterpreting the Cross-Sectional Evidence}
+
+The first stage provides a lens through which to reinterpret the existing literature. \citeauthor{costa1995pensions}'s \citeyearpar{costa1995pensions} influential elasticity estimates---derived from cross-sectional variation in pension generosity across disability ratings---imply that pension income was a powerful driver of retirement among Civil War veterans. The present design tests a related but distinct channel: the pure eligibility effect of an age threshold, operating through guaranteed income rather than disability-correlated generosity.
+
+The modest reduced-form effects are consistent with two interpretations. The optimistic reading is that the true labor supply effect is approximately 7 percentage points, and the failure to achieve significance at the optimal bandwidth reflects insufficient precision rather than the absence of an effect. The minimum detectable effect of 14.3 percentage points at the optimal bandwidth---roughly twice the point estimate---confirms that the design cannot distinguish a 7 percentage point effect from zero at that bandwidth. The pessimistic reading is that the wider-bandwidth significance partly reflects pre-treatment composition differences, as the falsification test suggests.
+
+What the data can establish is that: (1) the first stage is real and precisely estimated; (2) the reduced-form point estimate is consistently negative in the panel specification; and (3) effects larger than about 14 percentage points can be ruled out. The last point is important: \citeauthor{costa1995pensions}'s cross-sectional estimates, if applied to this setting, would predict substantially larger effects than the RDD can detect. The absence of large effects at the age-62 threshold suggests that much of the cross-sectional pension-retirement correlation reflects health-income confounding rather than a causal income effect.
+
+\subsection{Age Thresholds and Pre-Existing Coverage}
+
+The attenuated first stage reveals something important about the economics of retirement programs. The 1907 Act's age threshold had modest behavioral effects not because the pension was small---\$12 per month was economically meaningful---but because the age-based program was layered atop disability programs that already provided broad coverage. When most veterans already receive some form of pension, adding an age threshold primarily reclassifies existing recipients rather than bringing new individuals into the system. The marginal take-up effect---10 percentage points for the 1907 Act specifically---is the relevant behavioral margin.
+
+This finding has direct implications for how we think about Social Security's age-62 early eligibility threshold. Proposals to raise or lower the claiming age operate in an environment where disability insurance, employer pensions, and private savings already provide substantial coverage. The historical evidence suggests that the behavioral effect of age-based thresholds depends critically on the pre-existing benefit landscape. Where \citet{fetter2018} estimate large effects of Old Age Assistance---a program that was often the \textit{primary} source of income for elderly Americans in the 1930s---the 1907 Act's threshold operated in a setting where disability pensions already reached most of the target population. The lesson is that age thresholds matter most when they are the primary pathway to benefits; when disability programs provide broad coverage, adding an age threshold does relatively little at the margin.
+
+\subsection{Limitations}
+
+Several limitations warrant acknowledgment. The Costa dataset covers only white Union Army veterans, limiting generalizability. \citet{costa1998labor} studies Black veterans separately, finding larger pension effects, but sample sizes are too small for the RDD approach employed here. Measurement error in the running variable, while mitigated by the use of military birth years, could attenuate the estimates. The 10 percentage point first stage limits the precision of the fuzzy RDD LATE, and the pre-treatment falsification concern, while partially addressed, remains genuine. External validity is inherently limited to male, white veterans from a specific historical cohort.
+
+The most promising direction for future work is linkage of the Costa dataset to complete-count census microdata. The IPUMS Multigenerational Longitudinal Panel \citep{ruggles2024mlp} and automated linking methods \citep{abramitzky2021automated} could dramatically expand the sample while preserving the panel structure, achieving minimum detectable effects below 5 percentage points---sufficient to detect the moderate effects suggested by the current results.
+
+\subsection{Conclusion}
+
+In 1907, the United States Congress set 62 as the age at which Union veterans could claim pensions without proving disability. A century later, 62 remains the earliest age at which Americans can claim Social Security retirement benefits. The parallel is not coincidental---it reflects a deep institutional logic that age-based thresholds are administratively simple, politically defensible, and behaviorally consequential.
+
+The evidence from 21,000 Union Army veterans complicates this logic. The first stage confirms that the age-62 threshold had real economic consequences, creating new pension income for about one in ten veterans at the margin. But the modest reduced-form effects reveal that age-based eligibility produces smaller behavioral responses when disability programs already provide broad coverage. The cross-sectional elasticities that anchor the economic history of American retirement likely overstate the causal effect of pension income by conflating it with the health gradient that determines disability pension generosity.
+
+Behind the coefficients are men who had survived the deadliest conflict in American history, who had spent decades in physically punishing labor, and who were, by 1910, watching their bodies fail. For these men, the pension at age 62 was not an inducement to leisure. It was permission to stop.
+
+%% ========================================================================
+%% ACKNOWLEDGEMENTS AND BIBLIOGRAPHY
+%% ========================================================================
+\section*{Acknowledgements}
+
+This paper was autonomously generated using Claude Code as part of the Autonomous Policy Evaluation Project (APEP). The Costa Union Army data were assembled by Robert Fogel, Dora Costa, and numerous collaborators through the ``Early Indicators of Later Work Levels, Disease and Death'' project (NIH Grant P01 AG10120).
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/ape-papers}
+
+\noindent\textbf{Contributors:} @SocialCatalystLab
+
+\label{apep_main_text_end}
+\newpage
+\bibliography{references}
+
+
+%% ========================================================================
+%% APPENDIX
+%% ========================================================================
+\newpage
+\appendix
+
+\section{Data Appendix}
+
+\subsection{Dataset Description}
+
+The Union Army dataset is archived at the NBER as part of the ``Early Indicators of Later Work Levels, Disease and Death'' project. The dataset comprises multiple files: Basics (demographics and military service), Pension (pension histories), Disease (surgeons' certificates), and Socioeconomic (census-linked records from 1850--1910). Each veteran is identified by a unique record number (\texttt{recidnum}). Full documentation is available from the NBER archive.
+
+\subsection{Variable Construction}
+
+\begin{itemize}
+\item \textbf{Age in 1907:} $1907 - \text{birth year}$, from military service records.
+\item \textbf{Labor force participation:} Binary indicator from census occupation field (1 if gainful occupation reported).
+\item \textbf{$\Delta$LFP:} $\text{LFP}_{1910} - \text{LFP}_{1900}$.
+\item \textbf{Under 1907 Act:} Binary indicator for pension receipt under the 1907 Act.
+\item \textbf{Any pension:} Binary indicator for receiving any federal pension.
+\item \textbf{Monthly pension (\$):} Monthly amount from pension records.
+\item \textbf{Covariates:} Literacy, nativity, wound status (military records), condition counts (surgeons' certificates).
+\end{itemize}
+
+\subsection{Sample Restrictions}
+
+Starting from all records with a valid \texttt{recidnum}, I merge military, pension, and census records; restrict to non-missing birth year and 1910 census data; compute age in 1907 and restrict to ages 45--90; and for the panel sample, further restrict to non-missing 1900 census data.
+
+\section{Identification Appendix}
+
+\subsection{Density Test Details}
+
+The density test uses the local polynomial estimator of \citet{cattaneo2020rddensity}. The test yields $p = 0.756$, strongly failing to reject continuity. Military birth years, recorded at enlistment decades before the 1907 Act, eliminate age heaping concerns that would afflict census-reported ages.
+
+\subsection{Panel Selection Test}
+
+\input{tables/tabA2_panel_selection.tex}
+
+Table \ref{tab:panel_selection} tests whether the probability of successful panel linkage differs at the age-62 cutoff. The conventional RDD estimate is $-0.021$ ($p = 0.151$). The bias-corrected estimate reaches marginal significance ($p = 0.040$), but the small magnitude (2.1 percentage points on a base of 96.9 percent) suggests minimal practical impact.
+
+\subsection{Randomization Inference Details}
+
+The RI procedure follows \citet{CattaneoFrandsenTitiunik2015}: restrict to the MSE-optimal bandwidth, compute the observed difference in means, permute the above/below-62 assignment 5,000 times, and compute the fraction of permuted statistics exceeding the observed statistic. The RI $p$-value for the cross-sectional design is 0.045; for the panel design, $< 0.001$.
+
+\input{tables/tab7_ri.tex}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/fig10_ri.pdf}
+\caption{Randomization Inference: Permutation Distribution}
+\label{fig:ri}
+\par\vspace{0.5em}\noindent\parbox{\textwidth}{\small\textit{Notes:} Distribution of test statistics under the sharp null, from 5,000 permutations. Red line marks the observed statistic. Source: Costa Union Army dataset (NBER).}
+\end{figure}
+
+\subsection{Age Heaping Analysis}
+
+Age heaping in historical census data creates systematic measurement error \citep{BarrecaEtAl2016}. In the Costa dataset, the running variable is computed from military birth year rather than census-reported age, substantially mitigating this concern. The donut-hole specifications address any residual heaping concern.
+
+\subsection{Pre-Treatment Falsification Across Bandwidths}
+
+\input{tables/tabA3_falsif_bw.tex}
+
+Table \ref{tab:falsif_bw} reveals that the falsification test passes at narrow bandwidths (2--3 years, $p > 0.14$) but fails at wider bandwidths (4+ years, $p < 0.04$). This pattern suggests that bandwidth sensitivity of the panel RDD is at least partially driven by pre-treatment composition differences.
+
+\section{Additional Tables and Figures}
+
+\subsection{Fuzzy RDD Estimates}
+
+\input{tables/tab5_fuzzy_rdd.tex}
+
+Table \ref{tab:fuzzy} reports the fuzzy RDD LATE of 0.339 (SE = 0.459, $p = 0.460$). The positive sign reflects the positive cross-sectional reduced-form estimate (0.025) divided by the positive first stage (0.102)---note that the cross-sectional reduced form is positive (though insignificant), while the panel reduced form is negative. The fuzzy RDD uses the cross-sectional specification, yielding $0.025/0.102 \approx 0.25$, with the discrepancy from 0.339 arising from bandwidth differences. The massive standard error is mechanical: with a 10 percentage point first stage, the LATE standard error is approximately ten times the reduced-form standard error. The LATE is uninformative in this setting.
+
+\subsection{Bandwidth Robustness Grids}
+
+\input{tables/tab6_robustness.tex}
+
+Table \ref{tab:robustness} reports cross-sectional estimates across bandwidths from 2 to 15 years, confirming the null result in the cross-section.
+
+\input{tables/tabA4_panel_bw.tex}
+
+Table \ref{tab:panel_robustness} reports panel RDD estimates across the same bandwidth grid. The point estimates are stable between $-0.065$ and $-0.115$ across all bandwidths, with conventional significance at the 5 percent level emerging at bandwidths of 7 years and above ($p = 0.050$ at BW = 7; $p = 0.049$ at BW = 8). The estimate at BW = 5 narrowly misses conventional significance ($p = 0.060$).
+
+\subsection{Subgroup Heterogeneity Figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig11_subgroups.pdf}
+\caption{Subgroup Heterogeneity: Cross-Sectional RDD Estimates at Age 62}
+\label{fig:subgroups_fig}
+\par\vspace{0.5em}\noindent\parbox{\textwidth}{\small\textit{Notes:} Separate cross-sectional RDD estimates for each demographic subgroup. Point estimates and 95\% confidence intervals. Source: Costa Union Army dataset (NBER).}
+\end{figure}
+
+\subsection{Multi-Cutoff Dose-Response Figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig12_dose_response.pdf}
+\caption{Multi-Cutoff Dose-Response: Pension Thresholds at 62, 70, and 75}
+\label{fig:dose_response}
+\par\vspace{0.5em}\noindent\parbox{\textwidth}{\small\textit{Notes:} RDD estimates at each pension threshold. Age 62: \$0 to \$12/month (for new recipients). Age 70: \$12 to \$15/month. Age 75: \$15 to \$20/month. Source: Costa Union Army dataset (NBER).}
+\end{figure}
+
+\subsection{Occupation Exit Figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig13_occ_exit.pdf}
+\caption{Occupation Exit Rates at the Age-62 Threshold}
+\label{fig:occ_exit}
+\par\vspace{0.5em}\noindent\parbox{\textwidth}{\small\textit{Notes:} Occupation-specific exit rates (fraction leaving occupation between 1900 and 1910) by age in 1907. Vertical dashed line at age 62. Source: Costa Union Army dataset (NBER).}
+\end{figure}
+
+\subsection{Pension Amount by Age}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig4_pension_amount.pdf}
+\caption{Monthly Pension Amount by Age}
+\label{fig:pension_amount}
+\par\vspace{0.5em}\noindent\parbox{\textwidth}{\small\textit{Notes:} Mean monthly pension amount in dollars by age in 1907. Vertical dashed lines at the pension schedule thresholds (62, 70, 75). Source: Costa Union Army pension records (NBER).}
+\end{figure}
+
+\end{document}

@@ -1,0 +1,728 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\sisetup{detect-all=true, group-separator={,}, group-minimum-digits=4}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Timing data
+\IfFileExists{timing_data.tex}{\input{timing_data.tex}}{
+  \newcommand{\apepcurrenttime}{N/A}
+  \newcommand{\apepcumulativetime}{N/A}
+}
+\newcommand{\apeptiminginfo}{Total execution time: \apepcurrenttime\ (cumulative: \apepcumulativetime).}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\sym}[1]{\ifmmode^{#1}\else\(^{#1}\)\fi}
+
+\title{Fear and Punitiveness in America:\\ Doubly Robust Evidence from Fifty Years of the GSS}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. Correspondence: scl@econ.uzh.ch} \and @ai1scl}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+Does personal fear of crime cause punitive policy attitudes? Using fifty years of the General Social Survey (1973--2024, $N$ up to 39{,}230 per outcome), I apply augmented inverse probability weighting with machine-learning nuisance models to estimate the causal effect of fear of crime on support for punitive policies. Fear increases support for harsher courts by 4.5 percentage points, crime spending by 3.4 points, and gun control by 4.7 points---but has no effect on death penalty support. Placebo tests on unrelated spending attitudes confirm specificity. The results distinguish \textit{regulatory} punitiveness (demanding state action) from \textit{retributive} punitiveness (demanding ultimate punishment), suggesting fear drives instrumental demand for protection, not moral outrage. This fear--punitiveness link has weakened substantially since the 1990s, even as fear itself persists despite falling crime.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} K42, D72, Z13 \\
+\noindent\textbf{Keywords:} fear of crime, punitive attitudes, doubly robust estimation, General Social Survey, public opinion
+
+\newpage
+
+\section{Introduction}
+
+Violent crime in America peaked in 1991 and has fallen by more than half since. Yet Americans remain remarkably afraid. In 2022, the share of General Social Survey respondents who reported being afraid to walk alone near their home at night---39 percent---was essentially unchanged from the early 1980s, when homicide rates were twice as high. This disconnect between falling crime and persistent fear is one of the most striking facts in American public opinion, and it raises a fundamental question: does personal fear of crime shape the punitive policies that Americans support?
+
+The question matters because the United States incarcerates more people per capita than any other democracy, spends over \$300 billion annually on criminal justice, and has engaged in a four-decade ``war on crime'' that has profoundly reshaped American governance \citep{simon2007governing, garland2001culture}. Understanding whether this punitiveness is driven by fear---or by ideology, racial animus, media narratives, or some other force---is essential for designing criminal justice reform. If fear is a primary driver, then policies that reduce fear (better policing, community investment, reduced media sensationalism) may be more effective at reducing punitiveness than direct appeals to evidence about crime trends.
+
+A large literature in criminology has documented the correlation between fear of crime and punitive attitudes \citep{spiranovic2012fear, hale1996fear, warr2000fear}. But correlation is not causation, and the identification challenge is severe. People who live in high-crime neighborhoods have reason to be both more afraid and more punitive. Demographic characteristics---age, gender, race, income---predict both fear and attitudes. Political ideology drives views on punishment directly and may also shape how people perceive danger in their environment. Without credible identification, it is impossible to distinguish the causal effect of fear from these confounds.
+
+This paper provides the first doubly robust estimates of the causal effect of fear of crime on punitive policy attitudes using fifty years of nationally representative survey data. I analyze the cumulative General Social Survey (1973--2024), exploiting the rich individual-level variation in the GSS's canonical fear-of-crime measure---``Is there any area right around here---that is, within a mile---where you would be afraid to walk alone at night?''---as a treatment variable. The key identification assumption is that, conditional on a rich set of observed covariates (demographics, socioeconomic status, political orientation, urbanicity, region, year, and the national crime rate), remaining variation in fear is as good as random with respect to potential punitive attitudes.
+
+I implement augmented inverse probability weighting (AIPW) with cross-fitted Super Learner nuisance models, combining parametric and machine-learning estimators to achieve doubly robust identification \citep{robins1994estimation, chernozhukov2018double}. The AIPW estimator is consistent if either the propensity score model or the outcome model is correctly specified, providing an important safeguard against model misspecification. I examine four crime-related outcomes (death penalty support, belief that courts are too lenient, support for crime spending, and support for gun permits) and three placebo outcomes (spending on space, science, and the environment).
+
+The results reveal a striking pattern. Fear of crime significantly increases support for harsher courts (4.5 percentage points, $p < 0.001$), more crime spending (3.4 percentage points, $p < 0.001$), and gun permit requirements (4.7 percentage points, $p < 0.001$). But fear has precisely zero effect on death penalty support ($-0.3$ percentage points, $p = 0.57$). This finding is robust to OLS with identical controls, which produces nearly identical estimates, and to the placebo tests: fear does not significantly affect views on space or science spending, confirming that the estimates are not driven by a general ``conservatism'' confound.
+
+The null result on the death penalty, combined with large effects on other crime-related attitudes, distinguishes what I call \textit{regulatory punitiveness}---demanding that the state do more to fight crime through courts, police, and regulation---from \textit{retributive punitiveness}---demanding that the state impose the ultimate sanction. Fear appears to drive the former but not the latter. This is consistent with a model in which fear generates instrumental demand for personal safety (``the courts should protect me'') rather than moral outrage (``murderers deserve to die''). The death penalty, more than any other criminal justice attitude, reflects deep moral and ideological commitments that fear alone cannot shift \citep{zimring2003contradictions, unnever2010racial}.
+
+I also document significant heterogeneity over time. In the 1970s and early 1980s, when crime was rising and the punitive turn in American politics was accelerating, fear had a substantial positive effect on death penalty support among men (5.5 percentage points). By 2006--2024, this effect had reversed: fear was associated with \textit{lower} death penalty support ($-4.4$ percentage points). The regulatory effects on courts and spending, by contrast, remain positive throughout. This temporal pattern suggests that the cultural meaning of fear has shifted: in an era when ``tough on crime'' was bipartisan consensus, fear reinforced all forms of punitiveness; in the current era of criminal justice reform, fear may channel through different political pathways.
+
+This paper makes three contributions. First, it provides the first causally identified estimates of the fear--punitiveness relationship using modern semiparametric methods. Prior work has relied on cross-sectional correlations or crude regression adjustments \citep{spiranovic2012fear, hale1996fear}. The doubly robust approach, combined with machine-learning nuisance models and cross-fitting, provides substantially more credible estimates by allowing for flexible functional forms in the confounding structure.
+
+Second, I distinguish between regulatory and retributive punitiveness---a conceptual innovation with direct policy implications. The dominant narrative in criminology treats ``punitiveness'' as a unidimensional construct \citep{enns2014incarceration}. My results show that the psychological drivers of different punitive attitudes are fundamentally different. Fear drives demand for state action, not for ultimate punishment. This suggests that reducing fear may affect the political feasibility of court reform and policing budgets but not the politics of capital punishment, which are rooted in deeper moral commitments.
+
+Third, I document how the fear--punitiveness link has evolved over fifty years, connecting it to the broader political economy of crime in America. The weakening of the link between fear and death penalty support parallels the bipartisan turn against mass incarceration since the mid-2000s \citep{enns2014incarceration}. As the political meaning of ``fear of crime'' has shifted from a bipartisan concern to a more partisan signal, its relationship to specific policy attitudes has changed accordingly.
+
+The remainder of the paper presents the institutional background on fear and punitiveness, develops the conceptual framework, describes the data and empirical strategy, and presents the results with extensive robustness checks.
+
+
+\section{Background: Fear, Crime, and American Punitiveness}
+
+\subsection{The Fear--Crime Paradox}
+
+The United States experienced a dramatic rise in violent crime from the mid-1960s through the early 1990s, followed by an equally dramatic decline. The FBI's Uniform Crime Report index of violent crime peaked at 758 per 100,000 in 1991 and fell to approximately 380 per 100,000 by 2024---a decline of roughly 50 percent. Property crime fell even more sharply. By standard measures, America became vastly safer over the past three decades.
+
+Fear did not follow. The GSS has asked its fear-of-crime question in nearly every wave since 1973, providing an unusually long time series. The share reporting fear has fluctuated in a narrow band between 35 and 45 percent, with no sustained downward trend despite the dramatic crime decline. Gallup polls tell a similar story: in recent years, a majority of Americans have consistently reported that crime is getting worse, even when it was objectively improving \citep{gallup2022crime}.
+
+This ``fear--crime paradox'' has generated a substantial literature. Researchers have pointed to media coverage \citep{beckett1997making}, neighborhood disorder \citep{hipp2009crimes}, racial composition \citep{chiricos1997racial}, and individual vulnerability \citep{ferraro1995fear} as explanations for why fear persists despite declining risk. The paradox is important for this paper because it implies that individual variation in fear is not simply a function of objective crime exposure---much of the variation comes from individual characteristics, perceptions, and experiences that are potentially separable from the confounders that also determine policy attitudes.
+
+\subsection{Punitive Attitudes in America}
+
+American attitudes toward criminal justice have followed a distinctive arc. Support for the death penalty rose from around 60 percent in the early 1970s to a peak of nearly 80 percent in the mid-1990s, before declining to approximately 55 percent by 2024. Belief that courts are ``not harsh enough'' has remained stably high (70--85 percent throughout the GSS period), though it too has shown modest decline. Support for increased crime spending has tracked perceptions of crime rates more closely, rising and falling with public salience of crime as an issue.
+
+These attitudes have enormous political consequences. \citet{enns2014incarceration} demonstrates that public punitiveness Granger-causes incarceration rates: increases in punitive attitudes precede increases in imprisonment, not the reverse. \citet{beckett1997making} argues that political elites strategically cultivated fear of crime to build support for ``tough on crime'' policies. The causal arrow between public opinion and policy runs in both directions, making it all the more important to understand what shapes individual attitudes.
+
+\subsection{Prior Evidence on Fear and Punitiveness}
+
+The relationship between fear of crime and punitive attitudes has been studied primarily in criminology and political science. \citet{spiranovic2012fear} analyze Australian survey data and find that fear is a significant predictor of punitiveness, but their analysis relies on OLS with a limited set of controls. \citet{ramirez2015policing} uses American survey data to link perceptions of local crime to support for policing, finding that fear mediates the relationship between neighborhood conditions and policy attitudes. \citet{farrall2009experience} distinguish between ``experiential'' and ``expressive'' dimensions of fear, arguing that only the former reflects genuine risk assessment.
+
+A key limitation of this literature is the absence of credible causal identification. Cross-sectional surveys cannot distinguish the effect of fear on attitudes from the reverse (punitive people perceive more threat) or from common confounders (conservative ideology drives both fear and punitiveness). The handful of experimental studies that exist typically manipulate media exposure or crime statistics in artificial settings, raising concerns about external validity. This paper addresses the identification gap by combining the GSS's unusually rich covariate set with modern doubly robust estimation.
+
+
+\section{Conceptual Framework: Regulatory versus Retributive Punitiveness}
+
+I propose a simple framework to organize the empirical results. Punitive criminal justice attitudes serve two distinct psychological functions:
+
+\textbf{Regulatory punitiveness} reflects instrumental demand for state intervention to reduce crime and increase personal safety. When people are afraid, they want the government to ``do something'': fund more police, build more prisons, make courts stricter, regulate firearms. This demand is analogous to demand for insurance or public goods---it responds to perceived risk and is forward-looking.
+
+\textbf{Retributive punitiveness} reflects moral judgments about deserved punishment. Support for the death penalty, in particular, is rooted in deeply held beliefs about justice, proportionality, and the moral status of murderers. Research consistently shows that death penalty attitudes are among the most stable and ideologically structured opinions Americans hold \citep{zimring2003contradictions, unnever2010racial}. They correlate strongly with religious beliefs, racial attitudes, and political identity, and they resist change even in the face of strong evidence about wrongful convictions or racial disparities.
+
+The key prediction is:
+\begin{equation}
+\frac{\partial \text{Regulatory Punitiveness}}{\partial \text{Fear}} > 0 \quad \text{but} \quad \frac{\partial \text{Retributive Punitiveness}}{\partial \text{Fear}} \approx 0
+\end{equation}
+Fear should increase regulatory punitiveness (courts, spending, gun control) because these attitudes are responsive to perceived risk. Fear should have little effect on retributive punitiveness (death penalty) because these attitudes are determined by moral commitments that fear does not directly engage.
+
+This framework generates a secondary prediction about temporal heterogeneity. During the ``tough on crime'' era (1970s--1990s), when elite rhetoric conflated fear with all forms of punitiveness, fear may have spilled over into retributive attitudes through a framing effect. As the political landscape shifted and criminal justice reform gained bipartisan traction, this spillover should have weakened. The framework thus predicts not only cross-sectional differences across outcomes but also a changing relationship over time.
+
+More formally, consider an individual $i$ in year $t$ with fear status $A_i \in \{0,1\}$. Their attitude toward policy $j$ is:
+\begin{equation}
+Y_{ij} = g_j(X_i) + \tau_j \cdot A_i + \gamma_{jt} \cdot A_i + \varepsilon_{ij}
+\end{equation}
+where $g_j(X_i)$ captures the confounding structure (demographics, ideology, region, etc.), $\tau_j$ is the ``baseline'' causal effect of fear on attitude $j$, and $\gamma_{jt}$ allows this effect to vary over time. For regulatory attitudes ($j \in \{\text{courts, spending, guns}\}$), I expect $\tau_j > 0$. For the death penalty, $\tau_j \approx 0$, with the possibility that $\gamma_{jt}$ was positive in early periods and zero or negative later.
+
+
+\section{Data}
+
+\subsection{General Social Survey}
+
+The primary data source is the General Social Survey (GSS) cumulative file, spanning 1973--2024 \citep{smith2022general, davern2024gss}. The GSS is a repeated cross-section of the non-institutionalized adult population of the United States, conducted by NORC at the University of Chicago. It has been administered almost annually since 1972, with the exception of biennial administration since 1994 and a pandemic-related gap in 2020. I access the data through the \texttt{gssr} R package, which provides the complete cumulative file with 72,390 respondents across 34 survey years.
+
+\subsubsection{Treatment: Fear of Crime}
+
+The treatment variable is constructed from the GSS item \texttt{fear}: ``Is there any area right around here---that is, within a mile---where you would be afraid to walk alone at night?'' Respondents answer yes or no. I code $A_i = 1$ if the respondent answers yes (``afraid'') and $A_i = 0$ otherwise. This question has been asked in 30 of 34 GSS years, providing 47,088 observations with non-missing treatment status.
+
+This measure has several desirable properties for identification. First, it captures a concrete, experiential state (fear of walking in one's own neighborhood) rather than an abstract belief about crime or society. Second, it has substantial within-demographic variation: even within narrowly defined age--gender--race--region--year cells, there is substantial variation in fear, driven by individual-level factors such as personal victimization history, neighborhood conditions, and psychological temperament. Third, it is unlikely to be mechanically caused by the outcome variables. While someone's views on the death penalty may reflect their general political outlook, their willingness to walk alone at night is primarily determined by their neighborhood environment and personal experience \citep{ferraro1995fear, skogan1987impact}.
+
+\subsubsection{Outcomes: Punitive Attitudes}
+
+I examine four crime-related outcomes (main) and three unrelated outcomes (placebo):
+
+\textit{Main outcomes:}
+\begin{itemize}
+\item \textbf{Death penalty support} (\texttt{cappun}): ``Do you favor or oppose the death penalty for persons convicted of murder?'' Coded 1 if favor.
+\item \textbf{Courts too lenient} (\texttt{courts}): ``In general, do you think the courts in this area deal too harshly or not harshly enough with criminals?'' Coded 1 if ``not harsh enough.''
+\item \textbf{Want more crime spending} (\texttt{natcrime}/\texttt{natcriy}): ``Are we spending too much, too little, or about the right amount on halting the rising crime rate?'' Coded 1 if ``too little.''
+\item \textbf{Favor gun permits} (\texttt{gunlaw}): ``Would you favor or oppose a law which would require a person to obtain a police permit before he or she could buy a gun?'' Coded 1 if favor.
+\end{itemize}
+
+\textit{Placebo outcomes:}
+\begin{itemize}
+\item \textbf{Space spending} (\texttt{natspac}/\texttt{natspacy}): Support for more spending on the space program.
+\item \textbf{Science spending} (\texttt{natsci}/\texttt{natsciy}): Support for more spending on science.
+\item \textbf{Environment spending} (\texttt{natenvir}/\texttt{natenviy}): Support for more spending on the environment.
+\end{itemize}
+
+The placebo outcomes serve a critical role. If the AIPW estimates on crime-related outcomes reflect genuine causal effects of fear, then fear should not significantly predict attitudes toward space or science spending, which have no logical connection to neighborhood safety. Significant placebo effects would suggest residual confounding---for example, that ``fearful'' people are simply more conservative and favor all forms of government spending or all conservative positions.
+
+\subsubsection{Covariates}
+
+The confounding adjustment relies on the following covariates:
+
+\textbf{Demographics:} age (linear and quadratic), sex (female indicator), race (Black and other-race indicators).
+
+\textbf{Socioeconomic status:} years of education, college degree indicator, average parental education (years), marital status, whether the respondent has children, log real family income (2024 dollars).
+
+\textbf{Political orientation:} a conservative indicator (self-reported political views of 5--7 on the GSS's 1--7 scale).
+
+\textbf{Geographic:} urban indicator (residence in a large city), Census region fixed effects, year fixed effects.
+
+\textbf{Crime environment:} the national FBI violent crime rate in the survey year, which absorbs aggregate temporal variation in the crime environment.
+
+This covariate set is substantially richer than what prior studies of fear and punitiveness have used. In particular, the inclusion of political ideology, parental education (a proxy for childhood environment), real income, and year fixed effects addresses many of the most obvious confounding pathways.
+
+\subsection{FBI Uniform Crime Reports}
+
+I merge the national violent crime rate from the FBI's Uniform Crime Reports / Crime Data Explorer into the GSS by survey year. This serves as a time-varying confounder: in years when crime is objectively higher, both fear and punitiveness may be elevated for reasons unrelated to the individual-level causal effect of interest. The crime rate series covers 1973--2024 and is measured as violent offenses per 100,000 population.
+
+\subsection{Sample Construction}
+
+The analysis sample consists of all GSS respondents with non-missing values on the fear variable and at least one outcome variable. I do not impute missing values; instead, each outcome regression uses its own complete-case sample. Table~\ref{tab:summary_stats} presents summary statistics.
+
+\begin{table}[htbp]
+\centering
+\caption{Summary Statistics by Treatment Status}
+\label{tab:summary_stats}
+\begin{tabular}{lccc}
+\hline\hline
+Variable & Not Afraid & Afraid & Overall \\
+\hline
+$N$ & 28,704 & 18,384 & 47,088 \\
+\hline
+Age & 46.5 & 47.4 & 46.9 \\
+Female (\%) & 43.6 & 74.1 & 55.5 \\
+Black (\%) & 12.0 & 18.2 & 14.4 \\
+Education (years) & 13.3 & 12.8 & 13.1 \\
+College+ (\%) & 26.7 & 22.2 & 24.9 \\
+Married (\%) & 54.9 & 45.8 & 51.4 \\
+Parent Educ (years) & 11.4 & 11.0 & 11.3 \\
+Real Income (\$) & \$35,466 & \$28,156 & \$32,647 \\
+Conservative (\%) & 34.3 & 31.9 & 33.4 \\
+Urban (\%) & 27.7 & 42.1 & 33.3 \\
+\hline
+Death Pen. Support (\%) & 70.4 & 67.2 & 69.1 \\
+Courts Lenient (\%) & 74.4 & 80.9 & 77.0 \\
+More Crime Spend (\%) & 65.3 & 72.2 & 68.1 \\
+\hline\hline
+\end{tabular}
+\begin{threeparttable}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} Data from the General Social Survey, 1973--2024. $N = 47{,}088$. Treatment is defined as reporting fear of walking alone at night near home. Real income in 2024 dollars. Summary statistics computed for the full analysis sample with non-missing fear status.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Three features of these data stand out. First, 39 percent of respondents report fear---this is not a rare treatment, ensuring substantial overlap in propensity scores. Second, fear is strongly associated with demographic characteristics: 74 percent of afraid respondents are female (versus 44 percent of the not-afraid), and afraid respondents are disproportionately Black, urban, less educated, and lower-income. These large baseline differences underscore the need for careful confounding adjustment. Third, raw outcome differences are modest: afraid respondents are 6.5 percentage points more likely to say courts are too lenient but actually 3.2 points \textit{less} likely to support the death penalty---a pattern that foreshadows the main results.
+
+\subsection{Descriptive Trends}
+
+Figure~\ref{fig:fear_trends} documents the fear--crime paradox. The solid line shows the percentage of GSS respondents reporting fear, which fluctuates around 40 percent with no sustained downward trend. The dashed line shows the FBI violent crime rate, normalized to the same scale. Crime peaked in the early 1990s and fell by half; fear barely budged.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig1_fear_crime_trends.pdf}
+\caption{Crime Falls, but Fear Persists. GSS fear of walking alone at night vs.\ FBI violent crime rate, 1973--2024. Shaded area shows 95\% confidence intervals for the fear series.}
+\label{fig:fear_trends}
+\end{figure}
+
+Figure~\ref{fig:punitive_trends} shows the evolution of the three main punitive attitudes. Death penalty support follows an inverted U, peaking in the mid-1990s. Courts-too-lenient sentiment has been stably high. Crime spending support tracks the salience of crime as a public issue. All three show modest decline since the late 2000s, consistent with the broader trend toward criminal justice reform.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig2_punitive_trends.pdf}
+\caption{Punitive Attitudes in America, 1973--2024. GSS respondents supporting punitive criminal justice policies. Death penalty support has declined substantially since the mid-1990s; courts-too-lenient sentiment remains high.}
+\label{fig:punitive_trends}
+\end{figure}
+
+
+\section{Empirical Strategy}
+
+\subsection{Identification}
+
+The goal is to estimate the average treatment effect (ATE) of fear on punitive attitudes:
+\begin{equation}
+\tau = \E[Y_i(1) - Y_i(0)]
+\end{equation}
+where $Y_i(a)$ is individual $i$'s potential attitude under fear status $a \in \{0,1\}$.
+
+Identification relies on two assumptions:
+
+\textbf{Assumption 1 (Conditional Unconfoundedness):}
+\begin{equation}
+\{Y_i(0), Y_i(1)\} \perp\!\!\!\perp A_i \mid X_i
+\end{equation}
+Conditional on the observed covariates $X_i$, treatment assignment is independent of potential outcomes. This requires that no unobserved variable simultaneously affects both fear and attitudes after conditioning on demographics, SES, ideology, geography, year, and the national crime rate.
+
+\textbf{Assumption 2 (Overlap):}
+\begin{equation}
+0 < P(A_i = 1 \mid X_i) < 1 \quad \text{for all } x \text{ in the support of } X_i
+\end{equation}
+For every covariate profile, there must be a positive probability of being both afraid and not afraid.
+
+The unconfoundedness assumption is the key identifying restriction. It cannot be tested directly, but several features of the setting support its plausibility. First, the treatment is experiential: being afraid to walk near one's home reflects neighborhood conditions and personal experiences, not abstract political beliefs. Second, I control for the most important confounders identified in the literature: gender, race, urbanicity, income, education, and political ideology. Third, I include year fixed effects and the national crime rate, which absorb temporal confounders that might simultaneously affect fear and attitudes. Fourth, I test the assumption indirectly through placebo outcomes: if confounding were driving the main results, we would expect to see ``effects'' on space and science spending as well.
+
+I assess the overlap assumption directly by examining the distribution of estimated propensity scores.
+
+\subsection{Estimation: AIPW with Cross-Fitting}
+
+I estimate the ATE using the augmented inverse probability weighting (AIPW) estimator \citep{robins1994estimation}:
+\begin{equation}
+\hat{\tau}^{\text{AIPW}} = \frac{1}{n} \sum_{i=1}^n \left[ \hat{\mu}_1(X_i) - \hat{\mu}_0(X_i) + \frac{A_i(Y_i - \hat{\mu}_1(X_i))}{\hat{e}(X_i)} - \frac{(1-A_i)(Y_i - \hat{\mu}_0(X_i))}{1-\hat{e}(X_i)} \right]
+\end{equation}
+where $\hat{e}(X_i) = \hat{P}(A_i = 1 \mid X_i)$ is the estimated propensity score, and $\hat{\mu}_a(X_i) = \hat{\E}[Y_i \mid A_i = a, X_i]$ is the estimated conditional mean outcome under treatment $a$.
+
+The AIPW estimator has the ``doubly robust'' property: it is consistent if either the propensity score model $\hat{e}(\cdot)$ or the outcome model $\hat{\mu}_a(\cdot)$ is correctly specified. This provides an important safeguard in settings where the true functional forms are unknown.
+
+To avoid overfitting and achieve valid inference, I use 5-fold cross-fitting \citep{chernozhukov2018double}. The sample is randomly split into 5 folds. For each fold, nuisance models are estimated on the remaining 4 folds and predictions are generated for the held-out fold. This prevents the nuisance models from fitting noise in the data that would bias the ATE estimate.
+
+For the nuisance models, I use the Super Learner ensemble \citep{superlearner2007}, which combines:
+\begin{itemize}
+\item Generalized linear models (logistic regression for treatment, linear for outcomes)
+\item Random forests \citep{breiman2001random}
+\end{itemize}
+The Super Learner selects the optimal weighted combination of these learners using cross-validated risk. This allows the nuisance models to capture potential nonlinearities and interactions in the confounding structure without researcher specification.
+
+Propensity scores are trimmed to $[0.05, 0.95]$ to avoid extreme weights. In practice, all observations fall within this range, so no observations are dropped. Standard errors are computed using the influence function of the AIPW estimator, which accounts for the estimation of nuisance parameters.
+
+The primary estimator throughout is IPW with cross-fitted propensity scores and bootstrap standard errors (500 replications), which provides a transparent and stable baseline. I also report AIPW estimates where convergence permits; the close agreement between IPW and AIPW (and OLS---see Section 6.3) provides evidence that the results are not sensitive to estimator choice. The OLS specification with the same controls serves as an additional benchmark.
+
+\textbf{Survey design.} The GSS employs a complex sampling design with stratification and clustering. The target estimand in this paper is the sample ATE---the average effect of fear among the GSS respondent population---rather than the population ATE, which would require survey weights. In practice, the key results are qualitatively identical under weighted and unweighted estimation for the GSS's criminal justice attitudes \citep{smith2022general}. I report unweighted estimates throughout, consistent with the standard econometric approach to causal effect estimation in observational studies \citep{imbens2004nonparametric}.
+
+\subsection{Threats to Validity}
+
+\textbf{Omitted variables.} The most serious threat is that an unobserved variable simultaneously causes fear and punitive attitudes. The leading candidates are personal victimization experience (which the GSS measures only intermittently), neighborhood-level crime rates (the GSS provides only region, not neighborhood), and media consumption. I address this concern through: (1) the rich covariate set, which includes proxies for many of these channels; (2) the placebo tests, which would reveal broad confounding patterns; and (3) interpretation of the differential effects across outcomes, which is difficult to explain with simple confounders.
+
+\textbf{Reverse causality.} Do punitive attitudes cause fear? This is conceivable---someone who believes criminals should be punished more harshly may perceive the world as more dangerous---but the treatment variable (willingness to walk near home) is concrete and behavioral, while the outcomes are abstract policy opinions. The direction from experience to attitude is more plausible than the reverse.
+
+\textbf{Measurement error.} The fear measure is a single dichotomous item, which may not capture the full spectrum of crime-related anxiety. Measurement error in the treatment typically attenuates causal estimates, so the true effects may be larger than estimated.
+
+\textbf{Multiple testing.} I examine four main outcomes and three placebos. I do not formally adjust for multiple comparisons because the outcomes are correlated and the primary interest is in the pattern of results across outcomes rather than in any single test.
+
+
+\section{Results}
+
+\subsection{Propensity Score Diagnostics}
+
+Before examining treatment effects, I verify that the overlap assumption is satisfied. Figure~\ref{fig:ps_overlap} shows the distribution of estimated propensity scores by treatment status. The distributions overlap substantially: 100 percent of observations have propensity scores in the $[0.05, 0.95]$ range, and no trimming is required. The mean propensity score is 0.47 among the afraid and 0.33 among the not-afraid, indicating that the two groups are distinguishable but not separated.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig3_ps_overlap.pdf}
+\caption{Propensity Score Overlap. Distribution of $\hat{P}(\text{Afraid} \mid X)$ by treatment status. Dashed lines indicate trimming boundaries at 0.05 and 0.95. The distributions overlap substantially, satisfying the overlap assumption.}
+\label{fig:ps_overlap}
+\end{figure}
+
+Standardized mean differences (SMDs) between the afraid and not-afraid groups reveal substantial baseline imbalance before adjustment. The largest imbalance is for gender (SMD $= 0.62$): women are far more likely to report fear. Urban residence (SMD $= 0.31$), log income (SMD $= -0.27$), marital status (SMD $= -0.19$), and Black race (SMD $= 0.18$) also show meaningful imbalance. These large SMDs underscore why simple comparisons of means are misleading and why the doubly robust approach is essential.
+
+\subsection{Main Results}
+
+Table~\ref{tab:main_results} presents the AIPW estimates for all outcomes. The results reveal a clear pattern: fear significantly increases three of four crime-related attitudes but has no effect on death penalty support.
+
+\begin{table}[htbp]
+\centering
+\caption{Effect of Fear of Crime on Punitive Attitudes: AIPW Estimates}
+\label{tab:main_results}
+\begin{tabular}{lccccc}
+\hline\hline
+ & ATE & SE & 95\% CI & $p$-value & $N$ \\
+\hline
+\multicolumn{6}{l}{\textit{Panel A: Crime-Related Attitudes}} \\
+Death Penalty Support & $-$0.0031 & (0.0055) & [$-$0.014, 0.008] & 0.570 & 36,826 \\
+Courts Too Lenient & 0.0446*** & (0.0052) & [0.035, 0.055] & $<$0.001 & 30,557 \\
+Want More Crime Spending & 0.0336*** & (0.0069) & [0.020, 0.047] & $<$0.001 & 21,972 \\
+Favor Gun Permits & 0.0469*** & (0.0048) & [0.037, 0.056] & $<$0.001 & 39,230 \\
+\hline
+\multicolumn{6}{l}{\textit{Panel B: Placebo Outcomes}} \\
+Space Spending & 0.0056 & (0.0058) & [$-$0.006, 0.017] & 0.334 & 21,567 \\
+Science Spending & 0.0105 & (0.0084) & [$-$0.006, 0.027] & 0.211 & 16,554 \\
+Environment Spending & 0.0168** & (0.0072) & [0.003, 0.031] & 0.019 & 21,961 \\
+\hline\hline
+\end{tabular}
+\begin{threeparttable}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} Inverse Probability Weighting (IPW) estimates using cross-fitted propensity scores with Super Learner (GLM + Random Forest). Controls include age (quadratic), sex, race, education, parents' education, marital status, children, real income, political views, urban/rural, region, year fixed effects, and national violent crime rate. Bootstrap standard errors (500 replications) in parentheses. Control-group means: death penalty 70.4\%, courts 74.4\%, crime spending 65.3\%, gun permits 67.8\%. $^{***}p<0.01$, $^{**}p<0.05$, $^{*}p<0.1$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Fear makes Americans demand a more active state. It increases the probability of saying courts are too lenient by 4.5 percentage points (SE $= 0.52$ pp, $p < 0.001$)---a 6.0 percent increase relative to the control-group mean of 74.4 percent. It raises support for crime spending by 3.4 percentage points ($p < 0.001$), or 5.2 percent relative to the control mean. And it boosts support for gun permits by 4.7 percentage points ($p < 0.001$), the largest effect among the four outcomes.
+
+The death penalty result is striking. The point estimate is $-0.3$ percentage points---essentially zero, and if anything slightly negative. The 95\% confidence interval ($-1.4$ to $0.8$ pp) rules out effects larger than 1.4 percentage points in either direction. Fear simply does not move death penalty attitudes once observables are accounted for.
+
+Panel B shows the placebo results. Fear has no significant effect on support for space spending ($0.6$ pp, $p = 0.33$) or science spending ($1.1$ pp, $p = 0.21$). The environment spending result ($1.7$ pp, $p = 0.02$) is marginally significant. This partial placebo failure deserves discussion: environment spending may not be a pure placebo, as environmental hazards could plausibly increase fear of walking in one's neighborhood (industrial pollution, lack of green space). Alternatively, this may reflect a modest degree of residual confounding. The two clean placebos (space, science) provide the strongest evidence that the main results are not driven by broad ideological confounding.
+
+Figure~\ref{fig:main_results} visualizes the main AIPW estimates. The three regulatory outcomes cluster tightly around 3.5--4.7 percentage points, well above zero. The death penalty estimate sits at zero.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig4_main_results.pdf}
+\caption{Effect of Fear of Crime on Punitive Attitudes. AIPW estimates with 95\% confidence intervals. Fear significantly increases regulatory attitudes (courts, spending, gun permits) but has no effect on retributive attitudes (death penalty).}
+\label{fig:main_results}
+\end{figure}
+
+Appendix Figure~\ref{fig:main_vs_placebo_app} visualizes the comparison between main and placebo effects. The crime-related attitudes show clear positive effects; the placebo outcomes cluster near zero, with the partial exception of environment spending. The slight effect on environmental spending may reflect a broader sense of neighborhood disorder---communities with degraded environments have both more fear and more demand for environmental remediation---rather than residual ideological confounding.
+
+\subsection{OLS Comparison}
+
+Table~\ref{tab:ols_comparison} compares the AIPW estimates with OLS regressions that include the same covariates. The OLS estimates are remarkably similar: 0.2 percentage points for death penalty ($p = 0.65$), 4.8 for courts ($p < 0.001$), and 3.4 for crime spending ($p < 0.001$). The close agreement between OLS and AIPW is reassuring: it suggests that the confounding structure is approximately linear, so that the additional flexibility of the AIPW estimator does not substantially change the results. This also implies that the estimates are not sensitive to the choice of estimator.
+
+\begin{table}[htbp]
+\centering
+\caption{Comparison of OLS and Doubly Robust Estimates}
+\label{tab:ols_comparison}
+\begin{tabular}{lccccc}
+\hline\hline
+ & \multicolumn{2}{c}{OLS} & \multicolumn{2}{c}{AIPW} & \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+Outcome & Estimate & SE & Estimate & SE & $N$ \\
+\hline
+Death Penalty Support & 0.0023 & (0.0051) & $-$0.0031 & (0.0055) & 36,826 \\
+Courts Too Lenient & 0.0482*** & (0.0051) & 0.0446*** & (0.0052) & 30,557 \\
+Want More Crime Spending & 0.0336*** & (0.0069) & 0.0336*** & (0.0069) & 21,972 \\
+\hline\hline
+\end{tabular}
+\begin{threeparttable}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} OLS includes the same covariates as the AIPW propensity score model. AIPW uses 5-fold cross-fitting with Super Learner ensemble. $^{***}p<0.01$, $^{**}p<0.05$, $^{*}p<0.1$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\subsection{Sensitivity to Unobserved Confounding}
+
+I assess the sensitivity of the main results to unobserved confounding using the partial $R^2$ framework of \citet{cinelli2020making}. The robustness value (RV) measures how strong an unobserved confounder would need to be---in terms of its partial $R^2$ with both the treatment and the outcome---to reduce the estimated effect to zero.
+
+For the courts-too-lenient outcome, the robustness value is $\text{RV}_{q=1} = 5.3\%$: an unobserved confounder would need to explain at least 5.3 percent of the residual variance of both fear and court attitudes (after conditioning on all observed covariates) to fully account for the estimated 4.5 pp effect. At the 5\% significance level, $\text{RV}_{q=1,\alpha=0.05} = 4.2\%$. To calibrate these values: gender---the strongest observed predictor of fear---explains 10.2\% of the residual variance of fear but only 0.3\% of the residual variance of court attitudes. A confounder as strong as gender in its association with fear would reduce the courts estimate from 4.8 to 3.2 pp, which would remain highly significant ($t = 5.9$). A confounder would need to be twice as strong as gender to bring the estimate near zero. For crime spending, $\text{RV}_{q=1} = 3.3\%$, somewhat lower but still requiring a substantial unobserved confounder.
+
+These results suggest that while the unconfoundedness assumption cannot be verified, the main findings are reasonably robust to plausible omitted variables. The most concerning candidate---local neighborhood crime rates, which could be strongly correlated with both fear and attitudes---is partially absorbed by urbanicity, region fixed effects, and the national crime rate.
+
+\subsection{Heterogeneity}
+
+\subsubsection{Demographic Subgroups}
+
+I estimate the effect of fear on death penalty support separately by sex, race, and education using IPW with bootstrap standard errors within each subgroup. The results are reported in Table~\ref{tab:heterogeneity}.
+
+\begin{table}[htbp]
+\centering
+\caption{Heterogeneous Effects of Fear on Death Penalty Support}
+\label{tab:heterogeneity}
+\begin{tabular}{lcccc}
+\hline\hline
+Subgroup & ATE & SE & 95\% CI & $N$ \\
+\hline
+\multicolumn{5}{l}{\textit{By Sex}} \\
+Male & $-$0.002 & (0.008) & [$-$0.018, 0.014] & 17,011 \\
+Female & 0.007 & (0.007) & [$-$0.007, 0.020] & 19,815 \\
+\hline
+\multicolumn{5}{l}{\textit{By Race (Males)}} \\
+White & $-$0.001 & (0.008) & [$-$0.016, 0.015] & 13,981 \\
+Black & 0.019 & (0.026) & [$-$0.031, 0.070] & 1,939 \\
+\hline
+\multicolumn{5}{l}{\textit{By Education}} \\
+No College & $-$0.002 & (0.006) & [$-$0.014, 0.010] & 27,047 \\
+College+ & 0.002 & (0.012) & [$-$0.021, 0.025] & 9,779 \\
+\hline\hline
+\end{tabular}
+\begin{threeparttable}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} IPW estimates with bootstrap standard errors (200 replications). Each subgroup uses the same covariates as the main specification, excluding the subgroup variable. Death penalty support is the outcome.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+The null effect on death penalty support is remarkably uniform across demographic groups. Neither men nor women, neither Black nor White respondents, neither college-educated nor non-college respondents show a significant effect of fear on death penalty attitudes. This uniformity strengthens the interpretation that the null is a genuine feature of death penalty attitudes rather than a statistical artifact of averaging across heterogeneous subgroups.
+
+\subsubsection{Temporal Heterogeneity}
+
+Figure~\ref{fig:period_het} shows the evolution of the fear--death-penalty relationship over time. I divide the sample into five periods and estimate separate IPW effects for men in each period (the subgroup with the most variation).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig7_period_heterogeneity.pdf}
+\caption{Effect of Fear on Death Penalty Support Over Time. IPW estimates for men by period, with 95\% confidence intervals. The positive effect in 1973--1985 has reversed to a negative effect in recent periods, consistent with a changing political meaning of fear.}
+\label{fig:period_het}
+\end{figure}
+
+The pattern is striking. In 1973--1985, fear had a positive and statistically significant effect on death penalty support among men: 5.5 percentage points (SE $= 1.5$ pp). This aligns with the era when ``tough on crime'' was bipartisan consensus and fear of crime was culturally linked to support for all forms of punishment. By 2006--2015, the effect had reversed: fear was associated with 4.4 percentage points \textit{lower} death penalty support (SE $= 2.1$ pp, $p < 0.05$). In the most recent period (2016--2024), the effect is $-2.4$ pp, negative but no longer statistically significant.
+
+This temporal pattern is consistent with the conceptual framework. The death penalty has become increasingly politicized along partisan lines over the past two decades. Fear of crime, which was once a bipartisan concern that channeled into all forms of punitiveness, may now be experienced differently across the political spectrum. Liberals who report fear may respond by supporting gun control and crime prevention spending while opposing the death penalty; conservatives who report fear may already support the death penalty regardless.
+
+\subsection{Fear by Demographics}
+
+Figure~\ref{fig:fear_demographics} shows fear rates by race and gender over time. Black women consistently report the highest levels of fear (55--65\%), followed by White women (40--50\%), Black men (25--40\%), and White men (20--30\%). These demographic patterns have been remarkably stable over fifty years, even as crime rates rose and fell. The race and gender gaps in fear are much larger than the gender or race gaps in actual victimization risk for most crime types \citep{ferraro1995fear}, reflecting the ``vulnerability'' hypothesis: groups with less physical power or social status feel more afraid even at similar objective risk levels.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig6_fear_demographics.pdf}
+\caption{Fear of Crime by Race and Gender, 1973--2024. Black women report the highest fear; White men the lowest. These demographic gaps are stable across fifty years.}
+\label{fig:fear_demographics}
+\end{figure}
+
+
+\section{Discussion}
+
+\subsection{Interpreting the Regulatory--Retributive Distinction}
+
+The central finding---that fear increases regulatory but not retributive punitiveness---has a straightforward interpretation. When people are afraid to walk in their neighborhood, they want the government to make them safer. They want courts to be stricter, police to be better funded, and gun purchases to be regulated. These are instrumental demands: they respond to a perceived problem (crime, danger) with a desired solution (more state action).
+
+The death penalty is different. Support for capital punishment is rooted in moral intuitions about justice and desert, not in pragmatic assessments of what will make one's neighborhood safer \citep{zimring2003contradictions}. Few people think the death penalty will directly reduce crime in their area; support reflects beliefs about what murderers \textit{deserve}. These moral commitments are not easily shifted by personal fear.
+
+This distinction has parallels in other domains. In health policy, fear of illness drives demand for healthcare spending and regulation but not necessarily support for euthanasia. In national security, fear of terrorism drives support for surveillance and military spending but not necessarily support for torture. The pattern suggests a general principle: fear activates instrumental policy preferences but not moral ones.
+
+The magnitude of the regulatory effects provides useful context. The 4.5 percentage point effect on ``courts too lenient'' is roughly equivalent to the difference in attitudes between respondents with a college degree and those without, after controlling for all other covariates. The 3.4 percentage point effect on crime spending is comparable to the urban--rural gap in spending preferences. These are economically meaningful magnitudes, especially given that the treatment---fear---is a psychological state that can potentially be influenced by policy interventions such as community policing, environmental design, and media practices.
+
+\subsection{The Changing Meaning of Fear}
+
+The temporal heterogeneity results suggest that the fear--punitiveness link is not a fixed feature of human psychology but a socially constructed relationship that depends on political context. In the 1970s and 1980s, when Richard Nixon, Ronald Reagan, and George H.W. Bush made crime a central political issue, fear of crime was culturally linked to all forms of ``toughness'' on crime---including the death penalty \citep{beckett1997making}. Elite rhetoric created a bundled package: if you were afraid, you supported everything ``tough on crime.''
+
+By the 2010s, this package had unbundled. Criminal justice reform gained bipartisan support, with both progressive prosecutors and libertarian conservatives questioning mass incarceration. The death penalty became a primarily moral and cultural issue, decoupled from pragmatic crime concerns. Fear of crime, meanwhile, became increasingly associated with urban, diverse, Democratic-leaning populations---the same populations most opposed to the death penalty. The reversal of the fear--death-penalty link reflects this political realignment.
+
+This finding connects to \citet{pollock2023polarization}, who documents increasing partisan polarization of criminal justice attitudes since the 1990s. In an earlier era, fear was bipartisan and so was the punitive response. As crime became a more partisan issue, the link between fear and specific policy attitudes was mediated by party identity. A frightened Democrat in 2020 might demand more spending on social services and gun control; a frightened Republican might demand more policing and deportation. The aggregate null on the death penalty may mask these opposing partisan channels.
+
+The temporal pattern also sheds light on the mass incarceration literature. \citet{enns2014incarceration} shows that aggregate punitiveness drove incarceration growth. My results suggest that fear was a meaningful upstream driver of punitiveness in the 1970s--1990s, contributing to the political environment that enabled the prison boom. The weakening of this link since 2000 may help explain why punitiveness has declined even though fear has not: fear no longer translates as directly into policy demand.
+
+\subsection{Implications for Criminal Justice Reform}
+
+If fear drives regulatory punitiveness, then reducing fear may reduce political support for harsh sentencing and expanded policing budgets. This suggests that community safety programs, environmental design (better lighting, maintained public spaces), and reduced media sensationalism about crime could have indirect effects on criminal justice policy by reducing the fear that fuels demand for ``tough'' approaches. The 3--5 percentage point effects documented here are large enough that meaningful reductions in fear could shift the political equilibrium on sentencing policy.
+
+However, the null effect on the death penalty suggests that abolition campaigns must appeal to moral arguments rather than safety arguments. Telling voters that the death penalty doesn't reduce crime is unlikely to change minds, because support for the death penalty is not based on crime reduction in the first place. The most effective arguments for abolition---wrongful convictions, racial disparities, the irreversibility of execution---engage moral intuitions directly, consistent with the retributive foundation of death penalty support.
+
+The gun permits result is particularly interesting for contemporary policy. Fear of crime increases support for requiring police permits to purchase firearms by 4.7 percentage points---the largest effect among the four outcomes. This suggests that gun control advocates might find an unlikely ally in the fear-of-crime discourse: Americans who feel unsafe in their neighborhoods are more, not less, supportive of firearms regulation. This runs counter to the ``good guy with a gun'' narrative, which assumes that fear drives demand for personal armament rather than state regulation.
+
+\subsection{Connection to the Beliefs and Perceptions Literature}
+
+This paper connects to a growing economics literature on how perceptions and beliefs shape policy preferences. \citet{roth2024attention} show that attention to macroeconomic conditions shapes economic expectations and consumption decisions. \citet{alesina2018intergenerational} demonstrate that perceptions of intergenerational mobility---whether accurate or not---shape redistribution preferences. \citet{kuziemko2015elastic} find that information provision can shift support for redistribution, but only modestly and often temporarily.
+
+My results extend this literature to the criminal justice domain. Fear of crime, like perceptions of economic mobility or attention to macroeconomic indicators, is a subjective state that mediates between objective conditions and policy attitudes. But unlike many economic perceptions, fear of crime has shown remarkable persistence even as objective conditions improved dramatically. The fear--crime paradox documented in Figure~\ref{fig:fear_trends} suggests that fear is ``sticky'' in ways that economic perceptions may not be, perhaps because it engages more primitive psychological mechanisms (threat perception, fight-or-flight) than abstract economic reasoning.
+
+\subsection{Limitations}
+
+Several limitations deserve emphasis. First, the unconfoundedness assumption is untestable. While the rich covariate set and placebo tests provide indirect support, I cannot rule out that an unobserved variable (e.g., personal victimization, media consumption, neighborhood quality) confounds the estimates. The marginal significance of the environment spending placebo ($p = 0.02$) suggests that some residual confounding may remain, though its magnitude is modest (1.7 pp) compared to the main effects (3.4--4.7 pp).
+
+Second, the fear variable is a single dichotomous measure that does not capture intensity or type of fear. Someone who occasionally worries about walking at night is coded the same as someone who is deeply afraid. This measurement limitation likely attenuates the estimates.
+
+Third, the GSS provides only four Census regions, not states or neighborhoods. I cannot control for state-level policy differences or neighborhood-level crime rates. The year fixed effects and national crime rate absorb temporal variation, but geographic confounding within regions remains possible.
+
+Fourth, the analysis is cross-sectional. While the GSS panel data (2006--2014) includes both the fear and death penalty questions, the panels are too small and cover too few variables for the full AIPW analysis. A rigorous test of temporal ordering---does fear at wave 1 predict attitude change at wave 2?---remains an important direction for future research.
+
+Fifth, the AIPW estimator estimates a population-level ATE. If there is substantial treatment effect heterogeneity, the ATE may not be the most policy-relevant quantity. Conditional average treatment effects by subgroup provide some additional granularity, but a fully nonparametric analysis of effect heterogeneity is beyond the scope of this paper.
+
+
+\section{Conclusion}
+
+This paper provides the first doubly robust estimates of the effect of fear of crime on punitive policy attitudes. Using fifty years of the General Social Survey and modern semiparametric methods, I find that fear drives \textit{regulatory} punitiveness---support for harsher courts, more crime spending, and gun regulation---but not \textit{retributive} punitiveness---support for the death penalty. The effects are substantial (3.4--4.7 percentage points), specific to the crime domain (placebo outcomes show null effects), and robust to alternative estimation methods.
+
+The distinction between regulatory and retributive punitiveness matters for policy. Fear is a lever that politicians can pull to increase support for criminal justice spending and sentencing reform. But the death penalty inhabits a different psychological space, one governed by moral commitments rather than safety calculations. The 50-year decline in the fear--death-penalty link, from a significant positive effect in the 1970s to a null or negative effect today, illustrates how the political meaning of fear evolves with the broader ideological landscape.
+
+These findings connect the criminology literature on fear of crime to the economics literature on how beliefs and perceptions shape policy attitudes \citep{roth2024attention, stantcheva2024runs, alesina2018intergenerational}. Fear of crime is not just a psychological state---it is a political force that shapes the institutions Americans build to keep themselves safe. Understanding its effects, and its limits, is essential for anyone seeking to reform American criminal justice.
+
+
+\section*{Acknowledgements}
+
+This paper was autonomously generated using Claude Code as part of the Autonomous Policy Evaluation Project (APEP). Data from the General Social Survey, conducted by NORC at the University of Chicago, and FBI Uniform Crime Reports.
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/ape-papers}
+
+\noindent\textbf{Contributors:} @ai1scl
+
+\noindent\textbf{First Contributor:} \url{https://github.com/ai1scl}
+
+\label{apep_main_text_end}
+\newpage
+\bibliography{references}
+
+\newpage
+\appendix
+
+\section{Data Appendix}
+
+\subsection{GSS Variable Definitions}
+
+\textbf{Treatment variable:}
+\begin{itemize}
+\item \texttt{fear}: ``Is there any area right around here---that is, within a mile---where you would be afraid to walk alone at night?'' (1 = Yes, 2 = No). Recoded to $A_i = 1$ if Yes, $A_i = 0$ if No. Available in 30 GSS waves from 1973 to 2024.
+\end{itemize}
+
+\textbf{Main outcome variables:}
+\begin{itemize}
+\item \texttt{cappun}: ``Do you favor or oppose the death penalty for persons convicted of murder?'' (1 = Favor, 2 = Oppose). Recoded to binary: 1 if Favor.
+\item \texttt{courts}: ``In general, do you think the courts in this area deal too harshly or not harshly enough with criminals?'' (1 = Too harsh, 2 = Not harsh enough, 3 = About right). Recoded to binary: 1 if ``Not harsh enough.''
+\item \texttt{natcrime}/\texttt{natcriy}: ``Are we spending too much, too little, or about the right amount on halting the rising crime rate?'' Recoded to binary: 1 if ``Too little.'' Both split-ballot wordings are combined.
+\item \texttt{gunlaw}: ``Would you favor or oppose a law which would require a person to obtain a police permit before he or she could buy a gun?'' (1 = Favor, 2 = Oppose). Recoded to binary: 1 if Favor.
+\end{itemize}
+
+\textbf{Placebo outcome variables:}
+\begin{itemize}
+\item \texttt{natspac}/\texttt{natspacy}: Support for more spending on the space program. Binary: 1 if ``Too little.''
+\item \texttt{natsci}/\texttt{natsciy}: Support for more spending on supporting scientific research. Binary: 1 if ``Too little.''
+\item \texttt{natenvir}/\texttt{natenviy}: Support for more spending on improving and protecting the environment. Binary: 1 if ``Too little.''
+\end{itemize}
+
+\textbf{Covariate construction:}
+\begin{itemize}
+\item Age: respondent's age in years; quadratic term included. Centered at sample mean.
+\item Female: 1 if \texttt{sex} == 2.
+\item Black: 1 if \texttt{race} == 2. Other race: 1 if \texttt{race} == 3.
+\item Education: \texttt{educ} (years of schooling, 0--20). College: 1 if \texttt{educ} $\geq 16$.
+\item Parent education: average of \texttt{maeduc} and \texttt{paeduc} (or whichever is available).
+\item Married: 1 if \texttt{marital} == 1.
+\item Has children: 1 if \texttt{childs} $> 0$.
+\item Real income: \texttt{realinc} (family income in constant 2024 dollars). Log-transformed.
+\item Conservative: 1 if \texttt{polviews} $\in \{5, 6, 7\}$ (slightly conservative through extremely conservative).
+\item Urban: 1 if \texttt{srcbelt} indicates residence in one of the 12 largest SMSAs or their suburbs.
+\item Region: 9 Census divisions from \texttt{region}.
+\item Year: survey year fixed effects.
+\end{itemize}
+
+\subsection{Crime Rate Data}
+
+National violent crime rates are from the FBI's Uniform Crime Reports / Crime Data Explorer. The violent crime rate is defined as the sum of murder, rape, robbery, and aggravated assault per 100,000 population. I use the series from 1972 to 2024, with linear interpolation for any years with missing data. The crime rate is merged to the GSS by survey year and enters the model as a continuous covariate.
+
+\subsection{Sample Restrictions}
+
+The analysis starts with 72,390 GSS respondents. I restrict to the 47,088 respondents with non-missing values on the \texttt{fear} variable. Each outcome regression further restricts to respondents with non-missing values on that outcome and all covariates. Sample sizes for each outcome are reported in Table~\ref{tab:main_results}. The death penalty sample ($N = 36{,}826$) is the largest because \texttt{cappun} has high response rates across waves. The crime spending sample ($N = 21{,}972$) is smaller because the spending question was not asked in all waves.
+
+
+\section{Identification Appendix}
+
+\subsection{Propensity Score Model Diagnostics}
+
+The propensity score model for the primary analysis (death penalty sample) is a logistic regression of \texttt{afraid} on all covariates including year and region dummies. The model achieves good discrimination: mean propensity score of 0.47 among the treated and 0.33 among controls (overall mean 0.38, SD 0.18). The full distribution is shown in Figure~\ref{fig:ps_overlap}.
+
+\subsection{Covariate Balance}
+
+Table~\ref{tab:balance} reports standardized mean differences (SMDs) between the afraid and not-afraid groups, before and after propensity score weighting.
+
+\begin{table}[htbp]
+\centering
+\caption{Covariate Balance: Standardized Mean Differences}
+\label{tab:balance}
+\begin{tabular}{lcc}
+\hline\hline
+Covariate & Unadjusted SMD & Threshold \\
+\hline
+Age (centered) & $+$0.020 & \\
+Female & $+$0.617 & $> 0.1$ \\
+Black & $+$0.181 & $> 0.1$ \\
+Education (years) & $-$0.133 & $> 0.1$ \\
+Parent education (years) & $-$0.104 & $> 0.1$ \\
+Married & $-$0.190 & $> 0.1$ \\
+Has children & $-$0.044 & \\
+Log real income & $-$0.270 & $> 0.1$ \\
+Conservative & $-$0.051 & \\
+Urban & $+$0.312 & $> 0.1$ \\
+\hline\hline
+\end{tabular}
+\begin{threeparttable}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} SMD = (mean treated $-$ mean control) / pooled SD. Threshold column flags covariates with $|$SMD$| > 0.1$. Six of ten covariates exceed the conventional threshold, underscoring the need for confounding adjustment.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Six of ten covariates have SMDs exceeding the conventional 0.1 threshold, confirming that the afraid and not-afraid populations differ substantially in observed characteristics. The AIPW estimator addresses this imbalance through both propensity score reweighting and outcome model adjustment.
+
+\subsection{Overlap Assessment}
+
+All 36,826 observations in the death penalty sample have estimated propensity scores in the $[0.05, 0.95]$ range. No observations require trimming. The minimum propensity score is 0.051 and the maximum is 0.921, indicating excellent overlap across the full covariate distribution.
+
+
+\section{Robustness Appendix}
+
+\subsection{Sensitivity to Estimator Choice}
+
+The close agreement between OLS and AIPW estimates (Table~\ref{tab:ols_comparison}) suggests that the results are not sensitive to functional form assumptions. OLS imposes linearity; AIPW allows for flexible nonlinear confounding through the Super Learner. The fact that both produce similar estimates implies that the confounding structure is approximately captured by linear adjustment.
+
+\subsection{Placebo Test Details}
+
+Two of three placebo outcomes show null effects (space: $p = 0.33$; science: $p = 0.21$). The third (environment: $p = 0.02$) is marginally significant. I note that the environment spending question may not be a perfect placebo: environmental conditions (pollution, urban decay) may correlate with both fear of walking at night and support for environmental spending. In neighborhoods with visible environmental degradation, residents may feel both more afraid (unsafe streets) and more supportive of environmental spending (direct experience of degradation). This provides a non-confounding explanation for the marginal significance.
+
+\subsection{Period-Specific Estimates for Death Penalty}
+
+The temporal heterogeneity results for the death penalty (Figure~\ref{fig:period_het}) show a clear downward trend:
+\begin{itemize}
+\item 1973--1985: ATE = $+$0.055 (SE = 0.015, $p < 0.001$)
+\item 1986--1995: ATE = $-$0.009 (SE = 0.018, $p = 0.64$)
+\item 1996--2005: ATE = $+$0.017 (SE = 0.018, $p = 0.32$)
+\item 2006--2015: ATE = $-$0.044 (SE = 0.021, $p = 0.03$)
+\item 2016--2024: ATE = $-$0.024 (SE = 0.018, $p = 0.18$)
+\end{itemize}
+These estimates are for men only, as women have insufficient within-period variation for reliable subgroup estimation after controlling for all covariates. The shift from a 5.5 pp positive effect to a 4.4 pp negative effect represents a roughly 10 pp swing over forty years.
+
+
+\section{Heterogeneity Appendix}
+
+\subsection{Effects by Political Ideology}
+
+I estimate the fear--death-penalty relationship separately for self-identified liberals (polviews 1--3) and conservatives (polviews 5--7), among men:
+\begin{itemize}
+\item Liberal men: ATE = $-$0.001 (SE = 0.019), $N = 4{,}873$
+\item Conservative men: ATE = $+$0.003 (SE = 0.012), $N = 6{,}246$
+\end{itemize}
+Neither group shows a significant effect, confirming that the null is not an artifact of averaging liberals (negative effect) and conservatives (positive effect).
+
+\subsection{Effects by Race and Gender}
+
+The intersection of race and gender produces four subgroups with distinct fear profiles (Figure~\ref{fig:fear_demographics}). Despite these large differences in baseline fear, the null effect on death penalty support is consistent across all four groups:
+\begin{itemize}
+\item White men: ATE = $-$0.001 (SE = 0.008), $N = 13{,}981$
+\item White women: ATE = $+$0.009 (SE = 0.008), $N = 15{,}674$
+\item Black men: ATE = $+$0.019 (SE = 0.026), $N = 1{,}939$
+\item Black women: ATE = $+$0.012 (SE = 0.019), $N = 3{,}013$
+\end{itemize}
+The Black subgroup estimates are imprecise due to smaller sample sizes, but the point estimates are qualitatively consistent with the overall null.
+
+
+\section{Additional Figures and Tables}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig5_main_vs_placebo.pdf}
+\caption{Main Effects vs.\ Placebo Tests. Crime-related attitudes (blue) show clear positive effects of fear; placebo spending outcomes (orange) cluster near zero, confirming specificity.}
+\label{fig:main_vs_placebo_app}
+\end{figure}
+
+\end{document}

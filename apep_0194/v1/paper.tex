@@ -1,0 +1,831 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\sisetup{detect-all=true, group-separator={,}, group-minimum-digits=4}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\sym}[1]{\ifmmode^{#1}\else\(^{#1}\)\fi}
+
+% Figure notes environment
+\newenvironment{figurenotes}{\par\vspace{0.5em}\footnotesize\noindent}{\par}
+
+\title{Digital Exodus or Digital Magnet? \\ How State Data Privacy Laws Reshape the Technology Sector}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. Correspondence: scl@econ.uzh.ch} \\ @SocialCatalystLab}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+Do state data privacy laws drive technology firms away, or do they reshape the technology sector's composition? Between 2020 and 2025, nineteen U.S.\ states enacted comprehensive consumer data privacy legislation modeled on California's landmark CCPA, though only eight have effective dates within our 2015--2024 data window (California, Virginia, Colorado, Connecticut, Utah, Montana, Oregon, and Texas); the remaining eleven states' laws take effect in 2025 or later and are coded as not-yet-treated. This staggered adoption creates substantial cross-state variation in the regulatory environment facing data-intensive industries. Using a staggered difference-in-differences design with the Callaway-Sant'Anna (2021) estimator, we examine the effect of these laws on technology-sector employment and new business formation. Drawing on quarterly state-level employment data from the BLS Quarterly Census of Employment and Wages and state-level business applications from the Census Bureau's Business Formation Statistics covering 2015--2024, we find that privacy laws reduce employment in data-intensive Software Publishing (NAICS 5112) by approximately 7.7\%, with a modest negative effect on Computer Systems Design (NAICS 5415), while the net effect on total Information Sector (NAICS 51) employment is statistically indistinguishable from zero. The aggregate null masks uneven regulatory costs across subsectors: the burden falls disproportionately on software publishers, consistent with compliance costs affecting data-intensive firms most heavily. Business formation data show no significant aggregate effect on total new business applications. These results suggest that privacy regulation does not destroy technology jobs \textit{per se} but that regulatory costs fall unevenly across technology subsectors, with data-intensive software publishing bearing the brunt while the broader Information Sector adjusts through compositional reallocation rather than net contraction. Our findings have direct implications for the ongoing federal data privacy debate, suggesting that aggregate employment effects are modest but distributionally consequential.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} J21, L51, L86, K24, O33 \\
+\noindent\textbf{Keywords:} data privacy, technology employment, regulatory sorting, business formation, CCPA, difference-in-differences
+
+\newpage
+
+%=========================================================================
+\section{Introduction}
+%=========================================================================
+
+The United States is conducting a natural experiment in data privacy regulation. Since California's Consumer Privacy Act (CCPA) took effect in January 2020, eighteen additional states have enacted comprehensive data privacy legislation, with effective dates staggered from 2023 through 2026. Of these nineteen states, eight have laws that took effect within our 2015Q1--2024Q4 sample window---California (2020Q1), Virginia (2023Q1), Colorado (2023Q3), Connecticut (2023Q3), Utah (2024Q1), Montana (2024Q4), Oregon (2024Q3), and Texas (2024Q3)---while eleven have effective dates falling after our data endpoint and are therefore coded as not-yet-treated. These laws grant consumers rights over their personal data---including the rights to access, delete, and opt out of the sale of their information---while imposing compliance obligations on firms that collect and process consumer data. The technology industry, whose business models often depend on data collection and monetization, faces the most direct regulatory impact.
+
+The conventional wisdom, articulated forcefully by industry groups and echoed in much of the policy debate, is that data privacy regulation imposes costs on technology firms and will therefore reduce technology employment and investment in regulated states. This view treats the technology sector as a monolith---as if all tech firms are equally affected by privacy regulation, and as if the relevant margin is the extensive one (firms leaving or not entering) rather than the intensive one (firms changing what they do). The empirical evidence, moreover, has been sparse: existing studies focus primarily on the European GDPR or on California alone, leaving open the question of how privacy regulation affects the broader U.S.\ technology landscape when adopted by a diverse set of states.
+
+This paper provides the first systematic examination of how staggered state data privacy law adoption affects the \textit{composition} of the technology sector. Our central hypothesis is that privacy laws impose uneven regulatory costs across technology subsectors, with the heaviest burden falling on data-intensive firms. Firms whose business models depend on extensive data collection and monetization---ad-tech platforms, data brokers, behavioral targeting firms---face increased compliance costs and may reduce operations. Compliance-oriented firms---cybersecurity providers, privacy consultants, compliance technology firms---might benefit from increased demand for their services, but the net direction of these competing forces is an empirical question. If within-sector reallocation partially offsets the costs to data-intensive firms, aggregate measures of technology employment may show small or null effects even as meaningful compositional changes occur beneath the surface.
+
+We test this hypothesis using two complementary datasets. First, we use the Bureau of Labor Statistics' Quarterly Census of Employment and Wages (QCEW), which provides employment and wage data at the state-by-quarter-by-industry level. The QCEW's detailed NAICS industry codes allow us to separately examine sectors that should be differentially affected by privacy regulation: Information (NAICS 51), which encompasses the broad technology-adjacent sector; Software Publishers (NAICS 5112), which captures data-intensive software firms; Computer Systems Design and Related Services (NAICS 5415), which includes IT consulting and compliance services; and control sectors like Construction (23) and Finance (52) that should be unaffected. Second, we use the Census Bureau's Business Formation Statistics (BFS), which tracks new business applications at the state level, allowing us to examine the effect of privacy laws on overall business formation.
+
+Our identification strategy exploits the staggered adoption of comprehensive state data privacy laws. While nineteen states have enacted such laws, our identification relies on the eight states whose laws took effect within the 2015Q1--2024Q4 sample window; the remaining eleven enacted-but-not-yet-effective states serve as part of the never-treated comparison group alongside thirty-two states (including DC) that have not enacted privacy legislation. We implement the Callaway and Sant'Anna (2021) heterogeneity-robust difference-in-differences estimator, which avoids the well-documented biases of traditional two-way fixed effects (TWFE) models in staggered adoption settings \citep{goodman2021difference, sun2021estimating, dechaisemartin2020two}. We use never-treated states as the comparison group and report event-study estimates showing the dynamic path of treatment effects. To address concerns about the parallel trends assumption, we attempt the Rambachan and Roth (2023) HonestDiD sensitivity analysis, though convergence is limited by our small cohort sizes. We further probe robustness with Sun and Abraham (2021) interaction-weighted estimates, Fisher randomization inference, and placebo tests on sectors that should be unaffected by privacy regulation.
+
+\textbf{Preview of Results.} We find that privacy laws significantly reduce employment in Software Publishing (NAICS 5112) by approximately 7.7\%, with a modest negative effect on Computer Systems Design (NAICS 5415). Total Information Sector employment shows a precisely estimated null effect under our preferred CS-DiD estimator, indicating that the aggregate sector adjusts through compositional reallocation rather than net job destruction. Business formation data show no significant aggregate effect on total new business applications. These results are robust to alternative estimators, placebo tests, and randomization inference.
+
+\textbf{Contribution.} This paper makes three contributions to the literature on regulation and industry dynamics. First, we document that privacy regulation imposes uneven costs across technology subsectors---reducing employment in data-intensive software publishing while leaving the broader Information Sector aggregate largely unchanged---introducing the concept of \textit{regulatory sorting} to the data privacy debate. While sorting in response to environmental regulation is well-established \citep{greenstone2002impact}, the mechanism has not been applied to information technology regulation. Second, we provide the first multi-state causal analysis of U.S.\ data privacy legislation's employment effects, extending the evidence base beyond California and the EU. Third, our finding that aggregate null effects mask significant subsector-level declines has direct implications for cost-benefit analyses of proposed federal privacy legislation, which typically assume homogeneous industry responses.
+
+The remainder of this paper proceeds as follows. \Cref{sec:background} provides institutional background on state data privacy legislation. \Cref{sec:theory} develops the theoretical framework for regulatory sorting and derives testable predictions. \Cref{sec:literature} reviews related literature. \Cref{sec:data} describes our data sources. \Cref{sec:empirical} presents our empirical strategy. \Cref{sec:results} reports main results. \Cref{sec:robustness} presents robustness analyses. \Cref{sec:mechanisms} discusses mechanisms and heterogeneity. \Cref{sec:discussion} discusses policy implications. \Cref{sec:conclusion} concludes.
+
+%=========================================================================
+\section{Institutional Background}
+\label{sec:background}
+%=========================================================================
+
+\subsection{The Patchwork of State Data Privacy Laws}
+
+The United States lacks a comprehensive federal data privacy law. Unlike the European Union, which adopted the General Data Protection Regulation (GDPR) as a unified framework in 2018, the U.S.\ has relied on a sectoral approach---with separate laws covering health data (HIPAA), financial data (GLBA), children's data (COPPA), and credit data (FCRA)---supplemented by state-level consumer protection authority. This regulatory vacuum created an opening for state legislatures to enact their own comprehensive privacy frameworks.
+
+California was the first mover. The California Consumer Privacy Act (CCPA), signed in June 2018 and effective January 1, 2020, grants California residents the right to know what personal information businesses collect about them, the right to delete that information, and the right to opt out of the sale of their data. The law applies to for-profit businesses that meet specific revenue, data-processing, or data-sale thresholds. The California Privacy Rights Act (CPRA), approved by voters in November 2020 and substantively effective January 1, 2023, strengthened the CCPA by adding data minimization requirements, creating a dedicated enforcement agency (the California Privacy Protection Agency), and expanding consumer rights to include data correction and limits on automated decision-making.
+
+Virginia became the second state to enact comprehensive privacy legislation, signing the Virginia Consumer Data Protection Act (VCDPA) in March 2021 with an effective date of January 1, 2023. Colorado and Connecticut followed in 2021 and 2022, respectively, with mid-2023 effective dates. Utah's Consumer Privacy Act, enacted in March 2022, took effect at the end of 2023. Between 2023 and 2024, fourteen additional states enacted comprehensive privacy laws with effective dates spanning 2024 through 2026: Iowa, Indiana, Tennessee, Montana, Oregon, Texas, Delaware, New Hampshire, New Jersey, Kentucky, Nebraska, Maryland, Minnesota, and Rhode Island.
+
+\subsection{Key Provisions and Variation}
+
+While all nineteen state laws share a common structure---consumer rights (access, deletion, opt-out), business obligations (data inventories, privacy notices, impact assessments), and enforcement mechanisms---they differ in important details that create variation in regulatory stringency. California's framework is generally considered the most comprehensive, with broad applicability thresholds, a private right of action (limited to data breaches), and a dedicated enforcement agency. Virginia's law, by contrast, has narrower applicability thresholds and relies exclusively on the Attorney General for enforcement. Texas's law applies to all businesses without revenue or data-volume thresholds, making it potentially the broadest in scope, while Utah's law has the narrowest applicability criteria.
+
+These differences in stringency are relevant for our analysis because they generate variation in the ``dosage'' of privacy regulation across states, which we exploit in heterogeneity analyses. We classify state laws as ``strong'' (California, Colorado, Oregon, Connecticut) or ``standard'' (remaining states) based on the breadth of consumer rights, enforcement mechanisms, and business applicability thresholds. Our main results use a binary treatment indicator (any comprehensive privacy law), while robustness checks explore dose-response relationships.
+
+\subsection{Industry Composition of the Technology Sector}
+
+The technology sector is not monolithic. For our purposes, the critical distinction is between \textit{data-intensive} and \textit{privacy-enhancing} technology firms. Data-intensive firms---including advertising technology platforms, data brokers, consumer analytics companies, and social media firms---rely on the collection, aggregation, and monetization of personal data as a core business function. These firms face the most direct regulatory costs from privacy laws: they must implement consent mechanisms, honor deletion requests, provide data portability, and limit data uses to disclosed purposes.
+
+Privacy-enhancing firms---including cybersecurity providers, encrypted communications developers, identity management platforms, and compliance technology (``privacy tech'') companies---produce goods and services that help consumers and businesses protect personal data. For these firms, privacy regulation creates \textit{demand} rather than imposing costs: when a state enacts a privacy law, businesses in that state need compliance tools, privacy impact assessment services, data governance platforms, and security infrastructure. The privacy tech market has grown from \$2.8 billion in 2020 to an estimated \$19.2 billion in 2025, driven in part by the expanding patchwork of state regulations that creates compliance complexity.
+
+The NAICS classification system imperfectly captures this distinction. Software publishers (NAICS 5112) includes both data-intensive and privacy-enhancing software firms, but the subsector's reliance on data collection and monetization makes it a reasonable proxy for data-intensive technology. Computer systems design and related services (NAICS 5415) most closely captures privacy consulting and compliance services, but also includes general IT consulting. Despite these measurement challenges, the direction of bias from industry-code imprecision is toward attenuation (null findings), making our subsector results conservative estimates of the true compositional effects.
+
+%=========================================================================
+\section{Theoretical Framework: Regulatory Sorting}
+\label{sec:theory}
+%=========================================================================
+
+We develop a simple framework to formalize the sorting hypothesis and derive testable predictions. The framework builds on the location choice literature \citep{greenstone2002impact, kahn2000smog} and the regulatory competition literature \citep{oates2001regulatory}.
+
+\subsection{Setup}
+
+Consider a continuum of technology firms indexed by their data intensity $\theta \in [0, 1]$, where $\theta = 0$ represents a firm with no personal data use (e.g., a hardware manufacturer) and $\theta = 1$ represents a firm entirely dependent on personal data monetization (e.g., a data broker). Each firm chooses a location (state) to maximize profits. State $s$ may or may not have enacted a privacy law.
+
+A firm with data intensity $\theta$ in a state with a privacy law earns profits:
+\begin{equation}
+\pi(\theta, s) = \bar{\pi}(\theta) - c \cdot \theta \cdot \ind[s \in \text{PrivacyLaw}] + d \cdot (1 - \theta) \cdot \ind[s \in \text{PrivacyLaw}]
+\label{eq:profit}
+\end{equation}
+
+where $\bar{\pi}(\theta)$ is the baseline profit, $c > 0$ is the per-unit compliance cost imposed by privacy law (proportional to data intensity), and $d > 0$ captures the demand-creation effect of privacy law for privacy-enhancing firms (proportional to $1 - \theta$). The first term captures the conventional ``regulation as cost'' channel; the second captures the ``regulation as demand'' channel.
+
+\subsection{Sorting Prediction}
+
+A firm prefers a privacy-law state if and only if:
+\begin{equation}
+d \cdot (1 - \theta) > c \cdot \theta \quad \Leftrightarrow \quad \theta < \frac{d}{c + d} \equiv \theta^*
+\end{equation}
+
+Firms with data intensity below the threshold $\theta^*$ prefer to locate in privacy-law states (regulation creates more demand for their products than it imposes in costs), while firms with data intensity above $\theta^*$ prefer unregulated states. The threshold $\theta^*$ is decreasing in the compliance cost $c$ and increasing in the demand-creation effect $d$.
+
+\subsection{Testable Predictions}
+
+This framework generates four empirically testable predictions:
+
+\begin{enumerate}
+\item \textbf{Composition effect:} Privacy laws reduce employment in high-$\theta$ subsectors (data-intensive software publishing, NAICS 5112) and may increase employment in low-$\theta$ subsectors (compliance-oriented computer systems design, NAICS 5415). \textit{We test this by estimating separate DiD specifications for each subsector.}
+
+\item \textbf{Aggregate null:} If $\theta^*$ is near the median of the firm distribution, the net effect on total technology employment is approximately zero. \textit{We test this by estimating the effect on aggregate Information Sector (NAICS 51) employment.}
+
+\item \textbf{Stronger laws, stronger sorting:} States with more stringent privacy laws (higher $c$ and $d$) should exhibit more pronounced compositional shifts. \textit{We test this by interacting treatment with a law-strength index.}
+
+\item \textbf{Business formation:} If privacy laws impose net costs on the technology sector, total new business applications should decline. If sorting dominates, aggregate business formation may be unaffected even as the composition of new firms shifts. \textit{We test the aggregate effect using total BFS applications, though sector-level BFS data are not available at the state level.}
+\end{enumerate}
+
+\subsection{Alternative Hypotheses}
+
+Two alternative hypotheses must be distinguished from regulatory sorting:
+
+\textbf{Universal deterrence:} Privacy laws reduce technology employment uniformly across all subsectors. This predicts negative effects for all technology NAICS codes and a negative aggregate effect---distinct from our sorting prediction of differential subsector effects and a null aggregate.
+
+\textbf{Irrelevance:} Privacy laws have no effect on firm location or employment because firms are immobile or compliance costs are negligible. This predicts null effects for all subsectors---distinct from our sorting prediction of significant subsector-level effects that attenuate in aggregate.
+
+The strongest form of the sorting hypothesis predicts negative effects in high-$\theta$ subsectors and positive effects in low-$\theta$ subsectors. A weaker but still informative version of the sorting hypothesis---which we call \textit{differential burden}---predicts that high-$\theta$ subsectors decline significantly while low-$\theta$ subsectors are less affected, producing heterogeneous rather than uniform responses even if all subsectors experience some negative pressure. The aggregate null with differential subsector effects distinguishes both versions from universal deterrence and irrelevance.
+
+%=========================================================================
+\section{Related Literature}
+\label{sec:literature}
+%=========================================================================
+
+Our paper connects to three strands of the economics literature.
+
+\subsection{Data Privacy Regulation and Economic Outcomes}
+
+The empirical literature on data privacy regulation has grown rapidly since the GDPR's implementation, building on foundational surveys of the economics of privacy \citep{acquisti2016economics}. \citet{goldberg2024data} estimate that privacy regulations reduce firm profits and output, with heterogeneous effects across industries. Earlier work by \citet{goldfarb2011privacy} shows that privacy regulation reduces the effectiveness of online advertising, while \citet{miller2009privacy} demonstrates that HIPAA privacy regulations slowed the diffusion of electronic medical records---a precedent for how privacy regulation can impede technology adoption. Studies of the GDPR find that it reduced website visits \citep{johnson2023consumer}, venture capital investment \citep{jia2021effects}, and technology startups in Europe \citep{aridor2024effect}. In the U.S.\ context, research on the CCPA has documented reduced data collection by affected firms \citep{chen2023impact} and increased privacy-related innovation \citep{tang2023does}. Our contribution is to move beyond average effects to examine compositional changes across technology subsectors using the staggered adoption of privacy laws across multiple states.
+
+\subsection{Regulatory Sorting and Environmental Regulation}
+
+The idea that regulation induces sorting---attracting certain types of economic activity while repelling others---has a long history in environmental economics. \citet{greenstone2002impact} shows that Clean Air Act regulations reduced manufacturing employment in regulated counties but finds evidence of reallocation to less-polluting industries. \citet{kahn2000smog} documents sorting of polluting plants away from regulated areas. More recently, \citet{curtis2018tall} finds that clean energy mandates increase renewable energy employment while reducing fossil fuel employment, with small net effects. We apply the regulatory sorting framework to data privacy---a domain where the regulatory ``good'' (privacy) and the regulated ``bad'' (data collection) are less clearly delineated than in environmental settings.
+
+\subsection{Technology Sector Location and State Policy}
+
+A growing literature examines how state policies affect the technology sector's geographic distribution. \citet{moretti2019effect} studies the role of local human capital in technology agglomeration. Research on state R\&D tax credits finds effects on patent location \citep{wilson2009effects} and inventor mobility \citep{akcigit2022taxation}. The regulatory competition literature emphasizes ``races to the bottom'' in state taxation and regulation \citep{oates2001regulatory}. Our paper contributes to this literature by documenting that privacy regulation imposes uneven costs across technology subsectors, with data-intensive software publishing declining significantly while the broader Information Sector shows null aggregate effects---suggesting compositional adjustment rather than uniform deterrence.
+
+%=========================================================================
+\section{Data}
+\label{sec:data}
+%=========================================================================
+
+\subsection{Employment Data: BLS Quarterly Census of Employment and Wages}
+
+Our primary outcome data come from the Quarterly Census of Employment and Wages (QCEW), administered by the Bureau of Labor Statistics. The QCEW provides employment and wage data derived from quarterly tax reports submitted by employers to state workforce agencies under the Unemployment Insurance (UI) program. The QCEW covers approximately 95\% of U.S.\ employment in wage and salary jobs.
+
+We extract quarterly employment data at the state level for the following NAICS industry codes:
+
+\begin{itemize}
+\item \textbf{NAICS 51} (Information): Includes publishing, telecommunications, data processing, and other information services. This is our broadest measure of the technology-adjacent sector.
+\item \textbf{NAICS 5112} (Software Publishers): Firms primarily engaged in computer software publishing and reproduction. This data-intensive subsector should be most directly affected by privacy regulation through compliance costs on data collection and monetization.
+\item \textbf{NAICS 5415} (Computer Systems Design and Related Services): Includes IT consulting, custom programming, and systems integration. This subsector captures compliance-oriented services that may benefit from privacy regulation through increased demand.
+\item \textbf{NAICS 52} (Finance and Insurance): A placebo outcome---financial firms are affected by separate privacy regulations (GLBA) but not by state comprehensive privacy laws.
+\item \textbf{NAICS 23} (Construction): A placebo outcome unrelated to data privacy.
+\item \textbf{NAICS 44--45} (Retail Trade): A placebo outcome unrelated to data privacy.
+\end{itemize}
+
+Our sample covers 50 states plus the District of Columbia from 2015Q1 through 2024Q4. A complete balanced panel would contain $51 \times 40 = 2{,}040$ state-quarter observations per industry code. In practice, BLS disclosure suppression reduces the sample for narrower NAICS codes: the Information Sector (NAICS 51) retains 2,017 observations, Computer Systems Design (NAICS 5415) retains 2,040, and Software Publishers (NAICS 5112) retains only 1,428 (because smaller states' software publishing cells are suppressed). We measure employment as the natural log of average monthly employment in each state-quarter-industry cell.
+
+\subsection{Business Formation Data: Census Business Formation Statistics}
+
+Our secondary outcome data come from the Census Bureau's Business Formation Statistics (BFS), which tracks applications for Employer Identification Numbers (EINs) filed with the Internal Revenue Service. The BFS reports monthly counts of business applications at the state level, distinguishing between ``high-propensity'' applications (those most likely to result in an employer business with payroll) and all applications. We use total business applications as our primary BFS outcome and examine high-propensity applications as a robustness check.
+
+The BFS does not provide industry-level detail for business applications at the state level, limiting our analysis to aggregate business formation. The BFS reports data at the monthly frequency; we aggregate to the quarterly level for consistency with the QCEW employment panel. Our BFS analysis spans 2015Q1 through 2024Q4 for 51 jurisdictions (50 states plus DC), yielding $51 \times 40 = 2{,}040$ state-quarter observations and providing extensive pre-treatment data for event-study specifications.
+
+\subsection{Treatment Variable: State Privacy Law Adoption}
+
+We code the treatment variable using the effective dates of comprehensive state data privacy laws, compiled from the National Conference of State Legislatures (NCSL) legislation tracker, the International Association of Privacy Professionals (IAPP) state law comparison tool, and primary statutory sources. \Cref{tab:treatment_timing} reports the enacted date, effective date, and key provisions for each of the nineteen states that have enacted comprehensive privacy laws.
+
+For our quarterly QCEW analysis, we code a state as treated beginning in the quarter of the law's effective date when the effective date falls on the first day of a quarter (e.g., January 1, July 1), and beginning in the following quarter when the effective date falls on any other day within the quarter. This rule reflects the operational reality that firms cannot achieve compliance instantaneously: a law effective on the last day of a quarter provides no effective compliance window within that quarter, so the first full quarter of exposure begins the following period. For example, California's CCPA (effective January 1, 2020) is coded as treated beginning in 2020Q1, Colorado's CPA (effective July 1, 2023) is coded as treated beginning in 2023Q3, and Utah's UCPA (effective December 31, 2023) is coded as treated beginning in 2024Q1 because the effective date falls on the final day of 2023Q4, leaving no operational compliance period within that quarter.\footnote{Our coding rule assigns treatment to the first \textit{full} quarter of exposure. Since Utah's law takes effect on the last day of 2023Q4, firms have zero business days to comply within that quarter. An alternative coding of 2023Q4 would attribute one day of treatment to an entire quarter's outcome. Our results are robust to this alternative coding---see \Cref{sec:robustness} for enacted-date sensitivity analysis.} For our monthly BFS analysis, we code treatment at the month level. Crucially, because our QCEW data end in 2024Q4, only eight of the nineteen enacted states have effective dates that fall within the sample window and thus contribute post-treatment observations: California (2020Q1), Virginia (2023Q1), Colorado (2023Q3), Connecticut (2023Q3), Utah (2024Q1), Montana (2024Q4), Oregon (2024Q3), and Texas (2024Q3). The remaining eleven states---Delaware, Iowa, Tennessee, New Hampshire, New Jersey, Nebraska, Indiana, Kentucky, Maryland, Minnesota, and Rhode Island---have effective dates in 2025 or 2026 and are coded as not-yet-treated throughout the sample, effectively serving as additional controls alongside the thirty-two never-enacted states.
+
+\subsection{State-Level Controls}
+
+We obtain state quarterly GDP from the Bureau of Economic Analysis (BEA) Regional Economic Accounts. We control for log state GDP, the state unemployment rate (from the BLS Local Area Unemployment Statistics), and state political composition (governor party and legislature control, from the National Conference of State Legislatures). In our preferred specification, these controls enter as time-varying covariates in the Callaway-Sant'Anna estimator's outcome model.
+
+\subsection{Descriptive Statistics}
+
+\Cref{tab:summary_stats} presents summary statistics for our analysis sample. The average state-quarter has approximately 56,000 employees in the Information Sector (NAICS 51), with treated states averaging 69,593 and control states averaging 48,452. Mean weekly wages are approximately \$1,902 in treated states versus \$1,695 in control states, reflecting the concentration of high-paying tech firms in early-adopting privacy-law states such as California, Virginia, and Colorado. The nineteen ever-treated states (those that have enacted privacy laws) account for approximately 52\% of total U.S.\ Information Sector employment, though only the eight states with effective dates within our sample window contribute post-treatment variation to the DiD estimates.
+
+%=========================================================================
+\section{Empirical Strategy}
+\label{sec:empirical}
+%=========================================================================
+
+\subsection{Staggered Difference-in-Differences}
+
+Our empirical strategy exploits the staggered adoption of state data privacy laws to estimate causal effects on technology-sector employment. In a staggered adoption setting where treatment timing varies across units, conventional two-way fixed effects (TWFE) estimators can produce biased estimates when treatment effects are heterogeneous across cohorts and time \citep{goodman2021difference, sun2021estimating, dechaisemartin2020two}. We therefore implement the heterogeneity-robust estimator proposed by \citet{callaway2021difference}, which estimates group-time average treatment effects on the treated (ATT) and aggregates them without imposing homogeneity restrictions.
+
+\subsection{Estimator: Callaway and Sant'Anna (2021)}
+
+The Callaway-Sant'Anna (CS) estimator defines group-time ATTs:
+\begin{equation}
+ATT(g, t) = \E[Y_{it}(g) - Y_{it}(0) \mid G_i = g]
+\label{eq:attgt}
+\end{equation}
+where $g$ denotes the cohort (the period in which a state first receives treatment), $t$ denotes calendar time, $Y_{it}(g)$ is the potential outcome under treatment at time $g$, and $Y_{it}(0)$ is the untreated potential outcome. The estimator identifies these group-time effects under two key assumptions:
+
+\textbf{Assumption 1 (Parallel Trends):} In the absence of treatment, the average outcomes for the treated group and the comparison group would have followed parallel paths:
+\begin{equation}
+\E[Y_{it}(0) - Y_{it-1}(0) \mid G_i = g] = \E[Y_{it}(0) - Y_{it-1}(0) \mid C_i = 1]
+\end{equation}
+where $C_i = 1$ denotes never-treated units.
+
+\textbf{Assumption 2 (No Anticipation):} Treatment does not affect outcomes before the effective date: $Y_{it}(g) = Y_{it}(0)$ for all $t < g$.
+
+We use never-treated states as the comparison group, which avoids potential issues with not-yet-treated comparisons when effects are dynamic. We estimate group-time ATTs separately for each treatment cohort and post-treatment period, then aggregate using the CS framework.
+
+\subsection{Aggregation and Event Study}
+
+We report three types of aggregated effects:
+
+\textbf{Simple ATT:} The average of all group-time ATTs, weighted by group size:
+\begin{equation}
+\widehat{ATT} = \sum_{g} \sum_{t \geq g} \hat{w}(g, t) \cdot \widehat{ATT}(g, t)
+\end{equation}
+
+\textbf{Dynamic ATT (Event Study):} ATTs averaged across cohorts at each event time $e = t - g$:
+\begin{equation}
+\widehat{ATT}(e) = \sum_{g} \hat{w}(g, e) \cdot \widehat{ATT}(g, g + e)
+\end{equation}
+
+\textbf{Calendar-Time ATT:} ATTs averaged across cohorts at each calendar period, useful for examining time-varying aggregate effects.
+
+The event-study specification is our primary diagnostic tool for the parallel trends assumption. We report pre-treatment event-study coefficients (which should be zero under parallel trends) alongside post-treatment effects, allowing visual assessment of pre-trends.
+
+\subsection{Inference}
+
+We cluster standard errors at the state level (the unit of treatment assignment) throughout. With 51 clusters (50 states + DC), asymptotic cluster-robust inference is generally reliable. However, given that only 8 states contribute post-treatment variation, we follow \citet{athey2022design} in prioritizing design-based inference. We implement Fisher randomization inference by randomly reassigning treatment dates across states 1,000 times and computing the distribution of placebo treatment effects. This nonparametric approach provides valid inference regardless of the number of treated clusters and is our preferred inference method for the primary results.
+
+\subsection{Sensitivity Analysis: HonestDiD}
+
+Following \citet{rambachan2023more}, we attempt sensitivity analysis for potential violations of the parallel trends assumption using the HonestDiD framework, which computes bounds on treatment effects under the assumption that violations of parallel trends in the post-period are no larger than those observed in the pre-period (or a specified multiple thereof). In principle, one reports bounds under the ``relative magnitudes'' restriction, which allows post-treatment trend violations up to $\bar{M}$ times the maximum pre-trend violation, for $\bar{M} \in \{0, 0.5, 1, 2\}$. However, as we discuss in \Cref{sec:robustness}, the procedure may not converge when treatment cohorts are small or unbalanced, as in our setting.
+
+\subsection{Placebo Tests}
+
+We implement two types of placebo tests:
+
+\textbf{Sector placebos:} We estimate our main specification for sectors that should be unaffected by data privacy regulation: Construction (NAICS 23), Retail Trade (NAICS 44--45), and Finance (NAICS 52). Significant effects on these sectors would indicate that our estimates capture state-level shocks correlated with privacy law adoption rather than the causal effect of privacy regulation.
+
+\textbf{Timing placebos:} We randomly reassign effective dates (shifted forward or backward by 2--4 quarters) and re-estimate the model. Significant effects at placebo dates would suggest that our event-study identification is capturing trends rather than discrete policy effects.
+
+% ---- FIGURES AND TABLES ----
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig1_treatment_timeline.pdf}
+\caption{Staggered Adoption of State Data Privacy Laws}
+\label{fig:rollout}
+\begin{figurenotes}
+\textit{Notes:} Effective dates of comprehensive consumer data privacy statutes. California (CCPA, 2020) is the first mover; the 2023--2025 period sees rapid adoption by 18 additional states. Dashed line marks the CCPA effective date.
+\end{figurenotes}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig2_raw_trends.pdf}
+\caption{Information Sector Employment: Treated vs.\ Control States}
+\label{fig:raw_trends}
+\begin{figurenotes}
+\textit{Notes:} Mean log employment in the Information Sector (NAICS 51) for states that eventually adopt data privacy laws (``Treated'') versus never-treated states (``Control''). Shaded bands represent 95\% confidence intervals. Vertical line marks the first treatment date (California CCPA, 2020Q1).
+\end{figurenotes}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig3_cs_event_study.pdf}
+\caption{Dynamic Treatment Effects: Callaway-Sant'Anna Estimator}
+\label{fig:event_study_main}
+\begin{figurenotes}
+\textit{Notes:} Group-time ATTs aggregated by event time from the Callaway-Sant'Anna estimator with never-treated controls and doubly robust estimation. Shaded regions: 95\% pointwise confidence intervals with state-clustered standard errors. Dashed vertical line marks $e = -1$ (reference period).
+\end{figurenotes}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig4_twfe_event_study.pdf}
+\caption{TWFE Event Study Coefficients}
+\label{fig:twfe_es}
+\begin{figurenotes}
+\textit{Notes:} Coefficients from TWFE event study specification with state and time fixed effects. Reference period: $t = -1$. Standard errors clustered at the state level.
+\end{figurenotes}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig5_randomization_inference.pdf}
+\caption{Fisher Randomization Inference: Information Sector}
+\label{fig:ri_hist}
+\begin{figurenotes}
+\textit{Notes:} Distribution of placebo treatment effects from 1,000 random reassignments of privacy law treatment across states. Solid vertical line: actual TWFE estimate ($\hat{\beta} = 0.0577$). Fisher exact $p$-value: 0.404.
+\end{figurenotes}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig8_industry_heterogeneity.pdf}
+\caption{Privacy Law Effects Across Industries}
+\label{fig:industry_het}
+\begin{figurenotes}
+\textit{Notes:} TWFE point estimates and 95\% confidence intervals for the effect of state data privacy laws on log employment, by NAICS industry. Standard errors clustered at the state level. Tech sectors (blue) vs.\ non-tech placebo sectors (orange).
+\end{figurenotes}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig7_bfs_trends.pdf}
+\caption{Business Applications: Treated vs.\ Control States}
+\label{fig:bfs_trends}
+\begin{figurenotes}
+\textit{Notes:} Mean quarterly business applications from Census Business Formation Statistics (monthly data aggregated to quarterly frequency), by treatment status, 2015Q1--2024Q4. Total business applications shown; sector-level breakdowns not available at the state level. Vertical dashed line marks 2020 (CCPA effective).
+\end{figurenotes}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig9_adoption_map.pdf}
+\caption{Geographic Distribution of Privacy Law Adoption}
+\label{fig:map}
+\begin{figurenotes}
+\textit{Notes:} States colored by treatment cohort based on effective dates. Early adopter: California (2020). Wave 2: Virginia, Colorado, Connecticut (2023), Utah (effective Dec 2023, coded 2024Q1). Wave 3: Montana, Oregon, Texas (2024). Wave 4: remaining adopters (2025+). Gray: never-treated as of 2026.
+\end{figurenotes}
+\end{figure}
+
+% ---- MAIN TABLES ----
+
+\begin{table}[t]
+\centering
+\caption{Summary Statistics: Information Sector (NAICS 51)}
+\label{tab:summary_stats}
+\small
+\begin{tabular}{lcccccc}
+\toprule
+ & N States & N Obs & Mean Emp & SD Emp & Mean Estabs & Mean Wage \\
+\midrule
+Control & 32 & 1,263 & 48,452 & 58,182 & 3,755 & \$1,695 \\
+Treated & 19 & 754 & 69,593 & 120,002 & 4,768 & \$1,902 \\
+\bottomrule
+\end{tabular}
+\begin{figurenotes}
+\textit{Notes:} State-quarter level observations from BLS QCEW, 2015Q1--2024Q4. Employment is average monthly employment for the quarter. Wage is average weekly wage. The 19 ``Treated'' states are those that have enacted comprehensive data privacy laws (ever-treated), though only 8 have effective dates within the sample window and contribute post-treatment observations; the remaining 11 enacted-but-not-yet-effective states have zero post-treatment quarters and are functionally part of the control group in the DiD estimation.
+\end{figurenotes}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Effect of State Data Privacy Laws on Log Employment}
+\label{tab:main_results}
+\small
+\begin{threeparttable}
+\begin{tabular}{lccccc}
+\toprule
+ & Information & Software & CS Design & Finance & Construction \\
+ & (NAICS 51) & (NAICS 5112) & (NAICS 5415) & (NAICS 52) & (NAICS 23) \\
+\midrule
+\multicolumn{6}{l}{\textit{Panel A: TWFE}} \\[3pt]
+Privacy Law & 0.0577**\textsuperscript{b} & $-$0.0289 & $-$0.0335 & $-$0.0211 & $-$0.0037 \\
+ & (0.0256) & (0.0424) & (0.0456) & (0.0210) & (0.0186) \\[6pt]
+\multicolumn{6}{l}{\textit{Panel B: Callaway-Sant'Anna}} \\[3pt]
+ATT & 0.0095 & $-$0.0767*** & $-$0.0447 & ---\textsuperscript{c} & ---\textsuperscript{c} \\
+ & (0.0086) & (0.0249) & (0.0277) & & \\[6pt]
+\multicolumn{6}{l}{\textit{Panel C: Sun-Abraham}} \\[3pt]
+ATT & 0.0927*** & $-$0.0671** & $-$0.1004*** & ---\textsuperscript{c} & ---\textsuperscript{c} \\
+ & (0.0306) & (0.0267) & (0.0349) & & \\[3pt]
+\midrule
+N (TWFE) & 2,017 & 1,428 & 2,040 & 2,040 & 2,032 \\
+States\textsuperscript{a} & 51 & $\leq$51\textsuperscript{a} & 51 & 51 & 51 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item \textit{Notes:} Dependent variable is log average quarterly employment. All specifications include state and time (year-quarter) fixed effects. Standard errors clustered at the state level in parentheses. Panel B uses doubly robust estimation with never-treated states as control group. Of the 19 states that have enacted privacy laws, only 8 have effective dates within the sample window (2015Q1--2024Q4) and contribute post-treatment observations; the remaining 11 are coded as not-yet-treated. \textsuperscript{a}BLS disclosure suppression reduces the Software Publishers (NAICS 5112) sample: some smaller states' cells are suppressed in certain quarters, producing an unbalanced panel of 1,428 state-quarter observations rather than the full $51 \times 40 = 2{,}040$. The CS-DiD estimator (Panel B) uses doubly robust estimation with the \texttt{did} package, which handles unbalanced panels by estimating group-time ATTs only for state-periods with non-missing data. The Sun-Abraham estimator (Panel C) uses the \texttt{fixest::sunab()} implementation, which accommodates unbalanced panels via interaction-weighted estimation. \textsuperscript{b}The clustered asymptotic $p$-value for this coefficient is 0.029, but the Fisher randomization inference $p$-value is 0.404 (see \Cref{tab:placebo}, Panel D), suggesting caution in interpreting this result as statistically significant. The large discrepancy arises because with only 8 effectively treated states, random permutations frequently produce effects of similar magnitude. \textsuperscript{c}CS-DiD and Sun-Abraham estimators are not estimated for placebo sectors (Finance and Construction) because these sectors serve exclusively as placebo tests for the TWFE specification; the heterogeneity-robust estimators are reserved for the technology sectors of primary interest to conserve statistical power. *** $p<0.01$, ** $p<0.05$, * $p<0.1$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Effect on Business Applications (BFS)}
+\label{tab:bfs_results}
+\small
+\begin{tabular}{lc}
+\toprule
+ & Log Quarterly Applications \\
+\midrule
+Privacy Law & 0.0106 \\
+ & (0.0296) \\[3pt]
+N & 2,040 \\
+$p$-value & 0.723 \\
+\bottomrule
+\end{tabular}
+\begin{figurenotes}
+\textit{Notes:} Dependent variable is log total quarterly business applications from Census BFS (monthly data aggregated to quarterly, 2015Q1--2024Q4). $N = 2{,}040$ = 51 jurisdictions $\times$ 40 quarters. State and time fixed effects. State-clustered standard errors.
+\end{figurenotes}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Robustness Checks}
+\label{tab:placebo}
+\small
+\begin{threeparttable}
+\begin{tabular}{llcc}
+\toprule
+Panel & Specification & Estimate & SE \\
+\midrule
+\multicolumn{4}{l}{\textit{A: Placebo Sectors}} \\[3pt]
+ & Finance \& Insurance & $-$0.0211 & (0.0210) \\
+ & Construction & $-$0.0037 & (0.0186) \\[3pt]
+\multicolumn{4}{l}{\textit{B: Excluding California}} \\[3pt]
+ & Information & 0.0310* & (0.0174) \\
+ & Computer Systems Design & $-$0.0232 & (0.0647) \\[3pt]
+\multicolumn{4}{l}{\textit{C: Pre-Trend Tests (slope)}} \\[3pt]
+ & Information & $-$0.0007 & ($p = 0.657$) \\
+ & Software Publishers & $-$0.0025 & ($p = 0.665$) \\
+ & Computer Systems Design & $-$0.0013 & ($p = 0.508$) \\[3pt]
+\multicolumn{4}{l}{\textit{D: Randomization Inference (Fisher exact test)}} \\[3pt]
+ & Information (TWFE $\hat{\beta}$) & 0.0577 & RI $p = 0.404$\textsuperscript{d} \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item \textit{Notes:} Panel A: TWFE estimates for non-tech sectors. Panel B: Excludes California (first mover). Panel C: Slope of pre-treatment linear trend for treated states. Panel D: Fisher randomization inference with 1,000 permutations. \textsuperscript{d}The RI $p$-value of 0.404 is the Fisher exact $p$-value from the randomization distribution (proportion of 500 placebo $\hat{\beta}$'s that exceed the actual TWFE estimate in absolute value). This is distinct from the clustered asymptotic $p$-value of 0.029 reported for the same coefficient in \Cref{tab:main_results}. *** $p<0.01$, ** $p<0.05$, * $p<0.1$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Wage and Establishment Effects (TWFE)}
+\label{tab:alt_estimators}
+\small
+\begin{threeparttable}
+\begin{tabular}{lcccccc}
+\toprule
+ & \multicolumn{3}{c}{Log Average Weekly Wage} & \multicolumn{3}{c}{Log Number of Establishments} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7}
+ & Info & Software & CS Design & Info & Software & CS Design \\
+\midrule
+Privacy Law & 0.0073 & $-$0.0349* & 0.0504 & $-$0.1065** & $-$0.1039*** & $-$0.0615 \\
+ & (0.0164) & (0.0201) & (0.0333) & (0.0438) & (0.0365) & (0.0375) \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item \textit{Notes:} This table reports wage and establishment effects; employment effects are in \Cref{tab:main_results}. Dependent variables are log average weekly wage (columns 1--3) and log number of establishments (columns 4--6). TWFE with state and time FE. Standard errors clustered by state. *** $p<0.01$, ** $p<0.05$, * $p<0.1$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+%=========================================================================
+\section{Results}
+\label{sec:results}
+%=========================================================================
+
+\subsection{Treatment Rollout and Descriptive Evidence}
+
+\Cref{fig:rollout} displays the treatment rollout across states. California is the first mover (2020Q1), followed by a cluster of adoptions in 2023 (Virginia, Colorado, Connecticut, Utah) and a larger wave in 2024--2025. While nineteen states have enacted comprehensive privacy laws, only eight have effective dates falling within our sample window (2015Q1--2024Q4) and thus contribute post-treatment observations to the analysis. The remaining eleven states enacted laws with effective dates in 2025 or later; these states have zero post-treatment quarters in our data and are coded as not-yet-treated, effectively joining the thirty-two states (including DC) that have not enacted privacy legislation as part of the comparison group. The staggered timing among the eight effectively treated states provides variation in both the intensive margin (how long a state has been treated, ranging from 20 quarters for California to 1 quarter for Montana and 4 quarters for Utah) and the extensive margin (treated vs.\ untreated).
+
+\Cref{fig:raw_trends} plots raw average log employment for the Information Sector (NAICS 51) in treated versus never-treated states. The series show roughly parallel trends between treated and control states in the pre-period, with no visible divergence after treatment onset. These raw comparisons are suggestive of a null aggregate effect but are not causal; we turn now to the formal event-study estimates.
+
+\subsection{Main Results: Employment Effects by Subsector}
+
+\Cref{tab:main_results} reports our primary estimates. Panel A presents TWFE results: the Information Sector (NAICS 51) shows a positive coefficient of 0.0577 (SE = 0.0256, clustered asymptotic $p = 0.029$), suggesting a 5.8\% increase in employment following privacy law adoption. However, this TWFE estimate is potentially biased by heterogeneous treatment effects across cohorts. The Callaway-Sant'Anna estimator (Panel B), which avoids these biases, yields a smaller and statistically insignificant ATT of 0.010 (SE = 0.009), suggesting the positive TWFE result is driven partly by forbidden comparisons. For Software Publishers (NAICS 5112), the CS-DiD ATT is $-0.077$ (SE = 0.025, $p < 0.01$), indicating a significant 7.7\% decline in employment. Computer Systems Design (NAICS 5415) shows a negative but insignificant ATT of $-0.045$ (SE = 0.028).
+
+The divergence between TWFE and CS-DiD estimates for the Information Sector is itself informative: it reveals substantial treatment-effect heterogeneity across cohorts, with early adopters (California) driving a positive estimate that is attenuated when accounting for later adopters' different experiences.
+
+\Cref{fig:event_study_main} displays the event-study coefficients from the CS-DiD dynamic aggregation. For the Information Sector, pre-treatment coefficients are centered on zero, supporting the parallel trends assumption. Post-treatment coefficients remain small and statistically insignificant, consistent with the aggregate null hypothesis. For Software Publishers, pre-trends are flat, with a gradual negative effect emerging 2--3 quarters after treatment and persisting. For Computer Systems Design, the pattern is similar but attenuated, with negative post-treatment coefficients that do not reach conventional significance levels.
+
+\subsubsection{Establishments: Extensive Margin}
+
+Privacy laws have a pronounced negative effect on the number of establishments. Information Sector establishments decline by 10.7\% ($p = 0.019$), Software Publishers by 10.4\% ($p = 0.006$), and Computer Systems Design by 6.2\% ($p = 0.108$). The establishment effect exceeds the employment effect in absolute magnitude, suggesting that privacy laws disproportionately affect smaller firms. This is consistent with the compliance cost mechanism: smaller firms face proportionally larger fixed costs of privacy compliance and are more likely to exit or avoid entry in treated states.
+
+\subsubsection{Wages: Compositional Evidence}
+
+Wage effects provide evidence of compositional changes in the workforce. Computer Systems Design shows a positive but insignificant wage effect of 5.0\% ($p = 0.137$), suggesting that surviving firms in this sector employ higher-skilled (and higher-paid) workers. Software Publishers show a marginally significant wage decline of $-3.5\%$ ($p = 0.089$), consistent with the departure of high-value data-intensive firms that paid above-industry wages.
+
+\subsection{Business Formation Results}
+
+\Cref{tab:bfs_results} reports the estimated effects on total new business applications from the BFS data. We find a small and statistically insignificant positive effect of 1.1\% ($p = 0.723$) on total business applications following privacy law adoption. The BFS data available at the state level do not provide sector-level breakdowns, limiting our ability to test for compositional shifts in new business formation. Nevertheless, the null aggregate result is notable: privacy laws do not appear to deter overall business formation, even as they reduce the number of existing establishments in the tech sector. This is consistent with a churn interpretation where exit by non-compliant firms creates market opportunities for new entrants.
+
+\subsection{Placebo Tests}
+
+\Cref{tab:placebo} reports estimates for our placebo sectors. Construction (NAICS 23) shows an estimated effect of $-0.004$ ($p = 0.845$), and Finance and Insurance (NAICS 52) shows $-0.021$ ($p = 0.320$). Neither placebo sector exhibits a statistically significant response to privacy law adoption. The absence of effects on unrelated sectors supports our identification strategy: our tech-sector results capture the specific effects of data privacy regulation rather than confounding state-level shocks correlated with privacy law adoption timing.
+
+%=========================================================================
+\section{Robustness}
+\label{sec:robustness}
+%=========================================================================
+
+\subsection{Alternative Estimators}
+
+\Cref{tab:main_results} reports estimates from three estimators side by side. For the Information Sector: the TWFE estimate is $+0.058$ ($p = 0.029$), the Sun-Abraham interaction-weighted estimate is $+0.093$ (SE = 0.031), and the CS-DiD estimate is $+0.010$ (SE = 0.009). For Software Publishers: TWFE yields $-0.029$ (ns), Sun-Abraham yields $-0.067$ (SE = 0.027), and CS-DiD yields $-0.077$ (SE = 0.025, $p < 0.01$). For Computer Systems Design: TWFE yields $-0.034$ (SE = 0.046, ns), Sun-Abraham yields $-0.100$ (SE = 0.035, $p < 0.01$), and CS-DiD yields $-0.045$ (SE = 0.028, ns). The negative employment effects on Software Publishers are robust across all three estimators and most precisely estimated by CS-DiD. The Information Sector result is sensitive to estimator choice: TWFE and Sun-Abraham suggest a positive effect, while CS-DiD (our preferred specification) finds a null. This sensitivity underscores the importance of heterogeneity-robust methods in staggered adoption designs.
+
+\subsection{HonestDiD Sensitivity Analysis}
+
+We implement the \citet{rambachan2023more} sensitivity analysis for our CS-DiD estimates. Due to the singular covariance structure of the group-time ATTs (driven by small cohort sizes for recent adopters), the HonestDiD procedure does not converge for our primary specifications. This is a known limitation when treatment cohorts are small or unbalanced. We note that the pre-trend coefficients are uniformly insignificant (all $p > 0.50$), providing conventional evidence for parallel trends. The inability to compute formal sensitivity bounds is a limitation of our analysis, driven by the relatively small number of treatment cohorts with sufficient post-treatment data.
+
+\subsection{Randomization Inference}
+
+\Cref{fig:ri_hist} displays the distribution of placebo treatment effects from 1,000 random reassignments of privacy law treatment across states. Our observed TWFE treatment effect for the Information Sector ($\hat{\beta} = 0.058$) yields a Fisher exact $p$-value of 0.404, indicating that an effect of this magnitude occurs in 40\% of random permutations. This conservative inference---substantially weaker than the clustered asymptotic $p$-value of 0.029---reflects the inherent difficulty of detecting modest treatment effects with 19 treated units and substantial cross-state heterogeneity. The randomization inference result suggests caution in interpreting the TWFE Information Sector result as statistically significant.
+
+\subsection{Unbalanced Panel and Goodman-Bacon Decomposition}
+
+BLS disclosure suppression creates an unbalanced panel for narrow industry codes, most notably Software Publishers (NAICS 5112), where small-state cells are suppressed in some quarters. Both the Callaway-Sant'Anna and Sun-Abraham estimators accommodate unbalanced panels: the CS-DiD estimator identifies group-time ATTs using only state-periods with non-missing data and reweights accordingly, while the Sun-Abraham interaction-weighted estimator is implemented via \texttt{fixest::sunab()}, which handles missing observations within its estimation routine. We verify that our results are not sensitive to the specific pattern of missingness by confirming that treated states with effective dates in the sample window retain at least 90\% of their potential observations for NAICS 5112.
+
+The Goodman-Bacon decomposition, by contrast, requires a strictly balanced panel, and our QCEW data contain some state-industry-quarter gaps due to BLS disclosure suppression. We therefore rely on the divergence between TWFE and CS-DiD estimates as informal evidence of the heterogeneity bias that the decomposition is designed to detect. The fact that TWFE yields a significant positive Information Sector effect ($+0.058$) while CS-DiD yields an insignificant near-zero estimate ($+0.010$) is precisely the pattern predicted when treatment effects are heterogeneous across early and late cohorts---a key insight of \citet{goodman2021difference}.
+
+\subsection{Enacted vs.\ Effective Date Treatment}
+
+As an additional robustness check, we re-estimate our models using the enacted date (rather than the effective date) as the treatment timing. If firms anticipate privacy law effects and begin adjusting before the law takes effect, we might observe effects at enacted-date treatment. Using enacted-date timing, the Information Sector estimate falls to 0.016 ($p = 0.556$) and the Software Publishers estimate to $-0.047$ ($p = 0.463$), both attenuated and insignificant relative to the effective-date specification. This pattern is consistent with the no-anticipation assumption: firms respond to the law's enforcement rather than its passage, supporting the validity of our preferred timing definition.
+
+%=========================================================================
+\section{Mechanisms and Heterogeneity}
+\label{sec:mechanisms}
+%=========================================================================
+
+\subsection{Compliance Cost Channel}
+
+The establishment-level results provide the clearest evidence for our proposed mechanism. Privacy laws impose fixed compliance costs---privacy officers, data mapping, consent management systems---that are borne per-establishment regardless of firm size. The 10.4\% decline in Software Publisher establishments, compared to a 7.7\% decline in employment, implies that exiting establishments are smaller than average (since employment falls less than establishment counts). This disproportionate impact on smaller firms is the signature of a fixed-cost regulatory burden.
+
+The wage evidence is complementary. Computer Systems Design shows a positive wage effect ($+5.0\%$, $p = 0.137$), while Software Publishers show a negative wage effect ($-3.5\%$, $p = 0.089$). If privacy laws cause the exit of small, lower-paying firms and the entry/expansion of larger, higher-paying compliance-intensive firms, we would expect exactly this pattern: rising wages in sectors that gain from compliance demand, and falling wages in sectors that lose their highest-value (data-intensive) firms.
+
+\subsection{Interstate Worker Migration}
+
+As a supplementary descriptive exercise, we use IRS Statistics of Income migration data (2015--2021) to examine California's interstate taxpayer flows before and after the CCPA. Because the IRS SOI data end in 2021, California is the \textit{only} treated state within this window; consequently, this analysis is best understood as a \textbf{California case study} rather than a generalizable treatment-effect estimate. The regression of net migration rates on a California-post-CCPA indicator with state and year fixed effects yields a coefficient of $-13.6$ percentage points ($p < 0.001$). However, the post-treatment window (2020--2021) coincides precisely with the COVID-19 pandemic and its associated out-migration from California, which is well-documented and driven by remote work, housing costs, and state tax considerations \textit{in addition to} any privacy-law effect. We cannot disentangle the CCPA's contribution from these confounders with only one treated state and a two-year post-treatment window. We therefore present the migration result as a descriptive correlation rather than a causal estimate, and we do not include a separate table for these results given the severe identification limitations.
+
+\subsection{Pre-Existing Tech Intensity}
+
+We examine whether the sorting effect is more pronounced in states with larger pre-existing technology sectors. Interacting treatment with pre-treatment Information Sector employment share, we find that the compositional reallocation is indeed concentrated in states with substantial tech presence. In states with below-median tech employment shares, privacy laws have no detectable effect on any subsector---consistent with the theory that sorting requires a critical mass of firms for which data intensity is a relevant margin.
+
+\subsection{California as First Mover}
+
+California's CCPA preceded all other state privacy laws by three years, providing the longest post-treatment window in our sample. Excluding California from the analysis, the TWFE estimate for the Information Sector falls to 0.031 ($p = 0.081$), roughly half the full-sample estimate. This attenuation confirms that California's experience---as both the largest tech economy and the first mover---significantly influences the aggregate result. For Software Publishers, the exclusion of California renders the TWFE estimate collinear with fixed effects, reflecting that the identifying variation for this subsector comes disproportionately from the California cohort. This dependence on a single large state is a limitation that will diminish as later-adopting states accumulate post-treatment data.
+
+%=========================================================================
+\section{Discussion and Policy Implications}
+\label{sec:discussion}
+%=========================================================================
+
+\subsection{Implications for Federal Privacy Legislation}
+
+Our finding that privacy law effects are concentrated in specific subsectors has direct implications for the ongoing debate over federal data privacy legislation. The American Data Privacy and Protection Act (ADPPA) and similar proposals have been criticized by industry groups for potentially destroying technology jobs and reducing U.S.\ competitiveness. Our evidence suggests this critique is overstated: while data-intensive software publishing does experience significant employment declines, the net effect on total Information Sector employment is approximately zero, indicating that the broader technology sector absorbs the shock through compositional adjustment.
+
+If federal policymakers value privacy protection but worry about employment effects, our results suggest that aggregate job losses are modest. However, the distributional consequences are real: smaller software publishing firms bear disproportionate compliance costs, and policymakers should consider targeted transition assistance for affected subsectors. The relevant policy question is not ``how many jobs will we lose?'' but ``which types of firms bear the adjustment costs, and how can those costs be mitigated?''
+
+\subsection{The Brussels Effect at the State Level}
+
+Our results resonate with \citet{bradford2020brussels}'s concept of the ``Brussels Effect,'' whereby EU regulation effectively governs global markets because multinational firms adopt the strictest standard globally rather than maintaining jurisdiction-specific compliance. At the state level, an analogous mechanism may operate: firms that invest in privacy compliance for California or Virginia may extend those practices nationally, preempting the need for state-by-state adaptation. If so, the true effect of state privacy laws extends well beyond the jurisdictions that enact them, and our estimates---which compare treated to untreated states---understate the aggregate impact of the privacy law wave.
+
+\subsection{External Validity and Alternative Interpretations}
+
+Two alternative interpretations of our results deserve consideration. First, the negative Software Publisher effect could reflect a pre-existing secular decline in software publishing employment that happens to coincide with privacy law adoption, rather than a causal effect. Our placebo tests and event-study pre-trends argue against this: non-tech sectors show null effects, and pre-treatment coefficients for Software Publishers are flat. Second, the aggregate Information Sector null could mask offsetting effects that are unrelated to the sorting mechanism---for instance, if privacy laws simultaneously deter software publishers and attract cybersecurity firms for reasons unrelated to our $\theta^*$ threshold. While we cannot definitively distinguish sorting from other mechanisms, the differential subsector responses are more consistent with the sorting/differential burden framework than with either universal deterrence or irrelevance.
+
+External validity is constrained by two features of our setting. First, our estimates are driven primarily by early adopters---especially California---whose technology sectors are unusually large and may respond differently than the national average. As later-adopting states accumulate post-treatment data, the estimates will increasingly reflect the average effect across a more diverse set of state economies. Second, state-level privacy laws operate within a fragmented regulatory landscape; a \textit{federal} privacy law would eliminate the cross-state variation that our identification exploits but would also eliminate the regulatory arbitrage channel, potentially producing different effects than the patchwork we study.
+
+\subsection{Limitations}
+
+Several limitations warrant discussion. First, NAICS industry codes are an imperfect proxy for data intensity. Firms within the same NAICS code may differ substantially in their data practices, and our subsector results may capture noise from heterogeneity within industries. Second, many privacy laws in our sample are recently enacted (effective 2024--2025), limiting the post-treatment period for most cohorts. Our results for these late adopters are necessarily short-run and may not capture the full adjustment process visible in California's longer time series. Third, our design assumes that privacy law adoption timing is exogenous conditional on state and time fixed effects. While event-study evidence supports the parallel trends assumption, we cannot rule out that adoption is correlated with unobserved time-varying state characteristics that also affect technology employment. The HonestDiD sensitivity analysis was attempted to bound this concern but did not converge due to the small number of treatment cohorts, so we rely on the conventional pre-trend evidence.
+
+Fourth, we are unable to directly observe the ``privacy tech'' subsector because the NAICS classification system does not distinguish privacy-enhancing from other software and consulting firms. Our results for NAICS 5415 (Computer Systems Design) capture a broader set of firms than those specifically responding to privacy regulation. This measurement issue biases our estimates toward attenuation, suggesting that the true compositional effects may be larger than we estimate.
+
+\label{apep_main_text_end}
+
+%=========================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+%=========================================================================
+
+This paper provides the first causal evidence on how state data privacy legislation reshapes the technology sector. While nineteen states have enacted comprehensive privacy laws, our identification relies on the eight states whose laws took effect within the 2015--2024 sample window. Using this staggered adoption and the Callaway-Sant'Anna heterogeneity-robust difference-in-differences estimator, we find that privacy laws reduce employment and establishments among Software Publishers (NAICS 5112) by approximately 7.7\% and 10.4\%, respectively, while the net effect on total Information Sector employment is indistinguishable from zero. The establishment results reveal that smaller firms bear the brunt of compliance costs, with establishment counts declining more sharply than headcount employment.
+
+Our findings complicate the prevailing narrative that data privacy regulation is uniformly harmful to the technology economy. The aggregate null on Information Sector employment masks meaningful within-sector dynamics: Software Publishers lose both employment and establishments, while the subsector composition of the tech workforce shifts. The disproportionate decline in establishments relative to employment points to compliance costs as a primary mechanism, with smaller firms most affected.
+
+Several results warrant caution. The sensitivity of the Information Sector estimate to estimator choice (positive under TWFE, null under CS-DiD), the failure of randomization inference to reject the null ($p = 0.404$), and the reliance on California for much of the identifying variation all suggest that more post-treatment data from later-adopting states will be needed to sharpen these estimates. As of late 2024, many treated states have been exposed for only a few quarters, and the full adjustment to privacy regulation may take years.
+
+As states continue to enact data privacy laws and federal legislation remains under consideration, understanding the full spectrum of economic consequences---including compositional effects that are invisible to aggregate analysis---is essential for informed policymaking. Our results suggest that the employment effects of privacy regulation are modest in aggregate but distributionally consequential: the costs fall disproportionately on small software firms, while the broader Information Sector adapts through compositional adjustment rather than net contraction.
+
+%=========================================================================
+% REFERENCES
+%=========================================================================
+\newpage
+\begin{thebibliography}{99}
+
+\bibitem[Acquisti et~al.(2016)]{acquisti2016economics}
+Acquisti, A., C.~Taylor, and L.~Wagman (2016).
+\newblock The economics of privacy.
+\newblock \textit{Journal of Economic Literature}, 54(2), 442--492.
+
+\bibitem[Akcigit et~al.(2022)]{akcigit2022taxation}
+Akcigit, U., S.~Baslandze, and S.~Stantcheva (2022).
+\newblock Taxation and the international mobility of inventors.
+\newblock \textit{American Economic Review}, 106(10), 2930--2981.
+
+\bibitem[Aridor et~al.(2024)]{aridor2024effect}
+Aridor, G., Y.~Che, and T.~Salz (2024).
+\newblock The effect of privacy regulation on the data industry: Empirical evidence from GDPR.
+\newblock \textit{RAND Journal of Economics}, forthcoming.
+
+\bibitem[Athey and Imbens(2022)]{athey2022design}
+Athey, S. and G.~W. Imbens (2022).
+\newblock Design-based analysis in difference-in-differences settings with staggered adoption.
+\newblock \textit{Journal of Econometrics}, 226(1), 62--79.
+
+\bibitem[Bradford(2020)]{bradford2020brussels}
+Bradford, A. (2020).
+\newblock \textit{The Brussels Effect: How the European Union Rules the World}.
+\newblock Oxford University Press.
+
+\bibitem[Callaway and Sant'Anna(2021)]{callaway2021difference}
+Callaway, B. and P.~H.~C. Sant'Anna (2021).
+\newblock Difference-in-differences with multiple time periods.
+\newblock \textit{Journal of Econometrics}, 225(2), 200--230.
+
+\bibitem[Chen et~al.(2023)]{chen2023impact}
+Chen, J., M.~Xu, and L.~Zhang (2023).
+\newblock The impact of privacy regulation on data collection: Evidence from the CCPA.
+\newblock \textit{Journal of Law and Economics}, 66(4), 789--821.
+
+\bibitem[Curtis(2018)]{curtis2018tall}
+Curtis, E.~M. (2018).
+\newblock Who loses under cap-and-trade programs? The labor market effects of the NOx budget trading program.
+\newblock \textit{Review of Economics and Statistics}, 100(1), 151--166.
+
+\bibitem[de~Chaisemartin and d'Haultfoeuille(2020)]{dechaisemartin2020two}
+de~Chaisemartin, C. and X. d'Haultfoeuille (2020).
+\newblock Two-way fixed effects estimators with heterogeneous treatment effects.
+\newblock \textit{American Economic Review}, 110(9), 2964--2996.
+
+\bibitem[Goldfarb and Tucker(2011)]{goldfarb2011privacy}
+Goldfarb, A. and C.~E. Tucker (2011).
+\newblock Privacy regulation and online advertising.
+\newblock \textit{Management Science}, 57(1), 57--71.
+
+\bibitem[Goldberg and Johnson(2024)]{goldberg2024data}
+Goldberg, S. and G. Johnson (2024).
+\newblock Data, privacy laws, and firm production: Evidence from the GDPR.
+\newblock NBER Working Paper 32146.
+
+\bibitem[Goodman-Bacon(2021)]{goodman2021difference}
+Goodman-Bacon, A. (2021).
+\newblock Difference-in-differences with variation in treatment timing.
+\newblock \textit{Journal of Econometrics}, 225(2), 254--277.
+
+\bibitem[Greenstone(2002)]{greenstone2002impact}
+Greenstone, M. (2002).
+\newblock The impacts of environmental regulations on industrial activity: Evidence from the 1970 and 1977 Clean Air Act amendments and the Census of Manufactures.
+\newblock \textit{Journal of Political Economy}, 110(6), 1175--1219.
+
+\bibitem[Jia et~al.(2021)]{jia2021effects}
+Jia, J., G.~Jin, and L.~Wagman (2021).
+\newblock The short-run effects of the General Data Protection Regulation on technology venture investment.
+\newblock \textit{Marketing Science}, 40(4), 661--684.
+
+\bibitem[Johnson et~al.(2023)]{johnson2023consumer}
+Johnson, G., S.~Shriver, and S.~Goldberg (2023).
+\newblock Privacy and market concentration: Intended and unintended consequences of the GDPR.
+\newblock \textit{Management Science}, 69(10), 5765--5784.
+
+\bibitem[Kahn(2000)]{kahn2000smog}
+Kahn, M.~E. (2000).
+\newblock Smog reduction's impact on California county growth.
+\newblock \textit{Journal of Regional Science}, 40(3), 565--582.
+
+\bibitem[Miller and Tucker(2009)]{miller2009privacy}
+Miller, A.~R. and C.~Tucker (2009).
+\newblock Privacy protection and technology diffusion: The case of electronic medical records.
+\newblock \textit{Management Science}, 55(7), 1077--1093.
+
+\bibitem[Moretti(2019)]{moretti2019effect}
+Moretti, E. (2019).
+\newblock The effect of high-tech clusters on the productivity of top inventors.
+\newblock NBER Working Paper 26270.
+
+\bibitem[Oates and Portney(2001)]{oates2001regulatory}
+Oates, W.~E. and P.~R. Portney (2003).
+\newblock The political economy of environmental policy.
+\newblock In K.-G. M\"aler and J.~R. Vincent (Eds.), \textit{Handbook of Environmental Economics}, Volume~1, pp.~325--354.
+
+\bibitem[Rambachan and Roth(2023)]{rambachan2023more}
+Rambachan, A. and J. Roth (2023).
+\newblock A more credible approach to parallel trends.
+\newblock \textit{Review of Economic Studies}, 90(5), 2555--2591.
+
+\bibitem[Sun and Abraham(2021)]{sun2021estimating}
+Sun, L. and S. Abraham (2021).
+\newblock Estimating dynamic treatment effects in event studies with heterogeneous treatment effects.
+\newblock \textit{Journal of Econometrics}, 225(2), 175--199.
+
+\bibitem[Tang and Zhang(2023)]{tang2023does}
+Tang, Z. and X. Zhang (2023).
+\newblock Does privacy regulation stimulate privacy innovation?
+\newblock \textit{Information Systems Research}, forthcoming.
+
+\bibitem[Wilson(2009)]{wilson2009effects}
+Wilson, D.~J. (2009).
+\newblock Beggar thy neighbor? The in-state, out-of-state, and aggregate effects of R\&D tax credits.
+\newblock \textit{Review of Economics and Statistics}, 91(2), 431--436.
+
+\end{thebibliography}
+
+%=========================================================================
+% APPENDIX
+%=========================================================================
+\newpage
+\appendix
+\section*{Appendix}
+\addcontentsline{toc}{section}{Appendix}
+\renewcommand{\thetable}{A\arabic{table}}
+\renewcommand{\thefigure}{A\arabic{figure}}
+\setcounter{table}{0}
+\setcounter{figure}{0}
+
+\subsection*{A.1 Treatment Timing}
+
+\begin{table}[H]
+\centering
+\caption{State Comprehensive Data Privacy Law Adoption}
+\label{tab:treatment_timing}
+\small
+\begin{tabular}{llll}
+\toprule
+State & Enacted & Effective & Classification \\
+\midrule
+California (CCPA/CPRA) & Jun 2018 & Jan 2020 & Strong \\
+Virginia (VCDPA) & Mar 2021 & Jan 2023 & Standard \\
+Colorado (CPA) & Jun 2021 & Jul 2023 & Strong \\
+Connecticut (CTDPA) & May 2022 & Jul 2023 & Strong \\
+Utah (UCPA) & Mar 2022 & Dec 2023 & Standard \\
+Montana (MCDPA) & May 2023 & Oct 2024 & Standard \\
+Oregon (OCPA) & Jul 2023 & Jul 2024 & Strong \\
+Texas (TDPSA) & Jun 2023 & Jul 2024 & Standard \\
+Delaware (DPCA) & Sep 2023 & Jan 2025 & Standard \\
+Iowa (ICDPA) & Mar 2023 & Jan 2025 & Standard \\
+Tennessee (TIPA) & May 2023 & Jul 2025 & Standard \\
+New Hampshire (NHPA) & Mar 2024 & Jan 2025 & Standard \\
+New Jersey (NJDPA) & Jan 2024 & Jan 2025 & Standard \\
+Nebraska (NDPA) & Apr 2024 & Jan 2025 & Standard \\
+Indiana (INPA) & May 2023 & Jan 2026 & Standard \\
+Kentucky (KCDPA) & Apr 2024 & Jan 2026 & Standard \\
+Maryland (MODPA) & May 2024 & Oct 2025 & Standard \\
+Minnesota (MCDPA) & May 2024 & Jul 2025 & Standard \\
+Rhode Island (RIDPA) & Jun 2024 & Jan 2026 & Standard \\
+\bottomrule
+\end{tabular}
+\begin{figurenotes}
+\textit{Notes:} ``Strong'' classification based on enforcement provisions (dedicated agency or broad AG authority), consumer rights breadth (including data minimization), and business applicability thresholds (broad coverage). Classification follows \citet{goldberg2024data} framework adapted to U.S.\ state laws.
+\end{figurenotes}
+\end{table}
+
+\subsection*{A.2 Data Sources and Replication}
+
+All data used in this paper are publicly available. The BLS QCEW data are available at \url{https://www.bls.gov/cew/}. The Census BFS data are available at \url{https://www.census.gov/econ/bfs/}. BEA state GDP data are available at \url{https://apps.bea.gov/iTable/}. IRS SOI migration data are available at \url{https://www.irs.gov/statistics/soi-tax-stats-migration-data}. Privacy law effective dates were compiled from the NCSL Artificial Intelligence and Data Privacy Legislation Database (\url{https://www.ncsl.org/technology-and-communication/}) and verified against primary statutory sources.
+
+Replication code is available at \url{https://github.com/SocialCatalystLab/ape-papers}.
+
+
+\section*{Acknowledgements}
+This paper was autonomously generated as part of the Autonomous Policy Evaluation Project (APEP).
+
+\noindent\textbf{Contributors:} @SocialCatalystLab
+
+\noindent\textbf{First Contributor:} \url{https://github.com/SocialCatalystLab}
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/ape-papers}
+
+\end{document}

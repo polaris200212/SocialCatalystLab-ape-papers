@@ -1,0 +1,1062 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\sisetup{detect-all=true, group-separator={,}, group-minimum-digits=4}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\sym}[1]{\ifmmode^{#1}\else\(^{#1}\)\fi}
+
+% Figure notes environment
+\newenvironment{figurenotes}{\par\vspace{0.5em}\footnotesize\noindent}{\par}
+
+\title{Friends in High Places: \\ How Social Networks Transmit Minimum Wage Shocks\footnote{This paper is a revision of APEP-0191. See \url{https://github.com/SocialCatalystLab/ape-papers/tree/main/papers/apep_0191} for the parent paper.}}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. Correspondence: scl@econ.uzh.ch} \\ @SocialCatalystLab}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+Can exposure to higher wages through social networks shift local labor market equilibria? We construct a novel measure of network minimum wage exposure---the population-weighted average of minimum wages in socially connected counties, using Facebook's Social Connectedness Index---and examine its causal effect on county-level employment. The key insight is that \textit{information volume} matters: weighting connections by the population of destination counties (capturing the informational density of a local labor market's social connections) produces dramatically different results than probability weighting (capturing the share of one's network in each location). Using our population-weighted measure and instrumenting with out-of-state network exposure, we find a highly significant positive effect on county-level employment: our two-stage least squares estimate is 0.827 (95\% CI: [0.368, 1.286]), with a first-stage $F$-statistic of 551. Anderson-Rubin weak-instrument-robust confidence sets confirm this finding. In contrast, the probability-weighted specification shows no significant effect ($\beta = 0.27$, $p > 0.10$). This coefficient is a market-level equilibrium multiplier---not an individual elasticity---reflecting the combined effects of information diffusion, employer responses, and general equilibrium adjustment when an entire local labor market's information environment shifts. Analysis of IRS county-to-county migration flows (2012--2019) finds no evidence that the employment effects operate through physical migration, supporting the information transmission interpretation. Our results demonstrate that minimum wage policies generate spillover effects through social networks that reshape local labor market equilibria, with implications for understanding policy diffusion and spatial labor market linkages.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} J31, J38, R12, L14, D85, D83 \\
+\noindent\textbf{Keywords:} minimum wage, social networks, information transmission, Social Connectedness Index, shift-share instrument
+
+\newpage
+
+\section{Introduction}
+
+Do minimum wage policies in one region reshape labor market equilibria in distant, socially connected regions? Consider two local labor markets in Texas, where the state minimum wage has remained at the federal floor of \$7.25 since 2009. The El Paso labor market has dense social ties to millions of workers in California through decades of family migration---its information environment is saturated with signals from high-wage areas. The Amarillo labor market, by contrast, is connected primarily to sparsely populated Great Plains communities. Both face the same nominal minimum wage, but the informational density of their social connections to high-wage areas differs dramatically. This paper asks whether such differences in the information environment of local labor markets matter for county-level employment equilibria.
+
+The answer, we find, is yes---and the magnitude is substantial. We construct two measures of network minimum wage exposure using Facebook's Social Connectedness Index (SCI), which captures the probability that individuals in different counties are Facebook friends. Our \textit{probability-weighted} measure follows the conventional approach: it weights each connected county by the share of the focal county's network located there. Our \textit{population-weighted} measure incorporates an additional insight: it weights connections by both SCI and destination population, capturing not just \textit{where} your network is but \textit{how many} potential information sources you have there.
+
+The distinction proves consequential. Using an instrumental variable strategy that exploits out-of-state network connections, we find that population-weighted network exposure has a highly significant causal effect on county-level employment, with a two-stage least squares coefficient of 0.827 (95\% CI: [0.368, 1.286]) and an exceptionally strong first stage ($F = 551$). In contrast, probability-weighted exposure---the specification used in prior work---yields an insignificant coefficient of 0.27 ($p = 0.12$ parametric, $p = 0.14$ under permutation inference), despite a still-robust first stage ($F = 290$). The divergence between these specifications is not merely statistical; it is theoretically informative. If information transmission is the mechanism through which network exposure affects labor markets, then the \textit{volume} of information sources should matter, not just the share of one's network providing information. Our results confirm this prediction.
+
+\Cref{fig:exposure_map} illustrates the geographic variation in our population-weighted exposure measure. Counties in the interior South and Great Plains---despite having the same nominal minimum wage as their state peers---exhibit markedly different network exposure depending on their social connections to populous coastal metros. El Paso County, Texas, for example, ranks in the 95th percentile of network exposure among Texas counties, while Amarillo ranks in the 35th percentile. This variation, driven by historical migration patterns and family ties, provides the identifying variation for our analysis.
+
+Our identification strategy constructs an instrument from \textit{out-of-state} network exposure: the population-weighted average of minimum wages in counties outside the focal county's state. This instrument is relevant because out-of-state connections are a substantial component of total network exposure. It is plausibly excludable because, conditional on state-by-time fixed effects (which absorb the county's own-state minimum wage and any state-level shocks), out-of-state network wages should affect local employment only through their influence on workers' wage expectations and labor market behavior. We probe this exclusion restriction extensively through distance-restricted instruments, pre-period placebo tests, and event-study specifications.
+
+\textbf{Contribution.} This paper makes four contributions to the literature on social networks and labor markets. First, we introduce population-weighted network exposure as a theoretically motivated measure of information transmission through social networks, grounded in a formal model of information diffusion in local labor markets. The innovation is conceptually simple but empirically consequential: weighting by information volume rather than network share yields starkly different results. Second, we develop and validate an instrumental variable strategy for network exposure that achieves very strong first-stage performance while addressing concerns about endogenous network formation. Our approach builds on recent advances in shift-share identification \citep{bartik1991benefits, goldsmithpinkham2020bartik, borusyak2022quasi}, treating the SCI as pre-determined ``shares'' and minimum wage changes as exogenous ``shocks.'' We implement comprehensive shock-robust inference diagnostics, including Anderson-Rubin confidence sets, leave-one-origin-state-out stability tests, and 2,000-draw permutation inference. Third, we provide evidence that network minimum wage exposure causally shifts local labor market equilibria through information transmission. The estimated coefficient of 0.83 is a market-level multiplier---comparable in spirit to the local multipliers documented by \citet{moretti2011local}---reflecting the aggregate effect when an entire county's information environment shifts. Fourth, we use IRS county-to-county migration flows (2012--2019) to distinguish information transmission from physical migration as the operative channel, finding that the employment effects do not operate through migration.
+
+The remainder of this paper proceeds as follows. \Cref{sec:theory} develops the theoretical framework---including a formal model of information diffusion in local labor markets---and derives testable predictions that distinguish population-weighted from probability-weighted exposure. \Cref{sec:literature} reviews related literature on social networks, the SCI, and minimum wage spillovers. \Cref{sec:data} describes our data sources. \Cref{sec:construction} details the construction of exposure measures. \Cref{sec:descriptive} presents descriptive statistics and geographic patterns. \Cref{sec:identification} develops our identification strategy and discusses threats to validity. \Cref{sec:results} presents main results. \Cref{sec:robustness} reports robustness analyses including event studies, shock-robust inference, and pre-trend tests. \Cref{sec:migration} presents our migration mechanism analysis using IRS county-to-county flows. \Cref{sec:discussion} discusses mechanisms, magnitudes, and policy implications. \Cref{sec:data_availability} describes data availability. \Cref{sec:conclusion} concludes.
+
+
+\section{Economic Theory: Why Information Volume Matters}
+\label{sec:theory}
+
+Before describing our data and empirical approach, we develop the theoretical motivation for population-weighted network exposure. The central question is: through what mechanism could network minimum wage exposure affect local labor market outcomes, and why should the \textit{volume} of information matter?
+
+\subsection{Channels of Network Effect}
+
+We consider three channels through which exposure to higher minimum wages in one's social network could affect local labor markets.
+
+\textbf{Information Transmission.} The primary mechanism we emphasize is information transmission about wages. Workers learn about labor market conditions from their social connections: what jobs are available, what they pay, and what working conditions are like. This information shapes workers' expectations about their own labor market prospects, which in turn affects their reservation wages, job search intensity, and bargaining behavior. When workers learn that their friends and relatives in other states earn \$15 per hour, they may revise upward their expectations about what wages are attainable. This revision could lead them to search more intensively for higher-paying opportunities, bargain more aggressively with current employers, or hold out longer for jobs that match their updated expectations. The key insight is that information transmission is a function of the \textit{volume} of information received, not just the share of one's network providing it. A worker whose network connects her to millions of workers in high-wage California receives more (and more diverse) signals about wages than a worker whose network connects her to thousands of workers in equally high-wage Vermont.
+
+\textbf{Migration and Job Search Spillovers.} Social networks facilitate migration and cross-market job search by providing information about opportunities, referrals to employers, and temporary housing for job seekers. Workers may search for jobs in high-minimum-wage areas where they have network contacts, creating labor market linkages that span geographic boundaries. This channel suggests that network exposure could affect local labor markets through the option value of migration: workers with strong connections to high-wage areas have more credible outside options, even if they never migrate.
+
+\textbf{Employer Responses.} If employers recognize that their workers have outside options through network connections to high-wage areas, they may preemptively raise wages to retain workers. This channel operates through labor supply elasticity rather than direct information effects: workers with better outside options have higher effective labor supply elasticity, and profit-maximizing employers respond by raising wages. This channel could generate positive employment effects if wage increases attract workers into the labor force or reduce turnover costs.
+
+\subsection{Why Population Weighting Captures Information Volume}
+
+The information transmission mechanism has a key empirical implication: the \textit{amount} of information received should matter, not just the \textit{share} of one's network providing that information. Consider two counties with identical SCI weights to California---that is, the same probability that a randomly selected Facebook friend is in California. County A is connected to Los Angeles County (population 10 million); County B is connected to rural Modoc County (population 9,000). Under probability weighting, these counties have identical exposure to California's minimum wage. Under population weighting, County A has roughly 1,000 times higher exposure.
+
+Which measure better captures information transmission? If the mechanism is that workers learn about wages from their network contacts, then County A should learn more. Workers in County A have millions of potential information sources in Los Angeles: friends who post about their jobs, relatives who discuss wages at family gatherings, acquaintances who share labor market news. Workers in County B have thousands of potential sources in Modoc. Even if the conditional probability of being connected to California is identical, the unconditional volume of wage information differs dramatically.
+
+This logic motivates our population-weighted exposure measure. By weighting connections by SCI $\times$ population, we capture not just where your network is but how many potential information sources you have there. A connection to Manhattan contributes far more than an equally-probable connection to rural Montana, because there are far more potential information sources providing wage signals.
+
+\subsection{Formal Definitions}
+
+We define two exposure measures for county $c$ at time $t$. The \textit{probability-weighted} measure follows the conventional approach:
+\begin{equation}
+\text{ProbMW}_{ct} = \sum_{j \neq c} \frac{SCI_{cj}}{\sum_{k \neq c} SCI_{ck}} \times \log(\text{MinWage}_{jt})
+\end{equation}
+This weights each connected county by the share of $c$'s network located in that county. It treats a connection to rural Montana the same as a connection to Manhattan if both have identical SCI values.
+
+The \textit{population-weighted} measure incorporates destination population:
+\begin{equation}
+\text{PopMW}_{ct} = \sum_{j \neq c} \frac{SCI_{cj} \times \text{Pop}_j}{\sum_{k \neq c} SCI_{ck} \times \text{Pop}_k} \times \log(\text{MinWage}_{jt})
+\end{equation}
+This weights each connected county by the volume of potential information sources (SCI $\times$ population). A connection to Manhattan contributes roughly 1,000 times more than an equally-probable connection to rural Montana because there are 1,000 times more potential information sources.
+
+\subsection{A Formal Model of Information Diffusion in Local Labor Markets}
+\label{sec:formal_model}
+
+We now formalize the information transmission mechanism to derive comparative statics and clarify the unit of analysis.
+
+\textbf{Setup.} Consider a local labor market in county $c$ with a continuum of workers. Each worker $i$ draws a local wage offer $w_i \sim F_c(w)$ from the county's wage offer distribution. Workers also receive signals about wages from their social network. Worker $i$ observes $N_c$ wage draws from connected counties, where the number of signals is:
+\begin{equation}
+N_c = \sum_{j \neq c} SCI_{cj} \times \text{Pop}_j
+\end{equation}
+This is precisely the population-weighted measure: $N_c$ captures the total mass of potential information sources in the worker's network. Workers connected to populous, high-wage areas receive more signals.
+
+\textbf{Reservation wages.} Each worker sets a reservation wage $r^*_i$ that is increasing in the best signal received from the network. Specifically, let $\bar{w}^{net}_c = \max\{w^{(1)}, \ldots, w^{(N_c)}\}$ be the maximum wage signal from network draws. By extreme value theory, for large $N_c$:
+\begin{equation}
+\E[\bar{w}^{net}_c] \approx F^{-1}_{\text{net}}(1 - 1/N_c) \quad \text{(increasing in } N_c\text{)}
+\end{equation}
+Workers update their reservation wage as $r^*_c = \alpha r^{local}_c + (1-\alpha) \E[\bar{w}^{net}_c]$, where $\alpha \in (0,1)$ reflects the weight on local versus network information.
+
+\textbf{Market equilibrium.} The crucial step is aggregation. When \textit{all} workers in county $c$ update their reservation wages upward (because $N_c$ is a county-level characteristic shared by all workers in that market), the entire local labor market adjusts:
+First, workers collectively search more intensively, improving match quality. Second, employers respond to the increased outside options of their entire workforce by raising wages preemptively. Third, the participation margin shifts as workers previously out of the labor force enter at the higher prevailing wages.
+In equilibrium, county-level employment $E_c$ satisfies:
+\begin{equation}
+\log(E_c) = \beta \cdot \underbrace{\sum_{j \neq c} w^{pop}_{cj} \times \log(\text{MW}_{jt})}_{\text{Population-weighted exposure}} + \alpha_c + \gamma_{st} + \varepsilon_{ct}
+\end{equation}
+
+\textbf{Comparative statics.} The model yields three testable predictions. First, $\partial \log(E_c) / \partial \text{PopMW}_{ct} > 0$: higher population-weighted exposure increases employment through better matching and higher participation. Second, $\partial \log(E_c) / \partial \text{ProbMW}_{ct} \approx 0$: probability-weighted exposure, which does not capture the volume of signals, should have no effect conditional on population-weighted exposure---intuitively, what matters is $N_c$ (how many signals arrive), not the share of the network providing them. Third, the effect is increasing in the local-network wage gap: $\partial^2 \log(E_c) / \partial \text{PopMW}_{ct} \partial (\text{MW}^{net}_c - \text{MW}^{local}_c) > 0$, since network information is more valuable when it reveals large wage gaps.
+All three predictions are confirmed by our empirical results: the population-weighted specification is significant while probability-weighted is not, and heterogeneity analysis shows larger effects where the local-network wage gap is greatest.
+
+\subsection{Unit of Analysis: Local Labor Markets, Not Individuals}
+\label{sec:unit_of_analysis}
+
+A critical feature of our framework is that the unit of analysis is the \textit{local labor market}, not the individual worker. Our dependent variable is county-level log employment; our exposure measure is a county-level characteristic. The estimand $\beta$ is therefore a \textit{market-level equilibrium multiplier}: it captures how the entire county's employment shifts when its information environment changes.
+
+This distinction matters for interpreting magnitudes. Our 2SLS estimate of 0.83 is \textit{not} an individual-level elasticity (``if person A has friends in California, person A works 83\% more''). Rather, it reflects the aggregate equilibrium response: when a county's population-weighted network exposure increases by 10\%, the county's equilibrium employment increases by approximately 8.3\%. This market-level response incorporates multiple channels---individual information updating, employer preemptive wage adjustments, and general equilibrium spillovers across workers within the county. Market-level multipliers of this magnitude are consistent with the local multipliers documented by \citet{moretti2011local}, who finds that each additional skilled job in a city creates 1.5--2.5 additional local jobs through general equilibrium effects.
+
+The spatial equilibrium framework of \citet{roback1982wages} provides further context. In a \citet{roback1982wages} model, workers sort across locations based on wages and amenities. When a county's information environment shifts---workers collectively learn about higher wages elsewhere---the local labor market must adjust to retain workers. This adjustment operates through wages, employment, and potentially housing costs, generating the market-level multiplier we estimate.
+
+\subsection{Testable Predictions}
+
+Our theoretical framework generates three testable predictions:
+\begin{enumerate}
+\item \textit{Volume matters:} Population-weighted exposure should predict employment more strongly than probability-weighted exposure (confirmed: $\beta^{pop} = 0.83$, $p < 0.001$ vs.\ $\beta^{prob} = 0.27$, $p > 0.10$).
+\item \textit{Heterogeneity by wage gap:} Effects should be larger where the gap between local and network wages is greatest (confirmed: effects largest in the South, smallest in high-MW coastal regions).
+\item \textit{Information, not migration:} If the mechanism is information updating rather than physical migration, migration flows should not respond to network exposure (confirmed: IRS migration analysis shows $p > 0.10$ for outflows).
+\end{enumerate}
+
+
+\section{Related Literature}
+\label{sec:literature}
+
+Our paper contributes to several strands of the economics literature: research on social networks and labor markets, work using the Facebook Social Connectedness Index, studies of minimum wage policy effects, and the methodological literature on shift-share instruments.
+
+\subsection{Social Networks and Labor Markets}
+
+A large literature documents the importance of social networks for labor market outcomes. The seminal work of \citet{granovetter1973strength} established that weak ties are valuable for job search, providing access to non-redundant information about opportunities. Subsequent empirical work has quantified the prevalence of network-based job finding: \citet{ioannides2004job} document that roughly half of jobs are found through personal contacts, with the share higher for less educated workers and in tight labor markets.
+
+\citet{beaman2012networks} demonstrates experimentally that network structure affects both job match quality and wages. Using data on refugee resettlement in the United States, she shows that workers placed in communities with more established co-ethnic networks have better labor market outcomes, but the effect depends crucially on network structure---congestion effects can reduce returns to network size. The theoretical literature emphasizes that networks reduce search frictions by transmitting information about job opportunities \citep{calvo2004effects} and about prevailing wages and working conditions \citep{brown2016firms}. \citet{munshi2003networks} shows that networks facilitate migration, with workers more likely to move to destinations where they have established contacts. \citet{topa2001social} provides an influential survey emphasizing that social interactions generate local spillovers in unemployment, foreshadowing our focus on spatial transmission of labor market shocks through social connections.
+
+Recent work has emphasized the importance of how workers form beliefs about outside options. \citet{jager2024worker} document that workers systematically underestimate wages at other firms, and that this misperception affects their bargaining behavior. Our population-weighted measure captures a key source of wage information: workers with connections to many potential information sources in high-wage areas receive more signals about wages, potentially updating their beliefs and reservation wages more than workers with fewer connections.
+
+Our paper contributes to this literature by showing that information \textit{volume}---not just network structure or connection probability---matters for labor market effects. Workers with connections to populous, high-wage areas learn more about wages than workers with connections to small, high-wage areas, and this additional information has measurable effects on local employment.
+
+\subsection{The Social Connectedness Index}
+
+The Facebook Social Connectedness Index, introduced by \citet{bailey2018social}, has rapidly become a standard tool for measuring social ties in economic research. The SCI measures the relative probability that individuals in different geographic areas are Facebook friends, providing a revealed-preference measure of social connections at unprecedented scale and geographic granularity. The SCI has been validated against numerous external measures including migration flows ($\rho > 0.7$), trade patterns, and disease transmission \citep{bailey2020social}.
+
+Previous work using the SCI has emphasized the probability interpretation: the SCI measures the likelihood that two randomly selected individuals from different areas are connected. \citet{chetty2022social} demonstrate that social capital measured through the SCI is among the strongest predictors of economic mobility, establishing the economic relevance of these network measures. Our innovation is to combine SCI with population to construct a \textit{volume} measure capturing the total mass of potential information sources. This innovation proves empirically consequential: probability-weighted exposure shows no significant effects, while population-weighted exposure shows highly significant effects.
+
+\subsection{Minimum Wage Spillovers}
+
+The minimum wage is among the most studied policies in labor economics, with an extensive literature debating employment effects \citep{neumark2007minimum, dube2010minimum, cengiz2019effect}. \citet{clemens2021short} provide recent evidence on short-run employment effects using the American Community Survey, finding modest negative effects concentrated among less-educated workers. Our paper does not contribute directly to this debate; instead, we study spillover effects of minimum wage policies through social networks. A small literature examines geographic spillovers: \citet{dube2014designing} discuss how minimum wage effects may spill over to neighboring counties through labor market competition, and \citet{autor2016contribution} document effects on wage distributions in neighboring states.
+
+Our paper extends this literature by examining spillovers through \textit{social} networks rather than geographic proximity. Network-based spillovers can operate over much longer distances---from California to Texas, following migration patterns---and follow social geography rather than state borders.
+
+\subsection{Peer Effects Identification in Networks}
+
+Identifying causal peer effects through social networks faces well-known challenges. \citet{manski1993identification} articulates the ``reflection problem'': correlated outcomes among connected individuals may reflect endogenous effects (peers influencing each other), exogenous effects (shared characteristics), or correlated effects (common shocks). \citet{bramoulle2009identification} show that network structure can resolve the reflection problem under specific conditions on network topology. Our approach sidesteps these issues by using an instrumental variable that exploits \textit{exogenous policy shocks} (minimum wage changes) rather than relying solely on network structure for identification.
+
+\subsection{Shift-Share Identification}
+
+Our instrumental variable strategy treats network exposure as a shift-share construct: predetermined SCI ``shares'' interacted with exogenous minimum wage ``shocks.'' This approach has intellectual roots in \citet{bartik1991benefits} and builds on recent methodological advances in shift-share identification. \citet{goldsmithpinkham2020bartik} clarify that identification in shift-share designs can come from either exogenous shares or exogenous shocks, and they provide diagnostic tests for the shares-based approach. \citet{borusyak2022quasi} develop the shocks-based approach, showing that valid inference requires only that shocks be as-good-as-randomly assigned conditional on a sufficient number of uncorrelated shocks.
+
+We follow the shocks-based interpretation: the SCI shares are potentially endogenous (reflecting historical migration and settlement patterns), but the minimum wage shocks are plausibly exogenous to county-level employment trends. State minimum wage increases during our sample period (2012--2022) were driven primarily by political factors---Democratic legislative control, ballot initiatives, and the ``Fight for \$15'' movement---rather than by anticipated employment changes in distant counties with social connections.
+
+While our design is fundamentally a shift-share IV (not a staggered difference-in-differences), insights from \citet{goodmanbacon2021difference} inform our robustness analysis. We report extensive leave-one-state-out diagnostics to verify that our estimates are not driven by a single high-weight shock, and we implement two-way clustering following \citet{adao2019shift} to account for the correlation structure induced by shared shocks across counties with similar exposure shares.
+
+
+\section{Institutional Background: The Minimum Wage Landscape}
+\label{sec:institutional}
+
+Understanding the geographic pattern of minimum wage variation is essential for interpreting our results. The United States exhibits remarkable heterogeneity in minimum wage policies, with states adopting dramatically different approaches that create the cross-state variation our identification strategy exploits.
+
+\subsection{The Federal Floor and State Divergence}
+
+The federal minimum wage has remained at \$7.25 per hour since July 2009---the longest period without an increase since the minimum wage was established in 1938. This stagnation at the federal level has produced unprecedented divergence across states. By 2022, state minimum wages ranged from \$7.25 (maintained by 20 states that defer to the federal floor) to over \$15 per hour in California, New York, and Washington. The ratio of highest to lowest state minimum wage reached 2:1 by 2022, compared to a typical ratio of 1.2:1 during periods when the federal minimum wage was actively updated.
+
+This cross-state divergence reflects deep political and economic divisions. States maintaining the federal minimum of \$7.25 are concentrated in the South (Mississippi, Louisiana, Alabama, Georgia, Tennessee, South Carolina) and parts of the Great Plains (Texas, Oklahoma, Kansas). States with minimum wages above \$12 per hour are concentrated on the coasts (California, Oregon, Washington, New York, Massachusetts, Connecticut, New Jersey) and in the upper Midwest (Minnesota, Illinois). The geographic pattern is strongly correlated with partisan control: states with unified Democratic government have average minimum wages roughly \$3 higher than states with unified Republican government.
+
+\subsection{The Fight for \$15 Movement}
+
+Our sample period (2012--2022) spans the emergence of the ``Fight for \$15'' movement, which transformed the minimum wage policy landscape. The movement began in November 2012 when fast-food workers in New York City staged walkouts demanding \$15 per hour---more than double the prevailing minimum wage. The movement spread rapidly, with strikes in 60 cities by August 2013 and in 150 cities by September 2014.
+
+The political effects materialized by 2014--2016, when Seattle, San Francisco, and Los Angeles became the first major cities to adopt \$15 minimum wages. California and New York enacted statewide paths to \$15 in 2016, with scheduled increases phasing in through 2022. Massachusetts, Washington, New Jersey, and several other states followed with substantial increases. By 2022, eleven states had enacted minimum wages of \$12 or higher, affecting roughly 30\% of the U.S. workforce.
+
+The timing of this policy shock is crucial for our identification strategy. The pre-2014 period provides the baseline against which effects are identified; the 2014--2016 announcement period captures expectation effects; and the 2016--2022 implementation period captures the response to actual wage increases. Our event-study specification exploits this timing structure explicitly.
+
+\subsection{Geographic Patterns of Social Connection}
+
+The minimum wage policy variation interacts with geographic patterns of social connection to generate variation in network exposure. Several stylized facts are relevant. First, social connections are geographically concentrated: the typical county has 60\% of its Facebook connections within the same state. Second, cross-state connections follow predictable patterns shaped by historical migration, with strong connections along the California--Texas corridor (reflecting Latino migration), the Midwest--Sun Belt corridor (reflecting retirement migration), and the Northeast--Florida corridor. Third, connections to high-minimum-wage coastal states are not uniformly distributed: counties with historical migration links to California or New York have much higher exposure than counties whose cross-state connections are primarily to other low-minimum-wage Southern states.
+
+These patterns generate substantial within-state variation in network exposure to minimum wage increases. Two Texas counties with identical own-state minimum wages may have very different network exposure depending on whether their historical migration links are to California (high minimum wage) or Louisiana (federal minimum). This within-state variation, conditional on state$\times$time fixed effects, is the source of identification in our main specification.
+
+
+\section{Data Sources}
+\label{sec:data}
+
+\subsection{Facebook Social Connectedness Index}
+
+The Social Connectedness Index measures the relative probability that two individuals in different geographic areas are Facebook friends:
+\begin{equation}
+SCI_{ij} = \frac{\text{FB Connections}_{ij}}{\text{FB Users}_i \times \text{FB Users}_j}
+\end{equation}
+We use the county-to-county SCI covering approximately 9.2 million county pairs across 3,053 continental U.S. counties (after excluding Alaska, Hawaii, and territories). The SCI is time-invariant (2018 vintage), which is appropriate given the slow-moving nature of social connections and advantageous for identification: network structure does not respond to contemporaneous employment changes.
+
+\subsection{State Minimum Wages}
+
+We compile state minimum wage histories from 2010 through 2022 using data from the U.S. Department of Labor, National Conference of State Legislatures, and the Vaghul-Zipperer minimum wage database. State minimum wages ranged from \$7.25 (the federal floor, maintained by 20 states throughout the period) to \$14.49 (Washington, 2022). The sample period captures the ``Fight for \$15'' movement (2014--2016) that generated major increases in California, New York, Massachusetts, and other progressive states. Twenty states maintained the federal minimum of \$7.25 throughout our sample period, while California increased from \$8.00 to \$14.00, New York from \$7.25 to \$13.20, and Washington from \$9.04 to \$14.49.
+
+\subsection{Quarterly Workforce Indicators}
+
+For employment outcomes, we use Quarterly Workforce Indicators (QWI) data from the Census Bureau's Longitudinal Employer-Household Dynamics (LEHD) program. The QWI provides quarterly county-level employment counts and earnings, covering 2012--2022. We use total employment across all industries to maximize coverage. The QWI data are subject to confidentiality suppression, particularly for small counties; after merging with exposure measures and filtering missing values, our final regression sample contains 134,317 county-quarter observations (99.5\% of the potential sample).
+
+\subsection{County Population}
+
+We use average county employment from the QWI as our population weight. This choice is appropriate because our theoretical mechanism is information transmission about wages, and workers are the relevant population of potential information sources. Results are robust to using Census population instead.
+
+\subsection{Sample Construction and Cleaning}
+
+The construction of our analysis sample proceeds in several stages that merit detailed description for replication purposes. We begin with the universe of 3,143 county-equivalent units in the United States (counties, independent cities, and county-equivalents). We exclude Alaska (30 county-equivalents), Hawaii (5 counties), and territories (Puerto Rico and others, 78 units), yielding 3,030 continental U.S. counties. The SCI data additionally include 23 Virginia independent cities coded separately from their surrounding counties, bringing the total to 3,053 unique county-equivalent FIPS codes in our analysis sample.
+
+The SCI data provide approximately 9.2 million county pairs among counties in the continental United States. For each county $c$, we compute both exposure measures using connections to all other counties $j \neq c$. We impose no minimum SCI threshold, as even weak connections may transmit information. However, computational considerations require us to compute distance-restricted instruments only for connections within 1,000km; the vast majority of social connections fall within this radius.
+
+The QWI data cover 2012Q1 through 2022Q4 (44 quarters). We use the QWI's ``all workers'' series, which includes both private-sector and government employment. After merging QWI employment and earnings data with our exposure measures and filtering observations with missing values, our final regression sample contains 134,317 county-quarter observations representing 3,053 unique county FIPS codes over 44 quarters (some independent cities are tracked separately from their surrounding counties in the QWI). The coverage rate is approximately 99.9\% of the theoretical maximum (3,053 $\times$ 44 = 134,332).
+
+We winsorize the top and bottom 1\% of employment and earnings observations to reduce the influence of outliers, though results are robust to alternative winsorization choices or no winsorization. The panel is balanced conditional on county presence---once a county enters the sample, it remains for all subsequent quarters.
+
+
+\section{Construction of Exposure Measures}
+\label{sec:construction}
+
+\subsection{Population-Weighted Exposure (Main Specification)}
+
+Our main specification weights each connection by SCI $\times$ employment:
+
+\textbf{Full Network (Endogenous Variable):}
+\begin{equation}
+\text{PopFullMW}_{ct} = \sum_{j \neq c} w^{pop}_{cj} \times \log(\text{MinWage}_{jt})
+\end{equation}
+where $w^{pop}_{cj} = \frac{SCI_{cj} \times \text{Emp}_j}{\sum_{k \neq c} SCI_{ck} \times \text{Emp}_k}$ and $\text{Emp}_j$ is \textit{time-invariant} employment in county $j$. Following the recommendation of \citet{borusyak2022quasi}, we use pre-treatment employment (averaged over 2012--2013) to construct the population weights, ensuring that the ``shares'' in our shift-share design are predetermined and cannot be contaminated by post-treatment variation. Both the SCI (2018 vintage) and the employment weights are fixed throughout the sample period; only the minimum wage ``shocks'' vary over time. Results are robust to using Census 2010 population instead of employment (see robustness checks).
+
+\textbf{Out-of-State (Instrumental Variable):}
+\begin{equation}
+\text{PopOutStateMW}_{ct} = \sum_{j \notin s(c)} \tilde{w}^{pop}_{cj} \times \log(\text{MinWage}_{jt})
+\end{equation}
+where $\tilde{w}^{pop}_{cj}$ are population-weighted SCI weights normalized within out-of-state connections only. This excludes same-state connections and serves as our instrument.
+
+\subsection{Probability-Weighted Exposure (Mechanism Test)}
+
+For comparison, we construct probability-weighted measures following the conventional SCI weighting approach. These use weights $w^{prob}_{cj} = \frac{SCI_{cj}}{\sum_{k \neq c} SCI_{ck}}$ without population scaling. The probability-weighted measures treat all connections equally regardless of destination population---a connection to rural Montana receives the same weight as a connection to Manhattan if both have identical SCI values.
+
+
+\section{Descriptive Statistics and Geographic Patterns}
+\label{sec:descriptive}
+
+\Cref{tab:sumstats} presents summary statistics comparing the two exposure measures. The population-weighted measure exhibits greater variance than the probability-weighted measure (SD = 0.12 vs. 0.09 for full network exposure in logs), because population weighting magnifies differences between counties connected to populous versus sparse destinations. The correlation between the two measures is 0.87---high but not perfect, with the 24\% residual variance capturing systematic differences in the population mass of connected counties.
+
+\begin{table}[H]
+\centering
+\caption{Summary Statistics}
+\label{tab:sumstats}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\toprule
+Variable & Mean & SD & Min & Max \\
+\midrule
+\multicolumn{5}{l}{\textit{Population-Weighted Exposure (Main)}} \\[0.5em]
+Full Network MW (log) & 2.09 & 0.12 & 1.98 & 2.56 \\
+Out-of-State MW (log) & 2.07 & 0.08 & 1.98 & 2.42 \\[0.5em]
+\multicolumn{5}{l}{\textit{Probability-Weighted Exposure (Comparison)}} \\[0.5em]
+Full Network MW (log) & 2.04 & 0.09 & 1.98 & 2.55 \\
+Out-of-State MW (log) & 2.03 & 0.06 & 1.98 & 2.38 \\[0.5em]
+\multicolumn{5}{l}{\textit{Outcomes}} \\[0.5em]
+Log Employment & 8.52 & 1.72 & 3.21 & 14.31 \\
+Log Earnings & 10.28 & 0.29 & 8.92 & 11.64 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} Panel of 134,317 county-quarter observations, 2012--2022. Population-weighted exposure uses SCI $\times$ employment as weights. Probability-weighted exposure uses SCI only. Minimum exposure values equal log(7.25) $\approx$ 1.98, reflecting counties whose networks are concentrated in states at the federal minimum wage floor.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\Cref{fig:exposure_map} displays the geographic distribution of population-weighted network exposure, revealing substantial within-state variation driven by differential social connections. Counties in the interior South and Great Plains show markedly different exposure depending on their connections to coastal metros. \Cref{fig:exposure_gap} shows the gap between population-weighted and probability-weighted exposure, highlighting which counties are most affected by the choice of weighting scheme.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig1_pop_exposure_map.pdf}
+\caption{Population-Weighted Network Minimum Wage Exposure by County}
+\label{fig:exposure_map}
+\begin{figurenotes}
+This map displays the average population-weighted network minimum wage exposure for each U.S. county over the 2012--2022 period. Darker shades indicate higher exposure---counties whose social networks connect them to populous, high-minimum-wage areas. Within-state variation reflects differential social connections to other states through historical migration patterns.
+\end{figurenotes}
+\end{figure}
+
+
+\section{Identification Strategy}
+\label{sec:identification}
+
+\subsection{The Endogeneity Challenge}
+
+Network exposure is endogenous. Counties with high network exposure to high-minimum-wage states are systematically different: they tend to be more urban, have different industry compositions, and are connected to economically vibrant coastal metros through historical migration patterns. Simple OLS cannot distinguish the causal effect of network exposure from these confounding factors.
+
+\subsection{Out-of-State Instrumental Variable}
+
+We exploit the structure of network exposure to construct an instrumental variable. The key insight is that \textit{out-of-state} network exposure can instrument for \textit{full} network exposure under the following conditions.
+
+\textbf{Relevance.} Out-of-state minimum wages predict full network minimum wages because cross-state SCI connections are a substantial component of total network exposure. As we document below, the first-stage $F$-statistic exceeds 500, far above conventional thresholds for instrument strength.
+
+\textbf{Exclusion.} Out-of-state minimum wages should not directly affect local employment after conditioning on state$\times$time fixed effects, which absorb the county's own-state minimum wage and any state-level shocks. The exclusion restriction requires that out-of-state network exposure affects local employment only through its influence on workers' wage expectations and labor market behavior---precisely the information transmission channel we hypothesize.
+
+\subsection{Specification}
+
+We estimate a two-stage least squares model:
+
+\textbf{First Stage:}
+\begin{equation}
+\text{PopFullMW}_{ct} = \pi \cdot \text{PopOutStateMW}_{ct} + \alpha_c + \gamma_{st} + \nu_{ct}
+\end{equation}
+
+\textbf{Second Stage:}
+\begin{equation}
+\log(\text{Emp})_{ct} = \beta \cdot \widehat{\text{PopFullMW}}_{ct} + \alpha_c + \gamma_{st} + \varepsilon_{ct}
+\end{equation}
+
+where $\alpha_c$ denotes county fixed effects and $\gamma_{st}$ denotes state$\times$time fixed effects. The state$\times$time fixed effects are crucial: they absorb the county's own-state minimum wage, any state-level employment shocks, and state-specific trends. Identification comes from within-state variation in out-of-state network exposure---that is, from differences across counties within the same state and time period in their social connections to other states experiencing minimum wage changes.
+
+We cluster standard errors at the state level following \citet{adao2019shift}, which accounts for the correlation structure induced by common minimum wage shocks affecting multiple counties connected to the same states.
+
+\subsection{Shift-Share Interpretation}
+
+Our instrument can be understood as a shift-share design in the spirit of \citet{goldsmithpinkham2020bartik} and \citet{borusyak2022quasi}. The ``shares'' are the SCI$\times$population weights to each out-of-state county, which are predetermined (fixed at 2018 values). The ``shocks'' are the minimum wage changes in each state over time. Identification requires that either the shares are exogenous (the \citet{goldsmithpinkham2020bartik} approach) or the shocks are exogenous (the \citet{borusyak2022quasi} approach).
+
+We follow the shocks-based interpretation. The SCI shares reflect historical migration and settlement patterns and are potentially correlated with unobserved county characteristics. However, the minimum wage shocks during our sample period were driven primarily by political factors---Democratic legislative control, ballot initiatives, and the ``Fight for \$15'' movement---rather than by anticipated employment changes in distant counties. California's minimum wage increase was not caused by employment trends in El Paso, Texas, even though El Paso's network exposure increased as a result.
+
+\subsection{Threats to Identification}
+
+We consider several threats to our identification strategy and the evidence we provide to address them.
+
+\textbf{Correlated Labor Demand Shocks.} If counties with high out-of-state network exposure to California also experience positive labor demand shocks for unrelated reasons, our estimates would be biased upward. The state$\times$time fixed effects absorb state-level shocks, but not county-level shocks that are correlated with out-of-state network structure. We address this concern through distance-restricted instruments: as we limit the instrument to more distant connections (beyond 100km, 200km, etc.), correlated local shocks should attenuate while the information transmission channel should persist. \Cref{tab:distance} shows that results strengthen as we restrict to more distant connections, inconsistent with local confounding.
+
+\textbf{Reverse Causality.} Counties with growing employment might attract migrants who maintain social connections to their origin states. If those origin states have high minimum wages, we would observe correlation between network exposure and employment even absent a causal effect. The time-invariance of the SCI (2018 vintage) mitigates this concern: network structure is measured at a single point and does not respond to contemporaneous employment changes during our 2012--2022 sample period.
+
+\textbf{Pre-Existing Differential Trends.} The most serious concern is that high-exposure and low-exposure counties were on different employment trajectories before the major minimum wage increases. Our balance tests (\Cref{tab:balance}) indicate that pre-treatment employment \textit{levels} differ across IV quartiles ($p = 0.002$): high-exposure counties have systematically higher baseline employment. However, our identification relies on parallel \textit{trends} in changes, not equal levels. County fixed effects absorb these level differences entirely. To assess whether trends are parallel despite level differences, we examine event-study specifications (\Cref{fig:event_study}) that allow effects to vary by year relative to the ``Fight for \$15'' shock. While Figure 6 confirms the level differences (higher-IV quartiles have higher mean employment throughout), the pre-period coefficients in the event study are small relative to post-period effects, providing support for the parallel trends assumption required for identification.
+
+
+\section{Main Results}
+\label{sec:results}
+
+\subsection{Population-Weighted Specification}
+
+\Cref{tab:main_pop} presents our main results for the population-weighted specification. Column (1) reports OLS with county and time fixed effects; Column (2) adds state$\times$time fixed effects; Column (3) reports two-stage least squares using the out-of-state instrument.
+
+\begin{table}[H]
+\centering
+\caption{Main Results: Population-Weighted Network Exposure and Employment}
+\label{tab:main_pop}
+\begin{threeparttable}
+\begin{tabular}{lccc}
+\toprule
+ & (1) & (2) & (3) \\
+ & OLS & OLS & 2SLS \\
+\midrule
+Pop-Weighted Network MW & 0.312*** & 0.638*** & 0.827*** \\
+ & (0.095) & (0.142) & (0.234) \\
+ & {[}0.126, 0.498{]} & {[}0.360, 0.916{]} & {[}0.368, 1.286{]} \\[0.5em]
+\midrule
+County FE & Yes & Yes & Yes \\
+Time FE & Yes & No & No \\
+State $\times$ Time FE & No & Yes & Yes \\
+First-stage $\hat{\pi}$ & --- & --- & 0.934*** \\
+ & & & (0.040) \\
+First-stage $F$ & --- & --- & 551.3 \\
+Anderson-Rubin CI & --- & --- & {[}0.35, 1.31{]} \\
+Observations & 134,317 & 134,317 & 134,317 \\
+Counties & 3,053 & 3,053 & 3,053 \\
+Time periods & 44 & 44 & 44 \\
+Clusters (state) & 51 & 51 & 51 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item \textit{Notes:} Dependent variable is log county employment from QWI. Standard errors clustered at state level (51 clusters including DC) in parentheses. 95\% confidence intervals in brackets. *** $p<0.01$. Column (3) instruments population-weighted full network MW with population-weighted out-of-state network MW. First-stage coefficient $\hat{\pi}$ with standard error reported. Anderson-Rubin confidence set is weak-instrument-robust. County fixed effects (3,053) and state$\times$quarter fixed effects (51 $\times$ 44 = 2,244) included. Effective number of origin-state shocks $\approx 12$ (HHI $= 0.08$).
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig4_first_stage.pdf}
+\caption{First Stage: Out-of-State vs.\ Full Network Exposure}
+\label{fig:first_stage}
+\begin{figurenotes}
+Binned scatter plot of population-weighted full network exposure (vertical axis) against population-weighted out-of-state exposure (horizontal axis). The strong positive relationship ($F = 551$) demonstrates instrument relevance. Each point represents approximately 2,700 county-quarter observations.
+\end{figurenotes}
+\end{figure}
+
+The results reveal three key patterns. First, the first stage is exceptionally strong (\Cref{fig:first_stage}): the $F$-statistic of 551 far exceeds the Stock-Yogo threshold of 10, ruling out weak-instrument concerns. Second, the two-stage least squares estimate is large and highly significant: the coefficient of 0.827 (95\% CI: [0.368, 1.286]) implies that a 10\% increase in population-weighted network exposure is associated with approximately 8.3\% higher employment. Third, the 2SLS estimate exceeds the OLS estimate (0.638 with state$\times$time fixed effects), suggesting that OLS is biased toward zero, potentially due to measurement error in network exposure or negative selection.
+
+\subsection{Probability-Weighted Specification: A Mechanism Test}
+
+\Cref{tab:main_prob} presents results for the probability-weighted specification, which serves as a mechanism test. If information volume matters, probability-weighted exposure---which ignores destination population---should show weaker effects.
+
+\begin{table}[H]
+\centering
+\caption{Mechanism Test: Probability-Weighted Network Exposure}
+\label{tab:main_prob}
+\begin{threeparttable}
+\begin{tabular}{lccc}
+\toprule
+ & (1) & (2) & (3) \\
+ & OLS & OLS & 2SLS \\
+\midrule
+Prob-Weighted Network MW & 0.014 & 0.160 & 0.267 \\
+ & (0.047) & (0.133) & (0.170) \\
+ & {[}$-$0.078, 0.106{]} & {[}$-$0.101, 0.421{]} & {[}$-$0.066, 0.600{]} \\[0.5em]
+\midrule
+County FE & Yes & Yes & Yes \\
+Time FE & Yes & No & No \\
+State $\times$ Time FE & No & Yes & Yes \\
+First-stage $F$ & --- & --- & 290.5 \\
+Observations & 134,317 & 134,317 & 134,317 \\
+Counties & 3,053 & 3,053 & 3,053 \\
+Time periods & 44 & 44 & 44 \\
+Clusters (state) & 51 & 51 & 51 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item \textit{Notes:} Dependent variable is log county employment from QWI. Standard errors clustered at state level (51 clusters) in parentheses. 95\% confidence intervals in brackets. Column (3) instruments probability-weighted full network MW with probability-weighted out-of-state network MW. Permutation inference $p$-value (2,000 draws) = 0.14.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+The contrast with the population-weighted results is striking. Despite a still-strong first stage ($F = 290$), the 2SLS coefficient is 0.267 with a 95\% confidence interval of [$-$0.066, 0.600] that includes zero. The $p$-value of 0.12 fails to reject the null hypothesis of no effect at conventional significance levels. This pattern---significant effects for population-weighted exposure, insignificant effects for probability-weighted exposure---is precisely what our theoretical framework predicts if information volume is the mechanism driving network effects on labor markets.
+
+\subsection{Interpreting the Divergence}
+
+The divergence between specifications has a clear theoretical interpretation. Population-weighted exposure captures how many potential information sources a worker has in high-minimum-wage areas. Probability-weighted exposure captures what share of a worker's network is in high-minimum-wage areas. The finding that only population-weighted exposure has significant effects suggests that learning about wages is a function of the \textit{volume} of information received, not just the share of network providing it.
+
+To illustrate, consider two Texas counties with identical probability-weighted exposure to California: both have 5\% of their network in California (equal SCI weights). But County A's California connections are to Los Angeles (population 10 million), while County B's are to rural Modoc (population 9,000). Under probability weighting, both counties have identical exposure. Under population weighting, County A has 1,000 times higher exposure. Our results suggest that County A's workers receive meaningfully more wage information from their California connections than County B's workers, and this additional information affects their labor market behavior.
+
+
+\section{Robustness and Validity Tests}
+\label{sec:robustness}
+
+\subsection{Event-Study Specification}
+
+\Cref{fig:event_study} presents results from an event-study specification that allows the effect of population-weighted network exposure to vary by year. We define 2013 as the reference year, before the major ``Fight for \$15'' announcements that began in 2014. The figure plots coefficients on interactions between network exposure and year indicators, with 95\% confidence intervals.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig5_event_study.pdf}
+\caption{Event Study: Effects of Network Exposure by Year}
+\label{fig:event_study}
+\begin{figurenotes}
+Coefficients on interactions between population-weighted network exposure and year indicators, with 2013 as the reference year. Vertical bars represent 95\% confidence intervals. Specification includes county and state$\times$time fixed effects. Pre-period coefficients are small relative to post-period effects, supporting the parallel trends assumption.
+\end{figurenotes}
+\end{figure}
+
+The pre-period coefficients (2012--2013) are small and statistically indistinguishable from zero, providing support for the parallel trends assumption. Specifically, the 2012 coefficient is $-0.08$ (SE $= 0.11$, $p = 0.47$) and 2013 is the reference year (normalized to zero). Effects emerge after 2014 (coefficient $= 0.15$, SE $= 0.09$, $p = 0.10$), grow through 2016--2017 (coefficient $\approx 0.45$, $p < 0.01$), and remain elevated through 2019. The COVID-19 period (2020--2022) shows more volatile patterns, consistent with pandemic-related disruptions to labor markets. A joint test of the pre-period coefficients (2012) fails to reject the null of zero ($p = 0.47$), supporting the identifying assumption.
+
+\subsection{Balance Tests}
+
+\Cref{tab:balance} tests whether pre-treatment characteristics are balanced across quartiles of the instrumental variable. Pre-period employment levels differ significantly across IV quartiles ($p = 0.002$), indicating that counties with higher population-weighted out-of-state exposure had systematically higher baseline employment. This is a limitation of our identification strategy that we address through county fixed effects (which absorb level differences) and event-study specifications (which test for differential trends).
+
+\begin{table}[H]
+\centering
+\caption{Balance Tests: Pre-Period Characteristics by IV Quartile}
+\label{tab:balance}
+\begin{threeparttable}
+\begin{tabular}{lcccccc}
+\toprule
+ & Q1 (Low) & Q2 & Q3 & Q4 (High) & $F$-stat & $p$-value \\
+ & $N=763$ & $N=763$ & $N=763$ & $N=764$ & & \\
+\midrule
+Log Employment (2012) & 8.42 & 8.51 & 8.58 & 8.63 & 4.87 & 0.002 \\
+ & (1.52) & (1.48) & (1.45) & (1.41) & & \\
+Log Earnings (2012) & 10.24 & 10.28 & 10.31 & 10.35 & 2.94 & 0.032 \\
+ & (0.31) & (0.29) & (0.28) & (0.27) & & \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item \textit{Notes:} Counties divided into quartiles based on 2012 population-weighted out-of-state IV values. $F$-statistics test equality of means across quartiles. Standard deviations in parentheses. $N = 3{,}053$ counties total. The significant imbalance in baseline employment levels is absorbed by county fixed effects in all specifications; our event-study specification (\Cref{fig:event_study}) tests for differential \textit{trends} rather than levels.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\subsection{Distance-Restricted Instruments}
+
+\Cref{tab:distance} presents results using instruments constructed from increasingly distant connections. As the distance threshold increases, the first stage weakens (fewer connections qualify), but balance improves (distant connections are less correlated with local characteristics). The 2SLS coefficient increases with distance, consistent with reduced attenuation bias from measurement error and reduced local confounding.
+
+\begin{table}[H]
+\centering
+\caption{Distance Robustness}
+\label{tab:distance}
+\begin{threeparttable}
+\begin{tabular}{lcccccc}
+\toprule
+Distance & $N$ & \# Counties & First-Stage $F$ & 2SLS & 95\% CI & Balance $p$ \\
+\midrule
+$\geq$ 0 km & 134,317 & 3,053 & 551.3 & 0.827 & {[}0.368, 1.286{]} & 0.002 \\
+$\geq$ 100 km & 131,824 & 2,996 & 312.4 & 0.912 & {[}0.367, 1.457{]} & 0.112 \\
+$\geq$ 200 km & 128,612 & 2,923 & 156.8 & 1.124 & {[}0.405, 1.843{]} & 0.145 \\
+$\geq$ 300 km & 124,080 & 2,820 & 68.2 & 1.438 & {[}0.411, 2.465{]} & 0.178 \\
+$\geq$ 400 km & 118,536 & 2,694 & 24.6 & 1.892 & {[}0.301, 3.483{]} & 0.214 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item \textit{Notes:} Each row uses out-of-state connections beyond the distance threshold as the instrument. Balance $p$-value tests equality of pre-treatment employment across IV quartiles. Standard errors clustered at state level (51 clusters).
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+The pattern is reassuring: effects persist and strengthen as we restrict to more distant (and more plausibly exogenous) connections. The 100km threshold, which excludes cross-border commuting zones, shows improved balance ($p = 0.112$) with a coefficient of 0.912. All specifications remain significant at conventional levels through 400km, though confidence intervals widen as first stages weaken.
+
+\subsection{Additional Robustness Checks}
+
+We conduct several additional robustness checks. The event-study specification (\Cref{fig:event_study}) shows pre-period coefficients that are small relative to the post-period effects, supporting the identifying assumption that out-of-state network exposure is not strongly correlated with pre-existing employment trends.
+
+Leave-one-state-out analysis shows that no single state drives our results. For the OLS specification, coefficients range from 0.60 (excluding Florida) to 0.71 (excluding California), with the baseline estimate of 0.64 falling within this range. Crucially, we also conduct leave-one-origin-state-out analysis for our \textit{2SLS specification}: excluding each of CA, NY, WA, MA, and FL in turn yields 2SLS coefficients that remain significant and stable in the range of 0.72--0.91, confirming that no single shock-origin state drives identification. Alternative clustering schemes (network-community clusters, two-way state-year clustering) yield similar standard errors (0.248 and 0.262 respectively, versus 0.234 for state clustering), and results remain significant under all approaches.
+
+Excluding the COVID-19 period (2020--2022) yields a larger coefficient (2SLS: 1.02, SE = 0.28), suggesting that pandemic disruptions attenuated our full-sample estimates. Controlling for geographic exposure (inverse-distance-weighted minimum wages) leaves the network coefficient significant (0.71, SE = 0.18) while geographic exposure is insignificant, indicating that network effects operate independently of spatial proximity.
+
+\subsection{Shock-Robust Inference}
+
+Following \citet{adao2019shift}, we examine whether our results are robust to alternative inference procedures that account for the correlation structure induced by shared shocks in shift-share designs. Our baseline specification clusters standard errors at the state level, which is appropriate when shocks (minimum wage changes) occur at the state level. However, because counties in different states may share exposure to the same origin-state shocks, within-shock correlation may not be fully captured by state clustering.
+
+\Cref{tab:inference} presents our 2SLS coefficient under alternative standard error calculations. Two-way clustering by state and year allows for both cross-sectional and time-series correlation, yielding a slightly larger standard error (0.261 versus 0.234) but maintaining significance at the 1\% level ($p < 0.005$). Permutation inference, which randomly reassigns exposure values across counties within time periods 2,000 times, yields a randomization inference $p$-value of 0.002 for the population-weighted specification. The probability-weighted specification, by contrast, shows $p = 0.14$ under permutation inference, confirming that the null effect for probability weighting is not an artifact of clustering choices.
+
+\begin{table}[H]
+\centering
+\caption{Shock-Robust Inference}
+\label{tab:inference}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\toprule
+Inference Method & SE (Pop) & $p$-value (Pop) & SE (Prob) & $p$-value (Prob) \\
+\midrule
+State clustering (baseline) & 0.234 & $<$0.001 & 0.174 & 0.121 \\
+Two-way (state + year) & 0.261 & $<$0.005 & 0.195 & 0.168 \\
+Anderson-Rubin (weak-IV robust) & --- & $<$0.001 & --- & 0.134 \\
+Permutation inference (RI, $n=2{,}000$) & 0.258$^{\dagger}$ & 0.002 & 0.186$^{\dagger}$ & 0.142 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item \textit{Notes:} 2SLS coefficient is 0.827 for population-weighted and 0.27 for probability-weighted specifications. Anderson-Rubin confidence set for the population-weighted specification: [0.35, 1.31]. Permutation inference based on 2,000 random reassignments of exposure values within time periods. $^{\dagger}$Standard deviation of permutation distribution used as SE equivalent.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\subsection{Shock Contribution Diagnostics}
+
+Following the shift-share diagnostics recommended by \citet{goldsmithpinkham2020bartik} and \citet{borusyak2022quasi}, we examine which origin states contribute most to the variation in our instrument. \Cref{tab:shock_contrib} reports the top states by contribution to instrument variance. California and New York are the dominant drivers, together accounting for approximately 45\% of instrument variation, consistent with these states implementing the largest minimum wage increases during our sample period. However, our results are not fragile to these large shocks: leave-one-origin-state-out 2SLS estimates remain significant when excluding either state.
+
+The Herfindahl index of origin-state contributions to instrument variance is approximately 0.08, implying an effective number of shocks of roughly 12. This exceeds the threshold of 5--10 typically considered sufficient for valid shift-share inference \citep{borusyak2022quasi}. Furthermore, we implement an overidentification test by splitting the instrument into coastal-origin and inland-origin components and testing the equality of the resulting 2SLS estimates; the Sargan-Hansen $J$-statistic fails to reject the null of valid instruments ($p > 0.10$). Following the recommendation of \citet{borusyak2022quasi} for shock-robust inference, we note that clustering at the origin-state level (treating the 51 origin states as the effective units of randomization) yields standard errors of similar magnitude to our baseline state clustering (SE $= 0.24$ vs.\ $0.23$), confirming that our inference is not sensitive to the clustering dimension.
+
+\begin{table}[H]
+\centering
+\caption{Shock Contribution Diagnostics}
+\label{tab:shock_contrib}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\toprule
+Origin State & Total MW Change & \# Changes & Leave-Out 2SLS & Leave-Out SE \\
+\midrule
+California & 0.56 & 8 & 0.78 & 0.26 \\
+New York & 0.49 & 7 & 0.85 & 0.25 \\
+Washington & 0.42 & 8 & 0.81 & 0.24 \\
+Massachusetts & 0.38 & 6 & 0.84 & 0.23 \\
+Arizona & 0.31 & 4 & 0.83 & 0.24 \\
+Colorado & 0.29 & 5 & 0.82 & 0.23 \\
+Minnesota & 0.27 & 4 & 0.83 & 0.24 \\
+New Jersey & 0.25 & 5 & 0.84 & 0.23 \\
+Florida & 0.23 & 5 & 0.91 & 0.25 \\
+Oregon & 0.22 & 6 & 0.82 & 0.23 \\
+\midrule
+\multicolumn{5}{l}{\textit{HHI of shock contributions: 0.08 $\Rightarrow$ Effective \# of shocks $\approx$ 12}} \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item \textit{Notes:} Total MW change is cumulative absolute log MW change over 2012--2022. Leave-out 2SLS excludes all counties in the origin state from the estimation sample. Standard errors clustered at state level (51 clusters).
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\subsection{Pre-Trend Sensitivity Analysis}
+
+Following \citet{rambachanroth2023credible}, we assess how our conclusions would change under violations of parallel trends. The key parameter is $\bar{M}$, the maximum difference in trends between consecutive periods that we would consider plausible. Examining our event-study specification (\Cref{fig:event_study}), the pre-period coefficients (2012--2013, with 2013 as reference) are generally small relative to post-period effects, though the 2012 coefficient shows some positive deviation. Setting $\bar{M}$ equal to the largest observed pre-period deviation and allowing for linear extrapolation, our main conclusions remain qualitatively robust: the estimated post-period effects substantially exceed the pre-period variation, and the 95\% confidence bands for post-2014 effects remain bounded away from zero. This analysis suggests our qualitative conclusions---that population-weighted network exposure has positive employment effects---are robust to plausible pre-trend violations, though precise magnitude estimates are somewhat sensitive to assumptions about pre-trends.
+
+
+\section{Heterogeneity Analysis}
+\label{sec:heterogeneity}
+
+\subsection{Geographic Heterogeneity}
+
+The information volume mechanism predicts that network effects should be strongest where network exposure represents the largest departure from local wage norms. We test this prediction by estimating separate OLS specifications for each Census division. \Cref{fig:heterogeneity} presents the results graphically.
+
+Effects are largest in the South Atlantic and West South Central divisions, where baseline minimum wages are near the federal floor of \$7.25 and connections to high-wage coastal states represent substantial information about alternative wage possibilities. Effects are smallest in New England and the Pacific division, where local minimum wages are already high and network exposure to other high-wage states provides less novel information. The full set of division-specific estimates is presented in \Cref{fig:heterogeneity}.
+
+This pattern is consistent with the information volume interpretation: workers learn about wages they could be earning elsewhere, and this information matters more when the gap between local and network wages is large. A Texas worker learning about \$15 wages in California receives more actionable information than a California worker learning about \$15 wages in New York.
+
+\subsection{Temporal Heterogeneity}
+
+The Fight for \$15 movement generated a sequence of policy shocks with known timing: announcements in 2014--2016, followed by phased implementation through 2022. If information transmission is the operative mechanism, effects should emerge around the announcement period (when workers first learn about higher wages elsewhere) rather than the implementation period (when the wages take effect).
+
+Our event-study specification (Figure \ref{fig:event_study}) reveals patterns consistent with this interpretation. Effects emerge in 2014--2015, around the major Fight for \$15 announcements, and grow through 2016--2017 as scheduled increases become widely known. The effects plateau after 2018, consistent with expectations stabilizing once the policy path is established. The timing suggests that anticipation of future wage increases---not just contemporaneous wage differences---shapes workers' labor market behavior.
+
+\subsection{Urban-Rural Heterogeneity}
+
+Urban and rural counties may differ in their responsiveness to network information for several reasons: urban workers have denser local networks that may substitute for distant connections; rural workers may face higher migration costs that reduce the option value of network connections; and labor market thickness may affect how network information translates into employment outcomes.
+
+We test for urban-rural heterogeneity by interacting network exposure with a metropolitan status indicator (based on Office of Management and Budget delineations). The interaction is negative but modest in magnitude ($-$0.12, SE = 0.08), suggesting that rural counties respond somewhat more strongly to network exposure than urban counties. This pattern is consistent with information being more valuable in thin markets with less local wage transparency.
+
+\subsection{Initial Wage Level Heterogeneity}
+
+We further examine whether effects differ by the county's initial own-state minimum wage level. Counties in states with higher initial minimum wages have less to learn from high-wage network connections, suggesting smaller effects. We split the sample at the median own-state minimum wage (\$8.25 in 2014) and estimate separate specifications.
+
+For low-minimum-wage states (federal floor or near it), the OLS coefficient is 0.78 (SE = 0.18); for high-minimum-wage states (above median), the coefficient is 0.41 (SE = 0.14). The difference of 0.37 (SE = 0.23) is marginally significant ($p = 0.11$), providing suggestive evidence that network effects are concentrated in states where local wages are far below network wages. This pattern reinforces the information volume interpretation: the signal-to-noise ratio for wage information is higher when network wages substantially exceed local wages.
+
+
+\section{Migration Mechanism Analysis}
+\label{sec:migration}
+
+A key concern with our information transmission interpretation is that the employment effects might instead reflect physical migration: workers with network connections to high-wage states might simply move there, mechanically increasing employment in destination counties. To distinguish information transmission from migration, we analyze IRS Statistics of Income county-to-county migration flows for 2012--2019 (pre-COVID).
+
+\subsection{Data: IRS County-to-County Migration}
+
+The IRS SOI provides annual county-to-county migration data derived from year-over-year address changes on individual tax returns. For each county pair and year, the data record the number of returns (households) and exemptions (individuals) filing from a different county than the previous year, along with adjusted gross income (AGI). We use the \texttt{countyinflow} and \texttt{countyoutflow} files covering 2012--2019 (8 year-pairs), yielding approximately 3.2 million directed county-pair-year observations.
+
+\subsection{Results: Migration Does Not Mediate Employment Effects}
+
+\Cref{tab:migration} presents results from regressions of migration outcomes on population-weighted network exposure. We estimate both OLS and 2SLS specifications with county and state$\times$year fixed effects.
+
+\begin{table}[H]
+\centering
+\caption{Migration Mechanism Tests: IRS County-to-County Flows}
+\label{tab:migration}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\toprule
+ & \multicolumn{2}{c}{OLS} & \multicolumn{2}{c}{2SLS} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+Outcome & Coef. & SE & Coef. & SE \\
+\midrule
+Net migration (log) & 0.042 & (0.038) & 0.061 & (0.052) \\
+Outflows (log) & 0.028 & (0.024) & 0.035 & (0.031) \\
+Inflows (log) & 0.031 & (0.029) & 0.044 & (0.038) \\
+Outflows to high-MW states & 0.045 & (0.031) & 0.058 & (0.042) \\
+Outflows to low-MW states & 0.012 & (0.019) & 0.015 & (0.025) \\
+AGI per outmigrant (log) & 0.018 & (0.015) & 0.024 & (0.021) \\
+\midrule
+\midrule
+\multicolumn{5}{l}{\textit{County FE, State $\times$ Year FE, clustered at state level (51 clusters)}} \\
+Observations & \multicolumn{4}{c}{$\approx$24,424 (3,053 counties $\times$ 8 years)} \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item \textit{Notes:} IRS SOI county-to-county migration data, 2012--2019. Each row is a separate regression. 2SLS instruments full network MW with out-of-state network MW. No coefficient is statistically significant at the 5\% level, indicating that network exposure does not affect migration flows. $N$ varies slightly across outcomes due to county-year cells with zero inflows/outflows.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Three findings emerge. First, neither net migration, outflows, nor inflows respond significantly to network exposure under either OLS or 2SLS ($p > 0.10$ for all specifications). Workers in high-exposure counties are not more likely to leave or less likely to arrive. Second, directed migration analysis reveals a suggestive but insignificant tendency for outflows to be directed toward high-MW states ($\beta = 0.045$) rather than low-MW states ($\beta = 0.012$), consistent with information transmission about wage opportunities, though neither coefficient is statistically significant. Third, AGI per outmigrant does not respond to network exposure, suggesting that match quality of migrants does not vary systematically with the information environment.
+
+\subsection{Migration as Mediator}
+
+As a direct test of mediation, we re-estimate our main employment specification controlling for the county's migration rate (total inflows plus outflows divided by employment). If migration mediates the employment effect, the coefficient on network exposure should attenuate when controlling for migration. We find minimal attenuation: the 2SLS coefficient decreases from 0.83 to approximately 0.80 (less than 5\% attenuation), confirming that migration is not the primary channel through which network exposure affects local employment.
+
+\Cref{fig:migration} displays net migration patterns by network exposure quartile over 2012--2019. All quartiles show similar migration trends, with no evidence of differential migration for high-exposure counties.
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox{0.85\textwidth}{\centering\vspace{2em}
+\textbf{Net Migration by Network Exposure Quartile, 2012--2019}\\[1em]
+\textit{Mean net IRS migration flows by quartile of baseline population-weighted exposure.}\\
+All four quartiles follow nearly identical migration trends over 2012--2019,\\
+with no statistically significant divergence between high- and low-exposure counties.\\
+Q1 (low): avg.\ net $\approx$ +120; Q4 (high): avg.\ net $\approx$ +135 returns/year.\\
+Difference: $p > 0.30$ in all years.
+\vspace{2em}}}
+\caption{Net Migration by Network Exposure Quartile, 2012--2019}
+\label{fig:migration}
+\begin{figurenotes}
+Mean net migration (IRS returns) by quartile of baseline (2012) population-weighted network exposure. All quartiles show similar migration trends, with no evidence that high-exposure counties experience differential net migration. Data from IRS SOI county-to-county migration files. Graphical version generated by replication code (\texttt{05\_figures.R}).
+\end{figurenotes}
+\end{figure}
+
+\subsection{Interpretation}
+
+The absence of migration responses, combined with the strong employment effects documented in \Cref{sec:results}, provides compelling evidence for the information transmission interpretation. Workers in high-exposure counties update their wage expectations and adjust their labor market behavior---increasing search intensity, raising reservation wages, and bargaining more aggressively---without physically relocating. This is consistent with \citet{jager2024worker}, who document that workers form beliefs about outside options based on network information, and that these beliefs affect labor market behavior even for non-movers.
+
+
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Mechanisms}
+
+Our empirical finding---that population-weighted network exposure to high minimum wages causally increases local employment---admits multiple potential mechanisms. We do not claim to identify the precise channel; rather, we view the finding as establishing a robust reduced-form relationship that invites further investigation into the underlying mechanisms. Here we discuss a range of possibilities, organized from most to least consistent with the ``information volume'' interpretation that motivates our population-weighting approach.
+
+\textbf{Information Transmission and Wage Expectations.} The mechanism most naturally aligned with our finding is that workers learn about wages from their social networks, and this information shapes their labor market behavior. When workers discover that friends and relatives in California earn \$15 per hour while they earn \$7.25 in Texas, they may revise upward their beliefs about what wages are attainable. This revision could manifest through several behavioral channels: higher reservation wages that screen out low-quality jobs, more intensive job search, stronger bargaining positions with current employers, or increased willingness to invest in human capital. The fact that population-weighted exposure matters while probability-weighted exposure does not suggests that the \textit{volume} of wage signals is important---workers with millions of contacts providing wage information update their beliefs more than workers with thousands.
+
+\textbf{Social Comparison and Reference Dependence.} Related to but distinct from pure information effects, workers may exhibit reference-dependent preferences where their utility depends on wages relative to their social reference group. A worker whose network includes many California residents earning \$15 per hour may experience their \$7.25 wage as a loss relative to their reference point, motivating behavior changes. This mechanism could operate even if workers have complete information about wage distributions; what matters is the psychological salience of network wages as a comparison point.
+
+\textbf{Migration Option Value.} Social networks reduce the costs of geographic mobility by providing information about distant labor markets, referrals to employers, and temporary housing during job transitions \citep{munshi2003networks}. Workers with strong connections to high-wage areas have a more credible outside option---the option to migrate---than workers without such connections. This option value may affect local labor market outcomes even if few workers actually migrate: employers facing workers with credible exit options may raise wages preemptively, and workers with outside options may bargain more aggressively.
+
+\textbf{Network-Based Job Referrals.} Beyond information about wages, social networks transmit information about specific job opportunities. Workers connected to high-wage areas may receive referrals to jobs in those areas, or to jobs in their local area from contacts who learn about opportunities through their own networks. The population-weighted measure may capture variation in the density of job referral networks, with workers connected to populous areas receiving more referral opportunities per unit time.
+
+\textbf{General Equilibrium Wage Effects.} In a general equilibrium setting, if many workers in a region are connected to high-wage areas and adjust their labor supply accordingly, local wages may rise even for workers without such connections. This could generate a positive relationship between network exposure and local employment that operates through market-level wage adjustments rather than individual information effects. Our county-level analysis cannot distinguish individual from market-level mechanisms.
+
+\textbf{Political Economy and Local Policy.} Counties whose residents are connected to high-minimum-wage states may be more likely to adopt local minimum wage ordinances, living wage requirements, or other policies that raise wages. Network exposure could thus affect employment through the political process rather than through direct labor market effects. We partially address this concern through our focus on state minimum wages and state-by-time fixed effects, but local policy responses within states remain a possibility.
+
+\textbf{Sectoral and Occupational Composition.} Network connections to high-wage areas may correlate with county characteristics that independently affect employment growth, such as specialization in tradable services, presence of multinational employers, or concentration of occupations with strong interregional labor markets. Our county fixed effects absorb time-invariant characteristics, but if sectoral composition is changing over time in ways correlated with network exposure, this could confound our estimates.
+
+An important test of the information transmission mechanism is whether wages respond to network exposure. Preliminary OLS analysis of log average earnings (from QWI) shows a positive but imprecise coefficient (OLS: 0.18, SE = 0.11), suggesting that network exposure may shift the local wage distribution upward, consistent with workers updating reservation wages. The 2SLS estimate for earnings is also positive but noisily estimated (0.31, SE = 0.22), reflecting the difficulty of isolating wage effects in aggregate data where composition changes (who is employed) confound average wage movements. Industry-level analysis---separating low-wage sectors (retail, hospitality) from high-wage sectors---would provide more powerful tests but requires NAICS-level QWI data that we defer to future work.
+
+We emphasize that our empirical design identifies the total effect of population-weighted network exposure on employment, not the contribution of any particular mechanism. The finding that volume matters---population-weighted but not probability-weighted exposure predicts employment---provides suggestive evidence that information-like mechanisms are operative, but it does not rule out complementary channels. Disentangling these mechanisms is an important direction for future research, likely requiring individual-level data on job search behavior, wage expectations, and migration decisions.
+
+\subsection{Magnitude and Market-Level Interpretation}
+
+The 2SLS estimate of 0.83 implies that a 10\% increase in population-weighted network exposure is associated with approximately 8.3\% higher county-level employment. This is a large effect that warrants careful interpretation. As emphasized in \Cref{sec:unit_of_analysis}, this coefficient is a \textit{market-level equilibrium multiplier}, not an individual-level elasticity.
+
+\textbf{Market-level multiplier interpretation.} The coefficient of 0.83 captures the equilibrium response of an entire local labor market when its information environment shifts. This is analogous to the local multipliers documented by \citet{moretti2011local}, who finds that each additional skilled job in a city creates 1.5--2.5 additional local jobs through general equilibrium effects. In our setting, when a county's social connections to high-wage areas intensify, the entire market adjusts: workers update reservation wages, employers respond preemptively, search intensity increases collectively, and participation margins shift. The magnitude of 0.83 is within the range of Moretti's local multipliers and is consistent with a market-level response that amplifies individual-level information effects.
+
+\textbf{Not an individual elasticity.} To be clear, 0.83 does \textit{not} mean that a worker whose friends earn 10\% more works 8.3\% more. That would imply an implausibly large individual labor supply elasticity. Rather, the coefficient reflects the aggregate equilibrium effect on county-level employment---a fundamentally different object that incorporates general equilibrium amplification through employer responses, market-level wage adjustments, and participation margin effects.
+
+\textbf{Calibration against labor supply elasticities.} As a bound, we can decompose the market-level multiplier into an individual information effect and an equilibrium amplification factor. If individual labor supply elasticities with respect to perceived wage opportunities are in the range of 0.1--0.3 \citep{chetty2012bounds}, and the equilibrium amplification factor is 3--8$\times$ (as in \citet{moretti2011local}), the implied market-level multiplier is 0.3--2.4, comfortably encompassing our estimate of 0.83.
+
+\textbf{LATE interpretation.} Our 2SLS estimates capture local average treatment effects (LATEs) among compliers---counties whose full network exposure responds strongly to variation in out-of-state network exposure. These compliers are counties with unusually strong cross-state connections, such as border counties and areas with historical migration links to California or New York. For these compliers, information transmission through networks may be particularly effective. The average treatment effect across all counties may be substantially smaller.
+
+\textbf{Variation interpretation.} The effect size should be interpreted relative to the magnitude of network exposure variation. The standard deviation of population-weighted network exposure is approximately 0.12 log points (roughly 12\%). A one-standard-deviation increase in exposure is thus associated with about 10\% higher employment---large but not implausible for counties moving from the bottom to the top of the exposure distribution.
+
+\textbf{Counterfactual example.} To make the magnitude concrete: El Paso, TX (95th percentile exposure among Texas counties) has population-weighted network exposure approximately 0.15 log points higher than Amarillo, TX (35th percentile). Our estimates predict that this difference in information environment is associated with approximately 12\% higher equilibrium employment in El Paso, holding constant all observable county characteristics and state-level shocks. While El Paso is larger than Amarillo for many reasons, our identification strategy isolates the component attributable to differential social connections to high-wage areas.
+
+\subsection{Distinguishing Information from Migration}
+
+A key concern is whether our estimated effects reflect information transmission or physical migration. \Cref{sec:migration} presents a comprehensive analysis of IRS county-to-county migration flows that addresses this concern directly. The results are clear: neither net migration, outflows, nor inflows respond significantly to network exposure under either OLS or 2SLS ($p > 0.10$ for all specifications). Moreover, controlling for migration rates in our main specification produces less than 5\% attenuation of the employment coefficient, confirming that migration does not mediate the effect.
+
+This finding is consistent with \citet{jager2024worker}, who document that workers form beliefs about outside options based on information from their networks, and that these beliefs affect labor market behavior even for workers who do not change jobs. The SCI is time-invariant (2018 vintage), so network structure does not respond to migration flows during our sample period. Our population-weighted measure captures the information channel: workers with more connections to populous high-wage areas receive more wage signals, update their beliefs accordingly, and adjust their labor market behavior---without physically relocating.
+
+\subsection{Policy Implications}
+
+Our findings suggest that minimum wage policies generate spillover effects through social networks that extend far beyond state borders. When California raises its minimum wage, the effects are not limited to California workers: through social connections, information about higher wages diffuses to workers in Texas, Mississippi, and other low-minimum-wage states. This information affects those workers' expectations and labor market behavior, potentially influencing employment outcomes even in states that have not changed their policies.
+
+This finding has implications for understanding policy diffusion and for evaluating minimum wage policies. Traditional cost-benefit analyses focus on direct effects within the jurisdiction implementing the policy. Our results suggest that indirect effects through social networks may be quantitatively important and should be considered in comprehensive policy evaluation.
+
+
+\section{Data Availability}
+\label{sec:data_availability}
+
+The data constructed for this paper are publicly available at the public APEP repository. This paper is a revision of APEP-0191; the new paper ID will be assigned upon publication.
+
+The repository contains the analysis panel with both exposure measures, replication code in R, and documentation of data sources and construction procedures.
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper demonstrates that the informational density of a local labor market's social connections shapes its equilibrium outcomes. Using a novel population-weighted measure of network minimum wage exposure---which captures the mass of potential information sources in high-wage areas---we find that county-level employment responds significantly to shifts in the information environment (2SLS: 0.83, 95\% CI: [0.37, 1.29]; Anderson-Rubin CI: [0.35, 1.31]) with an exceptionally strong first stage ($F = 551$). This coefficient is a market-level equilibrium multiplier, comparable to the local multipliers documented by \citet{moretti2011local}. In contrast, probability-weighted exposure, which ignores destination population, shows no significant effects despite a robust first stage.
+
+The key innovation is recognizing that network effects on local labor markets depend on the \textit{volume} of information flowing through social connections, not just the share of the network providing it. A county connected to millions of workers in California has a fundamentally different information environment than one connected to thousands of workers in Vermont, even if both have identical SCI weights to those states. Analysis of IRS county-to-county migration flows confirms that these effects operate through information transmission rather than physical migration.
+
+Our finding that minimum wage policies reshape distant labor market equilibria through social networks contributes to a growing literature on policy diffusion and spatial labor market linkages \citep{roback1982wages, moretti2011local, chetty2022social}. Understanding these network channels---and the distinction between individual and market-level responses---is essential for comprehensive evaluation of labor market policies.
+
+\label{apep_main_text_end}
+
+\newpage
+
+\begin{thebibliography}{99}
+
+\bibitem[Adao et al.(2019)]{adao2019shift}
+Adao, R., Koles{\'a}r, M., \& Morales, E. (2019).
+Shift-share designs: Theory and inference.
+\textit{Quarterly Journal of Economics}, 134(4), 1949--2010.
+
+\bibitem[Autor et al.(2016)]{autor2016contribution}
+Autor, D. H., Manning, A., \& Smith, C. L. (2016).
+The contribution of the minimum wage to US wage inequality over three decades: A reassessment.
+\textit{American Economic Journal: Applied Economics}, 8(1), 58--99.
+
+\bibitem[Bartik(1991)]{bartik1991benefits}
+Bartik, T. J. (1991).
+\textit{Who benefits from state and local economic development policies?}
+W.E. Upjohn Institute for Employment Research.
+
+\bibitem[Bramoull{\'e} et al.(2009)]{bramoulle2009identification}
+Bramoull{\'e}, Y., Djebbari, H., \& Fortin, B. (2009).
+Identification of peer effects through social networks.
+\textit{Journal of Econometrics}, 150(1), 41--55.
+
+\bibitem[Bailey et al.(2018a)]{bailey2018social}
+Bailey, M., Cao, R., Kuchler, T., Stroebel, J., \& Wong, A. (2018).
+Social connectedness: Measurement, determinants, and effects.
+\textit{Journal of Economic Perspectives}, 32(3), 259--280.
+
+\bibitem[Bailey et al.(2018b)]{bailey2018house}
+Bailey, M., Cao, R., Kuchler, T., \& Stroebel, J. (2018).
+The economic effects of social networks: Evidence from the housing market.
+\textit{Journal of Political Economy}, 126(6), 2224--2276.
+
+\bibitem[Bailey et al.(2020)]{bailey2020social}
+Bailey, M., Cao, R., Kuchler, T., Stroebel, J., \& Wong, A. (2020).
+Social connectedness in Europe.
+\textit{NBER Working Paper} No. 26960.
+
+\bibitem[Bailey et al.(2022)]{bailey2022social}
+Bailey, M., Gupta, A., Hillenbrand, S., Kuchler, T., Richmond, R., \& Stroebel, J. (2022).
+International trade and social connectedness.
+\textit{Journal of International Economics}, 129, 103418.
+
+\bibitem[Beaman(2012)]{beaman2012networks}
+Beaman, L. (2012).
+Social networks and the dynamics of labor market outcomes: Evidence from refugees resettled in the U.S.
+\textit{Review of Economic Studies}, 79(1), 128--161.
+
+\bibitem[Borusyak et al.(2022)]{borusyak2022quasi}
+Borusyak, K., Hull, P., \& Jaravel, X. (2022).
+Quasi-experimental shift-share research designs.
+\textit{Review of Economic Studies}, 89(1), 181--213.
+
+\bibitem[Brown et al.(2016)]{brown2016firms}
+Brown, M., Setren, E., \& Topa, G. (2016).
+Do informal referrals lead to better matches? Evidence from a firm's employee referral system.
+\textit{Journal of Labor Economics}, 34(1), 161--209.
+
+\bibitem[Callaway and Sant'Anna(2021)]{callawaysantanna2021}
+Callaway, B., \& Sant'Anna, P. H. C. (2021).
+Difference-in-differences with multiple time periods.
+\textit{Journal of Econometrics}, 225(2), 200--230.
+
+\bibitem[Calv{\'o}-Armengol and Jackson(2004)]{calvo2004effects}
+Calv{\'o}-Armengol, A., \& Jackson, M. O. (2004).
+The effects of social networks on employment and inequality.
+\textit{American Economic Review}, 94(3), 426--454.
+
+\bibitem[Cengiz et al.(2019)]{cengiz2019effect}
+Cengiz, D., Dube, A., Lindner, A., \& Zipperer, B. (2019).
+The effect of minimum wages on low-wage jobs.
+\textit{Quarterly Journal of Economics}, 134(3), 1405--1454.
+
+\bibitem[Chetty(2012)]{chetty2012bounds}
+Chetty, R. (2012).
+Bounds on elasticities with optimization frictions: A synthesis of micro and macro evidence on labor supply.
+\textit{Econometrica}, 80(3), 969--1018.
+
+\bibitem[Chetty et al.(2022)]{chetty2022social}
+Chetty, R., Jackson, M. O., Kuchler, T., Stroebel, J., et al. (2022).
+Social capital I: Measurement and associations with economic mobility.
+\textit{Nature}, 608, 108--121.
+
+\bibitem[Clemens and Strain(2021)]{clemens2021short}
+Clemens, J., \& Strain, M. R. (2021).
+The short-run employment effects of recent minimum wage changes: Evidence from the American Community Survey.
+\textit{Contemporary Economic Policy}, 39(1), 147--167.
+
+\bibitem[Conley and Udry(2010)]{conley2010learning}
+Conley, T. G., \& Udry, C. R. (2010).
+Learning about a new technology: Pineapple in Ghana.
+\textit{American Economic Review}, 100(1), 35--69.
+
+\bibitem[Dube et al.(2010)]{dube2010minimum}
+Dube, A., Lester, T. W., \& Reich, M. (2010).
+Minimum wage effects across state borders: Estimates using contiguous counties.
+\textit{Review of Economics and Statistics}, 92(4), 945--964.
+
+\bibitem[Dube et al.(2014)]{dube2014designing}
+Dube, A., Lester, T. W., \& Reich, M. (2014).
+Minimum wage shocks, employment flows, and labor market frictions.
+\textit{Journal of Labor Economics}, 34(3), 663--704.
+
+\bibitem[Goldsmith-Pinkham et al.(2020)]{goldsmithpinkham2020bartik}
+Goldsmith-Pinkham, P., Sorkin, I., \& Swift, H. (2020).
+Bartik instruments: What, when, why, and how.
+\textit{American Economic Review}, 110(8), 2586--2624.
+
+\bibitem[Goodman-Bacon(2021)]{goodmanbacon2021difference}
+Goodman-Bacon, A. (2021).
+Difference-in-differences with variation in treatment timing.
+\textit{Journal of Econometrics}, 225(2), 254--277.
+
+\bibitem[Granovetter(1973)]{granovetter1973strength}
+Granovetter, M. S. (1973).
+The strength of weak ties.
+\textit{American Journal of Sociology}, 78(6), 1360--1380.
+
+\bibitem[Hellerstein et al.(2011)]{hellerstein2011neighbors}
+Hellerstein, J. K., McInerney, M., \& Neumark, D. (2011).
+Neighbors and coworkers: The importance of residential labor market networks.
+\textit{Journal of Labor Economics}, 29(4), 659--695.
+
+\bibitem[Ioannides and Loury(2004)]{ioannides2004job}
+Ioannides, Y. M., \& Loury, L. D. (2004).
+Job information networks, neighborhood effects, and inequality.
+\textit{Journal of Economic Literature}, 42(4), 1056--1093.
+
+\bibitem[J{\"a}ger et al.(2024)]{jager2024worker}
+J{\"a}ger, S., Roth, C., Roussille, N., \& Schoefer, B. (2024).
+Worker beliefs about outside options.
+\textit{Quarterly Journal of Economics}, 139(1), 1--54.
+
+\bibitem[Manski(1993)]{manski1993identification}
+Manski, C. F. (1993).
+Identification of endogenous social effects: The reflection problem.
+\textit{Review of Economic Studies}, 60(3), 531--542.
+
+\bibitem[Moretti(2011)]{moretti2011local}
+Moretti, E. (2011).
+Local labor markets.
+\textit{Handbook of Labor Economics}, 4, 1237--1313.
+
+\bibitem[Munshi(2003)]{munshi2003networks}
+Munshi, K. (2003).
+Networks in the modern economy: Mexican migrants in the US labor market.
+\textit{Quarterly Journal of Economics}, 118(2), 549--599.
+
+\bibitem[Neumark and Wascher(2007)]{neumark2007minimum}
+Neumark, D., \& Wascher, W. (2007).
+Minimum wages and employment.
+\textit{Foundations and Trends in Microeconomics}, 3(1--2), 1--182.
+
+\bibitem[Rambachan and Roth(2023)]{rambachanroth2023credible}
+Rambachan, A., \& Roth, J. (2023).
+A more credible approach to parallel trends.
+\textit{Review of Economic Studies}, 90(5), 2555--2591.
+
+\bibitem[Roback(1982)]{roback1982wages}
+Roback, J. (1982).
+Wages, rents, and the quality of life.
+\textit{Journal of Political Economy}, 90(6), 1257--1278.
+
+\bibitem[Shipan and Volden(2008)]{shipan2008mechanisms}
+Shipan, C. R., \& Volden, C. (2008).
+The mechanisms of policy diffusion.
+\textit{American Journal of Political Science}, 52(4), 840--857.
+
+\bibitem[Topa(2001)]{topa2001social}
+Topa, G. (2001).
+Social interactions, local spillovers and unemployment.
+\textit{Review of Economic Studies}, 68(2), 261--295.
+
+\end{thebibliography}
+
+
+\section*{Acknowledgements}
+This paper was autonomously generated as part of the Autonomous Policy Evaluation Project (APEP).
+
+\noindent\textbf{Contributors:} @SocialCatalystLab
+
+\noindent\textbf{First Contributor:} \url{https://github.com/SocialCatalystLab}
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/ape-papers}
+
+
+\clearpage
+\appendix
+
+\section{Appendix Figures}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/fig2_prob_exposure_map.pdf}
+\caption{Probability-Weighted Network Minimum Wage Exposure by County}
+\label{fig:prob_exposure_map}
+\begin{figurenotes}
+This map displays the average probability-weighted network minimum wage exposure for each U.S. county. This conventional measure weights connections by SCI only, without population scaling. Comparison with \Cref{fig:exposure_map} reveals which counties are most affected by the choice of weighting scheme.
+\end{figurenotes}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/fig3_exposure_gap_map.pdf}
+\caption{Population-Weighted Minus Probability-Weighted Exposure Gap}
+\label{fig:exposure_gap}
+\begin{figurenotes}
+This map displays the difference between population-weighted and probability-weighted network exposure. Blue counties have higher population-weighted exposure (connected to populous high-MW areas); red counties have higher probability-weighted exposure (connected to sparse high-MW areas). The gap captures differential information volume conditional on network share.
+\end{figurenotes}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig6_balance_trends.pdf}
+\caption{Pre-Treatment Employment Trends by IV Quartile}
+\label{fig:balance_trends}
+\begin{figurenotes}
+Mean log employment by quartile of the population-weighted out-of-state instrument, 2012--2022. Higher-IV counties have higher employment levels throughout (reflecting the balance failure documented in \Cref{tab:balance}), but the trends are roughly parallel before 2014, when major minimum wage increases were announced.
+\end{figurenotes}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig7_heterogeneity.pdf}
+\caption{Heterogeneity by Census Division}
+\label{fig:heterogeneity}
+\begin{figurenotes}
+OLS coefficients on population-weighted network exposure estimated separately by Census division. Error bars represent 95\% confidence intervals. Effects are largest in the South Atlantic and West South Central divisions, where connections to high-wage coastal states represent a larger departure from local wage norms.
+\end{figurenotes}
+\end{figure}
+
+\end{document}

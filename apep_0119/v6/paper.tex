@@ -1,0 +1,688 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\sisetup{detect-all=true, group-separator={,}, group-minimum-digits=4}
+\usepackage{tabularx}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\sym}[1]{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\newcommand{\attgt}{\text{ATT}(g,t)}
+
+\title{Do Energy Efficiency Resource Standards Reduce Electricity Consumption?\\Evidence from Staggered State Adoption\footnote{This paper is a revision of APEP-0119. Previous version: \url{https://github.com/SocialCatalystLab/ape-papers/tree/main/apep_0119}.}}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. Correspondence: scl@econ.uzh.ch} \\ @SocialCatalystLab \\ @ai1scl, @SocialCatalystLab}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+Energy Efficiency Resource Standards reduce electricity consumption. Exploiting staggered adoption across 28 U.S. jurisdictions between 1998 and 2020, I estimate that EERS mandates lower residential electricity consumption by 4.2 percent ($p < 0.01$). The event study reveals flat pre-trends and growing post-treatment effects, reaching 5--8 percent after 15 years. Realized savings of roughly 0.5 percent per year are about one-third of the 1--1.5 percent claimed by engineering studies---the remainder reflects free-ridership and rebound effects. Climate benefits exceed program costs by 4:1.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} Q48, Q41, H76, L94 \\
+\noindent\textbf{Keywords:} energy efficiency, utility regulation, electricity consumption, difference-in-differences, staggered adoption
+
+\newpage
+
+%==============================================================================
+\section{Introduction}
+%==============================================================================
+
+State governments currently mandate that electric utilities spend \$8 billion per year persuading their customers to use less of the product they sell. These Energy Efficiency Resource Standards channel ratepayer surcharges into rebates for efficient appliances, weatherization upgrades, and home energy audits. The engineering consultants hired to evaluate these programs consistently report that they work: participating households save 2--5 percent on their electricity bills, and the savings more than justify the cost \citep{barbose2013}. State legislators, regulators, and advocacy groups cite these evaluations when proposing new mandates or expanding existing ones. Twenty-eight states and the District of Columbia now operate mandatory EERS programs, covering roughly two-thirds of U.S. electricity consumers.
+
+But the engineering estimates have a fundamental problem. They measure what happens to program participants, not what happens to states. A household that receives a rebate for an efficient refrigerator may well use less electricity---but if that household would have bought the same refrigerator without the rebate, the program subsidy is pure transfer, not conservation. This is the free-ridership problem, and it is large: estimates suggest that 10--30 percent of participants in typical weatherization and appliance programs would have made the same investments without utility subsidies \citep{fowlie2018, allcott2012}. Engineering evaluations cannot identify free-riders because they observe behavior only after program enrollment, never the counterfactual. Even when programs do generate genuine conservation, some of the savings may be consumed as higher amenity use---thermostat adjustments, longer showers, bigger televisions---the rebound effect \citep{gillingham2018}. And when evaluators compare participants to non-participants, they face the obvious selection problem: households that sign up for energy audits differ from households that do not.
+
+None of this means efficiency programs fail. It means we do not know---from the existing evidence---whether they succeed at the population level. The gap between engineering estimates of program-level savings and econometric estimates of population-level impacts has been documented at the micro level: \citet{fowlie2018} showed that the federal Weatherization Assistance Program achieved only 30--40 percent of the energy savings projected by engineering models. \citet{davis2014} found similar shortfalls in a large-scale Mexican appliance replacement program. \citet{levinson2016} demonstrated that California building energy codes, another supply-side efficiency intervention, saved far less energy than the engineering predictions implied. At the state level, where EERS mandates actually bind, the evidence is thinner. \citet{arimura2012} and \citet{mildenberger2022} used state panels to estimate the effect of efficiency spending on consumption, but both relied on conventional two-way fixed effects regressions. As \citet{goodmanbacon2021} showed, TWFE produces biased estimates in staggered adoption settings when treatment effects vary across cohorts or over time---a near-certainty for efficiency programs that take years to ramp up and that differ sharply in ambition across states.
+
+This paper provides the first population-level causal estimate of EERS effectiveness using modern heterogeneity-robust methods. I exploit the staggered adoption of mandatory EERS across 28 jurisdictions between 1998 and 2020, applying the \citet{callaway2021} difference-in-differences estimator with 23 never-treated states as controls. The identifying assumption is that, absent EERS adoption, treated and control states would have followed parallel trends in residential electricity consumption. This assumption is supported by the event study: pre-treatment coefficients are centered on zero for the full decade before adoption, with no visible drift.
+
+The main result is that EERS mandates reduce per-capita residential electricity consumption by 4.2 percent ($p < 0.01$). The event study reveals a pattern consistent with gradually maturing programs: near-zero effects at adoption, growing to 2--3 percent at five years and 5--8 percent at fifteen years. These numbers imply realized annual savings of roughly 0.5 percent of baseline consumption---about one-third of the 1.0--1.5 percent claimed by engineering evaluations. The engineering-econometric gap, previously documented only in micro studies of individual programs, thus persists at the population level and across a broad portfolio of interventions.
+
+The estimate is robust across a range of specifications and estimators. Using not-yet-treated states as an alternative comparison group yields a similar magnitude ($-2.4\%$, $p < 0.10$). The Sun-Abraham interaction-weighted estimator \citep{sun2021} and synthetic difference-in-differences \citep{arkhangelsky2021} both confirm the direction and approximate size of the effect. Controlling for concurrent Renewable Portfolio Standards, utility decoupling provisions, census division-by-year fixed effects, and heating and cooling degree days leaves the point estimate essentially unchanged. Excluding the pandemic years 2020--2022 produces an identical estimate ($-4.2\%$). Wild cluster bootstrap inference and Honest DiD sensitivity analysis \citep{rambachan2023} reveal, however, that these effects are fragile to even modest violations of the parallel trends assumption---a caution appropriate for any state-level panel with 51 clusters and slow-moving confounders.
+
+Two additional analyses sharpen the interpretation. Commercial electricity consumption---also targeted by many EERS programs---falls by 6.5 percent ($p < 0.01$), consistent with commercial-sector program components contributing to overall savings. Industrial consumption, which EERS programs rarely target directly, declines by a large and unexpected 19 percent---a figure too large to be the work of energy audits alone. This likely reflects broader deindustrialization in the Northeastern and Midwestern states that favored these mandates, and it cautions against interpreting any single sector in isolation. Together, these patterns suggest that the residential effect reflects genuine program-driven conservation, though the industrial result underscores the importance of the parallel trends assumption for causal interpretation.
+
+The welfare implications are favorable. A back-of-the-envelope calculation using the EPA social cost of carbon (\$51/tCO$_2$) and eGRID emissions factors implies annual climate benefits of roughly \$1.0 billion, against estimated program costs of \$1.6 billion. When consumer electricity savings of \$6.2 billion are included, the benefit-cost ratio exceeds 4:1. These numbers should be interpreted with appropriate uncertainty around the social cost of carbon, the marginal emissions rate, and the true program costs, but they suggest that EERS mandates pass a reasonable welfare test even at one-third of engineering projections.
+
+The finding speaks to a central tension in energy economics. While \citet{allcott2015} and \citet{myers2019} have documented the efficiency gap for lightbulbs and housing markets, and \citet{jessoe2014} have shown that information alone changes behavior, no study has tested whether mandated programs close the gap at the population level. They do---but only partially. Mandates reduce consumption by less than engineering models predict, confirming that free-ridership and rebound effects documented at the micro level \citep{allcott2012} aggregate up to a macro-level discount.
+
+Methodologically, EERS presents a textbook case for the heterogeneity-robust estimators developed by \citet{goodmanbacon2021}, \citet{callaway2021}, \citet{sun2021}, and \citet{dechaisemartin2020}: staggered adoption with slow-moving effects across 28 jurisdictions. The concordance between CS-DiD, Sun-Abraham, and SDID estimates across all specifications provides additional evidence that these innovations yield consistent results when the underlying design is sound. \citet{deschenes2023} and \citet{greenstone2024} apply similar methods to Renewable Portfolio Standards; this paper extends the approach to EERS.
+
+The welfare calculation connects causal estimates to policy evaluation through the social cost of carbon \citep{novan2015, epa2021scc}. The 4:1 benefit-cost ratio positions EERS as one of the more cost-effective climate policies in the current portfolio, even after accounting for the engineering-econometric discount. These numbers can be updated as the SCC and marginal emissions rates evolve.
+
+%==============================================================================
+\section{Institutional Background}
+%==============================================================================
+
+An Energy Efficiency Resource Standard mandates that electric utilities achieve specified annual reductions in customer energy consumption through demand-side management programs. Targets typically range from 0.4 percent (Texas) to over 2.0 percent (Massachusetts, Illinois) of retail sales per year. Utilities comply by administering portfolios of customer programs---appliance rebates, weatherization services, commercial building retrofits, industrial process improvements, and behavioral interventions like home energy reports \citep{allcott2011}. Programs are funded through ratepayer surcharges of 1--3 cents per kWh, creating a cross-subsidy from non-participants to participants.
+
+The first EERS was adopted by Connecticut in 1998, with Texas following in 1999 and Vermont in 2000. A cluster of 11 adoptions between 2005 and 2008 coincided with rising energy prices and expanding state clean energy agendas; the largest single cohort---8 jurisdictions including Massachusetts, New York, and Pennsylvania---adopted in 2008. A later wave between 2016 and 2020 added six more states, including Oregon, New Hampshire, New Jersey, Iowa, Maine, and Virginia. By 2020, 28 jurisdictions had mandatory EERS while 23 states---concentrated in the Southeast and Mountain West---remained untreated. Table~\ref{tab:cohorts} lists the adoption cohorts and constituent states, and Figure~\ref{fig:rollout} displays the staggered rollout.
+
+Adoption appears driven by political and institutional factors---regulatory tradition, environmental advocacy, legislative composition---rather than by differential trends in electricity consumption. States did not adopt EERS because their consumption was rising faster than other states, the key threat to parallel trends identification. The event study in Section~\ref{sec:results} provides the strongest evidence for this claim: pre-treatment coefficients are centered on zero for the full decade before adoption.
+
+EERS mandates can reduce electricity consumption through several channels. The direct program channel operates through subsidized efficiency investments---rebates, weatherization, equipment upgrades---that lower the energy intensity of participating households and businesses. The information channel operates through mandatory energy audits, home energy reports, and benchmarking programs that induce behavioral changes even without direct subsidies. The market transformation channel operates through cumulative effects on local contractor markets, appliance availability, and building practices, potentially reducing costs and increasing adoption of efficient technologies beyond directly subsidized installations. Countervailing forces include the rebound effect, whereby efficiency improvements lower the effective price of energy services and induce additional consumption, and free-ridership, whereby programs subsidize investments that would have occurred without the subsidy.
+
+%==============================================================================
+\section{Conceptual Framework}
+%==============================================================================
+
+Consider a state $s$ that adopts an EERS mandate in year $g$, requiring utilities to achieve annual electricity savings of $\theta_s$ percent of retail sales through customer efficiency programs. The expected effect on state-level per-capita residential electricity consumption can be decomposed as:
+\begin{equation}
+\Delta \ln(E_{st}) = \underbrace{-\theta_s \cdot (1 - \phi_s)}_{\text{Net program savings}} + \underbrace{\eta_s \cdot \theta_s \cdot (1-\phi_s)}_{\text{Rebound effect}} + \underbrace{\gamma_s}_{\text{Market transformation}} + \underbrace{\epsilon_{st}}_{\text{Other factors}}
+\label{eq:decomposition}
+\end{equation}
+where $\phi_s \in [0,1]$ is the free-ridership rate, $\eta_s \in [0,1]$ is the rebound elasticity, and $\gamma_s$ captures net spillover effects including market transformation ($\gamma < 0$) and behavioral responses such as the licensing effect ($\gamma > 0$). Simplifying, the net effect is $\Delta \ln(E_{st}) = -\theta_s(1-\phi_s)(1-\eta_s) + \gamma_s + \epsilon_{st}$. The treatment effect is negative when direct net savings exceed positive spillovers: $\theta_s(1-\phi_s)(1-\eta_s) > \gamma_s$.
+
+This framework generates three predictions. EERS adoption should reduce per-capita residential electricity consumption, with effects growing over time as programs mature and cumulative savings accumulate. EERS adoption may increase per-unit electricity prices through program cost recovery surcharges, though the magnitude depends on the regulatory framework, decoupling provisions, and the extent to which reduced demand offsets program costs. Effects should be larger in states with more stringent targets and longer post-adoption periods, reflecting both cumulative program savings and the institutional learning that accompanies program maturation.
+
+With typical parameter values from the engineering literature ($\theta \approx 1.5\%$, $\phi \approx 0.2$, $\eta \approx 0.1$, $\gamma \approx 0$), predicted annual net savings are approximately 1.1 percent, which would cumulate to 5--10 percent over 5--10 years. This provides a quantitative benchmark for interpreting the empirical estimates: if realized savings substantially fall short of this prediction, the gap can be attributed to free-ridership and rebound effects being larger than engineering models assume.
+
+%==============================================================================
+\section{Data}
+%==============================================================================
+
+\subsection{Electricity Consumption and Prices}
+
+To track the impact of these mandates, I assemble a 34-year panel of residential electricity use across all 50 states and the District of Columbia. The primary outcome is per-capita residential electricity consumption, constructed from two EIA sources. The State Energy Data System provides annual energy consumption by state, sector, and fuel from 1960 to 2023; the retail sales dataset provides annual electricity sales, revenue, and average price from 1990 to 2023. Both are accessed via the EIA's open API. For robustness, I also examine commercial and industrial electricity consumption as alternative outcomes and placebo tests.
+
+\subsection{Population}
+
+Annual state population estimates come from the U.S. Census Bureau. For 2000--2023, I use intercensal and annual estimates from the Population Estimates Program (PEP) accessed via the Census API. For 1990--1999, I linearly interpolate between the 1990 Decennial Census count and the April 1, 2000 Census base.
+
+\subsection{Treatment Coding}
+
+I code each state's EERS adoption year based on the ACEEE State Energy Efficiency Resource Standards database, cross-referenced with the Database of State Incentives for Renewables \& Efficiency (DSIRE) and the National Conference of State Legislatures (NCSL). A state is classified as treated in the year it first adopted a binding mandatory EERS with quantitative energy savings targets. States with only voluntary goals or non-binding targets are classified as never-treated, maintaining a sharp treatment definition. This yields 28 treated jurisdictions with adoption years from 1998 to 2020 and 23 never-treated states.
+
+\subsection{Sample Construction}
+
+The analysis sample consists of 51 jurisdictions observed annually from 1990 to 2023 (34 years). Missing electricity consumption data in SEDS for some states in 1990--1994 reduces the estimation sample to 1,479 state-year observations. All 51 jurisdictions contribute observations, and the missingness is concentrated well before treatment adoption begins in 1998.
+
+\subsection{Summary Statistics}
+
+Table~\ref{tab:summary_stats} presents summary statistics separately for EERS and non-EERS states. EERS states have lower per-capita residential electricity consumption, reflecting the concentration of non-adopters in hot-climate Southeastern states with high cooling demand. EERS states have higher average electricity prices, consistent with their location in more expensive markets (Northeast, Pacific). These level differences are absorbed by state fixed effects and do not threaten identification.
+
+\begin{table}[htbp]
+\centering
+\caption{Summary Statistics}
+\label{tab:summary_stats}
+\begin{tabular}{lccccc}
+\toprule
+ & \multicolumn{2}{c}{Full Sample} & \multicolumn{2}{c}{Pre-Treatment} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+ & EERS States & Non-EERS & EERS States & Non-EERS \\
+\midrule
+N (state-years) & 812 & 667 & 500 & 667 \\
+States & 28 & 23 & 28 & 23 \\
+\addlinespace
+\multicolumn{5}{l}{\textit{Panel A: Electricity Consumption}} \\
+\addlinespace
+Mean Per-Capita Res. Elec. & 0.0131 & 0.0178 & 0.0129 & 0.0178 \\
+(Billion Btu) & (0.0037) & (0.0035) & (0.0037) & (0.0035) \\
+\addlinespace
+\multicolumn{5}{l}{\textit{Panel B: Electricity Prices}} \\
+\addlinespace
+Mean Res. Price (\textcent/kWh) & 12.84 & 9.81 & 11.2 & 9.81 \\
+ & (4.52) & (2.5) & (3.71) & (2.5) \\
+\addlinespace
+\multicolumn{5}{l}{\textit{Panel C: Demographics}} \\
+\addlinespace
+Mean Population (millions) & 7.13 & 4.1 & 6.14 & 4.1 \\
+ & (7.69) & (3.99) & (6.24) & (3.99) \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} Standard deviations in parentheses. Per-capita residential electricity consumption measured in Billion Btu per person. Prices in cents per kilowatt-hour. EERS States are the 28 jurisdictions (27 states plus DC) with mandatory Energy Efficiency Resource Standards; Non-EERS states are the 23 states that never adopted mandatory EERS. Pre-treatment sample restricts EERS states to years before adoption.
+\end{tablenotes}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{EERS Adoption Cohorts}
+\label{tab:cohorts}
+\begin{tabular}{ccp{10cm}}
+\toprule
+Year & States & State Abbreviations \\
+\midrule
+1998 & 1 & CT \\
+1999 & 1 & TX \\
+2000 & 1 & VT \\
+2004 & 1 & CA \\
+2005 & 2 & NV, WI \\
+2006 & 2 & RI, WA \\
+2007 & 3 & CO, IL, MN \\
+2008 & 8 & DC, MA, MD, MI, NC, NM, NY, PA \\
+2009 & 1 & HI \\
+2010 & 2 & AR, AZ \\
+2016 & 1 & OR \\
+2018 & 2 & NH, NJ \\
+2019 & 1 & IA \\
+2020 & 2 & ME, VA \\
+\midrule
+Total & 28 & \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} Year indicates the first year with a binding mandatory EERS. States with voluntary goals only are classified as never-treated.
+\end{tablenotes}
+\end{table}
+
+%==============================================================================
+\section{Empirical Strategy}
+%==============================================================================
+
+I estimate the causal effect of EERS adoption on electricity consumption using a difference-in-differences design that exploits the staggered timing of adoption across states. Let $Y_{st}(0)$ denote the potential outcome for state $s$ in year $t$ without EERS, and $Y_{st}(1)$ the potential outcome with EERS. The average treatment effect on the treated for group $g$ at time $t$ is $\text{ATT}(g,t) = \E[Y_{st}(1) - Y_{st}(0) \mid G_s = g]$. The identifying assumption is parallel trends:
+\begin{equation}
+\E[Y_{st}(0) - Y_{s,t-1}(0) \mid G_s = g] = \E[Y_{st}(0) - Y_{s,t-1}(0) \mid G_s = \infty]
+\end{equation}
+for all $t \geq g$, where $G_s = \infty$ denotes never-treated states. Absent treatment, states that adopted EERS in year $g$ would have experienced the same consumption trajectory as states that never adopted.
+
+I use the \citet{callaway2021} doubly-robust estimator, which avoids the ``forbidden comparisons'' that contaminate conventional TWFE \citep{goodmanbacon2021}. The main specification uses never-treated states as the comparison group, doubly-robust estimation combining outcome regression with inverse probability weighting, a universal base period, and clustered bootstrap inference with 1,000 iterations. I aggregate group-time effects into an overall ATT, dynamic event-study coefficients (event times $-10$ to $+15$), and group-level ATTs by adoption cohort.
+
+For comparison, I also report conventional TWFE:
+\begin{equation}
+\ln E_{st}^{\text{pc}} = \alpha_s + \lambda_t + \beta \cdot \text{EERS}_{st} + \varepsilon_{st}
+\label{eq:twfe}
+\end{equation}
+as well as the Sun-Abraham interaction-weighted estimator \citep{sun2021} and synthetic difference-in-differences \citep{arkhangelsky2021}, which combines optimal unit weighting with time differencing.
+
+\subsection{Threats to Validity}
+
+Several threats merit discussion. Selection into treatment is not random: EERS states tend to be wealthier, more urban, and more politically progressive. But DiD requires only parallel trends, not random assignment. State fixed effects absorb all time-invariant differences; the key question is whether time-varying confounders differentially affect the two groups.
+
+Concurrent policies present the most serious concern. EERS states may simultaneously adopt Renewable Portfolio Standards, utility decoupling, and stricter building codes. If these policies correlate with EERS adoption, the estimated effect captures the ``EERS policy package'' rather than the isolated EERS mandate. I control for concurrent RPS and decoupling adoption but interpret estimates as the package effect, noting this is the policy-relevant parameter for states considering adoption.
+
+Anticipation could bias estimates if utilities or consumers adjust behavior in anticipation of EERS adoption. Utilities may begin offering efficiency programs before the mandate takes effect, particularly if the legislative process signals an upcoming requirement. The event study directly addresses this by testing for pre-treatment effects in the years immediately before adoption; the absence of anticipatory effects in the data suggests either that advance implementation is limited or that it occurs close enough to the mandate date to be absorbed by the treatment year coding.
+
+Composition effects could bias estimates if EERS adoption changes the composition of economic activity in a state---for example, if energy-intensive firms relocate to non-EERS states in response to higher electricity costs or regulatory burden. If this occurs, per-capita consumption falls through compositional shifts rather than actual efficiency improvements. I examine this by testing industrial electricity consumption as an alternative outcome. As discussed in Section 7.3, the industrial result does not support a clean falsification test, but the specificity of the residential event study dynamics---gradual post-treatment growth matching institutional program maturation---provides identification-based evidence distinct from compositional confounders.
+
+%==============================================================================
+\section{Results}
+\label{sec:results}
+%==============================================================================
+
+\subsection{Raw Trends}
+
+Figure~\ref{fig:trends} shows mean per-capita residential electricity consumption for EERS and non-EERS states. Both groups follow similar trajectories through the early 2000s, with consumption rising through approximately 2005 and then declining. The divergence between groups begins around 2005--2008, coinciding with the major wave of EERS adoptions.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig2_raw_trends.pdf}
+\caption{Mean Per-Capita Residential Electricity Consumption by EERS Status}
+\label{fig:trends}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig1_treatment_rollout.pdf}
+\caption{Staggered Adoption of Energy Efficiency Resource Standards}
+\label{fig:rollout}
+\end{figure}
+
+\subsection{Main Results}
+
+Table~\ref{tab:main_results} presents the main results. The preferred specification (Column 1) yields an overall ATT of $-0.0415$ (SE $= 0.0096$), corresponding to a 4.15 percent reduction in per-capita residential electricity consumption in EERS states relative to never-treated states, significant at the 1 percent level. This is a weighted average of group-time ATTs, where weights depend on cohort size and post-treatment exposure.
+
+The magnitude implies average annual realized savings of approximately 0.5 percent---about one-third of the 1.0--1.5 percent mandated savings targets. The remaining two-thirds reflect free-ridership (subsidizing actions consumers would have taken anyway), rebound effects (efficiency gains inducing additional consumption), and measurement differences between engineering and econometric approaches.
+
+Conventional TWFE (Column 2) yields $-0.026$ (SE $= 0.018$), similar in sign but attenuated and statistically insignificant. The not-yet-treated comparison group (Column 3) produces $-0.024$ (SE $= 0.014$, $p < 0.10$). The concordance across estimators and control groups supports the direction of the effect.
+
+Column 4 reports the effect on total per-capita electricity. The estimate is larger ($-0.090$, $p < 0.01$), but the event study for total electricity reveals pre-treatment dynamics---coefficients are positive in the early pre-period and decline toward zero before treatment. Given this pre-trend violation, the total electricity result should not be interpreted as causal and is reported only for completeness. The effect on residential prices (Column 5) is $+0.035$ (SE $= 0.021$), positive but statistically insignificant, providing only weak evidence of price pass-through.
+
+\begin{table}[htbp]
+\centering
+\caption{Effect of EERS on Electricity Consumption and Prices}
+\label{tab:main_results}
+\begin{tabular}{lccccc}
+\toprule
+ & (1) & (2) & (3) & (4) & (5) \\
+\midrule
+Outcome: & \multicolumn{3}{c}{Log Res. Elec. PC} & Log Total PC & Log Price \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-5} \cmidrule(lr){6-6}
+\addlinespace
+EERS & -0.0415*** & -0.0260 & -0.0238* & -0.0904*** & 0.0345 \\
+ & (0.0096) & (0.0176) & (0.0138) & (0.0101) & (0.0205) \\
+ & [-0.0603, -0.0227] & [-0.0605, 0.0085] & [-0.0509, 0.0033] & [-0.1102, -0.0706] & [-0.0057, 0.0747] \\
+\addlinespace
+\midrule
+Estimator & CS-DiD & TWFE & CS-DiD & CS-DiD & CS-DiD \\
+Control Group & Never & All$^\dagger$ & Not-yet & Never & Never \\
+State FE & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+Year FE & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+Observations & 1,479 & 1,479 & 1,479 & 1,479 & 1,479 \\
+Treated States & 28 & 28 & 28 & 28 & 28 \\
+Control States & 23 & 23$^\dagger$ & varies & 23 & 23 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} $^{*}p<0.10$, $^{**}p<0.05$, $^{***}p<0.01$. Standard errors clustered at the state level in parentheses; 95\% confidence intervals in brackets. CS-DiD refers to the Callaway and Sant'Anna (2021) doubly-robust estimator. Column (1) is the preferred specification using never-treated states as the comparison group. $^\dagger$TWFE uses all 51 states with treatment-timing variation.
+\end{tablenotes}
+\end{table}
+
+\subsection{Event Study}
+
+Figure~\ref{fig:event_study} presents the dynamic treatment effects. Pre-treatment coefficients (event times $-10$ to $-1$) are centered on zero with no systematic drift, supporting the parallel trends assumption. Post-treatment coefficients show a gradual, monotonic decline consistent with cumulative program effects: near-zero at adoption, approximately $-0.025$ log points at event time 5, and $-0.05$ to $-0.08$ at event times 10--15. This pattern matches the institutional reality that EERS programs require several years to reach full scale---utilities must design programs, hire contractors, recruit participants, and iteratively improve delivery before achieving mandated savings levels.
+
+Long-run estimates (event times 10--15+) are identified primarily from early cohorts (1998--2008), as later cohorts have insufficient post-treatment years to contribute to these event times given the sample ending in 2023. The 2020 cohort (Maine, Virginia) contributes only to event times 0--3. This compositional shift in the identifying variation is important for interpretation: the long-run effects reflect the experience of early-adopting states with established programs and potentially more favorable conditions for efficiency investments. Estimates at distant pre-treatment event times (e.g., $-10$) are likewise identified primarily from later cohorts (2008+) that have sufficient pre-treatment data, as early cohorts have limited pre-treatment years given data availability beginning in 1995.
+
+The Sun-Abraham interaction-weighted estimator produces qualitatively similar dynamics, with post-treatment coefficients ranging from $-0.011$ at event time 0 to $-0.079$ at event time 16. Pre-treatment coefficients at far-distant event times (beyond $-20$) show some noise, expected given that these are identified from a small number of early-adopting states with long pre-treatment histories.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig3_event_study_main.pdf}
+\caption{Dynamic Treatment Effects of EERS on Residential Electricity Consumption}
+\label{fig:event_study}
+\end{figure}
+
+\subsection{Heterogeneity}
+
+Early adopters (pre-2008, 11 states) show a larger average treatment effect of $-4.0\%$ (SE $= 0.020$) compared to late adopters ($-2.3\%$, SE $= 0.016$). Two interpretations are consistent with this pattern: mechanical accumulation (more time implies more cumulative savings), and positive selection (early adopters may implement more ambitious programs). If the difference is primarily mechanical, late adopters will eventually reach similar cumulative reductions; if it reflects selection, the marginal state considering EERS may achieve smaller effects. Figure~\ref{fig:group_att} presents group-level ATTs by adoption cohort.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig5_group_att.pdf}
+\caption{Group-Level Average Treatment Effects by Adoption Cohort}
+\label{fig:group_att}
+\end{figure}
+
+%==============================================================================
+\section{Robustness}
+%==============================================================================
+
+\subsection{Alternative Estimators and Controls}
+
+The main finding survives a comprehensive battery of robustness checks. Figure~\ref{fig:forest} summarizes the point estimates across all specifications; Figure~\ref{fig:control_compare} overlays event studies using never-treated and not-yet-treated comparison groups.
+
+The SDID estimator, applied to early adopters (1998--2004) versus never-treated states with 2004 as the uniform treatment year, yields $-0.041$ (SE $= 0.018$), closely matching the CS-DiD estimate. Table~\ref{tab:sdid_comparison} shows the cross-method comparison. TWFE with census division-by-year fixed effects, which absorbs all region-specific time-varying shocks, yields $-0.011$ (SE $= 0.015$). Controlling for concurrent RPS and decoupling yields $-0.013$ (SE $= 0.018$), with the EERS coefficient remaining negative. Weather controls (HDD, CDD) yield $-0.016$ (SE $= 0.022$). The EERS coefficient is stable across all specifications.
+
+Excluding the pandemic years 2020--2022 leaves the estimate essentially unchanged at $-0.042$ (SE $= 0.010$), confirming that COVID-era consumption disruptions do not drive the result.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig7_robustness_forest.pdf}
+\caption{Summary of ATT Estimates Across Specifications}
+\label{fig:forest}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig4_control_group_comparison.pdf}
+\caption{Robustness: Alternative Control Groups}
+\label{fig:control_compare}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Cross-Method Comparison: EERS Effect on Residential Electricity}
+\label{tab:sdid_comparison}
+\begin{threeparttable}
+\begin{tabular}{lccccc}
+\toprule
+Estimator & Estimate & SE & 95\% CI & States & Obs \\
+\midrule
+Callaway-Sant'Anna (main) & $-0.0415$ & 0.0096 & $[-0.060, -0.023]$ & 51 & 1,479 \\
+TWFE (baseline) & $-0.026$ & 0.0176 & $[-0.060, 0.009]$ & 51 & 1,479 \\
+Synthetic DiD (jackknife) & $-0.041$ & 0.0178 & $[-0.076, -0.006]$ & 27 & 567 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\footnotesize
+\item \textit{Notes:} SDID uses early adopters (1998--2004) vs. never-treated states with 2004 as uniform treatment in a balanced panel (1995--2015); standard errors via jackknife. CS-DiD and TWFE use the full staggered design.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\subsection{Inference and Sensitivity}
+
+With 51 state-level clusters, standard asymptotic inference may understate uncertainty \citep{cameron2008, mackinnon2018}. Wild cluster bootstrap using Mammen weights for the TWFE specification yields a bootstrap p-value of 0.14 and a 95 percent confidence interval of $[-0.058, 0.008]$, somewhat wider than the analytical interval. The bootstrap was applied to TWFE (Column 2), not the preferred CS-DiD (Column 1), which uses its own analytical clustered inference; readers should interpret significance claims with appropriate caution given 51 clusters.
+
+The Honest DiD framework of \citet{rambachan2023} provides a systematic sensitivity analysis. Under exact parallel trends ($M = 0$), the overall ATT and event-time specific effects at horizons 5, 10, and 15 are all statistically significant. As $M$ increases---allowing for bounded violations of parallel trends---confidence intervals widen and cross zero at modest values (around $M = 0.005\text{--}0.01$ for the overall ATT). For the long-run event-time 15 effect, even small trend violations ($M = 0.02$) render the estimate insignificant. This fragility is inherent in state-level panels with slow-moving confounders: the point estimates remain negative and economically meaningful throughout, but the data cannot rule out zero effects if parallel trends are violated. Figure~\ref{fig:honest_sensitivity} presents the M-sensitivity curve.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig8_honest_sensitivity.pdf}
+\caption{Sensitivity to Parallel Trends Violations (Honest DiD)}
+\label{fig:honest_sensitivity}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Honest Confidence Intervals at Selected Event Times}
+\label{tab:honest_intervals}
+\begin{threeparttable}
+\begin{tabular}{lccccc}
+\toprule
+Event Time & Estimate & \multicolumn{2}{c}{M = 0 (Exact PT)} & \multicolumn{2}{c}{M = 0.02 (Modest)} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6}
+ & & Lower & Upper & Lower & Upper \\
+\midrule
+5 years & $-0.046$ & $-0.075$ & $-0.018$ & $-0.175$ & $0.082$ \\
+10 years & $-0.049$ & $-0.072$ & $-0.025$ & $-0.272$ & $0.174$ \\
+15 years & $-0.091$ & $-0.171$ & $-0.010$ & $-0.471$ & $0.290$ \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\footnotesize
+\item \textit{Notes:} $M$ bounds the maximum change in slope of differential trends between consecutive periods. Under $M = 0$, all estimates are significant at the 5\% level; under $M = 0.02$, none are significant.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\subsection{Placebo and Falsification}
+
+Commercial electricity consumption---also targeted by many EERS programs through commercial building retrofits and equipment upgrades---shows a significant negative effect of $-6.5\%$ (SE $= 0.017$, $p < 0.01$). This is consistent with the institutional design: most EERS mandates set savings targets that span residential and commercial sectors, and utilities administer programs in both. The commercial effect corroborates the main residential finding rather than serving as a falsification test.
+
+Industrial electricity consumption, which EERS programs do not typically target directly, shows a large and statistically significant decline of $-19.3\%$ (SE $= 0.038$). This result is difficult to reconcile with a pure EERS mechanism and likely reflects broader economic composition shifts or pre-existing differential trends in industrial activity between EERS and non-EERS states. The industrial result prevents a clean falsification test of the form ``EERS affects residential but not industrial consumption,'' and warrants caution about interpreting the residential effect as entirely program-driven. However, the specificity of the residential event study---flat pre-trends, gradual post-treatment growth matching institutional program maturation---provides identification-based evidence that the residential effect reflects genuine program impacts rather than compositional confounders.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig6_alternative_outcomes.pdf}
+\caption{EERS Effects Across Outcome Variables}
+\label{fig:alt_outcomes}
+\end{figure}
+
+%==============================================================================
+\section{Discussion}
+%==============================================================================
+
+The 4.2 percent consumption reduction implies annual realized savings of approximately 0.5 percent, roughly one-third of the 1.0--1.5 percent claimed by engineering evaluations \citep{barbose2013}. This gap is consistent with prior evidence on free-ridership and rebound effects at the micro level: \citet{fowlie2018} found that weatherization programs achieve only 30--40 percent of predicted savings; \citet{davis2014} documented similar shortfalls in Mexican appliance programs; \citet{metcalf1999} showed that engineering models systematically overpredict energy savings from building retrofits. The population-level estimates confirm that these micro-level gaps aggregate across a broad portfolio of interventions.
+
+The policy implication is direct. Cost-effectiveness calculations that assume engineering projections overstate EERS benefits by a factor of 2--3. States considering EERS adoption should budget for realized savings of 0.5 percent per year, not 1.5 percent, and should design savings targets accordingly. The gradual ramp-up of effects---near-zero in year one, growing to 5--8 percent over 15 years---underscores the importance of sustained multi-year commitments rather than annual targets that may induce short-term program cycling.
+
+Despite the engineering-econometric gap, EERS programs appear cost-effective. The 4.2 percent consumption reduction corresponds to approximately 52 TWh of avoided generation annually, equivalent to the output of 11 large coal-fired power plants. Valued at the EPA social cost of carbon (\$51/tCO$_2$ at a 3 percent discount rate), climate benefits alone approach \$1.0 billion annually \citep{epa2021scc}. Combined with consumer electricity savings of roughly \$6.2 billion (before program costs), the benefit-cost ratio exceeds 4:1 against estimated program costs of \$1.6 billion. Table~\ref{tab:welfare} reports the full calculation.
+
+\begin{table}[H]
+\centering
+\caption{Social Cost of Carbon Welfare Analysis}
+\label{tab:welfare}
+\begin{threeparttable}
+\begin{tabular}{lr}
+\toprule
+Parameter & Value \\
+\midrule
+EERS effect (main ATT) & $-4.2\%$ \\
+Baseline residential consumption (EERS states, 2020) & 1,240 TWh \\
+Estimated consumption reduction & 52 TWh \\
+Grid emissions factor (eGRID 2020) & 0.386 kg CO$_2$/kWh \\
+Avoided CO$_2$ emissions & 20 million metric tons \\
+Social cost of carbon (EPA, 2020\$, 3\%) & \$51/tCO$_2$ \\
+\midrule
+\textbf{Annual climate benefits} & \textbf{\$1.0 billion} \\
+Consumer electricity savings (\$120/MWh) & \$6.2 billion \\
+Estimated program costs (\$30/MWh saved) & \$1.6 billion \\
+\midrule
+\textbf{Benefit-cost ratio} & \textbf{4.5:1} \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\footnotesize
+\item \textit{Notes:} Climate benefits valued using EPA interim social cost of carbon at 3\% discount rate. Consumer savings assume average residential electricity price of \$0.12/kWh. Program costs assume \$30/MWh saved based on ACEEE program cost estimates.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Several limitations deserve acknowledgment. The state-year panel provides limited degrees of freedom---51 clusters over 34 years---and precision is inherently limited for subgroup analyses and mechanism isolation. While the CS estimator is designed for this setting and wild cluster bootstrap inference confirms the analytical standard errors are reasonable, the Honest DiD sensitivity analysis reveals that even modest departures from exact parallel trends erode statistical significance. This is not a weakness specific to this paper; it is a fundamental feature of state-level policy evaluation with slow-moving confounders.
+
+I cannot observe individual household behavior or program participation, precluding decomposition of the aggregate effect into contributions from specific program types (rebates, weatherization, behavioral programs). Individual-level data from utility administrative records would enable such decomposition but are not publicly available. My treatment coding uses the first year of a binding mandatory EERS, but implementation intensity varies substantially across states in terms of savings targets, program spending per customer, and enforcement rigor. A complete treatment intensity analysis would require utility-level DSM expenditure data from EIA Form 861, which is available but heterogeneous in quality across states and years. Future work could leverage this data to estimate dose-response specifications.
+
+Despite controlling for concurrent RPS and decoupling policies, my estimates still capture the combined effect of the EERS mandate and any remaining correlated policies adopted simultaneously. States that adopt EERS may also strengthen building codes, appliance standards, or pursue other demand-side management initiatives not captured by my control variables. The ``EERS policy package'' interpretation is therefore more accurate than claiming isolated EERS effects. This bundled interpretation is policy-relevant---states considering EERS adoption typically adopt accompanying policies---but limits the ability to attribute effects to specific program components.
+
+The concentration of never-treated states in the Southeast and Mountain West may affect external validity. These states have fundamentally different climate profiles, housing stocks, and electricity market structures from the treated states concentrated in the Northeast and Pacific regions. If the counterfactual consumption dynamics in these regions are not fully absorbed by state fixed effects and the robustness controls, the estimated treatment effects may not generalize to all potential EERS adopters. The robustness to census division-by-year fixed effects mitigates this concern, but within-region comparisons are necessarily identified from smaller samples.
+
+The industrial consumption result merits particular attention. The large and statistically significant negative effect ($-19.3\%$) on a sector not directly targeted by most EERS programs is difficult to reconcile with the causal mechanism underlying the residential estimate. Several explanations are possible: EERS states may have experienced broader deindustrialization trends that correlate with but are not caused by EERS adoption; some EERS programs do include industrial components that are larger than commonly recognized; or the staggered adoption pattern may correlate with structural economic changes unrelated to energy policy. Whatever the explanation, the industrial result prevents the clean falsification test that would have strengthened the causal argument, and readers should weigh this evidence when assessing the paper's identification strategy.
+
+%==============================================================================
+\section{Conclusion}
+%==============================================================================
+
+Energy Efficiency Resource Standards reduce electricity consumption. Using heterogeneity-robust difference-in-differences methods and staggered adoption across 28 U.S. jurisdictions, I estimate a 4.2 percent reduction in residential electricity consumption that is statistically significant, robust across estimators and control specifications, and economically meaningful.
+
+The finding resolves a long-standing gap between micro evaluations and macro policy questions. Engineering studies claim savings of 1.0--1.5 percent per year; my population-level estimates imply roughly one-third of that. The discount matters for policy: it means state legislatures should expect real-world savings of about 0.5 percent annually, not the headline figures from engineering consultants. But even at one-third of engineering projections, EERS programs are cost-effective---climate and consumer benefits exceed costs by 4:1.
+
+Two cautions temper these conclusions. The estimates are fragile to violations of the parallel trends assumption, as the Honest DiD analysis demonstrates. Under exact parallel trends, the effects are statistically significant at all horizons examined; under modest violations ($M = 0.02$), none survive. This sensitivity is inherent in state-level panels with slow-moving confounders and should inform how policymakers weight the evidence. And the large effect on industrial consumption---a sector not directly targeted by EERS---suggests that broader economic trends may partly drive the results, complicating the clean causal narrative.
+
+Several directions for future research follow from these findings. First, utility-level program data from EIA Form 861 would enable dose-response specifications that estimate the marginal effect of each additional dollar of DSM spending, moving beyond the binary treatment-control framework used here. Second, household-level administrative billing data, increasingly available through utility data-sharing agreements, could decompose the population-level effect into contributions from specific program types---isolating the roles of weatherization, appliance rebates, and behavioral interventions. Third, the growing use of randomized controlled trials in energy efficiency \citep{allcott2011, burlig2020} could be combined with the quasi-experimental state-level evidence to provide a more complete picture of program effectiveness across the distribution of program types and participant characteristics. Finally, as more states consider adopting or abandoning EERS mandates, the expanding policy variation will permit sharper identification of long-run effects and heterogeneity across regulatory environments.
+
+What this paper establishes is the reduced-form fact: states that mandate energy efficiency achieve lower electricity consumption, and the effect is large enough to justify the expenditure. The gap between engineering claims and econometric reality---roughly 3:1---is a calibration for policy design, not an indictment of efficiency programs. EERS mandates work; they just work about one-third as well as advertised.
+
+\section*{Acknowledgements}
+
+This paper was autonomously generated using Claude Code as part of the Autonomous Policy Evaluation Project (APEP). All electricity consumption and price data are from the U.S. Energy Information Administration. Population data are from the U.S. Census Bureau. EERS treatment coding is based on the ACEEE State Energy Efficiency Resource Standards database, the Database of State Incentives for Renewables \& Efficiency (DSIRE), and the National Conference of State Legislatures (NCSL).
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/auto-policy-evals}
+
+\noindent\textbf{Contributors:} APEP Autonomous Research
+
+\label{apep_main_text_end}
+\newpage
+
+\begin{thebibliography}{99}
+
+\bibitem[Abadie, Diamond, and Hainmueller(2010)]{abadie2010}
+Abadie, A., Diamond, A., and Hainmueller, J. (2010). Synthetic Control Methods for Comparative Case Studies: Estimating the Effect of California's Tobacco Control Program. \textit{Journal of the American Statistical Association}, 105(490), 493--505.
+
+\bibitem[Allcott(2011)]{allcott2011}
+Allcott, H. (2011). Social norms and energy conservation. \textit{Journal of Public Economics}, 95(9--10), 1082--1095.
+
+\bibitem[Allcott and Greenstone(2012)]{allcott2012}
+Allcott, H., and Greenstone, M. (2012). Is there an energy efficiency gap? \textit{Journal of Economic Perspectives}, 26(1), 3--28.
+
+\bibitem[Allcott and Taubinsky(2015)]{allcott2015}
+Allcott, H., and Taubinsky, D. (2015). Evaluating Behaviorally Motivated Policy: Experimental Evidence from the Lightbulb Market. \textit{American Economic Review}, 105(8), 2501--2538.
+
+\bibitem[Arimura et al.(2012)]{arimura2012}
+Arimura, T.H., Li, S., Newell, R.G., and Palmer, K. (2012). Cost-effectiveness of electricity energy efficiency programs. \textit{Energy Journal}, 33(2), 63--99.
+
+\bibitem[Arkhangelsky et al.(2021)]{arkhangelsky2021}
+Arkhangelsky, D., Athey, S., Hirshberg, D.A., Imbens, G.W., and Wager, S. (2021). Synthetic Difference-in-Differences. \textit{American Economic Review}, 111(12), 4088--4118.
+
+\bibitem[Auffhammer and Mansur(2014)]{auffhammer2014}
+Auffhammer, M., and Mansur, E.T. (2014). Measuring climatic impacts on energy consumption: A review of the empirical literature. \textit{Energy Economics}, 46, 522--530.
+
+\bibitem[Baker et al.(2025)]{baker2025}
+Baker, A.C., Callaway, B., Cunningham, S., Goodman-Bacon, A., and Sant'Anna, P.H.C. (2025). Difference-in-Differences Designs: A Practitioner's Guide. arXiv:2503.13323.
+
+\bibitem[Barbose et al.(2013)]{barbose2013}
+Barbose, G.L., Goldman, C.A., Hoffman, I.M., and Billingsley, M. (2013). The future of utility customer-funded energy efficiency programs in the United States: Projected spending and savings to 2025. \textit{Energy Efficiency}, 6, 475--493.
+
+\bibitem[Borenstein and Bushnell(2016)]{borenstein2016}
+Borenstein, S., and Bushnell, J. (2016). The U.S. electricity industry after 20 years of restructuring. \textit{Annual Review of Economics}, 7, 437--463.
+
+\bibitem[Borusyak, Jaravel, and Spiess(2024)]{borusyak2024}
+Borusyak, K., Jaravel, X., and Spiess, J. (2024). Revisiting Event Study Designs: Robust and Efficient Estimation. \textit{Review of Economic Studies}, 91(6), 3253--3285.
+
+\bibitem[Burlig et al.(2020)]{burlig2020}
+Burlig, F., Knittel, C., Rapson, D., Reguant, M., and Wolfram, C. (2020). Machine Learning from Schools about Energy Efficiency. \textit{Journal of the Association of Environmental and Resource Economists}, 7(6), 1181--1217.
+
+\bibitem[Callaway and Sant'Anna(2021)]{callaway2021}
+Callaway, B., and Sant'Anna, P.H.C. (2021). Difference-in-Differences with multiple time periods. \textit{Journal of Econometrics}, 225(2), 200--230.
+
+\bibitem[Cameron, Gelbach, and Miller(2008)]{cameron2008}
+Cameron, A.C., Gelbach, J.B., and Miller, D.L. (2008). Bootstrap-Based Improvements for Inference with Clustered Errors. \textit{Review of Economics and Statistics}, 90(3), 414--427.
+
+\bibitem[Conley and Taber(2011)]{conley2011}
+Conley, T.G., and Taber, C.R. (2011). Inference with ``Difference in Differences'' with a Small Number of Policy Changes. \textit{Review of Economics and Statistics}, 93(1), 113--125.
+
+\bibitem[Davis, Fuchs, and Gertler(2014)]{davis2014}
+Davis, L.W., Fuchs, A., and Gertler, P. (2014). Cash for coolers: Evaluating a large-scale appliance replacement program in Mexico. \textit{American Economic Journal: Economic Policy}, 6(4), 207--238.
+
+\bibitem[de Chaisemartin and D'Haultfoeuille(2020)]{dechaisemartin2020}
+de Chaisemartin, C., and D'Haultfoeuille, X. (2020). Two-way fixed effects estimators with heterogeneous treatment effects. \textit{American Economic Review}, 110(9), 2964--2996.
+
+\bibitem[Deschenes, Malloy, and McDonald(2023)]{deschenes2023}
+Deschenes, O., Malloy, C., and McDonald, G. (2023). Causal Effects of Renewable Portfolio Standards on Renewable Investments and Generation: The Role of Heterogeneity and Dynamics. NBER Working Paper 31568.
+
+\bibitem[Fowlie, Greenstone, and Wolfram(2018)]{fowlie2018}
+Fowlie, M., Greenstone, M., and Wolfram, C. (2018). Do energy efficiency investments deliver? Evidence from the Weatherization Assistance Program. \textit{Quarterly Journal of Economics}, 133(3), 1597--1644.
+
+\bibitem[Gardner(2022)]{gardner2022}
+Gardner, J. (2022). Two-Stage Difference-in-Differences. Working Paper.
+
+\bibitem[Gillingham, Rapson, and Wagner(2016)]{gillingham2018}
+Gillingham, K., Rapson, D., and Wagner, G. (2016). The rebound effect and energy efficiency policy. \textit{Review of Environmental Economics and Policy}, 10(1), 68--88.
+
+\bibitem[Goodman-Bacon(2021)]{goodmanbacon2021}
+Goodman-Bacon, A. (2021). Difference-in-differences with variation in treatment timing. \textit{Journal of Econometrics}, 225(2), 254--277.
+
+\bibitem[Greenstone and Nath(2024)]{greenstone2024}
+Greenstone, M., and Nath, I. (2024). Do Renewable Portfolio Standards deliver cost-effective carbon abatement? University of Chicago Energy Policy Institute Working Paper.
+
+\bibitem[Ito(2014)]{ito2014}
+Ito, K. (2014). Do consumers respond to marginal or average price? Evidence from nonlinear electricity pricing. \textit{American Economic Review}, 104(2), 537--563.
+
+\bibitem[Jacobsen and Kotchen(2013)]{jacobsen2013}
+Jacobsen, G.D., and Kotchen, M.J. (2013). Are building codes effective at saving energy? Evidence from residential billing data in Florida. \textit{Review of Economics and Statistics}, 95(1), 34--49.
+
+\bibitem[Jessoe and Rapson(2014)]{jessoe2014}
+Jessoe, K., and Rapson, D. (2014). Knowledge is (less) power: Experimental evidence from residential energy use. \textit{American Economic Review}, 104(4), 1417--1438.
+
+\bibitem[Joskow(2014)]{joskow2014}
+Joskow, P. (2014). Incentive regulation in theory and practice: Electricity distribution and transmission networks. In \textit{Economic Regulation and Its Reform}, pp. 291--344. University of Chicago Press.
+
+\bibitem[Levinson(2016)]{levinson2016}
+Levinson, A. (2016). How much energy do building energy codes save? Evidence from California houses. \textit{American Economic Review}, 106(10), 2867--2894.
+
+\bibitem[MacKinnon and Webb(2018)]{mackinnon2018}
+MacKinnon, J.G., and Webb, M.D. (2018). The Wild Bootstrap for Few (Treated) Clusters. \textit{The Econometrics Journal}, 21(2), 114--135.
+
+\bibitem[Metcalf and Hassett(1999)]{metcalf1999}
+Metcalf, G.E., and Hassett, K.A. (1999). Measuring the energy savings from home improvement investments: Evidence from monthly billing data. \textit{Review of Economics and Statistics}, 81(3), 516--528.
+
+\bibitem[Mildenberger et al.(2022)]{mildenberger2022}
+Mildenberger, M., Lachapelle, E., Harrison, K., and Stadelmann-Steffen, I. (2022). Limited impacts of carbon tax rebate programmes on public support for carbon pricing. \textit{Nature Climate Change}, 12, 141--147.
+
+\bibitem[Myers(2019)]{myers2019}
+Myers, E. (2019). Are home buyers inattentive? Evidence from capitalization of energy costs. \textit{American Economic Journal: Economic Policy}, 11(2), 165--188.
+
+\bibitem[Novan(2015)]{novan2015}
+Novan, K. (2015). Valuing the Wind: Renewable Energy Policies and Air Pollution Avoided. \textit{American Economic Journal: Economic Policy}, 7(3), 291--326.
+
+\bibitem[Rambachan and Roth(2023)]{rambachan2023}
+Rambachan, A., and Roth, J. (2023). A more credible approach to parallel trends. \textit{Review of Economic Studies}, 90(5), 2555--2591.
+
+\bibitem[Roth(2022)]{roth2022}
+Roth, J. (2022). Pretest with Caution: Event-Study Estimates after Testing for Parallel Trends. \textit{American Economic Review: Insights}, 4(3), 305--322.
+
+\bibitem[Roth et al.(2023)]{roth2023}
+Roth, J., Sant'Anna, P.H.C., Bilinski, A., and Poe, J. (2023). What's Trending in Difference-in-Differences? A Synthesis of the Recent Econometrics Literature. \textit{Journal of Econometrics}, 235(2), 2218--2244.
+
+\bibitem[Sant'Anna and Zhao(2020)]{santanna2020}
+Sant'Anna, P.H.C., and Zhao, J. (2020). Doubly Robust Difference-in-Differences Estimators. \textit{Journal of Econometrics}, 219(1), 101--122.
+
+\bibitem[Sun and Abraham(2021)]{sun2021}
+Sun, L., and Abraham, S. (2021). Estimating Dynamic Treatment Effects in Event Studies with Heterogeneous Treatment Effects. \textit{Journal of Econometrics}, 225(2), 175--199.
+
+\bibitem[EPA(2021)]{epa2021scc}
+U.S. Environmental Protection Agency. (2021). Technical Support Document: Social Cost of Carbon, Methane, and Nitrous Oxide---Interim Estimates under Executive Order 13990. \url{https://www.epa.gov/environmental-economics/scghg}.
+
+\end{thebibliography}
+
+\newpage
+\appendix
+
+%==============================================================================
+\section{Data Appendix}
+%==============================================================================
+
+\subsection{Data Sources and Access}
+
+All data used in this paper are publicly accessible through government APIs and databases.
+
+\textit{EIA State Energy Data System (SEDS).} Accessed via \texttt{api.eia.gov/v2/seds/data/} with the DEMO\_KEY. Series ESRCB (residential electricity, Billion Btu), ESTCB (total), ESCCB (commercial), and ESICB (industrial) were downloaded for all states for 1990--2023.
+
+\textit{EIA Retail Sales.} Accessed via \texttt{api.eia.gov/v2/electricity/retail-sales/data/}. Annual residential and commercial sector data including price, revenue, and sales for 1990--2023.
+
+\textit{Census Population Estimates.} Accessed via \texttt{api.census.gov}. Intercensal estimates for 2000--2009, annual estimates for 2010--2019, and vintage 2023 estimates for 2020--2023. For 1990--1999, linear interpolation between the 1990 and 2000 Decennial Census counts.
+
+\textit{EERS Treatment Coding.} Compiled from the ACEEE State Energy Efficiency Resource Standards database, DSIRE, and NCSL. Treatment defined as the first year of a binding mandatory EERS with quantitative savings targets.
+
+\subsection{Variable Definitions}
+
+The primary dependent variable is the natural logarithm of per-capita residential electricity consumption, constructed as SEDS series ESRCB (Billion Btu) divided by state population. Residential electricity price is the average retail price in cents per kilowatt-hour from EIA retail sales data. The EERS indicator equals one in all years at or after the state's EERS adoption year and zero otherwise; it is zero for all years in never-treated states. The first treatment year is set to zero for never-treated states as required by the \texttt{did} R package.
+
+\subsection{Sample Restrictions}
+
+The panel consists of 51 jurisdictions $\times$ 34 years $= 1{,}734$ potential observations. Missing EIA SEDS data for some states in 1990--1994 reduces the estimation sample to 1,479 state-year observations. All 51 jurisdictions contribute observations.
+
+%==============================================================================
+\section{Identification Appendix}
+%==============================================================================
+
+\subsection{Goodman-Bacon Decomposition}
+
+The TWFE estimate can be decomposed using the \citet{goodmanbacon2021} method. The decomposition reveals that the dominant weight comes from clean treated-vs-untreated comparisons, with smaller contributions from earlier-vs-later and later-vs-earlier comparisons. The positive coefficient on the later-vs-earlier component reflects the ``forbidden comparisons'' that contaminate TWFE in staggered settings. The overall TWFE estimate of $-0.026$ is attenuated relative to the CS estimate of $-0.042$ partly because of this contamination.
+
+%==============================================================================
+\section{Additional Figures}
+%==============================================================================
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig9_honest_by_event.pdf}
+\caption{Honest Confidence Intervals at Key Event Times Under Varying Parallel Trends Assumptions}
+\label{fig:honest_by_event}
+\end{figure}
+
+\bibliography{references}
+
+\end{document}

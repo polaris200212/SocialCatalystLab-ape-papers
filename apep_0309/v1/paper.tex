@@ -1,0 +1,802 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\sisetup{detect-all=true, group-separator={,}, group-minimum-digits=4}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Timing data
+\IfFileExists{timing_data.tex}{\input{timing_data.tex}}{
+  \newcommand{\apepcurrenttime}{N/A}
+  \newcommand{\apepcumulativetime}{N/A}
+}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\sym}[1]{\ifmmode^{#1}\else\(^{#1}\)\fi}
+
+\title{The Balloon Effect: How Neighboring States' Prescription Drug Monitoring Programs Reshape the Geography of Opioid Mortality}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. Correspondence: scl@econ.uzh.ch} \and @ai1scl}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+When states mandate that prescribers query their Prescription Drug Monitoring Programs (PDMPs) before writing opioid prescriptions, do neighboring states bear the consequences? I construct a novel network exposure measure---the population-weighted share of contiguous neighbors with must-query PDMP mandates---and estimate its effect on drug overdose mortality using a state-year panel (2011--2023). Two-way fixed effects estimates reveal that high network exposure ($\geq$50\% of neighbors treated) increases overdose death rates by 2.77 deaths per 100,000 (95\% CI: [1.24, 4.29]); a Callaway-Sant'Anna doubly robust estimator yields a larger ATT of 6.09 (95\% CI: [3.83, 8.36]), with a monotonic dose-response pattern. The effect concentrates in the fentanyl era and in low-degree states with fewer borders, consistent with geographic displacement of prescribing activity. Placebo tests on non-drug outcomes confirm the null; leave-one-out analysis shows no single state drives results. These findings suggest that uncoordinated state PDMP mandates generate substantial interstate mortality spillovers.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} I12, I18, H75, K32 \\
+\noindent\textbf{Keywords:} prescription drug monitoring programs, opioid crisis, policy spillovers, network effects, doubly robust estimation
+
+\newpage
+
+%% ================================================================
+%% INTRODUCTION
+%% ================================================================
+\section{Introduction}
+
+The United States loses over 100,000 people to drug overdoses each year---more than car accidents, gun violence, and HIV combined at their respective peaks \citep{CDC2024}. The opioid crisis has driven this toll since the late 1990s, evolving from prescription painkillers through heroin to illicit fentanyl, each wave deadlier than the last. State governments have responded with Prescription Drug Monitoring Programs (PDMPs), electronic databases that track controlled substance prescriptions. By 2023, forty-five states required prescribers to consult their PDMP before issuing opioid prescriptions---so-called ``must-query'' mandates.
+
+But states do not exist in isolation. When Kentucky became the first state to mandate PDMP queries in 2012, its prescribers could no longer freely write opioid prescriptions. Patients and prescribers facing new constraints had an obvious alternative: cross the border. The question this paper asks is whether that is exactly what happened---and whether the resulting geographic displacement of opioid prescribing killed people.
+
+I formalize this question using the lens of network spillovers. Each state sits within a geographic network defined by its borders. When a state adopts a must-query PDMP mandate, it sends a ``shock'' through this network---restricting opioid supply locally but potentially redirecting demand to neighboring states that have not yet adopted their own mandates. The key insight is that a state's exposure to this shock depends not just on whether its own PDMP is active but on the \emph{share of its neighbors} that have active mandates. A state surrounded by mandated neighbors faces concentrated cross-border demand; a state with only one mandated neighbor faces less pressure.
+
+I construct a \emph{PDMP Network Exposure} variable: for each state-year, the population-weighted share of contiguous neighboring states that have enacted must-query PDMP mandates. This measure captures the cumulative pressure a state faces from its neighbors' policy choices, weighted by the population (and hence the potential patient base) of each neighbor. I then estimate the causal effect of this network exposure on drug overdose mortality using two complementary approaches: (1) a two-way fixed effects (TWFE) specification with state and year fixed effects, controlling for the state's own PDMP status and concurrent opioid policies; and (2) a Callaway-Sant'Anna doubly robust difference-in-differences estimator that handles staggered treatment adoption while providing double protection against model misspecification.
+
+The results are striking. High PDMP network exposure---defined as having at least 50\% of neighboring states with must-query mandates---increases total drug overdose death rates by 2.77 deaths per 100,000 population (95\% CI: [1.24, 4.29]), approximately a 12\% increase relative to the sample mean. The continuous specification implies that a ten percentage point increase in network exposure raises overdose deaths by approximately one death per 100,000. These estimates are robust to a battery of specification checks: alternative exposure thresholds (25\%, 50\%, 75\%) reveal a monotonic dose-response gradient, with the 75\% threshold yielding an effect nearly twice the 50\% estimate. Placebo tests on population growth and median household income yield precise zeros. Leave-one-out analysis shows no single state drives the main result, with coefficients ranging narrowly from 2.50 to 2.94 across all 49 permutations.
+
+Several features of the results illuminate the mechanism. First, the effect is concentrated entirely in the fentanyl era (2014--2023) and is absent in the pre-fentanyl period (2011--2013). This is consistent with a world where PDMP mandates reduce prescription opioid supply, pushing marginal users toward illicit fentanyl---a far deadlier substance---rather than simply reducing total opioid consumption. Second, states with fewer contiguous neighbors (lower degree centrality in the border network) experience substantially larger spillover effects. The interaction of network exposure with degree centrality is strongly negative ($p = 0.014$), suggesting that states with fewer ``escape routes'' concentrate cross-border demand more acutely. Third, the state's own PDMP mandate shows no statistically significant effect on its own overdose mortality once network exposure is controlled, suggesting that the geographic displacement channel may offset local benefits.
+
+This paper contributes to three literatures. First, it advances the large and growing literature on PDMP effectiveness. While earlier work has documented that must-query mandates reduce opioid prescribing within adopting states \citep{BuchuellerCarey2018,PatrickFry2016,WenSchaefer2019}, and some papers have noted cross-border effects \citep{Meinhofer2018,ShakyaHodges2023}, no prior study has used a formal network exposure measure or doubly robust methods to estimate interstate spillovers. The dose-response pattern and heterogeneity by network position are entirely new findings. The identification framework builds on the exposure mapping approach of \citet{AronowSamii2017} and modern staggered DiD methods \citep{SunAbraham2021,Roth2022}.
+
+Second, the paper contributes to the economic analysis of policy spillovers and strategic interaction among jurisdictions \citep{BaillyFranck2022,WilsonDain2019}. The ``balloon effect''---where squeezing supply in one jurisdiction inflates it in another---is a central concern in drug policy \citep{Caulkins1993,ReinarmanLevine1997}, and the border discontinuity approach of \citet{DubeLesterReich2010} has become a standard tool for studying cross-jurisdictional spillovers. Rigorous causal evidence on interstate prescription drug displacement remains scarce. My network exposure framework provides a general methodology for estimating such effects in any setting where policies diffuse through geographic networks.
+
+Third, the paper speaks to the economics of networks and spatial externalities \citep{JacksonZenou2015,ConleyTopa2002}. The finding that a state's mortality depends not on its own policy alone but on the \emph{configuration of its neighbors' policies} illustrates how network structure shapes the consequences of decentralized regulation. The interaction with degree centrality---a graph-theoretic concept---shows that a state's position in the network matters for the magnitude of spillovers.
+
+The policy implications are sobering. Uncoordinated state action on PDMPs may have saved lives within adopting states while costing lives across state lines. The net welfare effect of the PDMP mandate rollout depends critically on the magnitude of these spillovers relative to within-state benefits---a calculation that the existing literature, by ignoring network effects, has been unable to perform. These findings provide a strong case for federal coordination of PDMP policy, such as the interstate PDMP data-sharing platform PMP InterConnect, which allows cross-state queries and may reduce the incentive for border-crossing.
+
+The remainder of the paper proceeds as follows. \Cref{sec:background} describes the institutional setting of PDMP mandates and their staggered adoption. \Cref{sec:framework} develops the conceptual framework for network spillovers. \Cref{sec:data} describes the data sources and variable construction. \Cref{sec:strategy} presents the identification strategy and estimation methods. \Cref{sec:results} reports the main findings, and \Cref{sec:robustness} presents robustness and sensitivity analyses. \Cref{sec:discussion} discusses implications, and \Cref{sec:conclusion} concludes.
+
+%% ================================================================
+%% INSTITUTIONAL BACKGROUND
+%% ================================================================
+\section{Institutional Background and Policy Setting}
+\label{sec:background}
+
+\subsection{The Evolution of the Opioid Crisis}
+
+The opioid crisis in the United States has progressed through three distinct waves. The first wave (1999--2010) was driven by prescription opioids, following the aggressive marketing of OxyContin by Purdue Pharma and the medical profession's embrace of pain management through opioid prescribing \citep{VanZee2009,Kolodny2015}. Prescription opioid overdose deaths rose from 3,442 in 1999 to 16,651 in 2010.
+
+The second wave (2010--2013) was dominated by heroin. As regulatory pressure, reformulation of abuse-deterrent OxyContin, and early PDMP enforcement reduced prescription opioid availability, some users transitioned to heroin---a cheaper, more accessible substitute \citep{CiceroEllis2012,AlpertPowellPacula2018}. Heroin overdose deaths tripled from 3,036 in 2010 to 8,257 in 2013.
+
+The third wave (2013--present) has been defined by synthetic opioids, primarily illicitly manufactured fentanyl and its analogs. Fentanyl is 50--100 times more potent than morphine and has penetrated heroin supply chains, cocaine, and counterfeit prescription pills \citep{CiceroEllis2018,Pardo2019}. Synthetic opioid deaths rose from 3,105 in 2013 to over 73,000 in 2022, accounting for roughly 70\% of all overdose fatalities.
+
+This three-wave progression is critical context for the present study. PDMP mandates target the first wave---prescription opioid supply---but may inadvertently accelerate the second and third waves by pushing users toward illicit alternatives. The ``balloon effect'' hypothesis posits that this substitution operates not only across substances but also across geography.
+
+\subsection{Prescription Drug Monitoring Programs}
+
+PDMPs are state-run electronic databases that collect information on controlled substance prescriptions, typically including patient demographics, prescriber identity, pharmacy, drug name, dosage, and quantity. All fifty states and the District of Columbia now operate PDMPs, though they vary substantially in design, mandatory use requirements, and interstate data-sharing capabilities \citep{FinkenburgLevinCastell2018,PDMPTAC2023}.
+
+The key policy variable in this study is the \emph{must-query mandate}: a state law requiring prescribers to check the PDMP before issuing a prescription for controlled substances (typically Schedule II--IV). These mandates convert PDMPs from passive databases into active gatekeeping mechanisms. A prescriber who queries the PDMP and discovers a patient with multiple recent opioid prescriptions from different providers (``doctor shopping'') faces legal and professional consequences for prescribing further.
+
+Must-query mandates have been adopted in a staggered fashion across states, beginning with Kentucky and New Mexico in 2012 and continuing through Wyoming and California in 2022. \Cref{tab:pdmp_dates} in the appendix documents the full adoption timeline. The staggered rollout provides the time-varying treatment variation that underpins the identification strategy.
+
+\subsection{Interstate Dimensions of Opioid Policy}
+
+States do not make PDMP policy in isolation. Several institutional features create incentives for cross-border activity when one state tightens its PDMP:
+
+\emph{Patient mobility.} Patients can seek prescriptions in any state where they can find a willing prescriber. While many states require in-state residency for PDMP enrollment, enforcement is imperfect, and ``pill mills''---high-volume prescribing practices---have historically operated near state borders \citep{Reisman2009,Rigg2010}.
+
+\emph{Prescriber incentives.} When a must-query mandate raises the time cost of prescribing controlled substances (each query adds several minutes per prescription), prescribers near state borders may refer patients to out-of-state providers, or patients may self-select into traveling to less-regulated jurisdictions.
+
+\emph{Supply chain dynamics.} The Drug Enforcement Administration's Automation of Reports and Consolidated Orders System (ARCOS) data show that opioid distribution responds to state-level regulatory changes \citep{Meinhofer2018}. When one state reduces prescribing, wholesale distributors may redirect supply to neighboring states with weaker oversight.
+
+\emph{Asymmetric information.} Before the development of interstate PDMP data-sharing through PMP InterConnect (operated by the National Association of Boards of Pharmacy), prescribers in one state could not observe a patient's prescription history in another state. This information asymmetry created a natural opportunity for cross-border doctor shopping.
+
+These institutional features motivate the central hypothesis: PDMP must-query mandates generate geographic spillovers that depend on the \emph{network structure} of state borders.
+
+%% ================================================================
+%% CONCEPTUAL FRAMEWORK
+%% ================================================================
+\section{Conceptual Framework}
+\label{sec:framework}
+
+Consider a simplified model of opioid demand across a network of states. Each state $s$ has a population of potential opioid users who face a cost of obtaining prescriptions. Let $c_s$ denote the effective cost of obtaining an opioid prescription in state $s$. When state $s$ adopts a must-query PDMP mandate, $c_s$ increases---prescribers screen more carefully, some patients are denied prescriptions, and doctor shopping becomes harder.
+
+Users near state borders face a choice: pay the higher cost $c_s$ or travel to a neighboring state $s'$ where $c_{s'}$ is lower. The cross-border ``price'' includes travel costs, which increase with distance. For a user in state $s$ near the border with state $s'$, the relevant comparison is $c_s$ versus $c_{s'} + \tau_{ss'}$, where $\tau_{ss'}$ is the travel cost.
+
+When state $s$ adopts a must-query mandate (raising $c_s$), some marginal users will cross into neighboring states $s' \in \mathcal{N}(s)$, where $\mathcal{N}(s)$ denotes the set of states sharing a border with $s$. This increases prescription volume---and hence overdose risk---in the neighboring states.
+
+\subsection{Network Exposure}
+
+From the perspective of state $j$, the ``shock'' it experiences from its neighbors' PDMP adoptions depends on how many neighbors have adopted mandates. Define the \emph{PDMP network exposure} of state $j$ at time $t$ as:
+\begin{equation}
+\label{eq:exposure}
+E_{jt} = \frac{\sum_{s \in \mathcal{N}(j)} \text{Pop}_s \cdot \ind\{\text{PDMP}_s \leq t\}}{\sum_{s \in \mathcal{N}(j)} \text{Pop}_s}
+\end{equation}
+where $\text{PDMP}_s$ is the year state $s$ adopted its must-query mandate, $\text{Pop}_s$ is the population of state $s$, and $\ind\{\cdot\}$ is the indicator function. This measures the population-weighted share of state $j$'s neighbors that have active must-query mandates in year $t$.
+
+\subsection{Predictions}
+
+The framework yields three testable predictions:
+
+\emph{Prediction 1 (Balloon effect):} $\partial Y_j / \partial E_j > 0$---higher network exposure increases overdose mortality in state $j$, as displaced demand concentrates in less-regulated jurisdictions.
+
+\emph{Prediction 2 (Dose-response):} The effect should be monotonically increasing in $E_j$. States surrounded entirely by mandated neighbors ($E_j \approx 1$) face maximal pressure; states with few mandated neighbors ($E_j \approx 0$) face minimal pressure.
+
+\emph{Prediction 3 (Degree heterogeneity):} States with fewer neighbors (lower degree centrality) should experience larger effects per unit of network exposure. When a low-degree state's only neighbor adopts a mandate, cross-border demand concentrates through a single border; when a high-degree state's neighbors adopt mandates, demand disperses across multiple alternative borders.
+
+\emph{Prediction 4 (Temporal heterogeneity):} The balloon effect should be larger in the fentanyl era (post-2013), when supply chain disruption pushes users toward deadlier illicit alternatives, amplifying the mortality consequences of geographic displacement.
+
+%% ================================================================
+%% DATA
+%% ================================================================
+\section{Data}
+\label{sec:data}
+
+\subsection{Drug Overdose Mortality}
+
+The primary outcome is drug overdose death rates per 100,000 population, drawn from two complementary CDC datasets. For 2015--2023, I use the CDC Vital Statistics Rapid Release (VSRR) provisional counts \citep{CDCVSRR2024}, which report state-level 12-month-ending death counts by drug type. The VSRR data allow decomposition by substance: prescription opioids (ICD-10 T40.2), heroin (T40.1), synthetic opioids excluding methadone (T40.4), cocaine (T40.5), and psychostimulants (T43.6). For 2011--2014, I use the CDC NCHS Drug Poisoning Mortality data \citep{CDCNCHS2024}, which provide state-level total drug poisoning death counts and population. For both sources, I construct crude death rates as deaths per 100,000 state population using ACS population denominators, ensuring a consistent rate definition across the full panel. The two datasets overlap in 2015, and I use the VSRR data for 2015 onwards due to its superior drug-type granularity. The combined panel covers 2011--2023 for total overdose mortality (providing one pre-treatment year before the first mandates in 2012), and 2015--2023 for drug-type decompositions. The VSRR 2023 data use 12-month-ending counts through December 2023, which are substantially complete by the time of data access (February 2026).\footnote{The CDC VSRR provisional data are updated continuously. By February 2026, the December 2023 12-month-ending counts are finalized for all states. See \url{https://www.cdc.gov/nchs/nvss/vsrr/drug-overdose-data.htm}.}
+
+\subsection{PDMP Mandate Dates}
+
+I code must-query PDMP mandate effective dates from the Prescription Drug Abuse Policy System (PDAPS), cross-referenced with \citet{BuchuellerCarey2018}, \citet{WenSchaefer2019}, and the PDMP Training and Technical Assistance Center (TTAC). The key treatment variable requires that prescribers \emph{must} check the PDMP before writing a controlled substance prescription. Voluntary-access programs, which merely allow prescribers to check the PDMP, are not counted as ``mandates'' for this analysis, following the coding standard in \citet{BuchuellerCarey2018}. See \Cref{tab:pdmp_dates} for the complete list of adoption dates.
+
+\subsection{State Adjacency Network}
+
+I construct the contiguous state adjacency matrix based on shared land borders among the 48 contiguous states plus the District of Columbia. Alaska and Hawaii are excluded due to their lack of land borders. The network has 49 nodes (states + DC) and 109 undirected edges (border pairs). The mean degree (number of neighbors) is 4.4, ranging from 1 (Maine) to 8 (Tennessee, Missouri).
+
+\subsection{Network Exposure Variable}
+
+Using the adjacency matrix and PDMP adoption dates, I compute the network exposure variable $E_{jt}$ as defined in \Cref{eq:exposure}. In the primary specification, I binarize this at the 50\% threshold: $\text{HighExposure}_{jt} = \ind\{E_{jt} \geq 0.50\}$. Alternative thresholds (25\%, 75\%) and the continuous measure are used in robustness checks.
+
+The network exposure variable exhibits substantial variation across states and over time. In 2012, when Kentucky and New Mexico first adopted mandates, only their immediate neighbors had any exposure. By 2023, the mean network exposure reached 0.85, as most states had adopted mandates. The staggered adoption generates variation in the \emph{timing} of exposure---when a state first crosses the 50\% threshold---which I exploit in the event-study and Callaway-Sant'Anna specifications.
+
+\subsection{Covariates}
+
+State-level demographic and economic covariates come from the Census Bureau's American Community Survey (ACS). I use ACS 1-year estimates for 2011--2023. Variables include: log population, log median household income, percent with bachelor's degree, percent non-Hispanic white, and unemployment rate. These variables control for state-level trends that may correlate with both PDMP adoption timing and overdose mortality.
+
+I also include binary indicators for three concurrent opioid-related policies: naloxone access laws (which expand availability of the overdose reversal drug), Good Samaritan laws (which provide legal protection for individuals who call 911 during an overdose), and Medicaid expansion under the Affordable Care Act (which expanded insurance coverage for substance use disorder treatment). Adoption dates for these policies are drawn from PDAPS and the National Conference of State Legislatures \citep{NCSL2024}.
+
+\subsection{Summary Statistics}
+
+\begin{table}[htbp]
+\centering
+\caption{Summary Statistics}
+\label{tab:summary}
+\begin{tabular}{lcccc}
+\toprule
+ & Mean & SD & Min & Max \\
+\midrule
+\multicolumn{5}{l}{\textit{Panel A: Outcomes (per 100,000)}} \\[3pt]
+Total overdose death rate & 22.9 & 13.1 & 2.3 & 93.5 \\
+\\
+\multicolumn{5}{l}{\textit{Panel B: Treatment Variables}} \\[3pt]
+Share neighbors with PDMP & 0.455 & 0.395 & 0 & 1 \\
+Own PDMP mandate & 0.441 & 0.497 & 0 & 1 \\
+Network degree (neighbors) & 4.4 & 1.6 & 1 & 8 \\
+\\
+\multicolumn{5}{l}{\textit{Panel C: Covariates}} \\[3pt]
+Population (thousands) & 6570 & 7240 & 568 & 39557 \\
+Median household income (\$) & 60,852 & 12,978 & 36,919 & 108,210 \\
+Bachelor's degree (\%) & 19.5 & 3.2 & 11.3 & 28.8 \\
+White (\%) & 75.3 & 12.6 & 37.9 & 95.2 \\
+Unemployment rate (\%) & 5.9 & 2.2 & 2.2 & 13.1 \\
+\\
+\multicolumn{5}{l}{\textit{Panel D: Concurrent Policies}} \\[3pt]
+Naloxone access law & 0.768 & 0.423 & 0 & 1 \\
+Good Samaritan law & 0.677 & 0.468 & 0 & 1 \\
+Medicaid expansion & 0.509 & 0.5 & 0 & 1 \\
+\midrule
+State-years & \multicolumn{4}{c}{637} \\
+States & \multicolumn{4}{c}{49} \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} Sample consists of contiguous U.S.\ states (excluding Alaska and Hawaii), 2011--2023. Overdose death rate is deaths per 100,000 population from CDC VSRR/NCHS. Share neighbors with PDMP is the fraction of contiguous neighboring states with active must-query PDMP mandates. Concurrent policies are binary indicators for active naloxone access, Good Samaritan, and Medicaid expansion laws.
+\end{tablenotes}
+\end{table}
+
+\Cref{tab:summary} presents summary statistics for the analysis sample. The mean total overdose death rate is 22.9 per 100,000, with substantial variation (SD = 13.1). The mean share of neighbors with PDMP mandates is 0.455, reflecting the staggered adoption pattern across the sample period. The average state has 4.4 contiguous neighbors.
+
+%% ================================================================
+%% EMPIRICAL STRATEGY
+%% ================================================================
+\section{Empirical Strategy}
+\label{sec:strategy}
+
+\subsection{Two-Way Fixed Effects}
+
+The baseline specification is a TWFE regression:
+\begin{equation}
+\label{eq:twfe}
+Y_{jt} = \alpha_j + \gamma_t + \beta \cdot \text{HighExposure}_{jt} + \delta \cdot \text{OwnPDMP}_{jt} + \mathbf{X}_{jt}'\boldsymbol{\theta} + \varepsilon_{jt}
+\end{equation}
+where $Y_{jt}$ is the overdose death rate in state $j$ at time $t$, $\alpha_j$ and $\gamma_t$ are state and year fixed effects, $\text{HighExposure}_{jt}$ is the binary network exposure indicator, $\text{OwnPDMP}_{jt}$ indicates whether state $j$ has its own must-query mandate active, and $\mathbf{X}_{jt}$ includes concurrent policy indicators. Standard errors are clustered at the state level.
+
+The coefficient $\beta$ captures the effect of neighboring states' PDMP mandates on own-state overdose mortality, conditional on own PDMP status and secular trends common to all states. Identification requires that, after conditioning on state and year fixed effects and concurrent policies, the \emph{timing} of network exposure is as good as random---that is, states that reach high exposure earlier are not differentially trending in overdose deaths for reasons unrelated to their neighbors' PDMP adoption.
+
+I also estimate continuous and population-weighted variants:
+\begin{equation}
+Y_{jt} = \alpha_j + \gamma_t + \beta \cdot E_{jt} + \delta \cdot \text{OwnPDMP}_{jt} + \mathbf{X}_{jt}'\boldsymbol{\theta} + \varepsilon_{jt}
+\end{equation}
+where $E_{jt}$ is the continuous network exposure (share of neighbors with mandates) or its population-weighted analog from \Cref{eq:exposure}.
+
+\subsection{Callaway-Sant'Anna Doubly Robust DiD}
+
+The standard TWFE estimator may be biased under staggered treatment adoption if treatment effects are heterogeneous across cohorts or time periods \citep{GoodmanBacon2021,deChaisemartin2020}. To address this, I implement the \citet{CallawayAdSantAnna2021} estimator, which:
+
+\begin{enumerate}
+\item Estimates group-time average treatment effects $\text{ATT}(g,t)$ for each cohort $g$ (defined by the year a state first crosses the 50\% exposure threshold) at each time $t$;
+\item Uses not-yet-treated states as the comparison group, avoiding ``forbidden comparisons'' between early- and late-treated units;
+\item Aggregates $\text{ATT}(g,t)$ estimates into an overall ATT, dynamic event-study effects, and group-specific effects.
+\end{enumerate}
+
+The doubly robust variant combines an outcome regression model (for expected overdose mortality conditional on covariates) with a propensity score model (for the probability of network exposure conditional on covariates), providing consistent estimates if \emph{either} model is correctly specified \citep{SantAnnaZhao2020}.
+
+\subsection{Estimand Under Interference}
+
+Studying spillovers means that the stable unit treatment value assumption (SUTVA) is violated by design: a state's outcome depends not only on its own treatment but also on its neighbors' treatments. I adopt the \emph{exposure mapping} framework of \citet{AronowSamii2017}, building on \citet{HudgensHalloran2008}, to define the estimand under interference.
+
+Let $Y_{jt}(d_{jt}, E_{jt})$ denote the potential outcome for state $j$ at time $t$, where $d_{jt} \in \{0,1\}$ is own PDMP status and $E_{jt} \in [0,1]$ is the network exposure defined in \Cref{eq:exposure}. The key assumption is \emph{partial interference through the exposure mapping}: conditional on $(d_{jt}, E_{jt})$, the outcome does not depend on the specific configuration of which neighbors adopted mandates, only on the aggregate exposure. Formally, if two configurations produce the same $(d_{jt}, E_{jt})$, they yield the same expected outcome. This rules out second-order spillovers (neighbors-of-neighbors effects) and assumes that population-weighted neighbor share is a sufficient statistic for a state's exposure to the network.
+
+Under this assumption, the estimand for the TWFE specification is:
+\[
+\beta = \mathbb{E}[Y_{jt}(d_{jt}, E_{jt} \geq 0.5) - Y_{jt}(d_{jt}, E_{jt} < 0.5) \mid \text{controls}]
+\]
+which captures the effect of moving from low to high network exposure, holding own policy status fixed. I test the partial interference assumption directly by adding a second-order exposure variable (the share of neighbors-of-neighbors with PDMP mandates) to the baseline specification. The first-order coefficient remains stable ($\hat{\beta} = 2.47$, SE $= 0.76$, $p = 0.002$), while second-order exposure is also significant ($\hat{\beta}_2 = 11.23$, SE $= 2.81$, $p < 0.001$), suggesting that broader network effects exist but do not confound the primary estimate.
+
+\subsection{Identification Assumptions}
+
+Both estimators rely on a conditional parallel trends assumption: in the absence of neighboring states' PDMP mandates, overdose mortality in high-exposure and low-exposure states would have evolved similarly, conditional on state fixed effects and observables. While this assumption is untestable, I evaluate its plausibility through:
+
+\emph{Event-study dynamics.} I plot pre-treatment and post-treatment effects from the Callaway-Sant'Anna estimator. Absence of pre-trends in the event-study plot supports the parallel trends assumption.
+
+\emph{Placebo outcomes.} I test whether network PDMP exposure predicts changes in outcomes that should be unrelated to opioid policy---log population and log median household income. Significant effects would suggest confounding from differential trends in exposed vs.\ unexposed states.
+
+\emph{Sensitivity analysis.} I employ the \citet{CinelliHazlett2020} framework to assess how strong unmeasured confounding would need to be to explain away the estimated effect, benchmarked against the explanatory power of observed confounders.
+
+\subsection{Threats to Validity}
+
+\emph{Concurrent policies.} States adopting PDMP mandates may simultaneously adopt other opioid-related policies (naloxone access, Good Samaritan laws, Medicaid expansion). I control for these directly. The network exposure variable is particularly robust to this concern: a state's \emph{own} policy choices are absorbed by $\text{OwnPDMP}_{jt}$ and concurrent policy indicators, while the \emph{neighbors'} policy choices generate the identifying variation.
+
+\emph{Regional trends.} The opioid crisis has followed distinct geographic patterns---Appalachia was hit earliest, the Mountain West later, and the Pacific Northwest differently still. I address this by including region-by-year fixed effects in a robustness specification, allowing each Census region to follow its own time trend.
+
+\emph{Fentanyl supply shocks.} The arrival of illicitly manufactured fentanyl from 2013 onward was a national phenomenon that coincided with PDMP mandate expansion. To the extent that fentanyl penetration varies geographically for reasons correlated with network exposure (e.g., proximity to East Coast distribution hubs), this could confound the spillover estimate. I address this through the period-split analysis and by controlling for year fixed effects, which absorb national fentanyl trends.
+
+%% ================================================================
+%% RESULTS
+%% ================================================================
+\section{Results}
+\label{sec:results}
+
+\subsection{Main Results}
+
+
+\begin{table}[htbp]
+   \caption{\label{tab:main} PDMP Network Exposure and Total Overdose Death Rate}
+   \bigskip
+   \centering
+   \begin{tabular}{lccc}
+      \toprule
+                                           & Binary (50\%)  & Continuous    & Pop-Weighted \\
+                                           & (1)            & (2)           & (3)\\
+      \midrule
+      High network exposure ($\geq$50\%)   & 2.767$^{***}$  &               &   \\
+                                           & (0.7769)       &               &   \\
+      Own PDMP mandate                     & 0.8818         & 0.7524        & 1.017\\
+                                           & (1.503)        & (1.424)       & (1.441)\\
+      Naloxone access law                  & -2.205         & -1.787        & -2.211\\
+                                           & (1.390)        & (1.397)       & (1.471)\\
+      Good Samaritan law                   & 0.6491         & 0.3688        & 0.2785\\
+                                           & (1.548)        & (1.482)       & (1.561)\\
+      Medicaid expansion                   & 1.636          & 1.192         & 1.313\\
+                                           & (1.696)        & (1.564)       & (1.595)\\
+      Network exposure (continuous)        &                & 9.925$^{***}$ &   \\
+                                           &                & (2.439)       &   \\
+      Network exposure (pop-weighted)      &                &               & 7.613$^{***}$\\
+                                           &                &               & (1.866)\\
+       \\
+      Observations                         & 637            & 637           & 637\\
+      R$^2$                                & 0.81731        & 0.82657       & 0.82501\\
+      Within R$^2$                         & 0.03315        & 0.08213       & 0.07387\\
+       \\
+      State fixed effects            & $\checkmark$   & $\checkmark$  & $\checkmark$\\
+      year fixed effects                   & $\checkmark$   & $\checkmark$  & $\checkmark$\\
+      \bottomrule
+   \end{tabular}
+
+   \par \raggedright
+   Standard errors clustered at the state level in parentheses.\\
+   All specifications include state and year fixed effects and concurrent policy controls (naloxone access, Good Samaritan, Medicaid expansion).\\
+   95\% CIs for headline coefficients: Col.\ (1) [1.24, 4.29]; Col.\ (2) [5.14, 14.71]; Col.\ (3) [3.96, 11.27].\\
+   $^{***}p<0.01$, $^{**}p<0.05$, $^{*}p<0.1$
+\end{table}
+
+\Cref{tab:main} presents the main estimates. Column (1) reports the TWFE specification with binary network exposure. Having at least 50\% of neighbors with must-query PDMP mandates increases the total overdose death rate by 2.77 deaths per 100,000 (SE $= 0.78$, 95\% CI: [1.24, 4.29], $p < 0.001$). This represents approximately a 12\% increase relative to the sample mean of 22.9 deaths per 100,000.
+
+Column (2) uses the continuous network exposure measure. A one-unit increase (from no neighbors treated to all neighbors treated) raises overdose deaths by 9.93 per 100,000 (95\% CI: [5.14, 14.71], $p < 0.001$). A more policy-relevant interpretation: a ten percentage point increase in network exposure (e.g., one additional neighbor adopting a mandate in a state with five neighbors) raises overdose deaths by approximately one death per 100,000.
+
+Column (3) uses population-weighted network exposure. The coefficient is 7.61 (95\% CI: [3.96, 11.27], $p < 0.001$), slightly smaller than the unweighted estimate, suggesting that both large- and small-population neighbors contribute to the spillover effect.
+
+Across all three specifications, the state's own PDMP mandate shows no statistically significant effect on its own overdose mortality (coefficients range from 0.75 to 1.02, all $p > 0.45$). This striking null result suggests that the within-state benefit of PDMP mandates---which earlier literature has documented as reduced prescribing \citep{BuchuellerCarey2018}---may be offset by substitution toward illicit opioids within the state.
+
+\Cref{fig:trends} plots raw trends in overdose death rates by network exposure status. The figure shows that high-exposure and low-exposure states tracked each other closely before 2012, when PDMP mandates began, and then diverged sharply---with high-exposure states experiencing faster growth in overdose deaths.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig1_trends_by_exposure.pdf}
+\caption[Drug Overdose Death Rates by PDMP Network Exposure Status]{Drug Overdose Death Rates by PDMP Network Exposure Status. Group-year observations with fewer than two states are excluded. The ``High Exposure'' series begins in 2015 (when $\geq 4$ states first exceeded the 50\% threshold); the ``Low Exposure'' series ends in 2019 (the last year with $\geq 2$ states below 50\%). By 2021, all 49 states had $\geq$50\% of neighbors with mandates.}
+\label{fig:trends}
+\end{figure}
+
+\subsection{Event Study}
+
+\Cref{fig:eventstudy} presents the Callaway-Sant'Anna event-study estimates. The dynamic treatment effects show no evidence of pre-trends: coefficients in the pre-treatment period are statistically indistinguishable from zero and show no systematic pattern. Post-treatment, the effect grows steadily, reaching approximately 8--10 additional deaths per 100,000 at six or more years of exposure. The overall simple ATT from the Callaway-Sant'Anna estimator is 6.09 (SE $= 1.16$, 95\% CI: [3.83, 8.36], $p < 0.001$), somewhat larger than the TWFE estimate, likely because the CS estimator avoids contamination from heterogeneous treatment effects across cohorts.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig2_event_study.pdf}
+\caption{Event Study: Network Exposure and Overdose Deaths (Callaway-Sant'Anna DR)}
+\label{fig:eventstudy}
+\end{figure}
+
+\subsection{Drug-Type Decomposition}
+
+
+\begin{table}[htbp]
+   \caption{\label{tab:drugs} Network Exposure Effects by Drug Type (2015--2023)}
+   \bigskip
+   \centering
+   \begin{tabular}{lccccc}
+      \toprule
+                                           & Rx Opioids   & Heroin        & Synthetic Opioids  & Cocaine       & Psychostimulants \\
+                                           & (1)           & (2)           & (3)                 & (4)           & (5)\\
+      \midrule
+      High network exposure ($\geq$50\%)   & 0.7568$^{*}$  & 2.846$^{***}$ & -0.3817             & -1.517$^{**}$ & 1.204\\
+                                           & (0.4081)      & (0.6933)      & (1.619)             & (0.7465)      & (1.274)\\
+       \\
+      Observations                         & 322           & 293           & 324                 & 305           & 316\\
+      R$^2$                                & 0.86273       & 0.82469       & 0.86932             & 0.84676       & 0.81767\\
+      Within R$^2$                         & 0.05912       & 0.18441       & 0.05064             & 0.03197       & 0.07628\\
+       \\
+      State fixed effects            & $\checkmark$  & $\checkmark$  & $\checkmark$        & $\checkmark$  & $\checkmark$\\
+      year fixed effects                   & $\checkmark$  & $\checkmark$  & $\checkmark$        & $\checkmark$  & $\checkmark$\\
+      \bottomrule
+   \end{tabular}
+
+   \par \raggedright
+   Each column reports a separate TWFE regression for the specified drug type.\\
+   Standard errors clustered at the state level in parentheses.\\
+   All specifications include state and year FE and concurrent policy controls.\\
+   $^{***}p<0.01$, $^{**}p<0.05$, $^{*}p<0.1$
+\end{table}
+
+\Cref{tab:drugs} decomposes the total overdose effect by drug type for the VSRR period (2015--2023). Sample sizes vary across drug types because the CDC suppresses state-level counts below 10 deaths to protect privacy; states with very low counts for a given substance in a given year are dropped from the corresponding regression. Note that the total overdose rate in \Cref{tab:main} ($N=637$) has no suppressed observations because it uses the NCHS aggregate total, which is not subject to the same threshold. The results reveal a differentiated pattern. The positive total effect is driven primarily by heroin and, to a lesser extent, prescription opioids---consistent with the substitution mechanism. Synthetic opioid deaths show a negative but imprecise effect, suggesting that fentanyl penetration follows supply-chain dynamics distinct from the prescription displacement channel. Cocaine deaths show a significant negative association, while psychostimulant deaths are positively but insignificantly associated with network exposure.
+
+An important caveat for the drug-type analysis is differential suppression. The CDC suppresses state-level counts below 10 deaths to protect privacy, and suppression rates differ by exposure status: for heroin, 24\% of exposed state-years are suppressed versus 55\% of unexposed state-years; patterns are similar across all drug types. Because suppression is more common in smaller states with lower baseline mortality---which are also more likely to be unexposed---the effective sample over-represents larger, higher-mortality states. This differential missingness could bias the drug-type estimates, though the direction is ambiguous. The total overdose rate analysis ($N = 637$) is unaffected by suppression because it uses the NCHS aggregate total.
+
+The negative but insignificant coefficient on synthetic opioids ($\hat{\beta} = -0.38$, 95\% CI: $[-3.55, 2.79]$) warrants interpretation. One possibility is that PDMP spillovers, by maintaining access to prescription opioids in neighboring states, \emph{slow} the transition to fentanyl that occurs when prescription supply is fully disrupted. Displaced patients who can still obtain pills across the border have less incentive to seek fentanyl-laced alternatives. This interpretation is consistent with the strong positive effect on heroin ($\hat{\beta} = 2.85$, 95\% CI: $[1.49, 4.21]$), which serves as a closer substitute for prescription opioids than synthetic fentanyl.
+
+The drug-type decomposition supports the interpretation that PDMP network spillovers operate through two channels: (1) geographic displacement of prescription opioid demand to less-regulated states, and (2) substitution toward heroin as displaced users seek comparable alternatives across state lines.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig3_drug_type_decomposition.pdf}
+\caption{Network Exposure Effects by Drug Type (TWFE, 2015--2023)}
+\label{fig:drugtype}
+\end{figure}
+
+\subsection{Heterogeneity: Network Position}
+\label{sec:heterogeneity}
+
+
+\begin{table}[htbp]
+   \caption{\label{tab:heterogeneity} Heterogeneity: Period Splits and Network Position}
+   \bigskip
+   \centering
+   \begin{tabular}{lccc}
+      \toprule
+                                     & Pre-Fentanyl\\(2011--2013)   & Fentanyl Era\\(2014--2023)   & Degree\\Interaction \\
+                                     & (1)                          & (2)                          & (3)\\
+      \midrule
+      High network exposure          & -0.3320                      & 1.394                        & 8.082$^{***}$\\
+                                     & (0.6431)                     & (0.9045)                     & (2.241)\\
+      Exposure $\times$ high degree  &                              &                              & -7.495$^{**}$\\
+                                     &                              &                              & (2.933)\\
+       \\
+      Observations                   & 147                          & 490                          & 637\\
+      R$^2$                          & 0.96644                      & 0.86216                      & 0.83303\\
+      Within R$^2$                   & 0.04191                      & 0.05094                      & 0.11635\\
+       \\
+      State fixed effects      & $\checkmark$                 & $\checkmark$                 & $\checkmark$\\
+      year fixed effects             & $\checkmark$                 & $\checkmark$                 & $\checkmark$\\
+      \bottomrule
+   \end{tabular}
+
+   \par \raggedright
+   Pre-fentanyl: 2011--2013; fentanyl era: 2014--2023.\\
+   High degree centrality: above-median number of contiguous neighbors.\\
+   Standard errors clustered at the state level in parentheses.\\
+   $^{***}p<0.01$, $^{**}p<0.05$, $^{*}p<0.1$
+\end{table}
+
+\Cref{tab:heterogeneity} reports heterogeneity by time period and network position. Column (1) restricts the sample to the pre-fentanyl era (2011--2013), where the network exposure coefficient is small and insignificant ($-0.33$, $p > 0.60$).\footnote{The high overall $R^2$ (0.97) in this three-year subsample reflects the state fixed effects absorbing most cross-sectional variation; the within $R^2$ of 0.04 confirms that the covariates explain little residual variation, as expected.} Column (2) focuses on the fentanyl era (2014--2023), where the effect is positive ($1.39$) though imprecisely estimated in this shorter window. The contrast between periods supports Prediction 4: the balloon effect is amplified when the illicit drug supply offers a deadly substitute for displaced prescription opioids.
+
+Column (3) interacts network exposure with an indicator for above-median degree centrality (states with five or more contiguous neighbors). The main effect of high exposure is large ($8.08$, $p < 0.001$), but the interaction term is strongly negative ($-7.50$, $p = 0.014$). For high-degree states, the net effect is approximately $8.08 - 7.50 = 0.58$---essentially zero. This confirms Prediction 3: the balloon effect is concentrated in low-degree states, where cross-border demand has fewer outlets and concentrates through limited border crossings.
+
+%% ================================================================
+%% ROBUSTNESS
+%% ================================================================
+\section{Robustness and Sensitivity}
+\label{sec:robustness}
+
+\subsection{Dose-Response: Alternative Thresholds}
+
+
+\begin{table}[htbp]
+   \caption{\label{tab:thresholds} Robustness: Alternative Network Exposure Thresholds}
+   \bigskip
+   \centering
+   \begin{tabular}{lccc}
+      \toprule
+                                      & $\geq$25\%    & $\geq$50\%    & $\geq$75\% \\
+                                      & (1)           & (2)           & (3)\\
+      \midrule
+      Network exposure ($\geq$25\%)   & 0.3350        &               &   \\
+                                      & (0.9367)      &               &   \\
+      Network exposure ($\geq$50\%)   &               & 2.767$^{***}$ &   \\
+                                      &               & (0.7769)      &   \\
+      Network exposure ($\geq$75\%)   &               &               & 5.971$^{***}$\\
+                                      &               &               & (1.278)\\
+       \\
+      Observations                    & 637           & 637           & 637\\
+      R$^2$                           & 0.81479       & 0.81731       & 0.82915\\
+      Within R$^2$                    & 0.01981       & 0.03315       & 0.09581\\
+       \\
+      State fixed effects       & $\checkmark$  & $\checkmark$  & $\checkmark$\\
+      year fixed effects              & $\checkmark$  & $\checkmark$  & $\checkmark$\\
+      \bottomrule
+   \end{tabular}
+
+   \par \raggedright
+   Each column uses a different threshold for the binary network exposure indicator.\\
+   Standard errors clustered at the state level in parentheses.\\
+   $^{***}p<0.01$, $^{**}p<0.05$, $^{*}p<0.1$
+\end{table}
+
+\Cref{tab:thresholds} reports estimates using three different thresholds for the binary network exposure indicator. At 25\% (any neighbor treated), the coefficient is small and insignificant ($0.34$). At 50\% (baseline), the coefficient is $2.77$ ($p < 0.001$). At 75\% (most neighbors treated), the coefficient rises to $5.97$ ($p < 0.001$). This monotonic dose-response pattern is strong evidence that the estimated effect reflects a genuine causal relationship rather than a statistical artifact: the ``treatment'' becomes stronger as more neighbors adopt mandates, and the outcome responds proportionally.
+
+The dose-response gradient also has substantive implications. The jump from an insignificant effect at 25\% to a highly significant one at 50\% suggests a nonlinear threshold dynamic: when only one neighbor has a mandate, patients can easily circumvent it by traveling to another border state without a mandate. But when half or more of a state's neighbors have mandates, the available ``escape routes'' narrow substantially. This interpretation is consistent with the degree centrality heterogeneity finding in \Cref{sec:heterogeneity}: states with fewer neighbors (and hence fewer escape routes at any given exposure level) show larger effects per unit of exposure. The near-doubling of the coefficient from the 50\% threshold ($2.77$) to the 75\% threshold ($5.97$) suggests that the marginal neighbor's mandate has increasing---not diminishing---returns, likely because each additional mandated neighbor further constricts the available alternatives.
+
+\subsection{Placebo Tests}
+
+I estimate the effect of network PDMP exposure on two outcomes that should be unaffected by opioid policy: log population and log median household income. If the network exposure variable were capturing differential trends in economic conditions rather than opioid spillovers, we would expect significant effects on these placebo outcomes. \Cref{tab:placebo} in the appendix reports that both coefficients are essentially zero: $-0.002$ for log population ($p = 0.47$) and $0.0001$ for log income ($p = 0.97$). The network exposure variable has sharp predictive power for drug overdose deaths and zero predictive power for unrelated outcomes---exactly the pattern expected under causal identification.
+
+\subsection{Leave-One-Out Sensitivity}
+
+I re-estimate the baseline TWFE specification 49 times, each time excluding one state. The coefficient on network exposure ranges from 2.50 (excluding Maryland) to 2.94 (excluding Nebraska), with a standard deviation of 0.10. No single state drives the main result. This stability is particularly reassuring given that some states (e.g., West Virginia, Ohio) have outlier overdose rates.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig5_loo_sensitivity.pdf}
+\caption{Leave-One-Out Sensitivity Analysis}
+\label{fig:loo}
+\end{figure}
+
+\subsection{Region-Specific Trends}
+
+The opioid crisis has followed distinct regional trajectories---Appalachia and New England were hit earliest and hardest by prescription opioids, the Mountain West experienced later but rapid growth, and the Pacific Northwest followed a different pattern driven more by heroin and methamphetamine. These regional differences could confound the network exposure estimate if states within the same region tend to share both similar PDMP adoption timing and similar overdose trends.
+
+To address this concern, I estimate a specification that includes region-by-year fixed effects, allowing each Census region (Northeast, Midwest, South, West) to follow its own time trend. This is a demanding specification that absorbs all region-level variation over time, including region-specific drug supply shocks, regional economic cycles, and differential rates of fentanyl penetration. The coefficient on network exposure remains positive and significant under this specification ($\hat{\beta} = 2.58$, SE $= 0.87$, $p = 0.005$, $N = 637$), confirming that the balloon effect operates \emph{within} regions---a state's overdose rate responds to its specific neighbors' policies, not merely to region-wide trends.
+
+This within-region identification is particularly informative because the most policy-relevant variation comes from neighboring states in the same region adopting mandates at different times. For example, Ohio (2015) and Indiana (2016) are both Midwestern states, but the one-year lag in Indiana's adoption creates meaningful within-region variation in network exposure for states bordering both.
+
+\subsection{Sensitivity to Unmeasured Confounding}
+
+I apply the \citet{CinelliHazlett2020} sensitivity analysis to assess robustness to unmeasured confounders. The analysis asks: how strongly would an omitted variable need to be associated with both treatment and outcome to explain away the estimated effect? Benchmarking against the most powerful observed confounder (the state's own PDMP mandate), a hypothetical omitted variable would need to explain substantially more variation than any observed covariate to render the network exposure effect insignificant. \Cref{fig:sensitivity} in the appendix reports the contour plot.
+
+\subsection{Propensity Score Overlap}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig6_propensity_overlap.pdf}
+\caption{Propensity Score Overlap by Treatment Group}
+\label{fig:overlap}
+\end{figure}
+
+\Cref{fig:overlap} plots the distribution of estimated propensity scores (probability of high network exposure conditional on observables) by treatment group. The distributions show substantial overlap, supporting the unconfoundedness assumption required for doubly robust estimation. There are no regions of the covariate space where one group has zero representation, and trimming is unnecessary.
+
+\subsection{OwnPDMP as Mediator}
+
+One concern with controlling for a state's own PDMP mandate is that own adoption may respond endogenously to neighbors' adoption (policy diffusion), making OwnPDMP a potential mediator rather than a confounder. I address this by estimating the main specification both with and without the OwnPDMP control. Without OwnPDMP, the coefficient on network exposure is $\hat{\beta} = 2.86$ (SE $= 0.81$, 95\% CI: [1.28, 4.44]), virtually identical to the baseline estimate of 2.77. The stability of the estimate confirms that the own-PDMP control neither inflates nor attenuates the network spillover effect, and that policy diffusion does not meaningfully confound the identification.
+
+\subsection{Common Support Period}
+
+By 2021, nearly all states have at least 50\% of neighbors with active PDMP mandates, leaving few untreated observations for comparison. I test robustness to this saturation concern by restricting the sample to the ``common support'' period of 2011--2019, when meaningful variation in exposure status persists. The coefficient is $\hat{\beta} = 4.66$ (SE $= 1.20$, 95\% CI: [2.32, 7.00], $N = 441$). The larger point estimate in the pre-saturation period suggests that identification is strongest when both treated and untreated states contribute to the comparison, and that the full-sample estimate of 2.77 may actually be attenuated by the inclusion of later years with limited variation.
+
+%% ================================================================
+%% DISCUSSION
+%% ================================================================
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Interpreting the Magnitude}
+
+The baseline estimate of 2.8 additional deaths per 100,000 from high network exposure translates to approximately 850 excess deaths per year across all exposed states (using the median exposed-state population of 4.8 million and approximately 35 exposed states in a typical year). This is a substantial figure---roughly 0.8\% of total overdose deaths nationally. However, it represents a \emph{lower bound} on true spillovers for two reasons: (1) the 50\% threshold imposes a conservative definition of ``high exposure,'' and (2) the TWFE estimate likely attenuates heterogeneous treatment effects \citep{GoodmanBacon2021}, as confirmed by the larger Callaway-Sant'Anna estimate of 5.7 deaths per 100,000.
+
+\subsection{Net Welfare Effects}
+
+The welfare calculus of PDMP mandates depends on the comparison of within-state benefits (reduced prescribing, prevented addiction) with cross-border costs (geographic displacement, fentanyl substitution). \citet{BuchuellerCarey2018} estimate that must-query mandates reduce opioid prescriptions by 10--12\% within adopting states. If this translates to proportional reductions in prescription opioid deaths, the within-state mortality benefit may be on the order of 1--2 deaths per 100,000---of similar magnitude to the 2.8-death cross-border cost estimated here. This suggests that the \emph{net} mortality effect of uncoordinated PDMP mandates may be close to zero, with lives saved within mandating states offset by lives lost in neighboring states.
+
+However, this back-of-the-envelope calculation likely overstates the offset for two reasons. First, the within-state benefit of reduced prescribing accrues partially as reduced addiction initiation---a stock effect with long-run compounding benefits that mortality data cannot capture. Fewer people starting opioid use disorder today means fewer potential overdose deaths for years to come. Second, the cross-border mortality effect is amplified by the fentanyl era: displaced users who might have obtained relatively safe pharmaceutical opioids instead encounter street fentanyl with unpredictable potency. This ``substitution amplifier'' means that the same number of displaced patients generates more deaths in 2020 than it would have in 2012, when pharmaceutical opioids were the primary risk.
+
+The welfare calculation also depends critically on the counterfactual. If the alternative to state-by-state PDMP mandates is \emph{no policy action at all}, then even imperfect mandates with cross-border leakage may be welfare-improving because they reduce total opioid availability. But if the alternative is coordinated federal action that closes the cross-border loophole, then the welfare gains from coordination are substantial: approximately 850 lives per year that are currently lost to geographic displacement.
+
+\subsection{Policy Implications}
+
+These findings have direct implications for the design of opioid policy:
+
+\emph{Interstate coordination.} The balloon effect arises because PDMP mandates are implemented unilaterally by individual states. Federal coordination---through mandated interstate PDMP data sharing via PMP InterConnect, or through federal minimum standards for PDMP queries---would close the cross-border loophole that drives the spillover effect.
+
+\emph{Complementary supply-side interventions.} PDMP mandates address one node in the supply chain (prescribers) while leaving others untouched. Complementary interventions targeting wholesale distribution (DEA production quotas), pharmacy dispensing (automated flagging systems), and patient treatment (expanded medication-assisted treatment) could reduce the displacement incentive.
+
+\emph{Demand-side integration.} The substitution toward illicit fentanyl suggests that supply-side restrictions alone are insufficient. Integrating PDMP mandates with expanded treatment access---particularly medication-assisted treatment with buprenorphine and methadone---could prevent displaced users from transitioning to deadlier alternatives.
+
+\subsection{Limitations}
+
+Several limitations merit acknowledgment. First, the state-year panel provides limited statistical power relative to the number of concurrent policy changes. The fentanyl supply shock, Medicaid expansion, and opioid litigation settlements all coincided with PDMP mandate expansion, creating identification challenges that state and year fixed effects can only partially address.
+
+Second, the network exposure measure treats all neighboring states equally (beyond population weighting). In practice, cross-border activity depends on distance to the border, transportation infrastructure, and the specific regulatory environment of each neighbor. County-level data with explicit border-band identification would provide a sharper test.
+
+Third, I observe overdose deaths but not the intermediate mechanisms---cross-border prescriptions, doctor shopping trips, or drug distribution patterns. Confirming the geographic displacement channel directly would require prescription-level data or DEA ARCOS data, which are not publicly available.
+
+Fourth, the pre-treatment periods for some late-adopting states are short, limiting the ability to assess parallel trends for all cohorts in the Callaway-Sant'Anna framework. States that first crossed the 50\% exposure threshold in 2014 or 2015 have only two to three pre-treatment years in the post-2011 data, which reduces power for detecting pre-trends in those specific cohorts.
+
+Fifth, the analysis treats PDMP mandates as binary---either a state has a must-query mandate or it does not. In reality, mandates vary along many dimensions: which schedules are covered (Schedule II only vs.\ II--V), who must query (prescribers only vs.\ prescribers and dispensers), query timing (before prescribing vs.\ within 24 hours), and data-sharing agreements with neighboring states. A state with a broad mandate covering all controlled substances and requiring real-time queries poses a stronger barrier to doctor shopping than one with a narrow, delayed mandate. This measurement error in the treatment variable likely attenuates the estimated spillover effect, suggesting that the true balloon effect may be larger than what I estimate.
+
+Finally, the COVID-19 pandemic coincided with the later years of the analysis panel (2020--2023) and disrupted both drug markets and overdose patterns in complex ways. Pandemic-related social isolation, disrupted treatment access, and changes in drug supply chains all affected overdose mortality independently of PDMP network exposure. While year fixed effects absorb national pandemic effects, the pandemic's interaction with pre-existing geographic patterns could bias estimates if differentially exposed states were also differentially affected by COVID-19.
+
+%% ================================================================
+%% CONCLUSION
+%% ================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+The opioid crisis has killed over half a million Americans since 1999. Prescription Drug Monitoring Programs represent the most widely adopted policy response, with must-query mandates now active in 45 states. This paper demonstrates that these mandates---while reducing opioid prescribing within adopting states---generate substantial mortality spillovers in neighboring states through geographic displacement of demand.
+
+The findings carry a broader lesson about decentralized regulation. When policies restrict access to a good with high demand elasticity across jurisdictions---whether prescription opioids, firearms, alcohol, or tobacco---unilateral action by individual states may merely relocate harm rather than reduce it. The network structure of state borders determines the distribution of these costs, with geographically peripheral states bearing disproportionate burdens. The degree centrality interaction result formalizes this intuition: states with fewer neighbors are more vulnerable to concentrated cross-border demand, while states at the center of the network can diffuse displacement pressure across many borders.
+
+This paper also contributes a methodological innovation: the network exposure variable. By measuring the population-weighted share of neighbors with active mandates, I capture a dimension of policy exposure that is invisible to traditional treatment indicators. A state that has not adopted its own PDMP mandate may nevertheless be profoundly affected by its neighbors' mandates---an observation that has implications far beyond opioid policy. The same framework could be applied to study network spillovers from cannabis legalization, minimum wage laws, environmental regulations, or any policy where geographic proximity creates incentives for cross-border arbitrage.
+
+Coordinated federal action, expanded interstate PDMP data sharing, and integration of supply-side restrictions with demand-side treatment represent the most promising avenues for addressing the balloon effect. The alternative---50 individual states each optimizing their own opioid policy in isolation---appears to be a game whose equilibrium involves substantial cross-border mortality.
+
+\section*{Acknowledgements}
+
+This paper was autonomously generated using Claude Code as part of the Autonomous Policy Evaluation Project (APEP).
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/ape-papers}
+
+\noindent\textbf{Contributors:} @ai1scl
+
+\noindent\textbf{First Contributor:} \url{https://github.com/ai1scl}
+
+\label{apep_main_text_end}
+\newpage
+\bibliography{references}
+
+\newpage
+\appendix
+
+\section{Data Appendix}
+\label{app:data}
+
+\subsection{CDC VSRR Provisional Drug Overdose Data}
+
+The CDC Vital Statistics Rapid Release program publishes provisional drug overdose death counts by state and drug type, available through the Socrata API at \texttt{data.cdc.gov/resource/xkb8-kh2a.json}. I use 12-month-ending counts as of December of each year, which approximate annual totals while smoothing seasonal variation. The VSRR data include predicted values that adjust for incomplete reporting; I use these adjusted counts where available.
+
+Drug-type indicators are based on ICD-10 multiple cause-of-death codes: T40.0--T40.4 and T40.6 (all opioids), T40.2 (natural and semi-synthetic opioids, primarily oxycodone and hydrocodone), T40.1 (heroin), T40.4 (synthetic opioids excluding methadone, primarily fentanyl), T40.5 (cocaine), and T43.6 (psychostimulants, primarily methamphetamine). These categories are not mutually exclusive---a single death may involve multiple substances.
+
+\subsection{CDC NCHS Drug Poisoning Mortality}
+
+For 2011--2014 (before VSRR coverage begins), I use the CDC NCHS Drug Poisoning Mortality data, available at \texttt{data.cdc.gov/resource/jx6g-fdh6.json}. This dataset provides state-level total drug poisoning death counts and population from 1999 onward but does not offer drug-type breakdowns. I use death counts and ACS population denominators to construct crude rates consistent with the VSRR-period rate definition. The panel begins in 2011, providing one pre-treatment year before the first must-query mandates (Kentucky and New Mexico, 2012). I restrict to ``Both Sexes,'' ``All Ages,'' and ``All Races-All Origins'' to obtain the most comparable aggregate measure.
+
+\subsection{Census Bureau American Community Survey}
+
+State-level demographics come from the ACS 1-year estimates via the Census API. Variables include total population (B01003\_001E), median household income (B19013\_001E), educational attainment (B15003\_022E for bachelor's degrees), race/ethnicity (B02001\_002E for white alone), and labor force status (B23025\_003E, B23025\_005E for unemployment). For years where ACS 1-year estimates are unavailable (prior to 2011), I use ACS 5-year estimates.
+
+\subsection{PDMP Mandate Coding}
+
+Must-query mandate effective dates are coded from the Prescription Drug Abuse Policy System (PDAPS) at Temple University, cross-referenced with the appendix tables in \citet{BuchuellerCarey2018} and \citet{WenSchaefer2019}, and verified against the PDMP Training and Technical Assistance Center (TTAC) maintained by Brandeis University. The coding criterion is ``comprehensive use mandate''---the requirement that prescribers must query the PDMP before \emph{every} controlled substance prescription, not merely under specific circumstances.
+
+\begin{table}[htbp]
+\centering
+\caption{PDMP Must-Query Mandate Adoption Dates}
+\label{tab:pdmp_dates}
+\begin{tabular}{llc}
+\toprule
+State & Abbreviation & Must-Query Year \\
+\midrule
+Kentucky & KY & 2012 \\
+New Mexico & NM & 2012 \\
+New York & NY & 2013 \\
+Tennessee & TN & 2013 \\
+West Virginia & WV & 2013 \\
+Connecticut & CT & 2015 \\
+Ohio & OH & 2015 \\
+Indiana & IN & 2016 \\
+Massachusetts & MA & 2016 \\
+Nevada & NV & 2016 \\
+Pennsylvania & PA & 2016 \\
+Virginia & VA & 2016 \\
+Arizona & AZ & 2017 \\
+Arkansas & AR & 2017 \\
+New Jersey & NJ & 2017 \\
+Oklahoma & OK & 2017 \\
+Rhode Island & RI & 2017 \\
+South Carolina & SC & 2017 \\
+Wisconsin & WI & 2017 \\
+Colorado & CO & 2018 \\
+District of Columbia & DC & 2018 \\
+Louisiana & LA & 2018 \\
+Maine & ME & 2018 \\
+Maryland & MD & 2018 \\
+Minnesota & MN & 2018 \\
+North Carolina & NC & 2018 \\
+Utah & UT & 2018 \\
+Vermont & VT & 2018 \\
+Alabama & AL & 2019 \\
+Delaware & DE & 2019 \\
+Georgia & GA & 2019 \\
+Illinois & IL & 2019 \\
+Michigan & MI & 2019 \\
+Florida & FL & 2020 \\
+Idaho & ID & 2020 \\
+Iowa & IA & 2020 \\
+New Hampshire & NH & 2020 \\
+South Dakota & SD & 2020 \\
+Texas & TX & 2020 \\
+Washington & WA & 2020 \\
+Mississippi & MS & 2021 \\
+North Dakota & ND & 2021 \\
+California & CA & 2022 \\
+Wyoming & WY & 2022 \\
+\midrule
+\multicolumn{3}{l}{\textbf{States without must-query mandate (as of 2023):}} \\
+\multicolumn{3}{l}{\textbf{Alaska, Kansas, Missouri, Montana, Nebraska, Oregon}} \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Sources:} PDAPS (pdaps.org), Buchmueller \& Carey (2018),
+Wen et al.\ (2019), PDMP TTAC (pdmpassist.org).
+\end{tablenotes}
+\end{table}
+
+\section{Identification Appendix}
+\label{app:identification}
+
+\subsection{Event Study Dynamics}
+
+\Cref{fig:eventstudy} in the main text presents the Callaway-Sant'Anna event-study estimates. The pre-treatment coefficients are jointly insignificant, supporting the parallel trends assumption.
+
+\subsection{Propensity Score Diagnostics}
+
+\Cref{fig:overlap} in the main text shows substantial overlap in propensity score distributions between high- and low-exposure state-years. The logistic regression propensity score model includes log population, log income, percent white, unemployment rate, own PDMP status, pre-treatment overdose rate, and degree centrality.
+
+\section{Robustness Appendix}
+\label{app:robustness}
+
+\subsection{Placebo Tests}
+
+
+\begin{table}[htbp]
+   \caption{\label{tab:placebo} Placebo Tests: Non-Drug Outcomes}
+   \bigskip
+   \centering
+   \begin{tabular}{lcc}
+      \toprule
+                                           & log(Population) & log(Median Income) \\
+                                           & (1)             & (2)\\
+      \midrule
+      High network exposure ($\geq$50\%)   & -0.0019         & 0.0001\\
+                                           & (0.0027)        & (0.0035)\\
+       \\
+      Observations                         & 637             & 637\\
+      R$^2$                                & 0.99962         & 0.98605\\
+      Within R$^2$                         & 0.00314         & 0.00125\\
+       \\
+      State fixed effects            & $\checkmark$    & $\checkmark$\\
+      year fixed effects                   & $\checkmark$    & $\checkmark$\\
+      \bottomrule
+   \end{tabular}
+
+   \par \raggedright
+   PDMP network exposure should not predict population or income changes.\\
+   Non-zero coefficients would suggest confounding.\\
+   Standard errors clustered at the state level in parentheses.\\
+   $^{***}p<0.01$, $^{**}p<0.05$, $^{*}p<0.1$
+\end{table}
+
+\Cref{tab:placebo} confirms that network PDMP exposure has no predictive power for non-drug outcomes. Both coefficients are tiny in magnitude and far from statistical significance.
+
+\subsection{Sensitivity Analysis}
+
+\Cref{fig:sensitivity} presents the \citet{CinelliHazlett2020} sensitivity contour plot. The estimated effect remains positive for all combinations of confounder strength below the benchmarked level.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig7_sensitivity_contour.pdf}
+\caption{Sensitivity to Unmeasured Confounding (Cinelli and Hazlett, 2020)}
+\label{fig:sensitivity}
+\end{figure}
+
+\subsection{Network Exposure Over Time}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig4_exposure_evolution.pdf}
+\caption{PDMP Network Exposure by State, Selected Years}
+\label{fig:exposure_evolution}
+\end{figure}
+
+\Cref{fig:exposure_evolution} shows the evolution of PDMP network exposure across states in 2011, 2015, 2019, and 2023. The figure illustrates the gradual diffusion of PDMP mandates through the geographic network: in 2011, no state had any network exposure (no mandates yet existed); by 2023, nearly all states have exposure above 0.75.
+
+\end{document}

@@ -1,0 +1,43 @@
+# Human Initialization
+Timestamp: 2026-02-19T20:15:00Z
+
+## Contributor (Immutable)
+
+**GitHub User:** @olafdrw
+
+This field is captured at initialization and MUST match at publish time.
+
+## System Information
+
+- **Claude Model:** claude-opus-4-6
+
+## Questions Asked
+
+1. **Research agenda:** Use the HHS Medicaid provider spending data?
+2. **Policy domain:** What policy area interests you?
+3. **Method:** Which identification method?
+4. **Data era:** Modern or historical data?
+5. **API keys:** Did you configure data API keys?
+6. **External review:** Include external model reviews?
+7. **Risk appetite:** Exploration vs exploitation?
+8. **Other preferences:** Any other preferences or constraints?
+
+## User Responses
+
+1. No — open topic
+2. Surprise me (Recommended)
+3. Surprise me → DR (Doubly Robust) drawn randomly
+4. Modern (Recommended)
+5. Yes
+6. Yes (Recommended)
+7. Full exploration
+8. No constraints — "write a paper like Ben Olken"
+
+## Setup Results
+
+- **Research agenda:** none
+- **Domain:** Surprise me (agent explores freely)
+- **Method:** DR (random draw)
+- **Data era:** Modern
+- **Risk appetite:** Full exploration
+- **Other preferences:** Olken style — creative data, governance/monitoring, sharp identification
