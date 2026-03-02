@@ -1,0 +1,307 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+
+\title{Clean Slate Laws and Aggregate Labor Market Outcomes:\\
+Evidence from Staggered State Adoption}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. Analysis conducted using R with the fixest package for Sun-Abraham estimation. nd @dakoyana}}
+\date{January 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+This paper documents patterns in aggregate labor market outcomes following the adoption of ``Clean Slate'' automatic criminal record expungement laws, while highlighting fundamental identification challenges that preclude causal interpretation. Between 2019 and 2024, seven U.S. states implemented automatic expungement programs. Using a staggered difference-in-differences design with the Sun-Abraham estimator, I find statistically significant associations with employment and labor force participation. However, event study analysis reveals severe pre-trends violations: 6 of 11 pre-treatment coefficients are statistically significant, indicating that Clean Slate adopting states were on systematically different employment trajectories than non-adopting states prior to implementation. The point estimates---0.15 percentage points for employment and 0.37 percentage points for labor force participation---cannot be interpreted causally given this selection. I also find a counterintuitive positive effect on unemployment that further undermines identification. These findings illustrate the difficulty of evaluating recent state policy innovations using aggregate data and the need for individual-level administrative data or alternative identification strategies.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} J23, K14, J78 \\
+\noindent\textbf{Keywords:} criminal records, expungement, employment, difference-in-differences
+
+\newpage
+
+\section{Introduction}
+
+Approximately 70 million Americans---nearly one in three adults---have some form of criminal record. These records create substantial barriers to employment, housing, and civic participation, even decades after the underlying offense. Research consistently finds that employers are less likely to hire applicants with criminal records, with callback rates falling by 50 percent or more when a record is disclosed \citep{pager2003mark}. The collateral consequences of criminal records extend beyond the individuals directly affected, contributing to family instability, intergenerational poverty, and reduced labor force participation.
+
+In response to these concerns, a growing number of states have adopted ``Clean Slate'' laws that automatically expunge or seal certain criminal records after a waiting period. Unlike traditional petition-based expungement, which requires individuals to navigate complex legal processes and often incurs significant costs, Clean Slate laws automate record clearing at scale. Pennsylvania became the first state to implement such a law in 2019, automatically sealing certain non-violent misdemeanor records for individuals who have remained conviction-free for ten years. By 2024, seven states had implemented automatic expungement programs, with millions of records cleared.
+
+This paper examines whether Clean Slate laws affect aggregate labor market outcomes using a staggered difference-in-differences framework. I exploit variation in the timing of Clean Slate implementation across states between 2019 and 2024, comparing labor market trends in adopting states to never-treated states. Using the Sun-Abraham (2021) interaction-weighted estimator to address concerns about heterogeneous treatment effects in staggered designs, I estimate the effect on state-level employment-to-population ratios, labor force participation rates, and unemployment rates.
+
+The analysis produces mixed results. Traditional two-way fixed effects estimation suggests Clean Slate laws increase employment rates by 0.73 percentage points (SE = 0.24, p < 0.01) and labor force participation by 0.80 percentage points (SE = 0.26, p < 0.01). The Sun-Abraham estimator, which accounts for treatment effect heterogeneity, yields smaller but still statistically significant estimates: 0.15 percentage points for employment (SE = 0.06, p = 0.02) and 0.37 percentage points for labor force participation (SE = 0.06, p < 0.001).
+
+However, the event study analysis reveals substantial pre-trends violations. Six of eleven pre-treatment coefficients are statistically significant at the 5\% level, with point estimates ranging from -0.33 to -1.81 percentage points in the years prior to Clean Slate implementation. These violations suggest that states adopting Clean Slate laws were on systematically different employment trajectories than non-adopting states, even before the policy took effect. This pattern is consistent with selection: states that adopted Clean Slate laws may have done so in part because they were experiencing labor market challenges or were on improving trajectories for political reasons unrelated to the policy itself.
+
+These identification concerns preclude a causal interpretation of the results. While the point estimates are consistent with modest positive employment effects, I cannot rule out that the observed differences reflect pre-existing trends rather than causal effects of the policy. The study nonetheless contributes to understanding Clean Slate laws by documenting the patterns in aggregate data and highlighting the challenges of identifying effects from state-level variation.
+
+\section{Institutional Background}
+
+\subsection{The Criminal Record Employment Barrier}
+
+Criminal records create employment barriers through multiple channels. First, many employers conduct background checks and use criminal history as a screening criterion. Research estimates that 92 percent of employers conduct some form of background screening, and many have explicit policies against hiring individuals with certain types of records (Holzer, Raphael, and Stoll, 2006). Audit studies consistently find that callback rates fall by 50 percent or more when a criminal record is disclosed (Pager, 2003; Agan and Starr, 2018). Second, occupational licensing requirements in many fields---including healthcare, education, and transportation---exclude individuals with criminal convictions. Third, even when formal barriers do not exist, stigma associated with criminal records reduces callback rates and employment offers. Importantly, Doleac and Hansen (2020) find that ``Ban the Box'' policies, which delay criminal history inquiries, may increase statistical discrimination against demographic groups perceived as more likely to have records.
+
+Traditional expungement processes require individuals to petition courts, demonstrate eligibility, and often hire attorneys. Prescott and Starr (2020) provide the most rigorous evidence on expungement effects, finding substantial wage and employment gains for individuals who receive expungement in Michigan. However, they also document that fewer than 10 percent of eligible individuals actually obtain expungement due to complexity, cost, and lack of awareness. This ``uptake gap'' means that millions of eligible individuals continue to face record-related barriers despite legal mechanisms for relief.
+
+\subsection{Clean Slate Laws}
+
+Clean Slate laws address the uptake gap by automating the expungement or sealing process. Rather than requiring individuals to petition for relief, state agencies automatically identify eligible records and clear them without requiring any action from the individual.
+
+Pennsylvania's Clean Slate Act, implemented in June 2019, was the first such law. The law automatically seals: (1) non-conviction records, including arrests without charges and dismissed cases; (2) summary offense convictions after 10 years with no subsequent convictions; and (3) misdemeanor convictions punishable by two years or less after 10 years. Felony convictions and certain offenses (including sex crimes) are excluded.
+
+Subsequent adopters have generally followed Pennsylvania's model with variations in waiting periods, eligible offenses, and implementation mechanisms. New Jersey implemented its Clean Slate law in 2020, Utah in 2022, and California, Connecticut, Michigan, and Delaware in 2023-2024. Additional states have passed laws with future implementation dates.
+
+\subsection{Expected Effects}
+
+Clean Slate laws could improve employment outcomes through several mechanisms. Most directly, sealing records removes them from standard background checks, eliminating an explicit barrier to employment. Additionally, individuals who know their records are sealed may be more willing to apply for jobs, increasing labor supply. Employers in Clean Slate states may also adjust hiring practices, knowing that background checks will return fewer records.
+
+However, the aggregate effects are theoretically ambiguous. First, the affected population---individuals with sealable records who are currently unemployed due to those records---represents a small fraction of the total labor force. Second, employers may respond by relying more heavily on other screening methods or statistical discrimination. Third, the effects may take years to materialize as individuals learn about their sealed records and re-enter the labor market.
+
+\section{Data and Empirical Strategy}
+
+\subsection{Data}
+
+I construct a state-year panel from 2011 to 2023 using the Census Bureau's American Community Survey (ACS) 1-year estimates. The primary outcome variables are:
+
+\begin{itemize}
+    \item \textbf{Employment-to-population ratio}: Civilian employment divided by total civilian working-age (16+) population, expressed as a percentage.
+    \item \textbf{Labor force participation rate}: Civilian labor force (employed plus unemployed) divided by total civilian working-age population, expressed as a percentage.
+    \item \textbf{Unemployment rate}: Unemployed divided by civilian labor force, expressed as a percentage.
+\end{itemize}
+
+The sample includes 52 states and territories (including DC and Puerto Rico) observed over 10 years where ACS data was successfully retrieved, yielding 520 state-year observations. Treatment is defined as implementation of a Clean Slate automatic expungement law. Seven states are treated during the sample period: Pennsylvania (2019), New Jersey (2020), Utah (2022), California (2023), Connecticut (2023), Michigan (2023), and Delaware (2024).
+
+Table \ref{tab:summary} presents summary statistics. In 2019, the pre-treatment year for most of the sample, the mean employment-to-population ratio was 60.1\% (SD = 4.4\%), with treated states having slightly higher rates (61.5\%) than control states (59.9\%).
+
+\begin{table}[htbp]
+\centering
+\caption{Summary Statistics by Treatment Status (2019)}
+\label{tab:summary}
+\begin{tabular}{lcccc}
+\toprule
+& \multicolumn{2}{c}{Control States} & \multicolumn{2}{c}{Treated States} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+& Mean & SD & Mean & SD \\
+\midrule
+Employment Rate (\%) & 59.9 & 5.1 & 61.5 & 3.0 \\
+LFP Rate (\%) & 63.4 & 4.7 & 64.7 & 2.7 \\
+Unemployment Rate (\%) & 4.6 & 1.1 & 4.5 & 1.0 \\
+\midrule
+N (States) & \multicolumn{2}{c}{45} & \multicolumn{2}{c}{7} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Empirical Strategy}
+
+I employ a staggered difference-in-differences design exploiting variation in the timing of Clean Slate implementation across states. The identifying assumption is that, absent Clean Slate laws, treated states would have followed the same employment trends as control states (parallel trends).
+
+Recent econometric literature has demonstrated that traditional two-way fixed effects (TWFE) estimators can produce biased estimates in staggered adoption settings with heterogeneous treatment effects \citep{goodman2021difference, callaway2021difference, sun2021estimating}. To address this concern, I implement the Sun and Abraham (2021) interaction-weighted estimator, which is robust to treatment effect heterogeneity.
+
+The Sun-Abraham estimator constructs a weighted average of cohort-specific treatment effects, where cohorts are defined by the year of treatment adoption. The estimator interacts indicators for relative time to treatment with cohort indicators, then aggregates to produce an overall average treatment effect on the treated (ATT) and event study coefficients.
+
+Specifically, the estimation equation is:
+\begin{equation}
+Y_{st} = \alpha_s + \lambda_t + \sum_{g \in \mathcal{G}} \sum_{e \neq -1} \delta_{g,e} \cdot \mathbf{1}[G_s = g] \cdot \mathbf{1}[t - g = e] + \varepsilon_{st}
+\end{equation}
+where $Y_{st}$ is the outcome for state $s$ in year $t$, $\alpha_s$ and $\lambda_t$ are state and year fixed effects, $G_s$ is state $s$'s treatment cohort (year of Clean Slate implementation), $\mathcal{G}$ is the set of treatment cohorts, and $e$ indexes event time (years relative to treatment). The reference period is $e = -1$ (the year before treatment).
+
+Standard errors are clustered at the state level to account for serial correlation within states.
+
+\section{Results}
+
+\subsection{Main Estimates}
+
+Table \ref{tab:main} presents the main results. Column (1) reports TWFE estimates for comparison, while Column (2) reports the Sun-Abraham interaction-weighted estimates.
+
+\begin{table}[htbp]
+\centering
+\caption{Effect of Clean Slate Laws on Labor Market Outcomes}
+\label{tab:main}
+\begin{tabular}{lcc}
+\toprule
+& (1) & (2) \\
+& TWFE & Sun-Abraham \\
+\midrule
+\textbf{Panel A: Employment Rate} & & \\
+Post $\times$ Treatment & 0.732*** & 0.149** \\
+& (0.240) & (0.060) \\
+\midrule
+\textbf{Panel B: LFP Rate} & & \\
+Post $\times$ Treatment & 0.797*** & 0.374*** \\
+& (0.257) & (0.058) \\
+\midrule
+\textbf{Panel C: Unemployment Rate} & & \\
+Post $\times$ Treatment & -0.065 & 0.330*** \\
+& (0.142) & (0.048) \\
+\midrule
+State FE & Yes & Yes \\
+Year FE & Yes & Yes \\
+Observations & 520 & 520 \\
+States & 52 & 52 \\
+\bottomrule
+\multicolumn{3}{l}{\footnotesize Notes: Standard errors clustered by state in parentheses.} \\
+\multicolumn{3}{l}{\footnotesize * p<0.10, ** p<0.05, *** p<0.01}
+\end{tabular}
+\end{table}
+
+The TWFE estimates suggest substantial positive effects: Clean Slate laws increase employment rates by 0.73 percentage points and labor force participation by 0.80 percentage points. However, the Sun-Abraham estimates are considerably smaller: 0.15 percentage points for employment and 0.37 percentage points for labor force participation. The discrepancy likely reflects treatment effect heterogeneity across cohorts and relative time periods, which biases TWFE but is accounted for by Sun-Abraham.
+
+Both estimators find statistically significant positive effects on employment and LFP. However, the unemployment results are inconsistent: TWFE finds a small, insignificant negative effect (-0.065 pp), while Sun-Abraham finds a significant positive effect (0.33 pp). The positive unemployment coefficient is counterintuitive and may reflect composition effects or identification problems.
+
+\subsection{Event Study Analysis}
+
+Figure \ref{fig:eventstudy} presents the event study for employment rates. The pattern reveals substantial pre-treatment coefficient instability. Several pre-treatment coefficients are large in magnitude and statistically significant, including estimates at $e = -10$ (-1.78 pp, SE = 0.26), $e = -11$ (-1.81 pp, SE = 0.64), and $e = -5$ (-0.57 pp, SE = 0.21).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig3_event_study_emp.pdf}
+\caption{Event Study: Employment Rate}
+\label{fig:eventstudy}
+\caption*{\footnotesize Notes: Sun-Abraham estimator with state and year fixed effects. Reference period is $e = -1$. Shaded area shows 95\% confidence interval. Standard errors clustered by state.}
+\end{figure}
+
+The pre-trends test is formal: 6 of 11 pre-treatment coefficients are statistically significant at the 5\% level. This pattern strongly suggests that the parallel trends assumption does not hold. States that eventually adopted Clean Slate laws were on different---specifically, worse---employment trajectories than non-adopting states in the years prior to treatment.
+
+Figure \ref{fig:trends} shows raw employment trends by treatment status. While treated and control states follow broadly similar patterns, the gap between them narrows in the years immediately preceding treatment, suggesting possible convergence that could explain both the pre-trends violations and the apparent post-treatment effects.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig2_parallel_trends.pdf}
+\caption{Employment Trends by Treatment Status}
+\label{fig:trends}
+\caption*{\footnotesize Notes: Mean employment-to-population ratio by year, separately for states that eventually adopted Clean Slate laws (treated) and those that did not (control). Dashed line indicates first Clean Slate implementation (Pennsylvania, 2019).}
+\end{figure}
+
+\section{Discussion}
+
+\subsection{Interpretation of Results}
+
+The analysis produces a mixed picture. Point estimates from both TWFE and Sun-Abraham estimation suggest that Clean Slate laws are associated with improved employment outcomes. The Sun-Abraham ATT for employment (0.15 pp) implies that Clean Slate laws increased the employment-to-population ratio by about 0.25\% relative to the baseline---a modest effect, but potentially meaningful given that the policy affects only a subset of the population.
+
+However, the substantial pre-trends violations undermine causal interpretation. The pattern of negative pre-treatment coefficients followed by coefficients closer to zero after treatment could reflect either: (1) a causal effect of Clean Slate laws that reversed pre-existing negative trends, or (2) regression to the mean or other trending unrelated to the policy. The data cannot distinguish between these interpretations.
+
+The positive unemployment coefficient in the Sun-Abraham specification is particularly troubling and warrants careful consideration. If Clean Slate laws genuinely improve employment prospects, we would expect unemployment to decline, not increase. Three interpretations merit discussion.
+
+First, the positive coefficient could reflect labor force entry dynamics. If Clean Slate laws encourage previously discouraged workers---those who had stopped searching due to perceived futility---to re-enter the labor force, they would initially appear as unemployed while actively searching. This interpretation is consistent with the positive LFP effect: both unemployed and employed counts would rise, with the former rising proportionally more in the short term. Under this view, the unemployment increase is a transitional phenomenon that would reverse as these workers find employment.
+
+Second, the pattern could reflect measurement or composition effects. The ACS employment measures are based on survey responses and may not capture informal employment or gig work that individuals with criminal records disproportionately engage in. Alternatively, states adopting Clean Slate laws may have experienced other labor market shocks that affected unemployment independently of the policy.
+
+Third, and most concerning, the counterintuitive unemployment result may indicate fundamental identification failure. If selection into Clean Slate adoption is correlated with unobserved state-level labor market dynamics, all coefficient estimates---not just unemployment---are suspect. The pre-trends violations documented above are consistent with this interpretation. Without additional robustness checks or alternative identification strategies, we cannot rule out that the entire pattern reflects omitted variable bias rather than causal effects.
+
+\subsection{Implications of Pre-Trends Violations}
+
+The pre-trends violations documented above have important implications for interpreting the results. Recent methodological work by Rambachan and Roth (2023) provides tools for sensitivity analysis when parallel trends may not hold exactly. Their approach asks: how large would violations of parallel trends need to be to explain away the estimated effects?
+
+In this setting, the observed pre-trends violations are substantial. The negative pre-treatment coefficients suggest that treated states were experiencing relative employment declines of 0.5--1.8 percentage points annually compared to control states in the years before Clean Slate implementation. If this differential trend were to continue (or even partially continue) post-treatment, it could fully explain the apparent positive effects. The point estimates are small enough---0.15 pp for employment---that even modest continuation of pre-trends would be sufficient to generate the observed pattern through mean reversion rather than causal effects.
+
+Formally, if we assume linear trends and extrapolate the average pre-treatment slope, the predicted employment gap would narrow mechanically even without any policy effect. This ``convergence bias'' is particularly concerning when, as here, states appear to adopt policies in response to worse-than-average outcomes. Without implementing formal sensitivity bounds (which require additional assumptions about the structure of violations), I cannot quantify the exact degree of bias, but the qualitative pattern strongly suggests that the estimates are not credible as causal effects.
+
+\subsection{Limitations}
+
+Several limitations constrain this analysis beyond the identification concerns discussed above. First, the state-level data cannot identify effects on the directly affected population---individuals with expungeable records. Aggregate effects will be diluted by the large share of the population without criminal records. Second, the small number of treated states (7) and limited post-treatment periods (at most 5 years for Pennsylvania) yield imprecise estimates and limited power to detect effects.
+
+Third, and most importantly, the pre-trends violations suggest that selection into treatment is correlated with labor market trajectories. States may adopt Clean Slate laws because they are experiencing economic challenges or because improving conditions create political opportunity for reform. Without a research design that can address this selection, the estimates cannot be interpreted causally.
+
+\subsection{Future Research}
+
+More convincing identification of Clean Slate effects may require individual-level data linking expungement receipt to employment outcomes. Several states maintain administrative data that could support such analysis. Regression discontinuity designs exploiting eligibility cutoffs (e.g., time since offense) could also provide cleaner identification. Additionally, as more states implement Clean Slate laws and longer post-treatment periods become available, the power of staggered difference-in-differences designs will improve.
+
+\section{Conclusion}
+
+This paper examines the effect of Clean Slate automatic expungement laws on aggregate state labor market outcomes using staggered difference-in-differences. While point estimates suggest modest positive effects on employment (0.15 pp) and labor force participation (0.37 pp), substantial pre-trends violations preclude causal interpretation. States adopting Clean Slate laws appear to have been on different employment trajectories than non-adopting states prior to policy implementation.
+
+The findings highlight both the promise and challenges of evaluating criminal justice reforms using aggregate data. Clean Slate laws represent an important policy innovation that could remove employment barriers for millions of Americans, but rigorous evidence on their labor market effects remains elusive. Future research using individual-level administrative data may provide cleaner identification of these potentially important effects.
+
+\newpage
+
+\section*{References}
+
+\begin{description}
+\item Agan, A., \& Starr, S. (2018). Ban the Box, criminal records, and racial discrimination: A field experiment. \textit{Quarterly Journal of Economics}, 133(1), 191-235.
+
+\item Callaway, B., \& Sant'Anna, P. H. (2021). Difference-in-differences with multiple time periods. \textit{Journal of Econometrics}, 225(2), 200-230.
+
+\item Doleac, J. L., \& Hansen, B. (2020). The unintended consequences of ``Ban the Box'': Statistical discrimination and employment outcomes when criminal histories are hidden. \textit{Journal of Labor Economics}, 38(2), 321-374.
+
+\item Goodman-Bacon, A. (2021). Difference-in-differences with variation in treatment timing. \textit{Journal of Econometrics}, 225(2), 254-277.
+
+\item Holzer, H. J., Raphael, S., \& Stoll, M. A. (2006). Perceived criminality, criminal background checks, and the racial hiring practices of employers. \textit{Journal of Law and Economics}, 49(2), 451-480.
+
+\item Pager, D. (2003). The mark of a criminal record. \textit{American Journal of Sociology}, 108(5), 937-975.
+
+\item Prescott, J. J., \& Starr, S. B. (2020). Expungement of criminal convictions: An empirical study. \textit{Harvard Law Review}, 133(8), 2460-2555.
+
+\item Rambachan, A., \& Roth, J. (2023). A more credible approach to parallel trends. \textit{Review of Economic Studies}, 90(5), 2555-2591.
+
+\item Sun, L., \& Abraham, S. (2021). Estimating dynamic treatment effects in event studies with heterogeneous treatment effects. \textit{Journal of Econometrics}, 225(2), 175-199.
+\end{description}
+
+\newpage
+\appendix
+
+\section{Additional Figures}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/fig1_adoption_timing.pdf}
+\caption{Clean Slate Law Adoption by Year}
+\label{fig:adoption}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/fig5_all_outcomes.pdf}
+\caption{Event Studies for All Outcomes}
+\label{fig:alloutcomes}
+\caption*{\footnotesize Notes: Sun-Abraham estimator. Reference period is $e = -1$. Shaded areas show 95\% confidence intervals.}
+\end{figure}
+
+\end{document}

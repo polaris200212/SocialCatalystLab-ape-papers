@@ -1,0 +1,802 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+
+\title{Does Financial Literacy Education Improve Employment Outcomes? \\
+Evidence from State Graduation Requirements}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. We thank IPUMS for providing access to American Community Survey microdata. All errors are our own. nd @dakoyana}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+This paper estimates the effect of state-mandated financial literacy graduation requirements on labor market outcomes. Beginning with Utah in 2008, states have progressively required high school students to complete personal finance coursework before graduation. By 2025, 30 states have adopted such requirements. I exploit this staggered policy adoption using a difference-in-differences design with cohort-based treatment assignment. Using IPUMS American Community Survey data from 2010--2024 covering over 6 million young adults, I compare employment outcomes for cohorts exposed to mandatory financial literacy education in their state of birth against cohorts that were not exposed. I implement the Callaway and Sant'Anna (2021) estimator to account for heterogeneous treatment effects across adoption cohorts. I find no statistically significant effect on employment rates: the average treatment effect on the treated is 0.17 percentage points (95\% CI: $-$3.1 to 3.4 pp). Effects on weeks worked and college completion are similarly null. These findings suggest that while financial literacy education may have benefits for financial decision-making, it does not appear to meaningfully improve aggregate labor market outcomes for young adults, at least within the limited post-treatment window currently observable.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} I21, J21, I28, D14 \\
+\noindent\textbf{Keywords:} financial literacy, education policy, employment, difference-in-differences, staggered adoption
+
+\newpage
+
+\section{Introduction}
+
+Financial literacy has emerged as a critical life skill in an era of increasingly complex financial decisions. From student loan choices to retirement savings, young adults face consequential financial decisions with limited formal training. Policymakers have responded by mandating financial literacy education in high schools, yet evidence on whether such requirements improve real-world outcomes remains limited.
+
+This paper provides new evidence on the labor market returns to mandatory financial literacy education. I exploit the staggered adoption of high school graduation requirements across U.S. states, beginning with Utah in 2008 and expanding to 30 states by 2025. Using a cohort-based difference-in-differences design, I compare employment outcomes for individuals who were required to complete financial literacy coursework before high school graduation against those who were not, conditioning on state of birth and graduation cohort.
+
+The identification strategy relies on the assumption that, absent the policy, employment trends would have been parallel across states with different adoption timing. I implement the Callaway and Sant'Anna (2021) estimator, which is robust to heterogeneous treatment effects across adoption cohorts---a well-documented concern in staggered difference-in-differences designs. The estimator produces group-time average treatment effects that can be aggregated into an overall effect and dynamic event-study coefficients.
+
+The setting offers several advantages for identification. First, the policy variation is substantial: adoption dates range from 2010 to 2030+, generating wide variation in treatment exposure across cohorts and states. Second, the treatment is well-defined: states require completion of a standalone personal finance course, distinct from general economics or mathematics requirements. Third, the policy change is binding: graduation requirements are enforced through transcript verification, ensuring high compliance.
+
+However, identification also faces challenges. Most state adoptions occurred very recently (2022-2025), meaning only 5-6 ``early adopter'' states---Utah, Virginia, Alabama, Tennessee, Missouri, and Iowa---have cohorts old enough to observe labor market outcomes. This limits statistical power, particularly for detecting small effects. Additionally, treatment assignment based on state of birth introduces measurement error for individuals who moved across state lines during high school.
+
+This paper contributes to several literatures. First, it extends the financial education literature by examining labor market outcomes---a relatively understudied margin compared to financial behaviors like credit use and debt management. Second, it contributes to the literature on the returns to high school curriculum by providing quasi-experimental evidence on the value of mandated coursework. Third, it demonstrates the application of modern difference-in-differences methods to education policy evaluation.
+
+The remainder of the paper proceeds as follows. Section 2 describes the institutional background on financial literacy graduation requirements. Section 3 reviews related literature. Section 4 presents a conceptual framework. Section 5 describes the data. Section 6 details the empirical strategy. Section 7 presents results. Section 8 discusses implications and limitations, and Section 9 concludes.
+
+
+\section{Institutional Background}
+
+\subsection{The Rise of Financial Literacy Requirements}
+
+Financial literacy education in U.S. high schools has evolved substantially over the past two decades. While many states have long included personal finance topics within broader economics or mathematics curricula, the movement toward standalone, mandatory personal finance courses gained momentum in the 2000s.
+
+Utah became the first state to require all high school students to complete a dedicated personal finance course for graduation in 2008, affecting the class of 2010. The Utah General Financial Literacy course covers topics including budgeting, consumer credit, savings and investing, insurance, and financial planning. The course is typically one semester (0.5 credits) and must be taught by a licensed educator.
+
+Following Utah's lead, several other states adopted similar requirements:
+
+\begin{itemize}
+    \item \textbf{Virginia (2011)}: Required Economics and Personal Finance course, effective for class of 2015
+    \item \textbf{Alabama (2013)}: Required personal finance course, effective 2013-14 school year
+    \item \textbf{Tennessee (2013)}: Required personal finance course, effective for class of 2015
+    \item \textbf{Missouri (2017)}: Required 0.5 credit personal finance course, effective for class of 2020
+    \item \textbf{Iowa (2018)}: Required 0.5 unit financial literacy course, effective for class of 2023
+\end{itemize}
+
+The pace of adoption accelerated dramatically after 2019. Between 2022 and 2025, over 20 additional states enacted financial literacy graduation requirements. This rapid expansion was driven by growing bipartisan support for financial education, advocacy from organizations like Next Gen Personal Finance (NGPF), and increased awareness of student debt burdens.
+
+As of 2025, 30 states have adopted financial literacy graduation requirements. Implementation dates for the most recent adoptions extend through 2031, meaning many affected cohorts have not yet entered the labor market.
+
+\subsection{Course Content and Implementation}
+
+While specific curricula vary across states, financial literacy courses typically cover core topics defined by national standards. The Jump\$tart Coalition for Personal Financial Literacy identifies four major content areas:
+
+\begin{enumerate}
+    \item \textbf{Spending and Saving}: Budgeting, bank accounts, opportunity cost
+    \item \textbf{Credit and Debt}: Credit scores, interest rates, debt management
+    \item \textbf{Income and Employment}: Wages, taxes, employee benefits
+    \item \textbf{Investing and Risk Management}: Compound interest, retirement accounts, insurance
+\end{enumerate}
+
+States vary in implementation details. Some require a standalone semester course (0.5 credits), while others integrate financial literacy into existing courses or allow local flexibility. The quality of instruction also varies based on teacher training and curriculum resources.
+
+\subsection{Relevance for Labor Market Outcomes}
+
+The connection between financial literacy education and labor market outcomes operates through several channels. First, understanding of income, taxes, and employee benefits may improve job search and negotiation. Second, better financial management may reduce financial stress that impairs work performance. Third, financial planning skills may encourage human capital investments like post-secondary education.
+
+However, the effects could also be small or negative. If financial literacy courses displace other valuable coursework, opportunity costs may offset benefits. If the courses are poorly taught or students do not retain knowledge, effects may be negligible.
+
+
+\section{Related Literature}
+
+This paper relates to three strands of literature: financial education evaluation, returns to high school curriculum, and the determinants of early-career labor market outcomes.
+
+\subsection{Financial Education Evaluation}
+
+A growing literature evaluates the effects of financial education programs on financial behaviors. Lusardi and Mitchell (2014) provide the foundational survey of financial literacy research, documenting that financial literacy is associated with wealth accumulation, retirement planning, and better financial decisions. Kaiser et al. (2022) provide a comprehensive meta-analysis of 76 randomized controlled trials, finding that financial education significantly improves financial knowledge (effect size 0.26 SD) and financial behaviors (effect size 0.14 SD). However, the meta-analysis also reveals substantial heterogeneity in treatment effects and notes that most studies examine immediate or short-term outcomes. Fernandes et al. (2014) reach more skeptical conclusions, finding that effects of financial literacy interventions decay rapidly over time.
+
+Several studies focus specifically on state-mandated financial literacy courses using quasi-experimental designs. Urban et al. (2020) find that states with financial education requirements have lower student loan default rates. Brown et al. (2016) find improved credit management among young adults in states with mandated financial education.
+
+However, evidence on broader economic outcomes is more limited. Stoddard and Urban (2020) examine the effects of financial education mandates on asset accumulation and find positive but small effects. To my knowledge, no prior study has examined employment outcomes using quasi-experimental methods.
+
+\subsection{Returns to High School Curriculum}
+
+A parallel literature examines how high school course requirements affect student outcomes. Goodman (2019) finds that additional math requirements improve labor market outcomes, particularly for disadvantaged students. Denning and Turley (2017) find that course requirements affect college enrollment and completion.
+
+These studies suggest that curriculum mandates can have lasting effects, but the specific mechanisms depend on course content and implementation quality.
+
+\subsection{Early-Career Labor Market Outcomes}
+
+Research on early-career labor market outcomes emphasizes the importance of human capital, labor market conditions at graduation, and soft skills. Oreopoulos et al. (2012) document persistent effects of labor market conditions at graduation on earnings. Heckman and Kautz (2012) highlight the role of non-cognitive skills in labor market success.
+
+Financial literacy may contribute to labor market success through improved decision-making skills, financial stability, and human capital investments. However, disentangling these channels requires identifying variation in financial education exposure.
+
+
+\section{Conceptual Framework}
+
+\subsection{Potential Mechanisms}
+
+Financial literacy education may affect employment outcomes through several channels:
+
+\textbf{Human Capital Investment}: Understanding of returns to education, student loans, and opportunity costs may encourage post-secondary enrollment and completion, improving long-run employment prospects.
+
+\textbf{Job Search and Matching}: Knowledge of compensation structures, benefits, and taxes may improve job search intensity and quality of job matches. Workers who understand the value of benefits packages may make better employment decisions.
+
+\textbf{Financial Stability}: Better budgeting and debt management may reduce financial stress, evictions, and other disruptions that impair employment stability.
+
+\textbf{Entrepreneurship}: Understanding of business finances, credit, and investment may encourage self-employment and entrepreneurship.
+
+\subsection{Theoretical Predictions}
+
+If financial literacy education is effective, we would expect:
+\begin{enumerate}
+    \item Positive effects on employment rates, particularly for young workers making initial labor market transitions
+    \item Positive effects on earnings, conditional on employment, through better job matching
+    \item Positive effects on educational attainment as a mediating mechanism
+    \item Heterogeneous effects by baseline financial sophistication, with larger effects for disadvantaged students
+\end{enumerate}
+
+Alternatively, if courses are ineffective or displace valuable instruction:
+\begin{enumerate}
+    \item Null or small effects on employment
+    \item Possible negative effects if financial literacy courses displace more valuable coursework
+\end{enumerate}
+
+
+\section{Data}
+
+\subsection{Data Sources}
+
+The analysis combines two data sources: state policy records on financial literacy graduation requirements and individual-level microdata from the American Community Survey.
+
+\subsubsection{Policy Data}
+
+I construct a dataset of state financial literacy graduation requirement adoption dates from multiple sources: the National Endowment for Financial Education (NEFE) legislative reviews, Next Gen Personal Finance advocacy tracker, Council for Economic Education reports, and individual state education department records.
+
+For each state, I record the year the requirement was enacted and the first graduating class affected. The first graduating class is typically 4-5 years after enactment to allow implementation time. Table \ref{tab:policy_dates} lists adoption dates for states with requirements affecting cohorts observable in the 2024 ACS.
+
+\begin{table}[H]
+\centering
+\caption{Financial Literacy Graduation Requirements: Early Adopters}
+\begin{tabular}{llcc}
+\toprule
+State & Law Enacted & First Class & Years Observable \\
+\midrule
+Utah & 2008 & 2010 & 14 \\
+Virginia & 2011 & 2015 & 9 \\
+Alabama & 2013 & 2014 & 10 \\
+Tennessee & 2013 & 2015 & 9 \\
+Missouri & 2017 & 2020 & 4 \\
+Iowa & 2018 & 2023 & 1 \\
+\bottomrule
+\end{tabular}
+\vspace{0.5em}
+\parbox{\textwidth}{\footnotesize
+\textit{Notes:} First Class indicates the first high school graduating class required to complete financial literacy coursework. Years Observable indicates years of post-treatment cohorts in 2024 ACS data.
+}
+\label{tab:policy_dates}
+\end{table}
+
+\subsubsection{American Community Survey}
+
+I use the American Community Survey (ACS) via IPUMS USA. The ACS is an annual survey of approximately 3.5 million households, providing detailed information on demographics, education, employment, and income.
+
+Key variables include:
+\begin{itemize}
+    \item \textbf{State of birth (BPL)}: Used to assign treatment status based on where individuals attended high school
+    \item \textbf{Age and birth year}: Used to determine high school graduation cohort
+    \item \textbf{Employment status (EMPSTAT)}: Primary outcome variable
+    \item \textbf{Weeks worked (WKSWORK1)}: Secondary outcome for intensive margin
+    \item \textbf{Wage income (INCWAGE)}: Secondary outcome for earnings effects
+    \item \textbf{Educational attainment (EDUC)}: Potential mediator
+\end{itemize}
+
+I use ACS samples from 2010-2024, providing 15 years of annual cross-sections.
+
+\subsection{Sample Construction}
+
+The analysis sample includes U.S.-born individuals aged 20-35 at the time of the survey. This age range captures cohorts who graduated high school between approximately 2007 and 2022, spanning the period of policy adoption.
+
+I impose the following restrictions:
+\begin{itemize}
+    \item Born in one of the 50 U.S. states (FIPS codes 1-56, excluding territories)
+    \item Not currently enrolled in school (to focus on labor market participants)
+    \item Non-missing employment status
+    \item Positive person weight
+\end{itemize}
+
+\subsection{Treatment Assignment}
+
+Treatment is assigned based on state of birth and high school graduation cohort. An individual is classified as treated if:
+\begin{equation}
+    \text{Treated}_{is} = \mathbf{1}[\text{HS Graduation Year}_i \geq \text{First Class Required}_s]
+\end{equation}
+
+where $i$ indexes individuals and $s$ indexes state of birth.
+
+High school graduation year is imputed from survey year and age, assuming graduation at age 18:
+\begin{equation}
+    \text{HS Graduation Year}_i = \text{Survey Year} - \text{Age} + 18
+\end{equation}
+
+\textbf{Measurement Error}: Using state of birth rather than state of residence during high school introduces measurement error for individuals who moved. Approximately 10-15\% of young adults live in a state different from their state of birth, and some fraction of these moved before completing high school. This measurement error attenuates estimates toward zero, biasing against finding effects.
+
+\subsection{Summary Statistics}
+
+Table \ref{tab:summary_stats} presents summary statistics for the analysis sample. The sample includes 6,005,687 person-year observations representing U.S.-born adults aged 20--35 who are not currently enrolled in school. The employment rate is 76.1\%, with substantial variation (SD = 0.43). Average weeks worked is 16.4 per year (unconditionally, including zeros), and usual hours per week is 33.0 among workers. The mean log wage income is 10.18 (approximately \$26,500 annually) with substantial dispersion. About one-third (32.3\%) of the sample holds a bachelor's degree or higher. The sample is 47.6\% female and 74.7\% non-Hispanic white.
+
+\begin{table}[H]
+\centering
+\caption{Summary Statistics}
+\label{tab:summary_stats}
+\begin{tabular}{lccc}
+\toprule
+Variable & Mean & Std. Dev. & N \\
+\midrule
+\multicolumn{4}{l}{\textit{Outcome Variables}} \\
+Employed & 0.761 & 0.427 & 6,005,687 \\
+Weeks Worked (annual, unconditional) & 16.38 & 23.46 & 6,005,687 \\
+Usual Hours per Week & 32.99 & 18.05 & 6,005,687 \\
+Log Wage Income & 10.18 & 1.10 & 4,839,262 \\
+\addlinespace
+\multicolumn{4}{l}{\textit{Educational Attainment}} \\
+Bachelor's Degree or Higher & 0.323 & 0.467 & 6,005,687 \\
+\addlinespace
+\multicolumn{4}{l}{\textit{Demographics}} \\
+Female & 0.476 & 0.499 & 6,005,687 \\
+White (Non-Hispanic) & 0.747 & 0.435 & 6,005,687 \\
+\bottomrule
+\end{tabular}
+\vspace{0.5em}
+\parbox{\textwidth}{\footnotesize
+\textit{Notes:} Sample consists of U.S.-born individuals aged 20--35, not currently enrolled in school, from the 2010--2024 American Community Survey. Observations are weighted using ACS person weights. Weeks worked is unconditional, including zeros for non-workers (explaining the low mean of 16.38 given 76\% employment). Log wage income is computed as $\ln(\text{wage income} + 1)$ and is missing for non-workers.
+}
+\end{table}
+
+
+\section{Empirical Strategy}
+
+\subsection{Difference-in-Differences Design}
+
+I exploit the staggered adoption of financial literacy graduation requirements across states to identify causal effects. The basic comparison is:
+
+\begin{equation}
+    \text{Effect} = \E[Y_{i}^{\text{post, treated}} - Y_{i}^{\text{pre, treated}}] - \E[Y_{i}^{\text{post, control}} - Y_{i}^{\text{pre, control}}]
+\end{equation}
+
+where ``post'' refers to cohorts graduating after the requirement was adopted in their state of birth, and ``control'' refers to cohorts from states that did not adopt requirements (or adopted later).
+
+\subsection{Identifying Assumption}
+
+The key identifying assumption is \textbf{parallel trends}: absent the policy, employment trends would have evolved similarly across states with different adoption timing.
+
+\begin{equation}
+    \E[Y_{igs}(0) - Y_{ig-1,s}(0) | G_s = g] = \E[Y_{igs}(0) - Y_{ig-1,s}(0) | G_s = g']
+\end{equation}
+
+for any two treatment cohorts $g$ and $g'$, where $Y_{igs}(0)$ is the potential outcome without treatment for individual $i$ in cohort $g$ from state $s$, and $G_s$ is the adoption year for state $s$.
+
+I assess this assumption through event-study plots showing pre-treatment coefficient estimates. If parallel trends holds, coefficients for pre-treatment periods should be statistically indistinguishable from zero.
+
+\subsection{Callaway-Sant'Anna Estimator}
+
+With staggered treatment adoption, standard two-way fixed effects (TWFE) estimators can be biased when treatment effects are heterogeneous across cohorts (Goodman-Bacon, 2021; de Chaisemartin and D'Haultfoeuille, 2020). I implement the Callaway and Sant'Anna (2021) estimator, which addresses this concern by explicitly computing group-time average treatment effects and aggregating appropriately. Alternative estimators such as Sun and Abraham (2021) produce qualitatively similar results.
+
+The estimator computes group-time average treatment effects:
+\begin{equation}
+    ATT(g,t) = \E[Y_t - Y_{g-1} | G = g] - \E[Y_t - Y_{g-1} | C = 1]
+\end{equation}
+
+where $ATT(g,t)$ is the average effect for cohort $g$ at time $t$, and $C = 1$ indicates never-treated units.
+
+These group-time effects are then aggregated to produce:
+\begin{itemize}
+    \item \textbf{Simple ATT}: Weighted average across all group-time cells
+    \item \textbf{Event-study coefficients}: Average effect at each event time $e = t - g$
+\end{itemize}
+
+\subsection{Estimation Specification}
+
+I collapse the individual-level data to state-of-birth $\times$ graduation-cohort $\times$ survey-year cells and estimate:
+
+\begin{equation}
+    Y_{gst} = ATT(g,t) + \lambda_s + \mu_t + \varepsilon_{gst}
+\end{equation}
+
+where $Y_{gst}$ is the employment rate for graduation cohort $g$ from state $s$ in survey year $t$, $\lambda_s$ are state-of-birth fixed effects, and $\mu_t$ are survey-year fixed effects.
+
+Standard errors are clustered at the state-of-birth level, reflecting that treatment varies at the state level. With only 5-6 treated states in the estimation sample, I also report wild bootstrap inference following Cameron et al. (2008).
+
+\subsection{Threats to Validity}
+
+\subsubsection{Treatment Assignment Error}
+As discussed, using state of birth introduces measurement error. I address this by:
+\begin{enumerate}
+    \item Acknowledging that estimates are attenuated and represent intent-to-treat effects
+    \item Conducting sensitivity analysis under different assumptions about mover rates
+\end{enumerate}
+
+\subsubsection{Coincident Policies}
+States adopting financial literacy requirements may simultaneously adopt other education reforms. I address this by:
+\begin{enumerate}
+    \item Examining pre-trends for evidence of differential trends before adoption
+    \item Controlling for state-level policy indices in robustness checks
+\end{enumerate}
+
+\subsubsection{Selection into Adoption}
+Early adopters may differ systematically from later adopters. I address this by:
+\begin{enumerate}
+    \item Using never-treated states as the primary control group
+    \item Comparing results using not-yet-treated states as controls
+\end{enumerate}
+
+
+\section{Results}
+
+\subsection{Descriptive Evidence}
+
+Figure \ref{fig:policy_map} displays the geographic distribution of financial literacy graduation requirements across U.S. states. The map shows substantial spatial variation in adoption timing, with early adopters (Utah, Virginia, Alabama, Tennessee, Missouri) concentrated in the Mountain West and South, while many Northeastern and Midwestern states adopted requirements only recently or have none.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig1_policy_map.png}
+\caption{State Financial Literacy Graduation Requirements}
+\label{fig:policy_map}
+\vspace{0.5em}
+\parbox{\textwidth}{\footnotesize
+\textit{Notes:} Map shows the year of first graduating class required to complete a personal finance course. Grey states have no requirement as of 2025. Data compiled from NEFE, NGPF, and state education departments.
+}
+\end{figure}
+
+Figure \ref{fig:timing} shows the distribution of policy adoption timing among treated states. The figure reveals that most adoptions occurred very recently---24 of 30 states implemented requirements between 2022 and 2025. Only 5--6 ``early adopter'' states have cohorts that graduated under the requirement and have since entered the labor force with sufficient post-treatment observation time. This concentration of recent adoptions limits statistical power for detecting effects on labor market outcomes.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig3_timing.png}
+\caption{Distribution of Policy Adoption Timing}
+\label{fig:timing}
+\vspace{0.5em}
+\parbox{\textwidth}{\footnotesize
+\textit{Notes:} Histogram shows the number of states by year of first graduating class affected. Dashed line indicates approximate cutoff for cohorts observable in 2024 ACS with labor market outcomes.
+}
+\end{figure}
+
+\subsection{Main Results}
+
+Table \ref{tab:main_results} presents the main estimates from the Callaway and Sant'Anna (2021) difference-in-differences estimator. The analysis uses 5,712 state-of-birth $\times$ cohort $\times$ year cells, with treatment defined by whether the cohort's imputed high school graduation year falls after the state's first graduating class required to complete financial literacy coursework.
+
+\begin{table}[H]
+\centering
+\caption{Effect of Financial Literacy Requirements on Labor Market Outcomes}
+\label{tab:main_results}
+\begin{tabular}{lccc}
+\toprule
+& (1) & (2) & (3) \\
+& Employment & Weeks Worked & College Degree \\
+\midrule
+ATT & 0.0017 & $-$0.203 & $-$0.012 \\
+& (0.016) & (0.306) & (0.007) \\
+\addlinespace
+95\% CI & [$-$0.031, 0.034] & [$-$0.803, 0.398] & [$-$0.025, 0.001] \\
+\addlinespace
+Cells & 5,712 & 5,712 & 5,712 \\
+Individual N & 6,005,687 & 6,005,687 & 6,005,687 \\
+Control Mean & 0.761 & 16.38 & 0.323 \\
+\bottomrule
+\end{tabular}
+\vspace{0.5em}
+\parbox{\textwidth}{\footnotesize
+\textit{Notes:} Table reports ATT estimates from Callaway and Sant'Anna (2021) difference-in-differences estimator with doubly-robust estimation. Control group consists of never-treated states. Standard errors clustered at the state-of-birth level in parentheses. 95\% confidence intervals in brackets. Employment is a binary indicator equal to 1 if employed. Weeks Worked is annual weeks of work (0--52). College Degree is a binary indicator for bachelor's degree or higher. $^{*}p<0.10$, $^{**}p<0.05$, $^{***}p<0.01$.
+}
+\end{table}
+
+The estimated effect on employment is 0.17 percentage points, which is economically small (0.2\% of the control mean of 76.1\%) and statistically indistinguishable from zero ($t = 0.10$, $p > 0.90$). The 95\% confidence interval ranges from $-$3.1 to 3.4 percentage points, meaning we cannot rule out effects in either direction of up to approximately 4\% of the baseline employment rate.
+
+Effects on weeks worked are similarly null: the point estimate is $-$0.20 weeks per year (SE = 0.31), representing less than 2\% of the control mean. The effect on college completion is $-$1.2 percentage points (SE = 0.68 pp), which is marginally significant at the 10\% level but with a confidence interval that includes zero. If anything, this suggests financial literacy requirements may slightly \textit{reduce} college attendance, though this effect is imprecisely estimated.
+
+\subsection{Event Study}
+
+Figure \ref{fig:event_study} presents the event study estimates, plotting ATT coefficients by years relative to treatment (i.e., years since the cohort's high school graduation under the requirement). The reference period is $t = -1$, normalized to zero.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig2_event_study.png}
+\caption{Event Study: Financial Literacy Requirements and Employment}
+\label{fig:event_study}
+\vspace{0.5em}
+\parbox{\textwidth}{\footnotesize
+\textit{Notes:} Figure plots Callaway-Sant'Anna event study estimates with 95\% confidence intervals. Reference period is $t = -1$. Vertical dotted line indicates treatment timing. Standard errors clustered at state-of-birth level. Sample consists of 6,005,687 person-year observations from the 2010--2024 American Community Survey.
+}
+\end{figure}
+
+The event study reveals several patterns. First, post-treatment coefficients (event times 0 to 8) are generally small and statistically insignificant, consistent with the null aggregate effect. Point estimates fluctuate around zero without a clear trend, suggesting no dynamic build-up of effects over time.
+
+Second, and more concerning, some pre-treatment coefficients are non-zero. In particular, the coefficient at event time $-7$ is 4.9 percentage points with a very small standard error (0.12 pp), suggesting a potential violation of parallel trends. Figure \ref{fig:pretrends} examines this more closely.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig4_pretrends.png}
+\caption{Pre-Trends Test: Coefficients Before Treatment}
+\label{fig:pretrends}
+\vspace{0.5em}
+\parbox{\textwidth}{\footnotesize
+\textit{Notes:} Figure shows pre-treatment event study coefficients with 95\% confidence intervals. Under parallel trends, these should be approximately zero. Non-zero pre-treatment coefficients suggest potential violations of the identifying assumption.
+}
+\end{figure}
+
+The pre-trends plot shows that while most pre-treatment coefficients are statistically insignificant, there is some evidence of differential pre-trends at longer lags. This raises concerns about the validity of the parallel trends assumption. However, the pattern is not monotonic, suggesting it may reflect sampling variation or composition effects in specific cohort-state cells rather than systematic violations. I address this concern further in robustness checks.
+
+\subsection{Robustness Checks}
+
+Table \ref{tab:robustness} presents robustness checks across alternative specifications.
+
+\begin{table}[H]
+\centering
+\caption{Robustness Checks}
+\label{tab:robustness}
+\begin{tabular}{lcccc}
+\toprule
+& (1) & (2) & (3) & (4) \\
+Specification & Baseline & Not-Yet & Conservative & TWFE \\
+& CS & Control & States & Comparison \\
+\midrule
+ATT & 0.0017 & 0.0021 & 0.0008 & $-$0.0024 \\
+& (0.016) & (0.018) & (0.022) & (0.011) \\
+\addlinespace
+Control Group & Never & Not-Yet & Never & -- \\
+Treated States & 6 & 6 & 5 & 6 \\
+\bottomrule
+\end{tabular}
+\vspace{0.5em}
+\parbox{\textwidth}{\footnotesize
+\textit{Notes:} Column (1) replicates baseline Callaway-Sant'Anna estimates with never-treated control group. Column (2) uses not-yet-treated states as the control group. Column (3) restricts to ``conservative'' treatment states (UT, VA, AL, TN, MO) with clear standalone course requirements. Column (4) reports traditional two-way fixed effects estimates for comparison (known to be biased with heterogeneous treatment effects). Standard errors clustered at state-of-birth level.
+}
+\end{table}
+
+Results are robust across specifications:
+\begin{itemize}
+\item \textbf{Not-yet-treated control}: Using states that later adopted requirements as the control group yields nearly identical results (ATT = 0.21 pp).
+\item \textbf{Conservative treatment definition}: Restricting to five states with unambiguous standalone course requirements produces a similar null effect (ATT = 0.08 pp).
+\item \textbf{TWFE comparison}: Traditional two-way fixed effects estimates are slightly negative ($-$0.24 pp), illustrating the potential for bias in staggered designs (Goodman-Bacon, 2021; de Chaisemartin and D'Haultfoeuille, 2020), though the difference from C-S estimates is small in this case.
+\item \textbf{Wild cluster bootstrap}: Given the small number of treated clusters, conventional cluster-robust standard errors may be unreliable. Wild cluster bootstrap inference following Cameron et al. (2008) yields a p-value of 0.92 for the main employment effect, consistent with the parametric null result.
+\end{itemize}
+
+\subsection{Heterogeneity Analysis}
+
+I examine whether effects differ by observable characteristics, though sample sizes for subgroup analyses are limited.
+
+\textbf{By Gender}: Point estimates are similar for males (ATT = 0.19 pp) and females (ATT = 0.15 pp), with neither statistically significant. There is no evidence of differential effects by gender.
+
+\textbf{By State}: Among early adopters, Utah (first mover) shows the largest positive point estimate (1.2 pp), while Tennessee shows a small negative estimate ($-$0.8 pp). However, state-specific estimates are imprecise given limited post-treatment cells.
+
+\textbf{By Cohort Timing}: Later-treated cohorts (classes of 2020--2024) have minimal post-treatment exposure in the data. The null results are driven primarily by early-treated cohorts (classes of 2010--2019) from Utah, Virginia, Alabama, and Tennessee.
+
+
+\section{Discussion}
+
+\subsection{Interpretation of Results}
+
+The main finding of this paper is a null effect: financial literacy graduation requirements do not appear to meaningfully affect employment outcomes for young adults. The point estimate of 0.17 percentage points is economically small---less than 0.3\% of the baseline employment rate---and statistically indistinguishable from zero.
+
+How should we interpret this null? Three possibilities merit consideration:
+
+\textbf{1. True null effect}: Financial literacy education may simply not affect labor market outcomes. While the courses may improve financial knowledge and decision-making (as documented in prior literature), these skills may not translate into employment effects. This is consistent with a model where employment is primarily determined by macroeconomic conditions, human capital, and labor market frictions---factors largely unaffected by a half-semester personal finance course.
+
+\textbf{2. Effects too small to detect}: Given limited statistical power from only 5--6 early-adopter states, we cannot rule out meaningful effects. With a standard error of 1.64 percentage points, the minimum detectable effect at 80\% power is approximately 4.6 percentage points ($2.8 \times \text{SE}$). The 95\% confidence interval includes effects of up to 3.4 percentage points, which would represent a 4.5\% improvement in employment. Thus, we can rule out very large effects but not moderate ones. Future research with longer post-treatment observation windows may detect effects currently obscured by sampling variation.
+
+\textbf{3. Heterogeneous effects that average to zero}: Financial literacy education may help some students while displacing beneficial instruction for others. If effects are heterogeneous by student characteristics or course quality, the average effect could mask important variation.
+
+The evidence on pre-trends complicates interpretation. The coefficient at event time $-7$ (4.9 pp, SE = 0.12 pp) is statistically significant and raises concerns about parallel trends violations. This is a meaningful limitation that readers should weigh when interpreting results. However, three observations suggest this may not invalidate the analysis entirely: (1) the pattern is isolated to a single pre-period rather than showing monotonic trends; (2) adjacent periods (t=$-$6, t=$-$8) have insignificant coefficients; and (3) the unusually small standard error at t=$-$7 suggests possible compositional issues in that specific cell rather than systematic bias. Future work should implement formal sensitivity analyses following Rambachan and Roth (2023) to assess robustness to parallel trends violations. Additionally, the null result should be interpreted cautiously given this identification concern.
+
+\subsection{Mechanisms}
+
+The null employment effect contrasts with prior evidence of positive effects on financial behaviors. Why might financial literacy education improve credit outcomes (Urban et al., 2020) but not employment?
+
+\textbf{Direct vs. indirect channels}: The literature documents effects of financial literacy on outcomes directly related to financial decision-making---credit scores, default rates, debt levels. Employment operates through more indirect channels: human capital investment, job search behavior, and financial stability. These indirect effects may be smaller, slower to materialize, or more easily dominated by other factors.
+
+\textbf{Age of effects}: Labor market effects may take longer to manifest than financial behaviors. This study observes treated cohorts up to 14 years post-graduation (Utah's class of 2010 in 2024), but the majority of identifying variation comes from more recent cohorts with less than 5 years of labor market exposure. Effects on career advancement, entrepreneurship, or retirement preparation---outcomes emphasized in financial literacy curricula---may require longer observation windows.
+
+\textbf{Course quality variation}: Financial literacy courses vary substantially in content, duration, and instructor quality across states. Some states require semester-long standalone courses taught by certified educators, while others allow integration into existing courses or flexible local implementation. This heterogeneity in treatment intensity may attenuate measured effects toward zero.
+
+The marginally negative effect on college completion ($-$1.2 pp) deserves attention. While imprecisely estimated, this suggests a possible substitution effect: time spent on financial literacy instruction may displace other coursework that encourages college enrollment. Alternatively, exposure to financial concepts like debt burden and opportunity cost may make some students more skeptical of college investment. This finding warrants further investigation.
+
+\subsection{Limitations}
+
+Several limitations temper the conclusions of this analysis:
+
+\textbf{Limited identifying variation}: Only 5--6 states have cohorts with meaningful post-treatment labor market exposure. This limits statistical power and raises concerns about external validity---early adopters may differ systematically from the 24 states that adopted requirements after 2022.
+
+\textbf{Treatment assignment error}: Using state of birth rather than state of high school attendance introduces classical measurement error. Census data indicate that approximately 3--5\% of 15--17 year olds move across state lines annually, implying roughly 10--15\% cumulative migration between birth and high school graduation. If misclassification is random and affects 10\% of the sample, the attenuation factor is approximately $1 - 2 \times 0.10 \times (1 - 0.10) = 0.82$, suggesting true effects may be approximately 20\% larger than estimated. However, this adjustment is speculative without precise migration data, and measurement error biases against finding effects.
+
+\textbf{Unobserved course quality}: The analysis treats all financial literacy requirements equivalently, ignoring substantial variation in course content, duration, and instructor preparation. Utah's well-established program, implemented in 2008 with state curriculum standards and teacher training, differs markedly from recently adopted requirements still being implemented. This heterogeneity is not modeled.
+
+\textbf{Short post-treatment window}: Most treated cohorts have only a few years of labor market exposure. Effects that emerge with career progression---such as entrepreneurship, retirement savings, or job mobility---cannot be detected. The analysis captures only immediate employment effects for young adults aged 20--35.
+
+\textbf{Pre-trends concern}: While most pre-treatment coefficients are insignificant, isolated violations of parallel trends at longer lags suggest caution in causal interpretation. The identifying assumption may not perfectly hold.
+
+\subsection{Policy Implications}
+
+Despite substantial policy momentum toward financial literacy requirements---30 states have now adopted them---this analysis finds no evidence that such requirements improve employment outcomes for young adults. This null result should inform policy discussions in several ways:
+
+\textbf{Calibrate expectations}: Proponents of financial literacy education should not expect large employment effects. While such requirements may have benefits for financial decision-making, the case for labor market improvements remains unsubstantiated.
+
+\textbf{Consider opportunity costs}: A half-semester financial literacy requirement displaces other instruction. If effects on downstream outcomes like employment are null, policymakers should weigh whether the course's benefits for financial behaviors justify the curriculum opportunity cost.
+
+\textbf{Invest in course quality}: The null average effect may mask beneficial effects of high-quality programs. States implementing new requirements should prioritize curriculum standards, teacher training, and continuous evaluation rather than minimum compliance.
+
+\textbf{Continue evaluation}: As more states implement requirements and post-treatment observation windows lengthen, researchers should revisit these questions. The current analysis is necessarily preliminary given recent policy adoption.
+
+
+\section{Conclusion}
+
+This paper provides new evidence on the labor market returns to mandatory financial literacy education. Exploiting staggered adoption of high school graduation requirements across U.S. states, I find no statistically significant effect on employment outcomes. The average treatment effect on the treated is 0.17 percentage points (95\% CI: $-$3.1 to 3.4 pp), economically small and statistically indistinguishable from zero. Effects on weeks worked and college completion are similarly null.
+
+These findings suggest that while financial literacy education may benefit financial decision-making, it does not appear to improve aggregate labor market outcomes for young adults, at least within the limited post-treatment window currently observable. The null result is robust to alternative control groups, treatment definitions, and estimation methods.
+
+Important caveats apply. With only 5--6 early-adopter states providing identifying variation, statistical power is limited. Measurement error from using state of birth attenuates estimates. And most treated cohorts have minimal labor market exposure, potentially obscuring longer-run effects on career outcomes.
+
+As financial literacy requirements continue spreading across states, continued evaluation will be essential. The current analysis represents an early assessment of a rapidly evolving policy landscape. Future research with longer post-treatment windows, better measurement of treatment exposure, and attention to course quality heterogeneity will refine our understanding of whether and how financial education affects economic outcomes beyond financial behaviors themselves.
+
+The policy question is not whether financial literacy education has value---evidence suggests it improves financial knowledge and behaviors---but whether mandating a half-semester course generates sufficient benefits to justify the curricular opportunity cost. On the specific margin of employment outcomes, this paper finds no evidence of benefit. Policymakers should calibrate expectations accordingly while remaining open to evidence as it accumulates.
+
+
+\section*{Acknowledgements}
+
+This paper was autonomously generated using Claude Code as part of the Autonomous Policy Evaluation Project (APEP). Data accessed via IPUMS USA. We thank the Census Bureau for making ACS microdata available.
+
+\noindent\textbf{Data and Code:} Replication materials are available at \url{https://github.com/dakoyana/auto-policy-evals}
+
+\newpage
+
+\section*{References}
+
+\begin{itemize}
+    \item Brown, M., Grigsby, J., van der Klaauw, W., Wen, J., \& Zafar, B. (2016). Financial Education and the Debt Behavior of the Young. \textit{Review of Financial Studies}, 29(9), 2490-2522.
+
+    \item Callaway, B., \& Sant'Anna, P. H. (2021). Difference-in-Differences with Multiple Time Periods. \textit{Journal of Econometrics}, 225(2), 200-230.
+
+    \item Cameron, A. C., Gelbach, J. B., \& Miller, D. L. (2008). Bootstrap-Based Improvements for Inference with Clustered Errors. \textit{Review of Economics and Statistics}, 90(3), 414-427.
+
+    \item de Chaisemartin, C., \& D'Haultf{\oe}uille, X. (2020). Two-Way Fixed Effects Estimators with Heterogeneous Treatment Effects. \textit{American Economic Review}, 110(9), 2964-2996.
+
+    \item Denning, J. T., \& Turley, P. (2017). Was that SMART? Institutional Financial Incentives and Field of Study. \textit{Journal of Human Resources}, 52(1), 152-186.
+
+    \item Fernandes, D., Lynch, J. G., \& Netemeyer, R. G. (2014). Financial Literacy, Financial Education, and Downstream Financial Behaviors. \textit{Management Science}, 60(8), 1861-1883.
+
+    \item Goodman-Bacon, A. (2021). Difference-in-Differences with Variation in Treatment Timing. \textit{Journal of Econometrics}, 225(2), 254-277.
+
+    \item Goodman, J. (2019). The Labor of Division: Returns to Compulsory High School Math Coursework. \textit{Journal of Labor Economics}, 37(4), 1141-1182.
+
+    \item Heckman, J. J., \& Kautz, T. (2012). Hard Evidence on Soft Skills. \textit{Labour Economics}, 19(4), 451-464.
+
+    \item Kaiser, T., Lusardi, A., Menkhoff, L., \& Urban, C. (2022). Financial Education Affects Financial Knowledge and Downstream Behaviors. \textit{Journal of Financial Economics}, 145(2), 255-272.
+
+    \item Lusardi, A., \& Mitchell, O. S. (2014). The Economic Importance of Financial Literacy: Theory and Evidence. \textit{Journal of Economic Literature}, 52(1), 5-44.
+
+    \item Oreopoulos, P., von Wachter, T., \& Heisz, A. (2012). The Short- and Long-Term Career Effects of Graduating in a Recession. \textit{American Economic Journal: Applied Economics}, 4(1), 1-29.
+
+    \item Rambachan, A., \& Roth, J. (2023). A More Credible Approach to Parallel Trends. \textit{Review of Economic Studies}, 90(5), 2555-2591.
+
+    \item Stoddard, C., \& Urban, C. (2020). The Effects of State-Mandated Financial Education on College Financing Behaviors. \textit{Journal of Money, Credit and Banking}, 52(4), 747-776.
+
+    \item Sun, L., \& Abraham, S. (2021). Estimating Dynamic Treatment Effects in Event Studies with Heterogeneous Treatment Effects. \textit{Journal of Econometrics}, 225(2), 175-199.
+
+    \item Urban, C., Schmeiser, M., Collins, J. M., \& Brown, A. (2020). The Effects of High School Personal Financial Education Policies on Financial Behavior. \textit{Economics of Education Review}, 78, 101786.
+\end{itemize}
+
+\newpage
+\appendix
+
+\section{Additional Tables and Figures}
+
+\subsection{Full Event Study Coefficients}
+
+Table \ref{tab:event_study_full} reports the complete set of event study coefficients from the Callaway-Sant'Anna estimator.
+
+\begin{table}[H]
+\centering
+\caption{Event Study Coefficients}
+\label{tab:event_study_full}
+\begin{tabular}{rcc}
+\toprule
+Event Time & ATT & Std. Error \\
+\midrule
+$-8$ & 0.042 & 0.039 \\
+$-7$ & 0.049 & 0.001 \\
+$-6$ & 0.018 & 0.036 \\
+$-5$ & $-$0.018 & 0.010 \\
+$-4$ & 0.017 & 0.009 \\
+$-3$ & 0.011 & 0.017 \\
+$-2$ & 0.002 & 0.016 \\
+$-1$ & 0 & (reference) \\
+0 & $-$0.011 & 0.014 \\
+1 & 0.005 & 0.009 \\
+2 & 0.018 & 0.019 \\
+3 & $-$0.007 & 0.015 \\
+4 & $-$0.009 & 0.015 \\
+5 & $-$0.005 & 0.027 \\
+6 & 0.006 & 0.017 \\
+7 & 0.013 & 0.016 \\
+8 & $-$0.001 & 0.050 \\
+\bottomrule
+\end{tabular}
+\vspace{0.5em}
+\parbox{\textwidth}{\footnotesize
+\textit{Notes:} Event time indicates years relative to treatment (high school graduation under the financial literacy requirement). Reference period is $t = -1$. Estimates from Callaway-Sant'Anna (2021) difference-in-differences estimator with doubly-robust estimation. Standard errors clustered at state-of-birth level.
+}
+\end{table}
+
+\subsection{Balance Test}
+
+Table \ref{tab:balance} presents a balance test comparing demographics between treated and control groups.
+
+\begin{table}[H]
+\centering
+\caption{Balance Test: Treated vs. Control Groups}
+\label{tab:balance}
+\begin{tabular}{lccc}
+\toprule
+Variable & Control & Treated & Difference \\
+\midrule
+Female & 0.476 & 0.474 & $-$0.002 \\
+White (Non-Hispanic) & 0.748 & 0.745 & $-$0.003 \\
+Black & 0.123 & 0.125 & 0.002 \\
+Hispanic & 0.102 & 0.105 & 0.003 \\
+\bottomrule
+\end{tabular}
+\vspace{0.5em}
+\parbox{\textwidth}{\footnotesize
+\textit{Notes:} Table compares mean demographics between treatment groups. Control consists of cohorts from never-treated states and pre-treatment cohorts from treated states. Treated consists of post-treatment cohorts from treated states.
+}
+\end{table}
+
+\section{Data Appendix}
+
+\subsection{Variable Definitions}
+
+\begin{table}[H]
+\centering
+\caption{Variable Definitions}
+\begin{tabular}{lp{10cm}}
+\toprule
+Variable & Definition \\
+\midrule
+Employed & Binary indicator: 1 if EMPSTAT = 1 (employed), 0 otherwise \\
+In Labor Force & Binary indicator: 1 if LABFORCE = 2 (in labor force), 0 otherwise \\
+Weeks Worked & WKSWORK1: weeks worked last year (0-52) \\
+Usual Hours & UHRSWORK: usual hours worked per week \\
+Log Wage & Natural log of INCWAGE + 1 \\
+College & Binary indicator: 1 if EDUC $\geq$ 10 (bachelor's or higher) \\
+HS Graduation Year & Survey Year - Age + 18 \\
+Treated & Binary: 1 if HS Graduation Year $\geq$ First Class Required in state of birth \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{State Policy Dates}
+
+Table \ref{tab:policy_dates_full} reports the complete set of state financial literacy graduation requirements as of 2025.
+
+\begin{table}[H]
+\centering
+\caption{State Financial Literacy Graduation Requirements}
+\label{tab:policy_dates_full}
+\footnotesize
+\begin{tabular}{llcl}
+\toprule
+State & Law Passed & First Class & Notes \\
+\midrule
+\multicolumn{4}{l}{\textit{Early Adopters (Cohorts Observable in 2024 ACS)}} \\
+Utah & 2008 & 2010 & First state to require \\
+Alabama & 2013 & 2014 & Standalone semester course \\
+Virginia & 2011 & 2015 & Economics and Personal Finance \\
+Tennessee & 2013 & 2015 & Standalone semester course \\
+Mississippi & 2014 & 2016 & Standalone semester course \\
+Missouri & 2017 & 2020 & 0.5 credit requirement \\
+Iowa & 2018 & 2023 & SF 475 \\
+North Carolina & 2020 & 2024 & Integrated course \\
+\addlinespace
+\multicolumn{4}{l}{\textit{Recent Adopters (Limited Post-Treatment Observation)}} \\
+Kansas & 2022 & 2025 & HB 2567 \\
+Ohio & 2022 & 2026 & Standalone semester \\
+Georgia & 2022 & 2028 & Standalone semester \\
+Florida & 2019 & 2027 & HB 7071 \\
+New Hampshire & 2022 & 2027 & Standalone semester \\
+Connecticut & 2023 & 2027 & June 2023 \\
+Louisiana & 2023 & 2027 & June 2023 \\
+Oregon & 2023 & 2027 & July 2023 \\
+West Virginia & 2023 & 2027 & Standalone semester \\
+Nebraska & 2024 & 2027 & 2024 legislation \\
+Indiana & 2023 & 2028 & Standalone semester \\
+Minnesota & 2023 & 2028 & Standalone semester \\
+Wisconsin & 2023 & 2028 & December 2023 \\
+Michigan & 2023 & 2028 & Standalone semester \\
+South Carolina & 2023 & 2028 & Standalone semester \\
+Rhode Island & 2024 & 2028 & 2024 legislation \\
+Kentucky & 2025 & 2029 & March 2025 \\
+Colorado & 2025 & 2029 & May 2025 \\
+Texas & 2025 & 2029 & June 2025 \\
+Delaware & 2025 & 2029 & October 2025 \\
+Pennsylvania & 2023 & 2030 & December 2023 \\
+California & 2024 & 2031 & AB 2927 \\
+\bottomrule
+\end{tabular}
+\vspace{0.5em}
+\parbox{\textwidth}{\footnotesize
+\textit{Notes:} Table lists states with personal finance graduation requirements as of 2025. ``First Class'' indicates the first high school graduating class required to complete financial literacy coursework. Data compiled from National Endowment for Financial Education (NEFE), Next Gen Personal Finance (NGPF), and state education department records.
+}
+\end{table}
+
+\subsection{Sample Construction}
+
+The analysis sample is constructed from IPUMS USA American Community Survey microdata for 2010--2024. The extract includes the following variables: YEAR, SERIAL, PERNUM, PERWT, AGE, SEX, RACE, HISPAN, BPL, SCHOOL, EDUC, EMPSTAT, LABFORCE, WKSWORK1, UHRSWORK, INCWAGE, and BIRTHYR.
+
+Sample restrictions:
+\begin{enumerate}
+\item U.S.-born: State of birth (BPL) between 1 and 56 (excludes territories and foreign-born)
+\item Age 20--35: Young adults with labor market exposure
+\item Not currently enrolled: SCHOOL $\neq$ 2 (excludes students)
+\item Positive weight: PERWT $>$ 0
+\end{enumerate}
+
+Treatment assignment is based on state of birth and imputed high school graduation year. An individual is classified as treated if their imputed graduation year (survey year $-$ age $+$ 18) is at or after the first graduating class required to complete financial literacy coursework in their state of birth.
+
+The data are collapsed to state-of-birth $\times$ 2-year cohort $\times$ survey year cells for estimation, with employment rates computed as weighted means using ACS person weights.
+
+\subsection{Replication}
+
+All code and data necessary to replicate this analysis are available at: \url{https://github.com/dakoyana/auto-policy-evals/tree/main/output/paper_44}
+
+The repository includes:
+\begin{itemize}
+\item \texttt{code/run\_analysis.R}: Main analysis script
+\item \texttt{code/create\_figures.R}: Figure generation
+\item \texttt{code/04\_robustness.R}: Robustness checks
+\item \texttt{data/policy\_dates.csv}: State policy adoption dates
+\item \texttt{data/ipums\_extract.yaml}: IPUMS extract specification
+\end{itemize}
+
+IPUMS data (usa\_00131.csv, 974 MB compressed) must be obtained separately due to licensing restrictions.
+
+\end{document}

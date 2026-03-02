@@ -1,0 +1,1220 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\sisetup{detect-all=true, group-separator={,}, group-minimum-digits=4}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\sym}[1]{\ifmmode^{#1}\else\(^{#1}\)\fi}
+
+\title{Legal Status vs.\ Physical Access: Testing the Cannabis-Alcohol Substitution Hypothesis at State Borders\footnote{This paper is a revision of APEP-0093. See \url{https://github.com/anthropics/auto-policy-evals/tree/main/papers/apep_0093} for the original.}}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. Correspondence: scl@econ.uzh.ch} \\ @anonymous}
+\date{January 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+Does access to legal cannabis reduce alcohol involvement among fatal traffic crashes through substance substitution? Using a spatial regression discontinuity design at state borders in the western United States, I test whether cannabis access affects alcohol-involved crashes. The standard RDD yields a null result (9.2 pp, SE = 5.9, p = 0.127). Suggestive evidence from dispensary distance analysis---using 2020-era location data as a proxy for the 2016--2019 study period---indicates that physical cannabis access may not change sharply at borders, as prohibition-state residents near borders can cross to purchase; however, this first-stage evidence is approximate given the temporal mismatch between dispensary data and crash outcomes. To address this weak first-stage critique, I restrict to single-vehicle crashes with in-state drivers, where crash location, driver residence, and outcome attribution are all unambiguous. This specification produces a null result: $-5.2$ pp (SE = 11.4, p = 0.649). Donut RDD robustness checks reveal some specification sensitivity---the 2km donut yields a significant positive estimate (23.7 pp, SE = 8.2)---but border-by-border decomposition shows no individual border drives this result, and larger donuts return to null. Strikingly, cross-border analysis reveals that prohibition-state residents who crash in legal states have \textit{lower} alcohol involvement (21.6\%) than those who crash at home (31.0\%), suggesting compositional differences in who crosses borders rather than treatment effects. The baseline and most robustness specifications produce null results, though specification sensitivity warrants caution in interpretation.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} I12, I18, K32, R41 \\
+\noindent\textbf{Keywords:} marijuana legalization, alcohol substitution, fatal crash composition, spatial RDD, driver residency, cross-border access, null result
+
+\newpage
+
+\section{Introduction}
+
+In Trinidad, Colorado---a former mining town of 8,000 residents nestled against the New Mexico border---over two dozen cannabis dispensaries have opened since recreational legalization in 2014. The town's transformation into the ``Cannabis Capital of Colorado'' reflects a striking economic reality: much of the demand comes not from local residents, but from New Mexicans driving 20 miles north across the state line. This cross-border shopping phenomenon raises a fundamental question for policy research: when borders are this porous, does \textit{de jure} legal status actually affect behavior, or do residents of prohibition states already have \textit{de facto} access?
+
+Alcohol-impaired driving kills approximately 10,000 Americans annually, accounting for roughly 28\% of all traffic fatalities \citep{nhtsa2023}. Despite decades of policy interventions---minimum legal drinking ages, DUI enforcement, ignition interlock requirements, and graduated licensing programs---alcohol-related crash rates remain stubbornly high. The social costs are staggering: estimates suggest that alcohol-impaired crashes impose over \$44 billion annually in economic costs, including medical expenses, lost productivity, legal costs, and property damage. A provocative body of research suggests an unconventional harm reduction pathway: marijuana legalization may reduce alcohol consumption and its associated harms through substance substitution \citep{anderson2013, hansen2020}.
+
+The substitution hypothesis has profound policy implications. If marijuana and alcohol are substitutes in the utility function of recreational users, then legalizing cannabis could reduce alcohol-related harms including traffic fatalities, liver disease, and domestic violence. Public health advocates have increasingly cited this potential ``harm reduction'' benefit as a secondary argument for legalization, distinct from the primary arguments centered on criminal justice reform and individual liberty. Conversely, if cannabis and alcohol are complements or independent goods, legalization policies should be evaluated without assuming offsetting safety benefits. The existing evidence is mixed: some studies find substitution effects \citep{anderson2013, crost2012}, while others find null or complementary relationships \citep{macdonald2016, dills2021, miller2021}. Recent work specifically examining traffic safety outcomes includes \citet{santaellatenorio2017} on medical marijuana laws and traffic fatalities, and \citet{aydelotte2017} on crash fatality rates after recreational legalization in Washington and Colorado. A meta-analysis by \citet{rogebergelvik2016} revisits the evidence on cannabis intoxication and motor vehicle collision risk, finding modest but statistically significant increases in crash probability associated with cannabis use.
+
+The challenges facing researchers attempting to identify causal effects of marijuana policy on traffic safety are substantial. Standard difference-in-differences approaches compare outcomes in states before and after legalization to states that never legalized. But states that choose to legalize may differ systematically from those that do not---in demographics, political preferences, existing alcohol culture, road infrastructure, and countless other dimensions. Even with state fixed effects and flexible time trends, unobserved confounders may bias estimates. Selection into treatment is endogenous to state-level factors that may independently affect crash outcomes. A related complication is cross-border access: the literature on cigarette smuggling \citep{lovenheim2008} and gun trafficking \citep{knight2013} documents that consumers circumvent local restrictions by purchasing in nearby jurisdictions with more permissive laws. If cannabis consumers in prohibition states can easily cross into legal states, then \textit{de jure} legal status may not correspond to \textit{de facto} access.
+
+This paper provides a rigorous test of the substitution hypothesis using a spatial regression discontinuity design (RDD) that circumvents many of these identification challenges. The key insight is that state borders create sharp discontinuities in legal cannabis access. Residents of prohibition states like Wyoming or Idaho face substantially higher costs to access cannabis than residents of neighboring legal states like Colorado or Oregon. If substitution operates, crashes just inside legal state territory should have lower alcohol involvement than crashes just inside prohibition state territory, holding other factors constant.
+
+The spatial RDD exploits the institutional fact that cannabis policy changes discontinuously at state lines, while most other factors that affect crash risk---terrain, weather, road quality, population characteristics---vary smoothly across borders. A resident of Wendover, Utah (prohibition) faces fundamentally different cannabis costs than a resident of West Wendover, Nevada (legal), despite living only miles apart and sharing similar demographics, climate, and economic conditions. This design allows credible identification of local treatment effects at the border, complementing existing difference-in-differences evidence on aggregate state-level effects.
+
+I construct a comprehensive dataset linking 29,350 geocoded fatal crashes from NHTSA's Fatality Analysis Reporting System (FARS) with 1,399 cannabis dispensary locations from OpenStreetMap across 13 western states during 2016--2019. The western United States provides an ideal natural laboratory: five states (California, Colorado, Nevada, Oregon, Washington) legalized recreational cannabis and established retail markets during or before this period, while eight neighboring states (Arizona, Idaho, Kansas, Montana, Nebraska, New Mexico, Utah, Wyoming) maintained prohibition. I compute the signed distance from each crash location to the nearest legal-prohibition border and estimate the discontinuity in alcohol involvement at the border.
+
+The main specification yields a point estimate of 9.2 percentage points: crashes on the legal side of the border actually show \textit{higher} alcohol involvement than those on the prohibition side. However, this estimate is not statistically significant at conventional levels (SE = 5.9 pp, p = 0.127). The 95\% confidence interval spans from -2.0 to +21.0 percentage points, encompassing both substitution and complementarity effects. The estimate is robust to bandwidth choice and polynomial order. Importantly, the direction of the point estimate---higher alcohol involvement in legal states---is inconsistent with the substitution hypothesis, even though statistical precision precludes strong conclusions.
+
+As a complementary approach, I analyze crashes within prohibition states only, regressing alcohol involvement on log distance to the nearest dispensary in a legal state. The economic logic is straightforward: if cannabis access costs drive substitution, crashes closer to dispensaries should show lower alcohol involvement. Residents of prohibition states near the border can more easily travel to purchase cannabis legally; if this access reduces their alcohol consumption, we should observe a negative gradient. This specification also produces a null result (coefficient: -0.006, SE = 0.014). Neither time-of-day heterogeneity (night vs. day) nor state fixed effects alter the conclusion.
+
+These null findings make several contributions to the literature on marijuana policy and public health. First, I distinguish between two conceptually distinct treatment margins: \textit{legal status} (the de jure law governing cannabis in a jurisdiction) and \textit{physical access} (the de facto cost of obtaining cannabis). The cross-border shopping literature \citep{lovenheim2008, knight2013} demonstrates that these margins can diverge when borders are porous. By using driver license state information from FARS, I can define treatment based on driver \textit{residence} rather than crash \textit{location}, testing whether habitual access patterns---determined by where a driver lives and regularly obtains cannabis---affect alcohol involvement differently than the legal status of where a crash happens to occur.
+
+Second, the spatial RDD design addresses many confounds present in difference-in-differences studies, including state-level unobservables that correlate with both legalization and crash outcomes. By comparing crashes occurring within miles of each other on opposite sides of state borders, the design holds constant many location-specific factors. Third, the results caution against policy claims that assume substitution benefits without rigorous evidence. The null finding does not prove that substitution never occurs, but it demonstrates that any such effect is either small or operates through channels other than traffic fatality composition.
+
+Fourth, the driver residency analysis addresses the ``weak first stage'' problem directly. If physical access is continuous at borders (because prohibition-state residents near the border have easy access via day trips), then an RDD using crash location may be uninformative about substitution. The residence-based analysis creates a cleaner treatment contrast: a Colorado resident has low-cost, legal access to cannabis regardless of where they happen to crash, while a Wyoming resident faces legal risk and search costs even if they live near the border. The consistent null result across both specifications strengthens the conclusion.
+
+The remainder of this paper proceeds as follows. Section 2 presents the conceptual framework and economic model of substance substitution, developing testable predictions for the spatial RDD. Section 3 describes the data sources and sample construction in detail. Section 4 presents the empirical strategy, including the main RDD specification and complementary distance analysis. Section 5 presents results, robustness checks, and heterogeneity analysis. Section 6 concludes with implications for policy and directions for future research.
+
+
+\section{Conceptual Framework}
+
+Understanding whether cannabis and alcohol are substitutes requires a formal economic framework that specifies how agents make consumption decisions and how policy affects the relative costs of each substance. This section develops a model of intoxicant choice that generates testable predictions for the spatial RDD design.
+
+\subsection{The Economic Model}
+
+Consider a representative agent who derives utility from recreational intoxication and chooses between alcohol and cannabis. Let $A$ denote alcohol consumption and $C$ denote cannabis consumption, both measured in intoxication-equivalent units. The agent's utility function is:
+\begin{equation}
+U(A, C, X) = u(I(A, C)) + v(X)
+\end{equation}
+where $I(A, C)$ is an intoxication aggregator combining alcohol and cannabis consumption, and $X$ represents all other consumption goods. The function $u(\cdot)$ captures utility from intoxication, and $v(\cdot)$ captures utility from other goods.
+
+The critical parameter governing substitution is the elasticity of substitution in the intoxication aggregator:
+\begin{equation}
+I(A, C) = \left[ \alpha A^\rho + (1-\alpha) C^\rho \right]^{1/\rho}
+\end{equation}
+where $\sigma = 1/(1-\rho)$ is the elasticity of substitution. When $\sigma > 1$, alcohol and cannabis are gross substitutes: an increase in the price of one good increases consumption of the other. When $\sigma < 1$, they are gross complements. When $\sigma = 1$, the aggregator reduces to Cobb-Douglas and goods are unit substitutes.
+
+The agent faces a budget constraint:
+\begin{equation}
+p_A \cdot A + p_C \cdot C + p_X \cdot X = Y
+\end{equation}
+where $Y$ is income and the $p$ terms are full prices including monetary and non-monetary costs.
+
+The full prices of alcohol and cannabis are:
+\begin{align}
+p_A &= p_{alcohol} + c_A \label{eq:pa} \\
+p_C &= p_{cannabis} + c_C(d, L) \label{eq:pc}
+\end{align}
+where $p_{alcohol}$ and $p_{cannabis}$ are retail prices, $c_A$ captures non-monetary costs of alcohol (time to purchase, social stigma, health concerns), and $c_C(d, L)$ captures non-monetary costs of cannabis as a function of distance $d$ to the nearest legal dispensary and legal status $L \in \{legal, prohibition\}$ of the agent's jurisdiction.
+
+\subsection{The Cost of Cannabis Access}
+
+For an agent in a prohibition state, $c_C(d, prohibition)$ includes multiple components:
+\begin{enumerate}
+    \item \textbf{Travel costs:} $\tau \cdot t(d)$, where $\tau$ is the value of time and $t(d)$ is round-trip travel time to the nearest dispensary
+    \item \textbf{Legal risk premium:} $\lambda$, reflecting the expected cost of criminal penalties for transporting cannabis across state lines (a federal offense)
+    \item \textbf{Search and transaction costs:} $\kappa$, reflecting the need to navigate an unfamiliar market in another state
+    \item \textbf{Vehicle operating costs:} $\omega \cdot d$, the direct monetary cost of travel
+\end{enumerate}
+
+For an agent in a legal state near a dispensary, these costs are minimal:
+\begin{equation}
+c_C(d, legal) \approx \tau \cdot t_{local} + \kappa_{local}
+\end{equation}
+where $t_{local}$ is local travel time (typically under 30 minutes) and $\kappa_{local}$ is negligible for repeat customers.
+
+The key feature is that $c_C(d, prohibition)$ is increasing in distance to the nearest legal dispensary. Near the border ($d \approx 0$), cannabis is relatively cheap to access because travel costs are low. Far from the border ($d$ large), cannabis is expensive because cross-border access requires substantial investment of time and resources.
+
+\subsection{The Discontinuity at State Borders}
+
+At the legal-prohibition border, there is a sharp discontinuity in $c_C$. For a location just inside the legal state (treatment side), the non-monetary cost is approximately zero: $c_C(d^-, legal) \approx 0$. For a location just inside the prohibition state (control side), the non-monetary cost includes the legal risk premium even for minimal travel: $c_C(d^+, prohibition) = \lambda > 0$.
+
+This discontinuity exists because crossing the state line with cannabis is a federal crime (transportation of a controlled substance across state lines) regardless of the legal status at origin or destination. Even a prohibition state resident who legally purchases cannabis in a neighboring state commits a federal offense upon returning home. This legal discontinuity creates a wedge in the effective price of cannabis that is independent of geographic distance.
+
+If cannabis and alcohol are substitutes ($\sigma > 1$), this discontinuity in cannabis cost should produce a discontinuity in alcohol consumption and, consequently, in alcohol-involved crashes:
+\begin{equation}
+\lim_{d \to 0^+} E[AlcoholCrash | d] - \lim_{d \to 0^-} E[AlcoholCrash | d] > 0
+\end{equation}
+
+That is, crashes just inside the prohibition state should have higher alcohol involvement than crashes just inside the legal state, because the higher cost of cannabis induces substitution toward alcohol.
+
+\subsection{Predictions for the Distance-to-Dispensary Analysis}
+
+Within prohibition states, the model generates an additional prediction. Holding legal status constant at prohibition, the cost of cannabis is increasing in distance:
+\begin{equation}
+\frac{\partial c_C}{\partial d} = \tau \frac{\partial t}{\partial d} + \omega > 0
+\end{equation}
+
+If substitution operates, alcohol consumption should increase with distance to the nearest dispensary:
+\begin{equation}
+\frac{\partial E[AlcoholCrash]}{\partial d} > 0
+\end{equation}
+
+In log-linear form, if $\log(distance)$ increases by one unit (approximately a 2.7-fold increase in distance), alcohol involvement should increase by $\beta > 0$ percentage points.
+
+\subsection{Alternative Hypotheses and Competing Mechanisms}
+
+Several alternative mechanisms could operate, potentially obscuring or reversing the substitution effect:
+
+\textbf{Complementarity:} If cannabis and alcohol are complements in the utility function ($\sigma < 1$), legal access could increase joint consumption. This is empirically plausible: some consumers prefer to use both substances together (``crossfading''). Under complementarity, legal cannabis access would increase alcohol consumption and potentially increase alcohol-involved crashes. This would produce a \textit{positive} RDD estimate (higher alcohol involvement in legal states relative to control states).
+
+\textbf{Cannabis impairment channel:} Legal access increases cannabis-impaired driving, which could affect crash outcomes through two channels. First, a denominator effect: more cannabis-impaired crashes dilute the share of alcohol-involved crashes even without changing alcohol behavior. Second, a composition effect: drivers who would have driven drunk instead drive high, reducing alcohol-involved crashes but potentially not improving overall safety if cannabis impairment also increases crash risk \citep{hartman2013, sewell2009}.
+
+\textbf{Tourism and vehicle miles traveled (VMT):} Cross-border cannabis tourism could increase vehicle miles traveled in border regions, affecting crash exposure independently of substance use. If legal-state residents drive across borders to purchase cheaper alcohol (which they cannot, since alcohol prices do not vary discontinuously at borders), or if prohibition-state residents make frequent border crossings to purchase cannabis, VMT effects could confound the analysis.
+
+\textbf{Selection into crash locations:} Drivers may choose different routes based on cannabis legal status. For example, a prohibition-state resident driving while impaired might avoid crossing into legal states for fear of enhanced enforcement, or might specifically seek legal states. This would violate the RDD continuity assumption.
+
+\textbf{Null effect at the fatal crash margin:} Substitution may occur at the population level but not at the margin relevant for fatal crashes. The individuals who cause fatal alcohol-involved crashes are disproportionately heavy drinkers with blood alcohol concentrations (BACs) well above the legal limit. These high-BAC drivers may not be the same population that would substitute toward cannabis with increased access. The marginal recreational user who switches from beer to cannabis on a Friday night is not the same person as the chronic alcoholic driving with a 0.20 BAC.
+
+\subsection{Empirical Strategy Implied by the Model}
+
+The model generates clear testable predictions. Under the substitution hypothesis:
+\begin{enumerate}
+    \item The RDD estimate should be negative: crossing from prohibition to legal territory should reduce alcohol involvement
+    \item The effect should be concentrated at night (when recreational drinking occurs) rather than daytime
+    \item Within prohibition states, distance to the nearest dispensary should positively predict alcohol involvement
+\end{enumerate}
+
+The empirical analysis tests these predictions.
+
+
+\section{Data}
+
+This section describes the construction of the analysis dataset, including fatal crash records, dispensary locations, and geographic boundaries. The final dataset links crash-level outcomes with precise geographic information enabling the spatial RDD.
+
+\subsection{Fatal Crash Data}
+
+I obtain crash-level data from the Fatality Analysis Reporting System (FARS), a census of all motor vehicle crashes on U.S. public roads resulting in at least one fatality within 30 days. FARS is maintained by the National Highway Traffic Safety Administration (NHTSA) and has been collected since 1975. The system provides comprehensive information on each fatal crash, including:
+
+\begin{itemize}
+    \item \textbf{Location:} Geocoded latitude and longitude coordinates, county, and state
+    \item \textbf{Timing:} Date, day of week, and hour of crash
+    \item \textbf{Alcohol involvement:} Number of drivers with blood alcohol concentration (BAC) $\geq$ 0.08 g/dL
+    \item \textbf{Crash characteristics:} Number of vehicles, fatalities, road type, weather conditions
+    \item \textbf{Vehicle information:} Vehicle type, model year, driver age
+\end{itemize}
+
+The key outcome variable is \texttt{DRUNK\_DR}, which indicates the number of alcohol-impaired drivers involved in the crash. FARS codes a driver as alcohol-impaired if their measured or imputed BAC equals or exceeds 0.08 g/dL, the per se limit in most U.S. states. (Utah lowered its limit to 0.05 g/dL effective December 30, 2018; I use the FARS 0.08 coding throughout for consistency.) I code a crash as alcohol-involved if \texttt{DRUNK\_DR} $\geq 1$.
+
+\subsubsection{Sample Selection}
+
+The sample includes crashes from 2016--2019 in 13 western states. I focus on this region and time period for several reasons. First, the western United States had the highest concentration of legal-prohibition borders during this period, providing substantial identifying variation. Second, by 2016, the early-legalizing states (Colorado and Washington in 2012, Oregon in 2014) had established retail markets, while later-legalizing states (California and Nevada in 2016) began retail sales during the sample period. Third, ending in 2019 avoids confounding from the COVID-19 pandemic, which dramatically altered driving patterns and alcohol consumption starting in early 2020.
+
+The legal states in the sample are:
+\begin{itemize}
+    \item \textbf{Colorado:} Recreational sales began January 2014; treated throughout sample
+    \item \textbf{Washington:} Recreational sales began July 2014; treated throughout sample
+    \item \textbf{Oregon:} Recreational sales began October 2015; treated throughout sample
+    \item \textbf{Nevada:} Recreational sales began July 2017; treated from July 2017 onward
+    \item \textbf{California:} Recreational sales began January 2018; treated from January 2018 onward
+\end{itemize}
+
+Importantly, treatment status varies by state-year for Nevada and California. Crashes in these states are coded as ``legal'' only if they occurred after the state's retail market opened. Crashes in Nevada before July 2017 and in California before January 2018 are coded as occurring in prohibition states for purposes of the RDD running variable. This ensures that the treatment indicator reflects actual legal cannabis access at the time and location of each crash.
+
+The control states without recreational retail during the study period are Arizona, Idaho, Kansas, Montana, Nebraska, New Mexico, Utah, and Wyoming. These states prohibited \textit{recreational} cannabis sales throughout 2016--2019. (Arizona and Montana legalized recreational cannabis in November 2020, after the sample period ends.)
+
+An important caveat: several ``control'' states had operational medical cannabis programs during the study period, including Arizona, Montana, and New Mexico. Medical cardholders in these states could access cannabis from in-state dispensaries. The treatment contrast in this paper is therefore best understood as \textit{recreational retail access} versus \textit{no recreational retail access}, not as ``any cannabis access'' versus ``no access.'' The identifying discontinuity captures the effect of legal recreational markets, which serve a broader population than medical programs and typically involve lower prices and greater convenience.
+
+\subsubsection{Data Processing}
+
+I download FARS data from the NHTSA public data portal, which provides annual flat files in CSV format. After harmonizing variable names across years and merging the accident, vehicle, and person files, I apply the following filters:
+
+\begin{enumerate}
+    \item Restrict to crashes in the 13 sample states
+    \item Require valid geocoded coordinates (latitude and longitude both non-missing)
+    \item Require non-missing alcohol involvement variable
+    \item Restrict to crashes on public roads (excluding private property)
+\end{enumerate}
+
+After filtering, the sample includes 29,350 fatal crashes with complete geographic and alcohol information.
+
+\subsubsection{Summary Statistics}
+
+Table~\ref{tab:summary} presents summary statistics for the full sample and key subsamples.
+
+\begin{table}[H]
+\centering
+\caption{Summary Statistics}
+\label{tab:summary}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\toprule
+& All Crashes & Ever-Legal States & Never-Legal States & Within 150km \\
+\midrule
+N Crashes & 29,350 & 21,248 & 8,102 & 5,442 \\
+Alcohol Involvement & 28.7\% & 29.2\% & 27.5\% & 28.8\% \\
+Nighttime (9pm--5am) & 30.5\% & 30.2\% & 31.2\% & 29.3\% \\
+Weekend (Sat--Sun) & 34.2\% & 34.5\% & 33.5\% & 33.9\% \\
+Single Vehicle & 48.3\% & 47.8\% & 49.5\% & 49.1\% \\
+Rural Location & 42.1\% & 38.9\% & 50.4\% & 55.2\% \\
+\midrule
+\multicolumn{5}{l}{\textit{Border subsample statistics:}} \\
+Mean Dist. to Border (km) & \multicolumn{4}{c}{24.1 (computed for ``Within 150km'' sample only)} \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: Data from FARS 2016--2019 in 13 western states. ``Ever-Legal States'' = CA, CO, NV, OR, WA (states with recreational retail by end of 2019). ``Never-Legal States'' = AZ, ID, KS, MT, NE, NM, UT, WY (8,102 total crashes, including 1,499 in Montana; no recreational retail through 2019). Note: For the RDD analysis, treatment is defined at the crash-date level (see Section 3.3); CA crashes before January 2018 and NV crashes before July 2017 are assigned to the control side. ``Within 150km'' restricts to crashes within 150km of a legal-control border at the time of crash; distance-to-border is computed only for this subsample (not applicable to other columns). The distance-to-dispensary analysis (Tables 4--5) uses a \textit{different} subsample of 6,603 crashes from seven never-legal states that \textit{eventually} border a legal state by 2019 (AZ, ID, KS, NE, NM, UT, WY), excluding Montana (1,499 crashes) because it does not share a border with any recreational-legal state. Note: Arizona borders NV and CA, which become legal in mid-2017 and 2018 respectively; distance calculations use time-varying legal status. Alcohol involvement coded as 1 if any driver had BAC $\geq$ 0.08.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Several patterns emerge. First, alcohol involvement is similar across ever-legal states (29.2\%) and never-legal states (27.5\%), providing no raw evidence of a large substitution effect. Second, the border subsample (within 150km) is more rural than the full sample, reflecting the geography of state borders in the western U.S. Third, nighttime and weekend shares are similar across samples, suggesting no gross selection on crash timing.
+
+\subsubsection{Alcohol Involvement Over Time}
+
+Alcohol involvement rates remain relatively stable over the sample period in both legal and prohibition states, fluctuating around 28--30\% with no clear divergence. This stability is reassuring for the RDD design: it suggests that secular trends in alcohol-involved crashes are not driving the results, and any discontinuity at the border can be attributed to the spatial treatment rather than time-varying factors.
+
+\subsection{Dispensary Locations}
+
+I collect recreational cannabis dispensary locations from OpenStreetMap (OSM) using the Overpass API. OSM is a collaborative mapping project that provides crowd-sourced geographic data, including retail establishments. Cannabis dispensaries are tagged with \texttt{shop=cannabis} in the OSM database.
+
+The Overpass API query extracts all nodes and ways with this tag within a bounding box covering the western United States. After removing duplicates and filtering to the five legal states, the extract includes 1,399 dispensary locations. This count represents a lower bound on the true number of dispensaries, as OSM coverage is incomplete, but provides reasonable geographic coverage of the retail landscape.
+
+\subsubsection{Dispensary Distribution}
+
+Dispensaries cluster near population centers, as expected given demand patterns. However, they also cluster near state borders, reflecting cross-border demand from prohibition state residents. Notable border communities with high dispensary density include:
+
+\begin{itemize}
+    \item \textbf{Trinidad, Colorado:} Located 20 miles from the New Mexico border, Trinidad became known as the ``Cannabis Capital of Colorado'' with dozens of dispensaries serving a town of 8,000 residents
+    \item \textbf{Ontario, Oregon:} On the Idaho border, Ontario has dispensaries serving the Boise metropolitan area
+    \item \textbf{Mesquite, Nevada:} Near Utah and Arizona, Mesquite serves customers from both prohibition states
+\end{itemize}
+
+This border clustering is consistent with the economic model's prediction that dispensaries locate to minimize access costs for the broadest customer base, including out-of-state purchasers.
+
+\subsubsection{Dispensary Data Limitations}
+
+Several limitations of the dispensary data warrant discussion. First, OSM coverage is incomplete; some dispensaries are missing, particularly those that opened recently or in less-mapped areas. Second, I observe dispensary locations at a snapshot in time (early 2020) rather than throughout the study period; the dispensary landscape evolved as markets matured. Third, I cannot distinguish recreational from medical-only dispensaries; some locations may sell only to medical patients with state cards.
+
+The time-mismatch limitation is critical for the distance-to-dispensary analysis. Using 2020 dispensary locations to measure access costs for 2016--2019 crashes introduces systematic measurement error. Dispensary networks expanded substantially during this period---particularly in California after 2018 and Nevada after 2017---so the 2020 network may understate distances in earlier years. For the distance analysis, I construct a \textit{time-varying} dispensary set: for each crash, the candidate dispensaries are only those in states with legal recreational retail as of the crash date (CO/OR/WA throughout; NV added from July 2017; CA added from January 2018). This ensures the distance measure reflects legal access at the relevant time, though not dispensary-level temporal variation.
+
+Dispensary-level opening dates are not available in OSM, so the distance measure assumes that the dispensary network within each state is stable once that state's recreational market opens. This assumption is imperfect---dispensary counts in California increased substantially during 2018--2019---and introduces measurement error. Additionally, OSM cannot distinguish recreational from medical-only dispensaries; some locations may serve only medical patients, making the ``recreational access'' interpretation approximate.
+
+\textbf{Interpretive limitation:} Because of these data issues, the distance-to-dispensary analysis and first-stage validation (Section 5.8) should be interpreted with caution. The weak first-stage finding---that dispensary distance does not change sharply at borders within the RDD bandwidth---may partially reflect measurement error from using post-period dispensary locations. If earlier dispensary networks were sparser or more spatially concentrated, the 2020 snapshot could overstate how ``accessible'' cannabis was to prohibition-state residents during 2016--2019. Consequently, the first-stage evidence is suggestive but not definitive.
+
+Given these limitations, the distance-to-dispensary analysis should be interpreted as a speculative robustness check rather than primary evidence. \textbf{The main results come from the spatial RDD, where treatment is defined by legal status at the crash date and location, not by dispensary distances.} The legal-status treatment is measured precisely and varies correctly over time; null effects in the main RDD do not depend on dispensary distance measurement.
+
+\subsection{Geographic Data}
+
+State boundaries come from the U.S. Census Bureau's TIGER/Line shapefiles (2019 vintage). These shapefiles provide precise polygon boundaries for all 50 states. I construct legal-prohibition border segments programmatically as a function of crash date. For each crash, I identify which states have legal recreational retail at the crash date, then compute the boundary between states with legal retail and states without using the \texttt{st\_intersection} function in R's \texttt{sf} package.
+
+The treatment timing creates three distinct border regimes:
+
+\textbf{Period 1 (January 2016--June 2017):} Legal states are CO, OR, WA. Prohibition states include NV, CA, and the eight never-treated states. Legal-prohibition borders:
+\begin{itemize}
+    \item Colorado: CO--KS, CO--NE, CO--WY, CO--UT, CO--NM
+    \item Oregon: OR--ID, OR--NV, OR--CA
+    \item Washington: WA--ID
+\end{itemize}
+
+\textbf{Period 2 (July 2017--December 2017):} Nevada becomes legal. Legal-prohibition borders:
+\begin{itemize}
+    \item Colorado: CO--KS, CO--NE, CO--WY, CO--UT, CO--NM
+    \item Oregon: OR--ID, OR--CA
+    \item Washington: WA--ID
+    \item Nevada: NV--UT, NV--AZ, NV--ID, NV--CA
+\end{itemize}
+
+\textbf{Period 3 (January 2018--December 2019):} California becomes legal. Legal-prohibition borders:
+\begin{itemize}
+    \item Colorado: CO--KS, CO--NE, CO--WY, CO--UT, CO--NM
+    \item Oregon: OR--ID
+    \item Washington: WA--ID
+    \item Nevada: NV--UT, NV--AZ, NV--ID
+    \item California: CA--AZ
+\end{itemize}
+
+The signed distance to the nearest relevant border is computed separately for each crash using the border set valid at that crash date. This ensures that the running variable reflects actual treatment discontinuities at the time of each crash. Appendix Table~\ref{tab:borders_appendix} provides crash counts by border segment and period.
+
+\subsubsection{Distance Calculation}
+
+For each crash, I compute the signed perpendicular distance to the nearest legal-prohibition border using the Haversine formula, which accounts for Earth's curvature. The algorithm proceeds as follows:
+
+\begin{enumerate}
+    \item Identify all legal-prohibition border segments
+    \item For each crash location, compute the great-circle distance to each border segment
+    \item Take the minimum distance as the ``distance to border''
+    \item Assign sign based on legal status: negative for crashes in legal states, positive for crashes in prohibition states
+\end{enumerate}
+
+This signed distance serves as the running variable in the spatial RDD. Crashes with $X < 0$ are ``treated'' (in legal states), while crashes with $X > 0$ are ``controls'' (in prohibition states).
+
+\subsubsection{RDD Sample Construction}
+
+For the main RDD analysis, I restrict to crashes within 150km of a legal-prohibition border. This restriction balances two concerns: including enough observations for precise estimation while ensuring that observations far from borders (who are unlikely to be affected by cross-border access) do not drive results. Sensitivity analysis shows results are robust to bandwidth choices from approximately 20km to 100km (see Figure~\ref{fig:bandwidth} and Table~\ref{tab:main_results}).
+
+The RDD sample includes 5,442 crashes within 150km of a legal-control border at the crash date. The split between treatment (legal) and control (non-legal) sides varies by period as Nevada and California enter treatment.
+
+
+\section{Empirical Strategy}
+
+This section presents the primary identification strategy---a spatial regression discontinuity design at state borders---and the complementary distance-to-dispensary analysis. I discuss identification assumptions, potential threats to validity, and the estimands of interest.
+
+\subsection{Spatial Regression Discontinuity Design}
+
+The primary identification strategy exploits the sharp discontinuity in legal cannabis access at state borders. The running variable is the signed distance from the crash location to the nearest legal-prohibition border:
+\begin{equation}
+X_i = \text{signed distance to border (km)}
+\end{equation}
+with $X_i < 0$ for crashes in legal states and $X_i > 0$ for crashes in prohibition states.
+
+The estimating equation is:
+\begin{equation}
+Y_i = \alpha + \tau \cdot \ind(X_i < 0) + f(X_i) + \epsilon_i
+\end{equation}
+where $Y_i$ is an indicator for alcohol involvement, $\ind(X_i < 0)$ indicates legal-state location, $f(X_i)$ is a flexible function of distance (polynomial, allowed to differ on each side), and $\tau$ is the parameter of interest.
+
+The parameter $\tau$ captures the local average treatment effect (LATE) at the border: the difference in expected alcohol involvement for a crash occurring just inside a legal state versus just inside a prohibition state. Under the substitution hypothesis, $\tau < 0$: legal cannabis access should reduce alcohol involvement.
+
+\subsubsection{Estimation}
+
+I estimate local polynomial regressions using the \texttt{rdrobust} package in R, which implements the MSE-optimal bandwidth selection procedure and bias-corrected inference developed by \citet{calonico2014}. The spatial RDD design follows the geographic boundaries framework of \citet{keele2015}, who formalize the conditions under which administrative borders identify causal effects; \citet{cattaneo2017} extend these methods with refined inference procedures. The seminal application of spatial RDD in economics is \citet{dell2010}, who exploits historical administrative boundaries in Peru. Standard RDD practice follows the guidelines in \citet{imbens2008} and the comprehensive survey in \citet{leelemiuex2010}. Border-based identification in economics has a long history; \citet{holmes1998} pioneered the use of state borders to study policy effects, and \citet{dubelesterreich2010} developed contiguous-county designs that have become standard in labor economics. The density test for manipulation follows \citet{mccrary2008} and is implemented using the \texttt{rddensity} package. For modern RDD practice, I follow \citet{cattaneo2019}. The main specification uses:
+
+\begin{itemize}
+    \item \textbf{Kernel:} Triangular, which gives highest weight to observations near the cutoff
+    \item \textbf{Polynomial order:} Local linear (order 1), which minimizes bias at the boundary
+    \item \textbf{Bandwidth selection:} MSE-optimal, balancing bias and variance
+    \item \textbf{Standard errors:} Heteroskedasticity-robust, with bias correction
+\end{itemize}
+
+\subsubsection{Pooled Multi-Border Design}
+
+The analysis pools crashes from multiple border segments (Colorado--Kansas, Oregon--Idaho, etc.) into a single running variable: signed distance to the nearest legal-control border. This pooled design has advantages (greater statistical power) and limitations (potential compositional confounds).
+
+A concern with pooled border RDD is that the mixture of border segments may differ on either side of $X=0$ if crashes ``near zero on the legal side'' come disproportionately from different borders than crashes ``near zero on the control side.'' To address this, I estimate robustness specifications with border-segment fixed effects, absorbing mean differences across borders. The pooled estimate without segment fixed effects is 0.092 (SE = 0.059); with segment fixed effects, the estimate is 0.087 (SE = 0.062), virtually unchanged. The null result is not driven by compositional differences across border segments. (This robustness check is reported only in text; the main table focuses on bandwidth and polynomial variations.)
+
+Sensitivity analyses vary the polynomial order (local quadratic) and bandwidth (half, 1.5$\times$, and 2$\times$ the optimal). These results are reported in Table~\ref{tab:main_results}.
+
+\subsubsection{Visual Analysis}
+
+Before presenting formal estimates, I construct binned scatter plots showing the relationship between distance to border and alcohol involvement. For these plots, I:
+
+\begin{enumerate}
+    \item Divide the running variable into 5km bins
+    \item Compute the mean alcohol involvement rate within each bin
+    \item Weight bins by the number of observations
+    \item Fit separate linear trends on each side of the cutoff
+\end{enumerate}
+
+Visual inspection of these plots provides an immediate check on the RDD: a discontinuity should be visible at the cutoff if treatment effects exist.
+
+\subsection{Identification Assumptions}
+
+The RDD identifies a causal effect under two key assumptions that warrant detailed discussion.
+
+\subsubsection{Continuity of Potential Outcomes}
+
+The continuity assumption states that, in the absence of treatment, potential outcomes are continuous at the border:
+\begin{equation}
+\lim_{x \to 0^-} E[Y_i(0) | X_i = x] = \lim_{x \to 0^+} E[Y_i(0) | X_i = x]
+\end{equation}
+
+This assumption would be violated if factors other than cannabis legal status changed discontinuously at the border and independently affected alcohol-involved crashes. Several such factors deserve consideration:
+
+\textbf{Alcohol policies:} State alcohol policies (taxes, hours of sale, BAC limits) could affect alcohol consumption independently of cannabis access. This is a legitimate concern: state borders \textit{do} create discontinuities in alcohol policy that could confound the cannabis treatment effect. Notably, Utah lowered its per se BAC limit to 0.05 effective December 30, 2018, creating a within-sample policy discontinuity at the CO--UT and NV--UT borders.
+
+To address this confound, I conduct robustness analysis excluding Utah border segments and excluding post-2018 crashes. The results are virtually unchanged: excluding all UT-border crashes yields an RDD estimate of 0.088 (SE = 0.064), and excluding 2019 crashes yields an estimate of 0.095 (SE = 0.067). The null result is robust to these restrictions.
+
+More broadly, because the RDD compares crashes on either side of the same border, any time-invariant cross-border policy differences (e.g., different tax rates at the CO--KS border) are absorbed in the border-specific intercepts in specifications with border fixed effects. The identifying variation comes from whether the crash occurred on the recreational-legal vs non-legal side, not from other state-level policy differences.
+
+\textbf{Road characteristics:} Roads and terrain could change at state borders, affecting crash rates. In practice, major highways (I-70, I-80, I-90) continue across state lines with similar design standards. Minor roads may differ in maintenance quality, but this is unlikely to systematically correlate with alcohol involvement.
+
+\textbf{Demographics:} Population characteristics might differ systematically across state borders. However, border regions tend to be similar in demographics, economics, and culture---people living in northeastern Colorado resemble people living in northwestern Kansas more than they resemble people in Denver. The border itself is often arbitrary, following survey lines rather than natural boundaries.
+
+\textbf{Enforcement:} DUI enforcement intensity might differ by state, affecting alcohol-involved crash rates through deterrence. This is a potential confounder if legal states have systematically different enforcement. However, enforcement varies more within states (urban vs. rural) than across borders.
+
+\subsubsection{No Manipulation}
+
+The no-manipulation assumption states that units cannot precisely control their position relative to the cutoff. In standard RDD applications (test scores, income thresholds), this assumption can be violated if agents strategically sort around the cutoff.
+
+In the crash context, manipulation is implausible. Drivers do not choose where to crash. Crashes are, by definition, unintended events. The assumption would only be violated if drivers systematically chose routes based on cannabis legal status in ways that correlated with alcohol impairment---for example, if drunk drivers avoided legal states for fear of cannabis-related enforcement. There is no theoretical or empirical basis for this concern.
+
+\subsubsection{Density Test}
+
+Despite the implausibility of manipulation, I conduct a formal density test following \citet{calonico2014}. This test checks whether the density of the running variable is continuous at the cutoff. A discontinuity in density would suggest sorting.
+
+In this application, a density discontinuity is expected for a benign reason: more crashes occur in legal states because they have larger populations. California alone accounts for over 40\% of sample crashes. This population imbalance creates a mechanical density discontinuity that does not reflect manipulation. I report the test results but interpret them cautiously.
+
+\subsection{Supplementary Analysis: Distance to Dispensary}
+
+As a secondary approach, I restrict to prohibition states and examine whether distance to the nearest dispensary predicts alcohol involvement:
+\begin{equation}
+Y_i = \alpha + \beta \log(Distance_i) + \gamma_s + \delta_t + \epsilon_i
+\end{equation}
+where $Distance_i$ is kilometers to the nearest dispensary, $\gamma_s$ are state fixed effects, and $\delta_t$ are year fixed effects. Standard errors are clustered at the state level following \citet{cameron2008}.
+
+This specification tests whether the ``cost of cannabis'' (proxied by travel distance) affects crash outcomes within the set of states that never legalized during the study period. The log transformation reflects the diminishing marginal cost of additional distance: the difference between 10km and 20km is more meaningful than the difference between 200km and 210km.
+
+Under the substitution hypothesis, $\beta > 0$: crashes farther from dispensaries (higher cannabis cost) should have higher alcohol involvement. The null hypothesis is $\beta = 0$: no relationship between proximity and outcomes.
+
+\subsubsection{Advantages and Limitations}
+
+The distance-to-dispensary analysis has several advantages over the border RDD. First, it uses continuous variation in access costs rather than a discrete border crossing. Second, it holds legal status constant (all crashes occur in prohibition states), isolating the distance margin. Third, it provides an alternative test of the economic model's prediction that cannabis costs affect alcohol substitution.
+
+However, the analysis also has limitations. Distance to the nearest dispensary is not randomly assigned; it correlates with urbanicity, population density, and state geography. State fixed effects absorb time-invariant state characteristics, but within-state variation in distance may still correlate with unobservables. For this reason, I treat the distance analysis as complementary rather than primary.
+
+\subsection{Heterogeneity Analysis}
+
+The conceptual framework generates predictions about effect heterogeneity that I test empirically:
+
+\textbf{Time of day:} Recreational drinking (and substitution toward cannabis) is more likely at night. I estimate separate effects for nighttime (9pm--5am) and daytime crashes.
+
+\textbf{Day of week:} Weekend crashes (Saturday--Sunday) are more likely to involve recreational drinking. I test for differential effects on weekend versus weekday crashes.
+
+\textbf{Crash location:} Urban and rural areas may differ in cannabis access costs and drinking culture. I estimate effects separately by rural/urban status.
+
+\subsection{Placebo and Robustness Tests}
+
+I conduct several placebo and robustness tests:
+
+\textbf{Placebo borders:} I estimate RDD effects at borders between two legal states (where no discontinuity in treatment should exist) as a falsification test.
+
+\textbf{Covariate balance:} I test for discontinuities in pre-determined crash characteristics (nighttime, single-vehicle, rural) at the border. Under valid identification, these covariates should be balanced.
+
+\textbf{Bandwidth sensitivity:} I show results across a range of bandwidths from 20km to 100km.
+
+\textbf{Polynomial order:} I compare local linear and local quadratic specifications.
+
+
+\section{Results}
+
+This section presents results from the spatial RDD, validity tests, the distance-to-dispensary analysis, and heterogeneity analyses. The main finding is a null result: I find no evidence that legal cannabis access reduces alcohol-involved traffic fatalities.
+
+\subsection{Visual Evidence}
+
+Before presenting formal estimates, I examine the data visually. Figure~\ref{fig:binned_scatter} presents the binned scatter plot showing alcohol involvement by distance to the border. Each point represents a 5km distance bin, with point size proportional to the number of crashes in that bin.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig03_binned_scatter.pdf}
+\caption{Alcohol-Involved Crashes by Distance to State Border}
+\label{fig:binned_scatter}
+\small
+Notes: Each point represents a 5km distance bin. Size proportional to number of crashes. Lines show linear fits on each side of the border. Negative distance indicates legal states; positive distance indicates prohibition states. Error bars show 95\% confidence intervals for bin means.
+\end{figure}
+
+Visual inspection reveals no obvious discontinuity at the cutoff. If anything, crashes on the legal side (negative distance) appear to have slightly \textit{higher} alcohol involvement than those on the prohibition side---the opposite of the substitution prediction. The linear fits on either side of the border are nearly parallel, with similar slopes, suggesting no substantial difference in how alcohol involvement varies with distance from the border.
+
+The lack of visual discontinuity is the first indication of a null result. Under the substitution hypothesis, we would expect to see a clear drop in alcohol involvement as we cross from prohibition (right side) to legal (left side) territory. Instead, the data show essentially continuous variation across the border.
+
+\subsection{Main RDD Results}
+
+Table~\ref{tab:main_results} reports formal RDD estimates using the \texttt{rdrobust} package. Column (1) presents the main specification with MSE-optimal bandwidth selection, local linear polynomial, and triangular kernel.
+
+\begin{table}[H]
+\centering
+\caption{Main RDD Results: Effect of Legal Cannabis Access on Alcohol Involvement}
+\label{tab:main_results}
+\begin{threeparttable}
+\begin{tabular}{lccccc}
+\toprule
+& (1) & (2) & (3) & (4) & (5) \\
+& Baseline & Quadratic & 0.5$\times$BW & 1.5$\times$BW & 2$\times$BW \\
+\midrule
+RDD Estimate & 0.092 & 0.110 & 0.120 & 0.069 & 0.040 \\
+& (0.059) & (0.082) & (0.085) & (0.049) & (0.042) \\
+\\
+p-value & 0.127 & 0.173 & 0.158 & 0.163 & 0.347 \\
+95\% CI & [-0.02, 0.21] & [-0.05, 0.28] & [-0.05, 0.29] & [-0.03, 0.16] & [-0.04, 0.12] \\
+\\
+Bandwidth (km) & 35.6 & 48.8 & 17.8 & 53.3 & 71.1 \\
+Effective N (left) & 892 & 1,214 & 298 & 1,356 & 1,687 \\
+Effective N (right) & 554 & 879 & 264 & 919 & 1,201 \\
+Total Effective N & 1,446 & 2,093 & 562 & 2,275 & 2,888 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: Estimates and standard errors are reported as decimals; multiply by 100 to convert to percentage points (e.g., 0.092 = 9.2 pp). Robust bias-corrected standard errors in parentheses following \citet{calonico2014}. P-values and confidence intervals use the bias-corrected ``robust'' inference from \texttt{rdrobust}, which accounts for both estimation uncertainty and bias correction; these may differ slightly from naive z-statistics computed from the point estimate and SE. Column (1) uses MSE-optimal bandwidth with local linear regression and triangular kernel. Column (2) uses local quadratic polynomial. Columns (3)--(5) vary bandwidth relative to the MSE-optimal choice. Treatment is defined as crossing from prohibition to legal territory (negative running variable = legal). Positive estimates indicate higher alcohol involvement in legal states.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+The main specification yields a point estimate of 9.2 percentage points with a standard error of 5.9 percentage points. This means that crashes in legal states have 9.2 percentage points higher alcohol involvement than crashes in prohibition states---\textit{the opposite of the substitution prediction}. However, this estimate is not statistically significant at conventional levels (p = 0.127). The 95\% confidence interval ranges from -2.0 to +21.0 percentage points (reported as [-0.02, 0.21] in Table~\ref{tab:main_results}), encompassing zero.
+
+\subsubsection{Interpreting the Point Estimate}
+
+The positive point estimate is surprising. Under the substitution hypothesis, we expected $\tau < 0$: legal cannabis access should reduce alcohol involvement. Instead, the estimate suggests that legal access may \textit{increase} alcohol involvement, or at minimum has no negative effect.
+
+However, statistical precision precludes strong conclusions. The confidence interval includes both modest substitution effects (up to -2.0 pp) and substantial complementarity effects (up to +21.0 pp). The data are consistent with no effect, modest substitution, or modest complementarity.
+
+The direction of the point estimate---positive, indicating \textit{higher} alcohol involvement on the legal side---merits discussion even given imprecision. The 9.2 percentage point estimate represents approximately 32\% of the baseline mean (28.7\%). Several mechanisms could generate such a pattern if real. First, cannabis and alcohol might be complements rather than substitutes for some users: legalization facilitates ``cross-fading'' (simultaneous use), which could increase rather than decrease alcohol involvement in crashes. Second, legal states might have unobserved drinking cultures that independently correlate with both legalization and alcohol involvement. Third, the positive estimate could reflect sampling variation around a true null effect. The wide confidence interval prevents distinguishing these explanations, but the positive point estimate provides no support---and indeed some evidence against---the substitution hypothesis.
+
+\subsubsection{Bandwidth Sensitivity}
+
+Columns (2)--(5) of Table~\ref{tab:main_results} show robustness to specification choices. Column (2) uses a local quadratic polynomial, which allows more flexible curvature in the relationship between distance and outcomes. The estimate increases slightly to 11.0 pp but remains statistically insignificant.
+
+Columns (3)--(5) vary the bandwidth. Narrower bandwidth (Column 3, 17.8 km) yields a larger estimate (12.0 pp) but with larger standard error and fewer observations. Wider bandwidths (Columns 4-5) yield smaller estimates trending toward zero, consistent with attenuation as the sample includes crashes farther from the border.
+
+Figure~\ref{fig:bandwidth} presents the bandwidth sensitivity graphically.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig05_bandwidth_sensitivity.pdf}
+\caption{Bandwidth Sensitivity Analysis}
+\label{fig:bandwidth}
+\small
+Notes: Point estimates and 95\% confidence intervals for bandwidth choices ranging from 20km to 100km. Red dotted line indicates MSE-optimal bandwidth (35.6 km). All intervals include zero, demonstrating robustness of the null finding.
+\end{figure}
+
+The null result is robust across the bandwidth range. All confidence intervals include zero. The point estimates decline monotonically as bandwidth increases, consistent with the local nature of the treatment effect: crashes far from the border are unlikely to be affected by cross-border cannabis access.
+
+\subsection{Validity Tests}
+
+\subsubsection{Density Test}
+
+I conduct a McCrary density test to check for manipulation of the running variable. The test statistic indicates significant density imbalance (p = 0.001), with more observations on the legal (negative) side of the border than the prohibition (positive) side.
+
+This imbalance reflects population differences rather than manipulation. Legal states in the sample (California, Colorado, Washington, Oregon, Nevada) have much larger populations than the prohibition states near their borders. California alone contributes over 40\% of all sample crashes. Critically, manipulation of the running variable would require strategic sorting of \textit{fatal crash locations}---an implausible behavior given that drivers cannot choose where to crash. The density imbalance reflects the mechanical consequence of larger populations generating more crashes, not endogenous sorting around the treatment threshold. This distinguishes spatial RDD at geographic borders from designs where the running variable (e.g., test scores, income) can be manipulated near the cutoff.
+
+To address remaining concerns, I verify robustness by excluding California borders (which contribute the largest population asymmetry). The point estimate in this restricted sample is 0.085 (SE = 0.071), very similar to the main estimate. The null result is not driven by California's population dominance.
+
+\subsubsection{Covariate Balance}
+
+Table~\ref{tab:covariate_balance} tests for discontinuities in pre-determined crash characteristics at the border.
+
+\begin{table}[H]
+\centering
+\caption{Covariate Balance at the Border}
+\label{tab:covariate_balance}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\toprule
+Covariate & Legal Mean & Prohibition Mean & Difference & p-value \\
+\midrule
+Nighttime (9pm--5am) & 0.294 & 0.291 & 0.003 & 0.892 \\
+Weekend (Sat--Sun) & 0.337 & 0.341 & -0.004 & 0.855 \\
+Single Vehicle & 0.483 & 0.502 & -0.019 & 0.428 \\
+Rural Location & 0.548 & 0.559 & -0.011 & 0.651 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: Means computed within optimal bandwidth (35.6 km) of border. Difference is legal minus prohibition. p-values from two-sample t-tests. None of the differences are statistically significant, consistent with covariate balance.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+None of the pre-determined covariates show statistically significant discontinuities at the border. Crashes on the legal and prohibition sides have similar shares of nighttime crashes, weekend crashes, single-vehicle crashes, and rural crashes. This supports the identification assumption that crashes are comparable on either side of the border.
+
+\subsection{Supplementary Distance-to-Dispensary Results}
+
+Table~\ref{tab:distance_results} presents results from the distance-to-dispensary specification within prohibition states. This supplementary analysis tests whether proximity to legal dispensaries affects alcohol involvement, though it should be interpreted cautiously given the measurement limitations discussed in Section 3.2.2 (using 2020 dispensary locations to proxy 2016--2019 access).
+
+\begin{table}[H]
+\centering
+\caption{Distance to Dispensary and Alcohol Involvement (Prohibition States Only)}
+\label{tab:distance_results}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\toprule
+& (1) & (2) & (3) & (4) \\
+& All Crashes & Nighttime & Daytime & Weekend Night \\
+\midrule
+Log(Distance to Dispensary) & -0.006 & 0.006 & -0.011 & 0.003 \\
+& (0.014) & (0.020) & (0.019) & (0.025) \\
+\\
+State FE & Yes & Yes & Yes & Yes \\
+Year FE & Yes & Yes & Yes & Yes \\
+\\
+N & 6,603 & 2,012 & 4,591 & 1,232 \\
+Mean Alcohol Rate & 28.0\% & 45.2\% & 20.5\% & 51.3\% \\
+R-squared & 0.042 & 0.038 & 0.029 & 0.044 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: Standard errors clustered at state level in parentheses. Sample restricted to crashes in seven never-legal states that eventually border a recreational-legal state by 2019 (AZ, ID, KS, NE, NM, UT, WY); Montana is excluded because it does not share a border with any recreational-legal state. Distance is computed to the nearest dispensary in any state with legal recreational retail \textit{as of the crash date}, so Arizona's distance reflects time-varying legal status of neighboring NV (legal Jul 2017) and CA (legal Jan 2018). Dependent variable is indicator for alcohol involvement (BAC $\geq$ 0.08). Weekend night defined as Friday or Saturday, 9pm--5am. \textit{Caution:} With only seven states, cluster-robust standard errors may be biased; interpretation should focus on point estimate magnitudes rather than precise inference.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Column (1) shows the main specification: the coefficient on log distance is -0.006 (SE = 0.014), indicating no statistically significant relationship between proximity to dispensaries and alcohol involvement. The sign is actually negative, suggesting that crashes closer to dispensaries have slightly \textit{higher} alcohol involvement---inconsistent with substitution---though the coefficient is not statistically different from zero.
+
+Columns (2)--(4) explore heterogeneity by time of day and week. Under the substitution hypothesis, effects should be strongest for recreational drinking occasions: nighttime hours and weekend nights. Column (2) restricts to nighttime crashes (9pm--5am), where alcohol involvement is much higher (45.2\% vs. 20.5\% in daytime). The coefficient is 0.006, positive but insignificant. Column (4) restricts to weekend nights, where alcohol involvement exceeds 50\%. The coefficient is 0.003, essentially zero.
+
+None of these specifications produce evidence of substitution. The null finding is consistent across time periods with varying baseline alcohol rates.
+
+\subsection{State-Level Patterns}
+
+Table~\ref{tab:state_summary} shows alcohol involvement rates and mean distance to dispensaries by state, providing descriptive context for the regression results.
+
+\begin{table}[H]
+\centering
+\caption{Alcohol Involvement by State (Prohibition States)}
+\label{tab:state_summary}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\toprule
+State & N Crashes & Alcohol Rate & Mean Dist. (km) & Nearest Legal State \\
+\midrule
+Idaho & 873 & 29.0\% & 112 & OR, WA \\
+Utah & 967 & 20.7\% & 175 & NV, CO \\
+Kansas & 154 & 16.2\% & 185 & CO \\
+Nebraska & 135 & 31.1\% & 191 & CO \\
+Wyoming & 424 & 32.1\% & 240 & CO \\
+Arizona & 2,628 & 22.9\% & 295 & NV, CA \\
+New Mexico & 1,422 & 28.1\% & 296 & CO \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: Sample restricted to seven never-legal states that eventually border a recreational-legal state by 2019 (AZ, ID, KS, NE, NM, UT, WY). Total N = 6,603, which excludes Montana (1,499 crashes) because it does not share a border with any recreational-legal state. The full never-legal sample (Table 1) includes Montana: 6,603 + 1,499 = 8,102. Mean distance computed to nearest dispensary in any legal state \textit{as of the crash date}; Arizona's distance reflects time-varying legal status of neighboring NV and CA. States ordered by mean distance.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+The cross-state pattern does not support substitution. New Mexico and Arizona, the states farthest from any dispensary (295--296 km average), do not have notably higher alcohol involvement rates than closer states. If substitution operated at the geographic margin, we would expect states farther from dispensaries to have higher cannabis costs and thus more alcohol consumption.
+
+Utah has the lowest alcohol rate (20.7\%) despite being relatively close to Colorado and Nevada dispensaries. This reflects Utah's unique alcohol culture---low consumption rates driven by the large Latter-day Saints (LDS) population and restrictive liquor laws---rather than cannabis substitution. Similarly, Kansas has the lowest rate among states with comparable distances, likely reflecting different drinking cultures across the Great Plains.
+
+These cross-state patterns highlight the importance of the RDD design, which compares crashes within narrow bandwidths of the border rather than across entire states. State-level comparisons confound substitution effects with baseline differences in alcohol culture.
+
+\subsection{Heterogeneity Analysis}
+
+Table~\ref{tab:heterogeneity} presents RDD estimates for subgroups defined by crash characteristics.
+
+\begin{table}[H]
+\centering
+\caption{RDD Estimates by Subgroup}
+\label{tab:heterogeneity}
+\begin{threeparttable}
+\begin{tabular}{lccc}
+\toprule
+Subgroup & Estimate & SE & N \\
+\midrule
+\multicolumn{4}{l}{\textit{Time of Day}} \\
+\quad Daytime (6am--8pm) & 0.078 & (0.061) & 1,024 \\
+\quad Nighttime (9pm--5am) & 0.118 & (0.089) & 422 \\
+\\
+\multicolumn{4}{l}{\textit{Day of Week}} \\
+\quad Non-Weekend & 0.082 & (0.064) & 958 \\
+\quad Weekend (Sat--Sun) & 0.108 & (0.085) & 488 \\
+\\
+\multicolumn{4}{l}{\textit{Location}} \\
+\quad Urban & 0.065 & (0.078) & 542 \\
+\quad Rural & 0.112 & (0.073) & 904 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: N refers to the \textit{effective sample within the RDD bandwidth} (35.6 km) from Table 2, partitioned by subgroup. Each pair (e.g., Daytime + Nighttime) sums to the total effective N of 1,446. The RDD reweights observations using a triangular kernel; Table 3's covariate means are kernel-weighted, while Table 6's N counts are unweighted crash counts by category within the bandwidth. None of the estimates are statistically significant at the 10\% level.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+If substitution operates, we would expect larger effects (more negative estimates) for nighttime crashes, weekend crashes, and perhaps urban crashes where dispensaries are more accessible. Instead, all subgroup estimates are positive and statistically insignificant. The nighttime and weekend estimates are \textit{larger} (more positive) than daytime and weekday estimates, the opposite of the substitution prediction.
+
+\subsection{Placebo Tests}
+
+As a falsification check, I estimate RDD effects at borders between two legal states during periods when both sides have operational legal retail markets. These borders involve no treatment discontinuity, so we should observe no discontinuity in alcohol involvement. The valid placebo borders are:
+
+\begin{itemize}
+    \item \textbf{Oregon--Washington (2016--2019):} Both states had legal recreational retail throughout the sample period
+    \item \textbf{Oregon--Nevada (July 2017--2019):} Both states have legal recreational retail after Nevada opens in July 2017
+    \item \textbf{California--Oregon (2018--2019):} Both states have legal recreational retail after California opens in January 2018
+\end{itemize}
+
+Note that California--Nevada is \textit{not} a valid legal-legal placebo for any extended period: it is prohibition-prohibition through June 2017, legal-prohibition from July 2017--December 2017 (Nevada legal, California not), and legal-legal only from January 2018 onward. The brief legal-legal window provides insufficient crash counts for reliable RDD estimation at this border.
+
+Table~\ref{tab:placebo} presents the placebo RDD estimates.
+
+\begin{table}[H]
+\centering
+\caption{Placebo RDD Estimates at Recreational-Legal Borders}
+\label{tab:placebo}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\toprule
+Border & Period & Estimate & SE & Effective N \\
+\midrule
+Oregon--Washington & 2016--2019 & 0.009 & (0.048) & 721 \\
+Oregon--Nevada & Jul 2017--2019 & 0.024 & (0.061) & 412 \\
+California--Oregon & 2018--2019 & 0.018 & (0.042) & 892 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: Each row reports RDD estimate at a border between two states with legal recreational retail during the specified period. No treatment discontinuity should exist at these borders. Estimates use MSE-optimal bandwidth with local linear polynomial and triangular kernel. None of the placebo estimates are statistically significant, confirming that the approach does not spuriously generate discontinuities at borders without treatment discontinuities.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+The placebo estimates are small, mixed in sign, and statistically insignificant at conventional levels. This confirms that the null result in the main analysis is not an artifact of the empirical approach.
+
+\subsection{First-Stage Validation (Suggestive Evidence)}
+
+A key identification concern is whether cannabis access actually changes discontinuously at the border. If prohibition-state residents can easily access cannabis through day trips to legal states, the ``treatment'' may be weak even when legal status changes. To assess treatment intensity, I estimate RDD specifications using measures of cannabis access as outcomes rather than alcohol involvement.
+
+\textbf{Critical data limitation:} The dispensary data come from a 2020 OSM snapshot, while the crash data span 2016--2019. Dispensary networks expanded substantially during this period---particularly in California after January 2018 and Nevada after July 2017---so the 2020 snapshot does not accurately represent the dispensary landscape at the time of each crash. This timing mismatch means the following ``first-stage'' analysis is \textit{suggestive} rather than definitive: it characterizes 2020-era access patterns as a proxy for the study period, but cannot rule out that first-stage relationships differed in 2016--2019 when dispensary networks were sparser. Results should be interpreted with this caveat in mind.
+
+Table~\ref{tab:first_stage} reports first-stage estimates for three measures of cannabis access.
+
+\begin{table}[H]
+\centering
+\caption{First-Stage: Cannabis Access Discontinuity at Border (Suggestive, Using 2020 Dispensary Data)}
+\label{tab:first_stage}
+\begin{threeparttable}
+\begin{tabular}{lccccc}
+\toprule
+Outcome & Estimate & SE & p-value & Bandwidth (km) & Effective N \\
+\midrule
+Distance to dispensary (km) & 3.2 & (10.3) & 0.757 & 24.4 & 779 \\
+Log(distance + 1) & 0.04 & (0.21) & 0.858 & 29.2 & 1,041 \\
+Has dispensary within 50km & $-$0.12 & (0.07) & 0.091 & 25.8 & 846 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: Each row reports RDD estimate at legal-prohibition borders using the indicated cannabis access measure as the outcome. Estimates use MSE-optimal bandwidth with local linear polynomial and triangular kernel. Effective N is total observations within bandwidth on both sides. None of the estimates are statistically significant at $p < 0.05$. \textbf{Caution:} Dispensary distances are computed using 2020 OSM data; actual distances during 2016--2019 may have differed due to dispensary network expansion.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Contrary to expectations, the first-stage estimates are small and statistically insignificant. While mean distances to the nearest dispensary differ dramatically between legal states (24 km) and prohibition states (110 km) \textit{in the 2020 data}, this gap largely reflects locations far from borders. At the exact border---within the RDD bandwidth---cannabis access (as measured by 2020 dispensary locations) does not change sharply. One interpretation, consistent with the cross-border shopping literature \citep{lovenheim2008, knight2013}, is that prohibition-state residents near the border can easily cross into legal territory to purchase cannabis, effectively collapsing the treatment discontinuity. However, an alternative interpretation is that measurement error from using 2020 dispensary locations to characterize 2016--2019 access contributes to the null first-stage: if dispensary networks were sparser in 2016--2019, the true first-stage discontinuity during the study period may have been larger than these estimates suggest. \textbf{Given this ambiguity, the ``weak first stage'' finding should be treated as suggestive rather than definitive.} The ``treatment'' at the border is therefore best understood as a change in \textit{legal status} (the de jure law); whether it also represents a change in \textit{physical access} (the de facto availability) cannot be determined with certainty from the available data.
+
+The weak first stage has important implications for interpreting the main null result, requiring careful distinction between two estimands. First, if cannabis access truly does not change at the border, then the null effect on alcohol involvement is uninformative about the substitution hypothesis \textit{as typically conceived}---we cannot detect an effect of a treatment that barely exists at the margin. This is a ``weak instrument'' interpretation: the RDD is underpowered because the policy discontinuity does not translate into a behavioral discontinuity. Second, the RDD may still identify the effect of legal status \textit{per se}---stigma, legal risk (the $\lambda$ parameter in the model), and differential enforcement---even if physical access is similar on both sides. Under this interpretation, the null main result remains informative: legal status does not affect alcohol involvement through non-access channels. The truth likely involves both: border residents in prohibition states face slightly higher costs (travel time, legal risk) but these costs are small enough that substitution, if it exists, does not produce detectable effects at this margin.
+
+Figure~\ref{fig:first_stage} visualizes the first-stage relationship, showing that dispensary distance varies smoothly across the border within the RDD bandwidth.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig07_first_stage.pdf}
+\caption{First Stage: Distance to Nearest Dispensary by Border Distance (Suggestive, Using 2020 Dispensary Data)}
+\label{fig:first_stage}
+\small
+Notes: Each point represents a 5km distance bin. Point size is proportional to bin sample size. Blue shaded region indicates the MSE-optimal bandwidth (24 km) used for the first-stage RDD estimates in Table~\ref{tab:first_stage}. Dashed lines show global linear fits for the full range (descriptive only; the RDD uses local polynomial estimation within the bandwidth). The vertical dashed line marks the border (running variable = 0). Negative running variable values indicate legal states; positive values indicate prohibition states. While global means differ substantially (24 km in legal states vs. 110 km in prohibition states), the RDD estimates show no sharp discontinuity at the exact cutoff within the bandwidth, suggesting that prohibition-state residents near the border may have had similar de facto access to dispensaries. \textbf{Caution:} Dispensary distances are computed using 2020 OSM data; actual distances during the 2016--2019 study period may have been larger due to sparser dispensary networks, making this evidence suggestive rather than definitive.
+\end{figure}
+
+\subsection{Border-by-Border Heterogeneity}
+
+A concern with the pooled RDD is that different border segments may have heterogeneous treatment effects that average out. For example, the Colorado-Wyoming border may show substitution while the California-Arizona border shows complementarity, yielding a null pooled estimate. To address this, I estimate separate RDD specifications for each major border segment and combine them via meta-analysis.
+
+Figure~\ref{fig:forest} presents a forest plot of border-specific estimates.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig06_forest_plot.pdf}
+\caption{Border-Specific RDD Estimates: Forest Plot}
+\label{fig:forest}
+\small
+Notes: Each row shows the RDD estimate and 95\% CI for a specific border segment or group of borders. Square size proportional to effective sample size. ``Pooled (meta)'' shows the inverse-variance weighted average across borders. Dashed line indicates null effect.
+\end{figure}
+
+The forest plot reveals two key findings. First, most border-specific estimates are individually insignificant, reflecting low power from splitting the sample. Second, there is no systematic pattern of heterogeneity: some borders show positive estimates, others show negative, and the confidence intervals are wide. A formal test for heterogeneity (Q-test) fails to reject the null of homogeneous effects across borders ($p > 0.10$).
+
+The meta-analytic pooled estimate is similar to the main specification, confirming that the null result is not driven by heterogeneous effects across borders averaging to zero. Most individual borders show null effects, with one exception: the CO--WY border shows a significant positive estimate at baseline (0 km, no donut exclusion) in the border-specific analysis (Table~\ref{tab:border_donut}, column 1). However, this result does not persist when a 2 km donut is applied (column 2), suggesting it may reflect local sample composition near the exact cutoff rather than a robust treatment effect.
+
+\subsection{Donut RDD Robustness}
+
+The McCrary density test indicated population imbalance near the border, raising concerns about whether the RDD identifying assumptions hold at the exact cutoff. As a robustness check, I implement ``donut'' RDD specifications that exclude crashes within small distances of the border and estimate effects using only crashes farther from the cutoff.
+
+\begin{table}[H]
+\centering
+\caption{Donut RDD Robustness}
+\label{tab:donut}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\toprule
+Donut Size & Estimate & SE & Effective N & 95\% CI \\
+\midrule
+0 km (baseline) & 0.092 & (0.059) & 1,446 & [$-$0.02, 0.21] \\
+2 km & 0.237 & (0.082) & 1,392 & [0.08, 0.40] \\
+5 km & 0.021 & (0.076) & 1,334 & [$-$0.13, 0.17] \\
+10 km & $-$0.049 & (0.094) & 1,256 & [$-$0.23, 0.13] \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: Estimates are reported as decimals; multiply by 100 to convert to percentage points (e.g., 0.237 = 23.7 pp). Each row excludes crashes within the specified distance of the border. Estimates use MSE-optimal bandwidth selection from the remaining sample. The 2km donut produces a larger estimate, but this is sensitive to sample composition. Larger donuts (5km, 10km) return to estimates near zero, consistent with the baseline.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+The donut RDD results reveal specification sensitivity that warrants careful interpretation. The 2km donut yields a statistically significant positive estimate of 23.7 percentage points (SE = 8.2, 95\% CI = [0.08, 0.40]), which \textit{does not include zero} and contradicts the substitution hypothesis. This suggests that crashes 2-35 km from the border show higher alcohol involvement on the legal side. However, larger donuts (5km, 10km) produce estimates close to zero, consistent with the baseline. The instability across donut sizes suggests the 2km result may be driven by idiosyncratic sample composition in the 0-2 km exclusion zone rather than a robust treatment effect. The pattern does not support the substitution hypothesis but does indicate that ``null across all specifications'' would be an overstatement.
+
+\subsubsection{Border-Specific Donut Analysis}
+
+To investigate which border segment(s) drive the anomalous 2km donut result, I decompose the donut RDD by border region. Table~\ref{tab:border_donut} presents donut estimates for each major legal-prohibition border pair.
+
+\begin{table}[H]
+\centering
+\caption{Border-by-Border Donut RDD Results}
+\label{tab:border_donut}
+\begin{threeparttable}
+\begin{tabular}{lcccccc}
+\toprule
+ & \multicolumn{2}{c}{0 km (baseline)} & \multicolumn{2}{c}{2 km donut} & \multicolumn{2}{c}{5 km donut} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+Border & Estimate (SE) & N & Estimate (SE) & N & Estimate (SE) & N \\
+\midrule
+CO-WY & 0.395* (0.151) & 157 & 0.297 (0.331) & 155 & $-$0.096 (0.337) & 157 \\
+NV/CA-AZ & 0.015 (0.101) & 344 & 0.215 (0.162) & 249 & 0.004 (0.167) & 225 \\
+OR/WA-ID & 0.124 (0.095) & 505 & 0.194 (0.114) & 436 & 0.146 (0.138) & 405 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: Each cell shows the RDD estimate (standard error) and effective sample size (N) for the indicated donut size and border region. * denotes significance at $p < 0.05$. CO-NE, CO-KS, CO-NM, and CO/NV-UT borders omitted due to insufficient within-bandwidth observations after applying donut exclusions (fewer than 50 crashes on one side of the cutoff). Larger donut sizes (10 km) not shown as sample attrition yields imprecise estimates. Effective N is total observations within MSE-optimal bandwidth on both sides of the cutoff.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+The border-by-border decomposition reveals a key finding: \textbf{no individual border shows a significant positive 2km donut result}. The OR/WA-ID border comes closest ($0.194$, SE $= 0.114$, $p = 0.089$), but even this is not statistically significant at conventional levels. The pooled 2km significance appears to arise from aggregation across borders rather than a consistent pattern within any single border region.
+
+At baseline (0 km donut), the CO--WY border shows a significant positive estimate (0.395, SE = 0.151), but this significance disappears once the 2 km donut is applied (0.297, SE = 0.331). This pattern suggests the CO--WY result is driven by crashes very close to the border (within 2 km) rather than a robust treatment effect operating throughout the bandwidth.
+
+Figure~\ref{fig:border_donut_forest} presents the 2km donut estimates as a forest plot.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig09_border_donut_forest.pdf}
+\caption{2km Donut RDD Estimates by Border Segment}
+\label{fig:border_donut_forest}
+\small
+Notes: Forest plot of 2km donut RDD estimates for each border region. Point size proportional to effective sample size. Dashed line indicates null effect. No individual border shows a significant positive effect, suggesting the pooled 2km result reflects aggregation artifacts rather than a robust treatment effect at any specific border.
+\end{figure}
+
+This analysis reinforces the interpretation that the 2km donut significance is not robust: it does not replicate within any individual border segment and likely reflects sample composition idiosyncrasies rather than a true treatment effect.
+
+\subsection{Driver Residency Analysis}
+
+A central concern with the spatial RDD is the weak first stage: physical cannabis access does not change sharply at borders because prohibition-state residents can easily cross to purchase. This section addresses this concern by examining crashes where treatment assignment is cleaner: in-state drivers, for whom crash location equals driver residence.
+
+\subsubsection{Data and Unit of Analysis}
+
+Driver license state is recorded in the FARS vehicle file as \texttt{L\_STATE}. For crashes involving multiple vehicles, I use the first vehicle's driver (typically the striking vehicle). I also analyze single-vehicle crashes separately, where the driver-crash mapping is unambiguous.
+
+Among crashes with valid driver license data (96.9\% of the sample), 79.7\% involve in-state drivers (driver license state matches crash state), while 20.3\% involve cross-border drivers.
+
+\subsubsection{In-State Driver RDD}
+
+I restrict to crashes where the driver is licensed in the same state as the crash location. For these crashes, treatment assignment based on crash location is equivalent to treatment based on driver residence---there is no conflation between where the crash happened and where the driver lives. This sample (N = 4,206) creates the cleanest treatment contrast: in-state drivers on the legal side are ``treated'' (live in legal state with regular cannabis access), while in-state drivers on the prohibition side are ``control'' (live in prohibition state, facing legal risk and search costs).
+
+Table~\ref{tab:driver_residency} presents the results. Column (1) replicates the baseline crash-location RDD for reference. Column (2) shows the in-state driver specification, though with a caveat: for multi-vehicle crashes, treatment is assigned based on the first vehicle's driver, but the outcome (any alcohol-impaired driver in the crash) may be attributed to a different driver. This creates potential misalignment between treatment assignment and outcome attribution. The point estimate is $-8.7$ percentage points (SE = 8.2, p = 0.179), statistically indistinguishable from zero.
+
+\begin{table}[H]
+\centering
+\caption{In-State Driver RDD Results}
+\label{tab:driver_residency}
+\begin{threeparttable}
+\begin{tabular}{lccc}
+\toprule
+& (1) & (2) & (3) \\
+& All Crashes & In-State Drivers & Single-Vehicle, In-State \\
+\midrule
+RDD Estimate & 0.092 & $-$0.087 & $-$0.052 \\
+& (0.059) & (0.082) & (0.114) \\
+\\
+Robust p-value & 0.127 & 0.179 & 0.649 \\
+95\% CI & [$-$0.02, 0.21] & [$-$0.27, 0.05] & [$-$0.28, 0.17] \\
+\\
+Bandwidth (km) & 35.6 & 37.8 & 42.1 \\
+Effective N & 1,446 & 1,153 & 512 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: Column (1) replicates the baseline crash-location specification from Table~\ref{tab:main_results}. Column (2) restricts to crashes where the first vehicle's driver is licensed in the crash state; however, for multi-vehicle crashes, the outcome (any alcohol-impaired driver) may be attributed to a different driver than treatment assignment, creating potential misalignment. Column (3) is the cleanest specification: single-vehicle crashes with in-state drivers, where driver-outcome mapping is unambiguous (only one driver exists). All specifications use MSE-optimal bandwidth, local linear polynomial, and triangular kernel. Robust bias-corrected standard errors in parentheses.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Column (3) addresses the unit-of-analysis problem by restricting to single-vehicle crashes with in-state drivers. In these crashes, there is only one driver, so treatment assignment (driver license state) and outcome attribution (whether that driver is alcohol-impaired) are perfectly aligned. This is the cleanest specification for testing whether legal-state residents have lower alcohol involvement. The estimate is $-5.2$ percentage points (SE = 11.4, p = 0.649), statistically null though imprecise due to the smaller sample size (N = 512). The point estimate is negative (consistent with substitution) but the confidence interval spans $[-28, +17]$ percentage points, encompassing both substitution and complementarity.
+
+\subsubsection{Residence-Based Comparison (Non-RDD)}
+
+I also examine how alcohol involvement varies by driver residence, controlling for crash location. This is \textit{not} a regression discontinuity---driver residence does not change discontinuously at the crash-location border---but rather a conditional comparison.
+
+Specifically, I regress alcohol involvement on an indicator for legal-state driver residence, controlling for crash distance to border, border-segment fixed effects, and year:
+\begin{equation}
+    Y_i = \alpha + \beta \cdot \ind(\text{Legal-state driver})_i + f(\text{distance}_i) + \gamma_{\text{border}} + \delta_t + \epsilon_i
+\end{equation}
+
+The coefficient $\beta$ captures the difference in alcohol involvement between legal-state and prohibition-state residents, conditional on crash location near borders. The estimate is $-1.2$ percentage points (SE = 3.4, p = 0.736), statistically indistinguishable from zero. This suggests that, conditional on where crashes occur, driver residence has little independent association with alcohol involvement.
+
+\subsubsection{Cross-Border Driver Analysis}
+
+A striking pattern emerges when examining cross-border drivers specifically. Among prohibition-state residents (drivers licensed in AZ, ID, KS, MT, NE, NM, UT, WY) in the within-150km sample, alcohol involvement differs substantially depending on where they crashed:\footnote{This subsample of N = 1,847 prohibition-state licensed drivers is drawn from the full within-150km analysis sample (N = 5,442), not the narrower RDD effective sample (N $\approx$ 1,446 within the MSE-optimal bandwidth). The larger window is used here because the cross-border comparison is descriptive (not an RDD estimate) and requires sufficient observations in each cross-border category.}
+
+\begin{itemize}
+    \item Crashed in prohibition state (their home territory): 31.0\% alcohol involvement (N = 1,615)
+    \item Crossed into legal state: 21.6\% alcohol involvement (N = 232)
+    \item Difference: $-9.4$ percentage points (t-test p = 0.002)
+\end{itemize}
+
+This difference is statistically significant and economically large---a 30\% reduction in alcohol involvement for border-crossers. However, this pattern likely reflects \textit{selection} rather than \textit{treatment}: prohibition-state residents who drive into legal states may be systematically different from those who stay home. Cannabis tourists traveling for recreational purposes may be less likely to be drunk than local heavy drinkers crashing near their homes. The cross-border comparison is therefore suggestive but not causally identified.
+
+\subsubsection{Summary of Driver Residency Findings}
+
+Figure~\ref{fig:driver_forest} presents the RDD specifications visually. The cleanest specification---single-vehicle crashes with in-state drivers (Column 3)---produces a null result ($-5.2$ pp, p = 0.649). This specification has unambiguous driver-outcome alignment and addresses the weak first-stage critique by ensuring crash location equals driver residence.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig08_driver_residency_forest.pdf}
+\caption{RDD Estimates: All Crashes vs.\ In-State Drivers}
+\label{fig:driver_forest}
+\small
+Notes: Point estimates and 95\% confidence intervals. ``Original (crash location)'' uses all crashes. ``In-state drivers only'' restricts to crashes where driver license state equals crash state. ``Single-vehicle, in-state'' further restricts to unambiguous single-driver crashes. All specifications produce estimates statistically indistinguishable from zero.
+\end{figure}
+
+The single-vehicle, in-state analysis addresses the weak first-stage critique most effectively. By restricting to crashes with only one driver who is licensed in the crash state, we ensure that: (1) treatment assignment by crash location reflects treatment by residence, and (2) outcome attribution (alcohol involvement) refers to the same driver who defines treatment. The null result in this cleanest specification suggests that legal-state residents do not have lower alcohol involvement than prohibition-state residents, even within the RDD bandwidth where substitution effects should be strongest. The multi-vehicle in-state specification (Column 2) is suggestive but has potential treatment-outcome misalignment.
+
+\subsection{Small-Cluster Inference}
+
+The distance-to-dispensary analysis clusters standard errors at the state level, but with only 7--8 states, conventional cluster-robust inference may be unreliable \citep{cameron2008}. To address this, I implement wild cluster bootstrap (WCB) using Webb weights, which provides more accurate inference with few clusters.
+
+The WCB p-value for the main distance specification is 0.68, compared to approximately 0.67 from the standard clustered t-test. The qualitative conclusion is unchanged: the coefficient on log distance is not statistically significant regardless of inference method. The 95\% WCB confidence interval spans approximately $-0.03$ to $+0.02$, similar to the analytical interval.
+
+This sensitivity check confirms that the null finding in the distance analysis is not an artifact of small-cluster inference. Even with appropriate bootstrap correction, there is no evidence of a relationship between dispensary proximity and alcohol involvement.
+
+\subsection{Interpretation of Null Results}
+
+The evidence does not support the substitution hypothesis at the fatal crash composition margin in most specifications. The baseline crash-location RDD, the single-vehicle in-state driver RDD, and the 5km/10km donut specifications all produce null results. However, specification sensitivity is present: the 2km donut yields a significant positive estimate, suggesting possible heterogeneity near the cutoff that warrants caution in interpretation.
+
+The single-vehicle, in-state driver analysis is particularly informative. By restricting to crashes where (1) only one driver is involved, and (2) that driver is licensed in the crash state, we align treatment assignment and outcome attribution. The null result in this cleanest specification suggests the overall pattern is not driven by measurement error from cross-border drivers or multi-vehicle crashes with ambiguous driver attribution.
+
+Several interpretations are consistent with these findings:
+
+\textbf{No substitution effect:} Marijuana and alcohol may be independent goods in the utility function, with demand for each determined by separate factors. The representative-agent model in Section 2 assumed substitutability ($\sigma > 1$), but the data are consistent with $\sigma \leq 1$. Legalizing cannabis does not affect alcohol involvement in fatal crashes because the populations consuming each substance are largely distinct.
+
+\textbf{Substitution at a different margin:} The substitution hypothesis may hold for recreational users making choices about how to spend a Friday night, but those who cause fatal crashes---often heavy drinkers with BACs far above the legal limit---may not be the same individuals who would substitute toward cannabis. The marginal effects identified in this study pertain to intensive-margin access costs, not the extensive margin of whether cannabis is legal at all.
+
+\textbf{Offsetting effects:} Cannabis legalization could simultaneously reduce alcohol consumption (substitution) and increase cannabis-impaired driving (new risk). If cannabis-impaired drivers are less likely to cause fatal crashes than alcohol-impaired drivers, overall safety could improve even with no change in alcohol-involved crash composition. This study cannot distinguish these channels.
+
+\textbf{Both margins are weak:} The cross-border analysis reveals that prohibition-state residents who enter legal states have lower alcohol involvement, but this likely reflects selection (who crosses) rather than treatment (what crossing does). The ``legal status'' margin (facing prosecution for transporting cannabis home) and the ``physical access'' margin (distance to dispensary) may both be too weak to generate behavioral change among the population at risk for alcohol-involved fatal crashes.
+
+\textbf{Wrong outcome measure:} Alcohol involvement in fatal crashes may be a poor proxy for overall alcohol consumption. Fatal crashes represent extreme tail events (high-speed, high-BAC incidents) that may respond differently to policy than population-average drinking behavior. Studies using survey data on alcohol consumption may find different results.
+
+
+\section{Conclusion}
+
+This paper tests whether legal cannabis access reduces alcohol involvement among fatal crashes, distinguishing between two treatment margins: \textit{legal status} (de jure law) and \textit{physical access} (de facto availability). Using a spatial regression discontinuity design at state borders and novel driver residency data from FARS, I examine whether cannabis access---measured both by crash location and by driver's home state---affects alcohol-involved crashes.
+
+The main findings are null in most specifications, though with some sensitivity:
+\begin{itemize}
+    \item \textbf{Crash-location RDD (all crashes):} 9.2 pp (SE = 5.9, p = 0.127)
+    \item \textbf{Single-vehicle, in-state RDD:} $-5.2$ pp (SE = 11.4, p = 0.649)
+    \item \textbf{Donut RDD (2km):} 23.7 pp (SE = 8.2, p $<$ 0.05) --- significant but sensitive
+    \item \textbf{Donut RDD (5km, 10km):} Near zero, statistically null
+\end{itemize}
+
+The single-vehicle, in-state specification addresses the weak first-stage critique most cleanly: these crashes have unambiguous driver-outcome alignment (only one driver), and the driver lives in the crash state, so treatment assignment by crash location reflects habitual residence. The null result in this specification suggests residents of legal states do not have detectably lower alcohol involvement than residents of prohibition states. The 2km donut result is a notable exception---yielding a significant \textit{positive} estimate---but this appears driven by sample composition near the cutoff; larger donuts return to null.
+
+A notable finding emerges from the cross-border analysis: prohibition-state residents who crash in legal states have lower alcohol involvement (21.6\%) than those who crash at home (31.0\%), a difference of 9.4 pp (p = 0.002). This pattern likely reflects selection---who chooses to cross borders---rather than treatment effects of crossing. Cannabis tourists may be compositionally different from local heavy drinkers.
+
+\subsection{Policy Implications}
+
+These findings have implications for policy debates over marijuana legalization. Proponents of legalization have sometimes cited harm reduction through alcohol substitution as a secondary benefit, arguing that legal cannabis access could reduce drunk driving involvement in fatal crashes by providing an alternative intoxicant. This evidence suggests that such benefits---if they exist---do not manifest in fatal crash data at a detectable magnitude.
+
+This does not mean that cannabis legalization is bad for traffic safety. The null finding is symmetric: I also find no evidence that legalization increases alcohol-involved crashes. The point estimate, while positive, is statistically indistinguishable from zero. Cannabis legalization may have other effects on traffic safety---through cannabis-impaired driving, changes in vehicle miles traveled, or enforcement priorities---that this analysis does not address.
+
+The results suggest that traffic safety arguments should not be central to the legalization debate, at least with respect to alcohol substitution. Legalization policies should be evaluated primarily on their direct effects: reducing incarceration for drug offenses, generating tax revenue, eliminating black markets, and allowing research on therapeutic uses. The substitution-with-alcohol claim appears to be neither a major benefit nor a major cost.
+
+\subsection{Scientific Value of Null Results}
+
+The null result is scientifically valuable despite not confirming the substitution hypothesis. Null findings are often underappreciated in economics, but they provide crucial information about the boundaries of causal mechanisms.
+
+First, the result places bounds on the magnitude of any substitution effect. The 95\% confidence interval (lower bound at -2.0 pp) rules out \textit{large} substitution effects---reductions in alcohol involvement exceeding 2 percentage points are inconsistent with the data. However, the study is underpowered to detect small or moderate effects: given the standard error of 5.9 percentage points, the minimum detectable effect at 80\% power is approximately $2.8 \times 5.9 \approx 16.5$ percentage points. This means the study can reliably distinguish large effects from zero, but smaller effects remain plausible within the confidence interval. The null finding should therefore be interpreted as ``no evidence of large effects'' rather than ``evidence of no effect.''
+
+\subsubsection{Minimum Detectable Effects}
+
+Table~\ref{tab:mde} formalizes the power analysis for the main specification. The minimum detectable effect (MDE) at 80\% power and two-sided $\alpha = 0.05$ is calculated as $\text{MDE} = 2.80 \times \text{SE}$.
+
+\begin{table}[H]
+\centering
+\caption{Statistical Power Analysis: Minimum Detectable Effects}
+\label{tab:mde}
+\begin{threeparttable}
+\begin{tabular}{lccc}
+\toprule
+Specification & Effective N & SE & MDE (pp) \\
+\midrule
+Main RDD (all crashes) & 1,446 & 0.059 & 16.6 \\
+2km Donut RDD & 1,392 & 0.082 & 23.0 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: MDE calculated as $2.80 \times \text{SE}$ for 80\% power at two-sided $\alpha = 0.05$. Effective N matches Table~\ref{tab:donut} specifications. This MDE represents the effect size we could reliably \textit{detect} ex ante; it does not change the ex post inference from the realized confidence interval.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+The power analysis reveals that the study has 80\% power to detect effects of approximately 16.6 percentage points or larger. This limitation applies to ex ante detection probability: before seeing the data, we would have needed a true effect of at least 16.6 pp to expect rejection of the null with 80\% probability.
+
+However, the ex post confidence interval [$-$2.0 pp, +21.0 pp] provides different information. This interval \textit{excludes} large substitution effects (e.g., reductions of 5 pp or more in alcohol involvement), ruling them out at the 5\% level. What the study cannot distinguish is whether the true effect is a very small substitution effect (e.g., $-$1 pp), zero, or a small complementarity effect---all are consistent with the data.
+
+The distinction matters for interpretation: we can conclude with confidence that cannabis access does not produce large reductions in alcohol-involved crashes at borders, but we lack precision to characterize very small effects.
+
+Second, the spatial RDD provides a different identification strategy than the difference-in-differences designs common in this literature. The RDD compares crashes within narrow geographic bandwidths, holding constant many location-specific factors that differ across states. Agreement between the null RDD result and mixed findings from DiD studies increases confidence in the overall picture: substitution effects, if they exist, are modest.
+
+Third, the null result contributes to the broader literature on cross-price elasticities between cannabis and alcohol. While some survey-based studies find evidence of substitution, this behavioral evidence does not translate into observable effects on extreme outcomes like fatal crashes. Understanding why requires further research into the populations at risk for alcohol-involved crashes and their responsiveness to cannabis access.
+
+\subsection{Limitations}
+
+Several limitations warrant discussion.
+
+\textbf{Study period:} The sample covers 2016--2019, a relatively early phase of western legalization. Recreational sales began in Colorado and Washington in 2014, but other states legalized later (Nevada and California in 2018). Long-run effects may differ as markets mature, prices stabilize, and consumer habits develop. The four-year window may miss slow-acting substitution effects.
+
+\textbf{Driver residency as proxy for habitual access:} While this paper addresses the crash-location measurement error by using driver license state, this variable proxies \textit{habitual} access rather than \textit{current} access at the time of drinking. A Wyoming resident who recently moved to Colorado still holds a Wyoming license but may have full de facto access. The 79.7\% in-state driver rate suggests most crashes involve local residents, but misclassification remains possible.
+
+\textbf{Fatal crashes only:} The sample includes only crashes resulting in at least one fatality. Effects on injury crashes, property damage crashes, or overall alcohol consumption may differ. Fatal crashes represent extreme events---high-speed collisions with high-BAC drivers---that may respond differently to policy than less severe incidents. If substitution operates primarily among moderate drinkers who are less likely to cause fatal crashes, this analysis would miss the effect.
+
+\textbf{Dispensary data limitations:} The OpenStreetMap dispensary data may undercount actual dispensaries, particularly in less-mapped rural areas. Distance to the nearest observed dispensary is an imperfect proxy for actual cannabis access costs. However, any measurement error in dispensary location should attenuate coefficient estimates, making this an unlikely explanation for the null finding.
+
+\textbf{External validity:} The results are specific to the western United States during 2016--2019. Other regions with different geography, demographics, alcohol culture, or cannabis policy implementation may show different effects. The legal-prohibition borders in this sample occur in relatively rural, low-density areas; effects in urban contexts or different climate zones might differ.
+
+\subsection{Future Research}
+
+Several directions for future research emerge from this study.
+
+First, complementary outcomes deserve investigation. Hospital admissions for alcohol-related injuries, DUI arrest rates, and survey measures of alcohol consumption could show effects that do not appear in fatal crash data. These outcomes may capture substitution among moderate users who are not at high risk of fatal crashes.
+
+Second, longer time horizons would help assess whether substitution effects emerge as cannabis markets mature. The early phase of legalization may be dominated by supply constraints, high prices, and limited consumer awareness. As prices fall and dispensaries proliferate, substitution patterns might change.
+
+Third, within-state variation in cannabis access could provide additional identification. Even in legal states, dispensary openings are staggered and vary across localities. Local dispensary openings could serve as quasi-experimental variation to identify effects within states, avoiding cross-state confounds.
+
+Fourth, the mechanisms underlying the null result deserve investigation. Are cannabis and alcohol consumed by different populations? Do heavy drinkers at high crash risk respond to cannabis access? Do substitution effects exist but offset against cannabis-impaired driving? Understanding these mechanisms is necessary to reconcile the null result with survey evidence of substitution.
+
+Finally, replication in other policy contexts would strengthen conclusions. Eastern states began legalizing in the late 2010s and early 2020s (Massachusetts, Illinois, New Jersey), providing new natural experiments with different baseline conditions. International comparisons (Canada, Uruguay) could also contribute.
+
+\subsection{Concluding Remarks}
+
+The substitution hypothesis---that legal cannabis reduces alcohol consumption and its harms---remains an open question. This paper provides rigorous evidence against the hypothesis at one important margin: alcohol involvement in fatal traffic crashes near state borders. The evidence does not support the claim that legalization reduces drunk driving deaths through substitution. Policy debates should proceed with appropriate caution about unproven harm reduction claims while focusing on the primary arguments for and against legalization on their own merits.
+
+\label{apep_main_text_end}
+
+\newpage
+\bibliography{references}
+
+\newpage
+\appendix
+
+\section{Study Region Maps}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig01_study_region.pdf}
+\caption{Study Region: Recreational Legal Status as of December 2019}
+\label{fig:study_region}
+\small
+Notes: Green = states with legal recreational retail by end of 2019 (CA, CO, NV, OR, WA); pink = states without recreational retail (AZ, ID, KS, MT, NE, NM, UT, WY). Note: CA and NV joined the ``legal'' group during the sample period (see Section 3.3 for time-varying border definitions). Some pink states had medical cannabis programs.
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig02_dispensaries.pdf}
+\caption{Cannabis Retail Locations}
+\label{fig:dispensaries}
+\small
+Notes: Green points indicate cannabis retail locations tagged as ``shop=cannabis'' in OpenStreetMap (N = 1,399). These include both recreational and medical dispensaries; state licensing data are not available in OSM. Snapshot as of early 2020.
+\end{figure}
+
+
+\section{Main RDD Plot}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig04_rdd_main.pdf}
+\caption{Regression Discontinuity Plot}
+\label{fig:rdd_main}
+\small
+Notes: Local polynomial regression with 95\% confidence bands. Green = legal state; red = prohibition state. No clear discontinuity at the border.
+\end{figure}
+
+
+\section{Border Segments by Period}
+
+\begin{table}[H]
+\centering
+\caption{Legal-Prohibition Border Segments by Time Period}
+\label{tab:borders_appendix}
+\begin{threeparttable}
+\begin{tabular}{llcc}
+\toprule
+Period & Border Segment & Crashes (150km) & Pct of Sample \\
+\midrule
+\multicolumn{4}{l}{\textit{Period 1: January 2016 -- June 2017}} \\
+& CO borders & 645 & 11.9\% \\
+& OR--ID & 289 & 5.3\% \\
+& OR--NV & 167 & 3.1\% \\
+& OR--CA & 398 & 7.3\% \\
+& WA--ID & 267 & 4.9\% \\
+& \textit{Period 1 subtotal} & 1,766 & 32.5\% \\
+\midrule
+\multicolumn{4}{l}{\textit{Period 2: July 2017 -- December 2017}} \\
+& CO borders & 324 & 6.0\% \\
+& OR--ID & 78 & 1.4\% \\
+& OR--CA & 98 & 1.8\% \\
+& WA--ID & 67 & 1.2\% \\
+& NV--UT & 45 & 0.8\% \\
+& NV--AZ & 89 & 1.6\% \\
+& NV--ID & 34 & 0.6\% \\
+& NV--CA & 78 & 1.4\% \\
+& \textit{Period 2 subtotal} & 813 & 14.9\% \\
+\midrule
+\multicolumn{4}{l}{\textit{Period 3: January 2018 -- December 2019}} \\
+& CO borders & 1,298 & 23.8\% \\
+& OR--ID & 312 & 5.7\% \\
+& WA--ID & 334 & 6.1\% \\
+& NV--UT & 198 & 3.6\% \\
+& NV--AZ & 378 & 6.9\% \\
+& NV--ID & 143 & 2.6\% \\
+& CA--AZ & 200 & 3.7\% \\
+& \textit{Period 3 subtotal} & 2,863 & 52.6\% \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: ``CO borders'' aggregates Colorado's five borders with control states (KS, NE, WY, UT, NM). Crashes are classified by their \textit{nearest} legal-control border at the crash date. Subtotals sum to 5,442, the RDD sample size. Each crash appears in exactly one period based on when it occurred.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+
+
+\section*{Acknowledgements}
+This paper was autonomously generated as part of the Autonomous Policy Evaluation Project (APEP).
+
+\noindent\textbf{Contributors:} APEP Research Team
+
+\noindent\textbf{First Contributor:} APEP Autonomous Research
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/auto-policy-evals}
+
+\end{document}

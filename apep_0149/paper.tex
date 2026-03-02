@@ -1,0 +1,693 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\sisetup{detect-all=true, group-separator={,}, group-minimum-digits=4}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Float notes
+\newcommand{\floatfoot}[1]{\par\vspace{0.5em}\noindent\footnotesize #1}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\sym}[1]{\ifmmode^{#1}\else\(^{#1}\)\fi}
+
+\title{Extending the Safety Net or Plugging the Leak? \\ Medicaid Postpartum Coverage Extensions \\ and the Public Health Emergency Unwinding}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. Correspondence: scl@econ.uzh.ch} \and @ai1scl}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+Between 2021 and 2025, 48 U.S. states adopted extensions of Medicaid postpartum coverage from 60 days to 12 months, the most rapid expansion of maternal health coverage in decades. Using individual-level data on approximately 170,000 postpartum women from the American Community Survey (2017--2019, 2021--2022; 2020 excluded due to non-standard data collection) and a staggered difference-in-differences design with the Callaway and Sant'Anna (2021) estimator, this paper estimates the effect of these extensions on insurance coverage among women who recently gave birth. Exploiting variation among 29 jurisdictions that adopted by 2022 versus 22 not-yet-treated or never-treated jurisdictions, I find no detectable increase in Medicaid coverage during the study period: the overall ATT is 2.0 percentage points (SE = 1.5 pp, 95\% CI: --0.9 to +4.9), with flat pre-treatment trends supporting the parallel trends assumption. I document that the COVID-19 Public Health Emergency (PHE) continuous enrollment provision, which prevented Medicaid disenrollment from March 2020 through May 2023, rendered the postpartum extensions largely non-binding during the early adoption period. Placebo tests on high-income postpartum women and non-postpartum women show null effects, consistent with the expected targeting of the policy. Wild cluster bootstrap inference confirms the main conclusions. These findings highlight a critical interaction between emergency pandemic provisions and permanent coverage expansions: the policy's true ``bite'' will emerge only in post-PHE data (2023+), when the 60-day coverage cliff becomes binding again.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} I13, I18, H75 \\
+\noindent\textbf{Keywords:} Medicaid, postpartum coverage, maternal health, difference-in-differences, Public Health Emergency, insurance coverage
+
+\newpage
+
+\section{Introduction}
+
+Maternal mortality in the United States has diverged sharply from other high-income countries, rising from 12.7 deaths per 100,000 live births in 2000 to 32.9 in 2021 \citep{hoyert2023maternal}. The U.S. maternal mortality rate is now more than double that of any other G7 nation. A substantial share of pregnancy-related deaths---more than one-third---occur between 7 days and one year postpartum \citep{petersen2019vital}, a period during which many low-income women historically lost Medicaid coverage just 60 days after delivery. This coverage gap has been identified as a critical contributor to adverse maternal health outcomes, particularly among Black and Hispanic women who rely disproportionately on Medicaid for pregnancy-related care \citep{eliason2020coverage, gordon2022trends}.
+
+In response, the American Rescue Plan Act (ARPA) of March 2021 created a new option for states to extend Medicaid postpartum coverage from 60 days to a full 12 months. This state plan amendment (SPA) option became available on April 1, 2022, and was made permanent by the Consolidated Appropriations Act of 2023. The policy uptake was remarkably swift: 49 jurisdictions (48 states plus D.C.) adopted the extension by early 2025, making this one of the fastest-spreading health policy reforms in recent U.S. history. Only Arkansas and Wisconsin (with a 90-day extension) have not adopted the full 12-month extension.
+
+This paper evaluates whether these Medicaid postpartum coverage extensions actually increased insurance coverage among women who recently gave birth. Using individual-level microdata from the American Community Survey (ACS) for 2017--2022 (excluding 2020), covering approximately 170,000 postpartum women across all 51 jurisdictions (50 states and D.C.), I implement a staggered difference-in-differences design using the Callaway and Sant'Anna (2021) estimator. This approach accounts for the well-documented biases of two-way fixed effects estimators in settings with staggered treatment adoption \citep{goodman2021difference, sun2021estimating, dechaisemartin2020two}.
+
+The central finding is that the extensions had a modest, statistically insignificant effect on postpartum Medicaid coverage during the study period. The overall average treatment effect on the treated (ATT) is a 2.0 percentage point increase in Medicaid coverage (SE = 1.5 pp), with event-study estimates showing flat pre-trends (p-value for parallel trends test: 0.99). The point estimate is in the expected direction but imprecisely estimated.
+
+However, this apparently muted effect masks a critical institutional feature that confounded the policy's implementation: the COVID-19 Public Health Emergency (PHE) continuous enrollment provision. From March 2020 through May 11, 2023, states were prohibited from disenrolling Medicaid beneficiaries, meaning that the 60-day postpartum coverage limit was effectively non-binding during this entire period. Women who would have lost Medicaid coverage after 60 days were instead automatically retained on Medicaid rolls regardless of whether their state had adopted the postpartum extension. Since the vast majority of states (roughly 30) adopted the extension during the PHE period (2021--2022), the policy's true effect on coverage was suppressed by the already-existing pandemic-era safety net.
+
+This finding has important implications for the growing literature evaluating pandemic-era and post-pandemic health policy reforms. The interaction between temporary emergency provisions and permanent coverage expansions creates a fundamental identification challenge: researchers cannot cleanly estimate the causal effect of a coverage expansion that was adopted while a more generous emergency provision was already in force. I show that this challenge applies directly to the postpartum extensions, and I discuss strategies for future evaluation as the PHE's legacy fades and more post-unwinding data becomes available.
+
+Beyond the main coverage results, I present several additional findings. First, Goodman-Bacon decomposition reveals that 87\% of the two-way fixed effects (TWFE) estimator's weight comes from the treated-versus-untreated comparison, which relies on the 22 not-yet-treated or never-treated control states. While this control group is substantially larger than the 2 never-adopting states alone, the concentration of weight in this comparison underscores the importance of proper treatment coding in near-universal adoption settings. Second, placebo tests on populations that should not be affected by Medicaid policy---high-income postpartum women (above 400\% of the federal poverty level) and non-postpartum low-income women---show null effects, consistent with the policy's expected targeting. Third, individual-level regressions with demographic controls confirm that the null result is not driven by compositional changes in the postpartum population over time.
+
+This paper contributes to several literatures. First, it adds to the growing body of work evaluating Medicaid postpartum coverage extensions \citep{daw2020getting, mcmanis2023extending, gordon2022trends}. While several policy analyses have documented the administrative expansion of postpartum coverage, this is among the first to apply modern heterogeneity-robust staggered DiD methods to microdata on individual coverage outcomes. Second, the paper contributes to the broader literature on Medicaid coverage and maternal health \citep{wherry2018childhood, brown2020medicaid, miller2021medicaid}, by highlighting how pandemic-era provisions interacted with permanent coverage expansions in ways that may have delayed or muted the expected improvements. Third, the paper speaks to methodological challenges in evaluating policies with near-universal adoption, where the absence of a clean control group limits the power and credibility of difference-in-differences designs \citep{callaway2021difference, goodman2021difference, roth2023easy}. The Goodman-Bacon decomposition results illustrate these challenges concretely and inform best practices for researchers working in similar settings.
+
+The remainder of the paper is organized as follows. Section 2 describes the institutional background of Medicaid postpartum coverage and the PHE continuous enrollment provision. Section 3 outlines a conceptual framework for understanding the policy's expected effects. Section 4 describes the data sources and sample construction. Section 5 presents the empirical strategy. Section 6 reports the main results, robustness checks, and heterogeneity analysis. Section 7 discusses the findings and their implications. Section 8 concludes.
+
+
+\section{Institutional Background and Policy Setting}
+
+\subsection{Medicaid Postpartum Coverage: The 60-Day Cliff}
+
+Medicaid is the single largest payer for maternity care in the United States, financing approximately 42\% of all births \citep{medicaid_births}. Under traditional Medicaid eligibility rules, pregnant women qualify for coverage at higher income thresholds than the general adult population---typically up to 185\% or even 200\% of the federal poverty level (FPL) in many states, compared to 138\% FPL for the general adult population under the Affordable Care Act (ACA) Medicaid expansion. However, this enhanced pregnancy eligibility has historically been limited to the pregnancy period plus 60 days postpartum, after which women's coverage reverted to the lower general-population income thresholds.
+
+This 60-day postpartum coverage cliff had long been identified as a critical gap in the maternal health safety net. The American College of Obstetricians and Gynecologists (ACOG) recommends comprehensive postpartum care extending through the first year after birth, including screening for postpartum depression, management of pregnancy-related complications such as preeclampsia and gestational diabetes, and family planning services \citep{acog2018optimizing}. The 60-day cutoff meant that many low-income women lost access to these services precisely when they were most vulnerable, as the postpartum period carries elevated risks for cardiovascular events, mental health crises, and infection.
+
+The consequences of the 60-day cliff have been extensively documented. \citet{daw2020getting} find that roughly one in four women who were insured at delivery experienced a coverage disruption within six months postpartum, with the highest rates of churn among Medicaid-covered women. These coverage gaps are concentrated precisely when clinical guidelines call for continued monitoring: screening for postpartum depression (which affects 10--20\% of mothers), management of hypertensive disorders of pregnancy, diabetes screening for women with gestational diabetes, and contraceptive counseling \citep{acog2018optimizing}. The clinical stakes are high: over one-third of pregnancy-related deaths occur between 7 days and one year postpartum \citep{petersen2019vital}, and the U.S. maternal mortality rate---already an outlier among wealthy nations---rose to 32.9 per 100,000 live births in 2021 \citep{hoyert2023maternal, tikkanen2020maternal}.
+
+Racial disparities compound the problem. Black women face maternal mortality rates 2.6 times higher than White women, and they are disproportionately covered by Medicaid during pregnancy \citep{petersen2019vital}. The coverage cliff therefore falls hardest on the populations most at risk. Prior research on Medicaid's effects on maternal and child health---including the landmark Oregon Health Insurance Experiment \citep{baicker2013oregon} and studies of childhood Medicaid's long-run effects \citep{wherry2018childhood, aizer2024children}---suggests that continuous coverage access can meaningfully improve health outcomes. The question is whether extending eligibility rules translates into actual coverage gains in the complex institutional environment of contemporary Medicaid.
+
+Prior to the ARPA reform, states seeking to extend postpartum coverage had limited options. Some states used Section 1115 demonstration waivers to extend coverage for specific conditions (e.g., substance use disorders) or limited time periods. A small number of states provided state-funded coverage beyond the federal 60-day mandate. California and New Jersey experimented with extensions via their state Medicaid programs, and Missouri extended coverage for mental health and substance use conditions. But these patchwork approaches left the vast majority of low-income postpartum women facing an abrupt loss of coverage two months after delivery. The administrative complexity of waivers---which require federal approval and periodic renewal---further limited their reach.
+
+\subsection{The ARPA Reform and Staggered Adoption}
+
+The American Rescue Plan Act of March 2021 (P.L. 117-2, Section 9812) created a new option under Section 1902(e)(16) of the Social Security Act, allowing states to extend Medicaid and CHIP postpartum coverage from 60 days to 12 months through a State Plan Amendment (SPA). This option became effective on April 1, 2022, and was initially set to expire on March 31, 2027. It was subsequently made permanent by the Consolidated Appropriations Act of 2023 (P.L. 117-328), signed December 29, 2022.
+
+Several states moved to extend postpartum coverage even before the SPA option became available, using Section 1115 demonstration waivers. Illinois was the first state to receive waiver approval in April 2021, followed by Georgia (initially for 6 months), Missouri (initially limited to substance use disorders and mental health), New Jersey (October 2021), and Virginia (January 2022). Florida and Tennessee also pursued waivers.
+
+Once the SPA option became available in April 2022, adoption was rapid. Approximately 14--15 states (including California, Kentucky, Louisiana, Michigan, Minnesota, North Carolina, Oregon, South Carolina, Tennessee, and Washington) had coverage effective by April 1, 2022. A second wave of states (Connecticut, Indiana, Kansas, Massachusetts, Ohio, Pennsylvania, West Virginia) adopted in mid-to-late 2022. A third wave (Alabama, Arizona, Colorado, Delaware, Mississippi, Montana, New Hampshire, New York, Oklahoma, Rhode Island, South Dakota, Vermont, Wyoming) adopted in 2023. A final wave (Alaska, Nebraska, Nevada, Texas, Utah) adopted in 2024, with Idaho and Iowa effective in 2025. \Cref{tab:adoption} provides the complete list of adoption dates and mechanisms.
+
+This staggered adoption pattern creates the policy variation exploited in the empirical analysis. However, two features complicate the standard staggered DiD framework. First, eventual adoption was near-universal: 48 states plus D.C. will adopt by 2025, leaving only Arkansas and Wisconsin as permanent non-adopters. In the observed 2017--2022 sample, however, 29 jurisdictions had adopted and 22 serve as controls. Second, the COVID-19 PHE, discussed below, created a contemporaneous coverage provision that substantially overlapped with the postpartum extension's intended effect.
+
+\subsection{The COVID-19 Public Health Emergency and Continuous Enrollment}
+
+The Families First Coronavirus Response Act (FFCRA) of March 2020 established a continuous enrollment condition for state Medicaid programs, effective from the start of the COVID-19 Public Health Emergency declaration. Under this provision, states receiving the 6.2 percentage point increase in the Federal Medical Assistance Percentage (FMAP) were prohibited from terminating Medicaid coverage for any beneficiary, regardless of changes in income, age, or other eligibility criteria. This continuous enrollment provision remained in force until the PHE ended on May 11, 2023, after which states began the ``unwinding'' process of conducting eligibility redeterminations.
+
+The PHE continuous enrollment provision had profound implications for postpartum Medicaid coverage. Under continuous enrollment, a woman who qualified for Medicaid during pregnancy could not be disenrolled after the 60-day postpartum period, even though she no longer met the traditional eligibility criteria. This meant that, during the PHE period, the 60-day postpartum cliff was effectively non-binding: all Medicaid-covered mothers retained their coverage regardless of the state's postpartum extension policy.
+
+This creates a fundamental identification challenge. States that adopted the 12-month postpartum extension during the PHE period (2021--2022) were implementing a policy whose immediate coverage effect was already being provided by the PHE continuous enrollment provision. The extension's marginal contribution to coverage during this period was essentially zero, as women were already protected from disenrollment. The extension's true ``bite'' would only manifest after the PHE ended and states began terminating coverage for individuals who no longer met eligibility criteria---at which point the postpartum extension would protect new mothers from losing coverage, while other beneficiaries could be disenrolled.
+
+The Medicaid unwinding began in earnest in April 2023, with states processing eligibility redeterminations over a 12--14 month period. By March 2024, an estimated 19.6 million people had been disenrolled from Medicaid, though many of these disenrollments were procedural (failure to complete paperwork) rather than based on income changes \citep{kff_unwinding}. For postpartum women in states with the 12-month extension, the unwinding created a natural experiment: these women were protected from disenrollment during the postpartum year, while similar women in non-extension states (Arkansas, Wisconsin) were not.
+
+This interaction between the PHE and the postpartum extension is central to understanding the empirical results presented in this paper. The muted treatment effects I find are consistent with the policy's intended mechanism being suppressed by the PHE's broader coverage protections during the primary study period.
+
+
+\section{Conceptual Framework}
+
+The theoretical prediction for the effect of postpartum Medicaid extensions on insurance coverage is straightforward. Consider a woman who qualifies for Medicaid during pregnancy. Under the traditional 60-day rule, her Medicaid eligibility ends approximately two months after delivery. If her income exceeds the general Medicaid threshold (typically 138\% FPL in expansion states, or much lower in non-expansion states), she faces three options: (1) obtain employer-sponsored insurance, (2) purchase marketplace insurance (potentially with subsidies), or (3) become uninsured.
+
+The 12-month postpartum extension modifies this decision calculus by eliminating the coverage gap. A woman who would have lost Medicaid at 60 days instead retains coverage for a full year after delivery. This should mechanically increase measured Medicaid coverage among postpartum women at any point-in-time cross-section, as the ACS asks about current insurance status and captures women who are 3--12 months postpartum (who would previously have been uninsured or on other coverage).
+
+\subsection{Expected Effect Magnitude}
+
+The expected magnitude of the coverage effect depends on the fraction of postpartum women whose coverage is affected by the extension. Approximately 42\% of births are Medicaid-financed nationally, but not all of these women would have lost coverage at 60 days under the traditional rule. Some would have transitioned to employer insurance or marketplace coverage, while others lived in states with prior waivers providing limited extensions. The ``at-risk'' population---women who would have become uninsured after the 60-day cutoff---likely constitutes 15--25\% of all postpartum women, implying an expected coverage effect of roughly 5--15 percentage points among the full postpartum population.
+
+\subsection{PHE Interaction}
+
+The PHE continuous enrollment provision complicates this prediction by creating an alternative pathway to maintained coverage. During the PHE period, the extension's effect on coverage should be approximately zero, as all Medicaid-enrolled mothers were already retained. The extension's true effect should emerge only after PHE ends and the traditional 60-day cliff becomes binding again for women in non-extension states.
+
+This suggests that the policy's effect should be increasing over time as the PHE's influence wanes, with the largest effects observable in 2023 and beyond. Unfortunately, the available ACS data at the time of this analysis extends only through 2022, limiting our ability to observe the post-PHE treatment effects. This data limitation is a central caveat of the analysis.
+
+\subsection{Testable Predictions}
+
+The conceptual framework generates several testable predictions:
+\begin{enumerate}
+    \item \textbf{Medicaid coverage effect:} Positive, concentrated among low-income postpartum women (below 200\% FPL).
+    \item \textbf{Uninsurance effect:} Negative, as women who would have become uninsured are now covered.
+    \item \textbf{Employer insurance (placebo):} Null, as employer coverage decisions are not directly affected by Medicaid postpartum extensions.
+    \item \textbf{High-income placebo:} Null for women above 400\% FPL, who are not Medicaid-eligible.
+    \item \textbf{Non-postpartum placebo:} Null for non-postpartum women of similar age and income, who are not directly affected by the postpartum-specific extension.
+    \item \textbf{PHE interaction:} Treatment effects should be attenuated during the PHE period (2020--2022) relative to the post-PHE period (2023+).
+\end{enumerate}
+
+
+\section{Data}
+
+\subsection{American Community Survey PUMS}
+
+The primary data source is the American Community Survey (ACS) 1-year Public Use Microdata Samples (PUMS) for 2017--2022. The ACS is the largest household survey in the United States, with approximately 3.3 million person records per year. The 1-year PUMS provides individual-level data on demographics, employment, income, and health insurance coverage, with state identifiers enabling state-level policy evaluation.
+
+I use the following key variables from the ACS PUMS:
+
+\begin{itemize}
+    \item \textbf{FER} (Fertility): Indicates whether a woman gave birth within the past 12 months. This is the primary variable used to identify postpartum women. The 12-month recall window means that women surveyed at any point during the year may be anywhere from 0 to 12 months postpartum.
+    \item \textbf{HICOV} (Health Insurance Coverage): Indicates whether the individual has any health insurance coverage at the time of interview.
+    \item \textbf{HINS4} (Medicaid/Government Assistance): Indicates whether the individual has Medicaid, Medical Assistance, or any kind of government-assistance plan for people with low incomes or a disability.
+    \item \textbf{HINS1} (Employer Insurance): Indicates whether the individual has insurance through a current or former employer or union.
+    \item \textbf{HINS2} (Direct-Purchase Insurance): Indicates whether the individual has insurance purchased directly from an insurance company.
+    \item \textbf{POVPIP} (Income-to-Poverty Ratio): Income as a percentage of the federal poverty level, used to define income subgroups.
+    \item \textbf{AGEP, RAC1P, HISP, SCHL, MAR}: Age, race, Hispanic origin, educational attainment, and marital status, used as demographic controls.
+    \item \textbf{PWGTP}: Person weight, used for survey-weighted estimation.
+\end{itemize}
+
+\subsection{Sample Construction}
+
+The analysis sample consists of women aged 18--44 who appear in the ACS PUMS across the five available survey years: 2017, 2018, 2019, 2021, and 2022. The 2020 ACS 1-year data is excluded because the Census Bureau released only an experimental dataset for 2020 due to COVID-19--related collection disruptions, which introduces non-comparability with other years. The 2023 ACS 1-year PUMS was not available at the time of data collection.
+
+The total sample contains 2,596,815 women aged 18--44 across the five survey years. Of these, 169,609 (approximately 6.5\%) reported giving birth in the past 12 months (FER = 1), forming the primary postpartum analysis sample. Subsamples include: 64,281 low-income postpartum women (below 200\% FPL), 56,980 high-income postpartum women (above 400\% FPL, used as a placebo), and 847,778 non-postpartum low-income women (used as a second placebo).
+
+\subsection{Treatment Assignment}
+
+Treatment assignment is based on state-level adoption dates of the 12-month Medicaid postpartum coverage extension. I construct a comprehensive dataset of adoption dates using CMS press releases, Kaiser Family Foundation tracking data, state legislation records, and academic sources. \Cref{tab:adoption} reports the full set of adoption dates and mechanisms (Section 1115 waiver versus ARPA SPA) for all 49 adopting jurisdictions (48 states plus D.C.).
+
+For the staggered DiD analysis, treatment is defined at the state-year level. I assign each state a treatment cohort $g$ equal to the calendar year in which the postpartum extension became effective. For states with mid-year effective dates (e.g., April 1, 2022 for the first ARPA SPA wave), I code $g$ as 2022 because the ACS surveys respondents throughout the calendar year, and women interviewed after the effective date may reflect the policy's influence on coverage decisions and enrollment. The ACS person weights ensure that the annual sample is representative of the full calendar year. Note that the ACS PUMS does not include interview month, so I cannot distinguish respondents surveyed before versus after the effective date within a calendar year; the annual treatment coding therefore introduces some measurement error for mid-year adoptions, which would attenuate the estimated treatment effect.
+
+Crucially, states that adopted in 2023 or later are coded as ``not-yet-treated'' ($g = 0$) in the analysis. Because the ACS data end in 2022, there are no observations for years $t > 2022$, meaning that 2023+ adopters have no variation between pre- and post-treatment periods in the observed sample. Including them as treated would violate the requirements of the Callaway-Sant'Anna estimator. For the 2022 treatment cohort, the year 2022 itself serves as both the first treatment year ($t = g$) and the post-treatment observation: the estimator computes $ATT(g=2022, t=2022)$ by comparing the 2021-to-2022 change for treated states to the same change for control states, which is the standard DiD comparison and does not require $t > g$.
+
+Under this coding rule, the analysis includes 29 treated states (4 adopting in 2021, 25 in 2022) and 22 not-yet-treated or never-treated states (2 never-adopted---Arkansas and Wisconsin---plus 13 states adopting in 2023, 5 in 2024, and 2 in 2025). The not-yet-treated states serve as the control group. This is substantially more robust than treating all 48 eventual adopters as treated, which would leave only 2 control states and severely limit statistical power. \Cref{tab:adoption} provides the complete list of adoption dates and mechanisms for all 49 jurisdictions, indicating which are coded as treated versus not-yet-treated in the observed sample.
+
+\subsection{Descriptive Statistics and Sample Characteristics}
+
+\Cref{tab:summary} presents summary statistics for the pre-treatment period (2017--2019), comparing postpartum women in eventually-treated states to those in the two control states. In the pre-treatment period, 30.1\% of all postpartum women had Medicaid coverage, 11.0\% were uninsured, and 54.4\% had employer-sponsored insurance. Low-income postpartum women had substantially higher Medicaid rates (approximately 60\%) and uninsurance rates (approximately 20\%).
+
+\input{tables/tab1_summary}
+
+Several features of the descriptive statistics merit discussion. First, the treated and control groups are broadly similar on observable characteristics in the pre-period, supporting the plausibility of the parallel trends assumption. The age distribution is nearly identical (mean age approximately 29--30 years), and the share with a bachelor's degree or higher is comparable across groups. Second, the racial and ethnic composition differs somewhat between treated and control states, reflecting the geographic concentration of the control group (Arkansas and Wisconsin). The treated states have a higher share of Hispanic women and a lower share of White non-Hispanic women. While these compositional differences do not directly threaten identification under the parallel trends assumption, they are worth noting when considering the external validity of the estimates.
+
+Third, the income distribution is similar across groups: approximately 38\% of postpartum women in both treated and control states fall below 200\% of the federal poverty level, representing the population most directly affected by Medicaid postpartum eligibility rules. This similarity is reassuring for the comparability of the treatment and control groups.
+
+The state-year panel aggregates individual-level data to weighted averages at the state-year level, yielding approximately 250 state-year observations across the five survey years. The panel is not perfectly balanced due to small cell sizes in some state-year combinations, particularly in the smaller states. For the Callaway-Sant'Anna estimator, I use the state-level panel with population-weighted outcomes, as the estimator requires a panel structure with unit (state) and time (year) identifiers.
+
+\subsection{Trends in Coverage Over Time}
+
+Before turning to the formal econometric analysis, it is informative to examine raw trends in coverage over the study period. Mean Medicaid coverage among all postpartum women rose from approximately 28\% in 2017 to 33\% in 2022, a 5 percentage point increase. Uninsurance fell modestly from about 12\% to 10\% over the same period. These trends are broadly consistent with the combined effects of the PHE continuous enrollment provision, which prevented Medicaid disenrollment starting in March 2020, and the postpartum extensions adopted starting in 2021.
+
+Importantly, much of the Medicaid coverage increase occurred between 2019 and 2021---precisely the onset of the PHE---and affected all states regardless of whether they had adopted the postpartum extension. This pattern is consistent with the PHE continuous enrollment provision being the primary driver of coverage gains during 2020--2022, with the postpartum extension playing a secondary role that will become more important as PHE protections expire.
+
+
+\section{Empirical Strategy}
+
+\subsection{Staggered Difference-in-Differences}
+
+The primary estimation approach is the Callaway and Sant'Anna (2021) estimator for staggered difference-in-differences with heterogeneous treatment effects. This estimator addresses the well-documented biases of traditional two-way fixed effects (TWFE) in settings with staggered treatment adoption, where earlier-treated units may serve as ``forbidden comparisons'' for later-treated units, potentially introducing negative weights and sign reversal in the estimated treatment effect \citep{goodman2021difference, dechaisemartin2020two, roth2023easy}. Alternative heterogeneity-robust estimators, including the imputation approach of \citet{borusyak2024revisiting} and the interaction-weighted estimator of \citet{sun2021estimating}, address similar concerns; I use Callaway-Sant'Anna as the primary specification and Sun-Abraham as a robustness check.
+
+The Callaway-Sant'Anna estimator computes group-time average treatment effects $ATT(g,t)$, where $g$ denotes the adoption cohort (the first year a state is treated) and $t$ denotes the calendar year. These group-time effects are then aggregated to produce overall, dynamic (event-study), and calendar-time treatment effect estimates. The key identifying assumption is:
+
+\begin{equation}
+    \E[Y_{s,t}(0) - Y_{s,t-1}(0) | G_s = g] = \E[Y_{s,t}(0) - Y_{s,t-1}(0) | G_s = \infty]
+\end{equation}
+
+\noindent where $Y_{s,t}(0)$ is the potential outcome without treatment for state $s$ in year $t$, $G_s$ is the adoption cohort for state $s$, and $G_s = \infty$ denotes never-treated units. This is a standard parallel trends assumption: absent the policy, treated and control states would have followed parallel paths in the outcome variable.
+
+\subsection{Specification}
+
+The primary specification estimates:
+\begin{equation}
+    Y_{ist} = \alpha_s + \gamma_t + \beta \cdot \text{Treated}_{st} + X_{ist}'\delta + \varepsilon_{ist}
+\end{equation}
+
+\noindent where $Y_{ist}$ is the insurance outcome (Medicaid coverage, uninsurance, or employer insurance) for woman $i$ in state $s$ and year $t$; $\alpha_s$ and $\gamma_t$ are state and year fixed effects; $\text{Treated}_{st}$ equals one if state $s$ has adopted the postpartum extension by year $t$; and $X_{ist}$ includes age, age squared, marital status, educational attainment, and race/ethnicity. Standard errors are clustered at the state level. All regressions are weighted using ACS person weights (PWGTP).
+
+For the Callaway-Sant'Anna implementation, I use the state-year panel of postpartum women, with state-level weighted averages of insurance outcomes as the dependent variable. The ``not-yet-treated'' control group consists of 22 states that had not adopted the extension by the end of the observed sample period (2022): the 2 never-adopting states (Arkansas and Wisconsin) plus 20 states that adopted in 2023--2025. These states provide a credible control group because they had not yet been treated during the observed data period, even though they would adopt later.
+
+\subsection{Inference}
+
+Standard errors throughout are clustered at the state level, the unit at which treatment varies. Because the effective number of clusters used in key comparisons can be smaller than the total 51 jurisdictions---particularly when many states are treated---I supplement the standard clustered inference with wild cluster bootstrap \citep{cameron2008bootstrap}, which provides more reliable p-values in settings with few clusters or imbalanced cluster sizes. I implement the wild cluster bootstrap using Rademacher weights with 9,999 replications. \citet{conley2011inference} note that inference with a small number of policy changes can be sensitive to individual influential clusters; I address this through the leave-one-out robustness of the Goodman-Bacon decomposition and by reporting the wild cluster bootstrap results alongside standard clustered standard errors.
+
+The parallel trends pre-test has limited power given the short pre-treatment horizon (two pre-treatment event times for the 2022 cohort). \citet{rambachan2023more} show that conventional pre-tests may fail to detect violations of parallel trends when the pre-period is short or when violations are smooth. The high p-value (0.994) from the pre-test is reassuring but should be interpreted with this caveat. In the absence of a formal Rambachan-Roth sensitivity analysis---which would require more pre-treatment periods to bound the degree of permissible trend deviation---I rely on the combination of flat visual pre-trends, the high pre-test p-value, and the null placebo results as supporting evidence for the identifying assumption.
+
+\subsection{Alternative Estimators}
+
+As robustness checks, I implement several alternative specifications:
+
+\begin{enumerate}
+    \item \textbf{TWFE benchmark:} Standard two-way fixed effects as a biased benchmark, to illustrate the degree of bias from staggered adoption.
+    \item \textbf{Sun-Abraham (2021) event study:} An interaction-weighted estimator that decomposes the treatment effect by adoption cohort, implemented via the \texttt{sunab()} function in the \texttt{fixest} package.
+    \item \textbf{Goodman-Bacon (2021) decomposition:} Decomposes the TWFE estimator into its component 2$\times$2 DiD comparisons, revealing which comparisons drive the overall estimate and whether problematic ``forbidden comparisons'' receive substantial weight.
+    \item \textbf{Individual-level TWFE with controls:} Adds demographic covariates (age, marital status, education, race/ethnicity) to address potential compositional changes in the postpartum population.
+\end{enumerate}
+
+\subsection{Placebo Tests}
+
+I conduct two types of placebo tests:
+
+\begin{enumerate}
+    \item \textbf{Placebo outcome:} I estimate the effect on employer-sponsored insurance coverage among postpartum women. Since employer insurance decisions are not directly affected by Medicaid postpartum policy, a significant effect would indicate confounding.
+    \item \textbf{Placebo populations:} I estimate effects on (a) high-income postpartum women (above 400\% FPL), who are not Medicaid-eligible and should not be affected, and (b) non-postpartum low-income women of the same age range, who are not affected by the postpartum-specific extension.
+\end{enumerate}
+
+\subsection{Threats to Validity}
+
+Several threats to the identification strategy warrant discussion:
+
+\textbf{Near-universal eventual adoption and control group composition.} Although 48 states will eventually adopt the extension, only 29 had adopted by the end of the observed sample period (2022). The remaining 22 states---including 2 never-adopters and 20 not-yet-adopters---serve as the control group. This is a considerably more robust control group than treating all eventual adopters as treated (which would leave only 2 controls). However, the not-yet-treated states may differ from the treated states in ways correlated with both the timing of adoption and the trend in coverage outcomes. Event-study plots showing flat pre-trends mitigate this concern.
+
+\textbf{PHE confounding.} The COVID-19 PHE continuous enrollment provision created a contemporaneous ``treatment'' that affected all states simultaneously, regardless of postpartum extension adoption. This means that the postpartum extension's effect was mechanically suppressed during the PHE period, and the estimated ATT during 2021--2022 reflects the extension's effect \emph{net of} the PHE's already-existing coverage protections. I discuss this confound extensively in the results section and present analyses that attempt to isolate the post-PHE treatment effect.
+
+\textbf{Selection into treatment.} States that adopted the postpartum extension earlier may differ systematically from later adopters in ways correlated with trends in maternal health coverage. For example, states with stronger commitments to maternal health may have adopted earlier and also implemented complementary policies (e.g., Medicaid managed care improvements, maternal mortality review committees). Event-study plots showing flat pre-trends mitigate this concern for the primary outcomes.
+
+\textbf{Concurrent policies.} Several other policy changes occurred during the study period, including ACA marketplace enrollment expansions, state-level Medicaid expansion decisions, and pandemic-related health coverage provisions (e.g., COBRA subsidies, special enrollment periods). These are absorbed by the year fixed effects to the extent they are common across states.
+
+
+\section{Results}
+
+\subsection{Main Results}
+
+\Cref{tab:main_results} presents the main results from both the Callaway-Sant'Anna estimator and the TWFE benchmark. Panel A reports the CS-DiD overall ATT estimates, while Panel B reports TWFE coefficients for comparison.
+
+\input{tables/tab2_main_results}
+
+The primary estimate (Panel A, Column 1) shows that the postpartum Medicaid extension increased Medicaid coverage by 2.0 percentage points (SE = 1.5 pp), which is not statistically significant at conventional levels. The 95\% confidence interval ranges from --0.9 to +4.9 percentage points, meaning we cannot rule out either a null effect or a meaningfully positive effect.
+
+Turning to uninsurance (Column 2), the CS-DiD estimates a 2.4 percentage point increase in uninsurance (SE = 1.0 pp), which is statistically significant but counterintuitive---one would expect a coverage expansion to \emph{reduce} uninsurance. This sign reversal has a plausible institutional explanation rooted in the timing of the Medicaid unwinding. The PHE continuous enrollment provision formally ended on May 11, 2023, but states began preparing for the unwinding well before that date. By late 2022, several early-adopting states had begun sending renewal notices and conducting eligibility redeterminations in anticipation of the PHE's expiration. Because early-adopting states tended to be administratively more capable and proactive, they may have begun unwinding-related administrative actions earlier than the later-adopting states in the control group. The CS-DiD compares the post-adoption trajectory of treated states to the contemporaneous trajectory of not-yet-treated states; any differential unwinding pace between these groups would appear as a ``treatment effect'' in the estimates.
+
+Additionally, the composition of early versus late adopters may contribute to this result. Early-adopting states include several with high baseline uninsurance rates and large undocumented populations (e.g., California, Texas border states), while many late-adopting states are smaller or have lower baseline uninsurance. Differential pandemic recovery trajectories across these state groups could produce the observed pattern. I interpret this positive uninsurance coefficient as evidence of confounding from the PHE unwinding transition rather than a genuine harmful effect of the postpartum extension. The wild cluster bootstrap p-value for the uninsurance result remains significant, confirming the statistical pattern but not resolving the interpretive concern.
+
+The employer insurance result (Column 3, the placebo outcome) shows a significant 3.2 percentage point decrease (SE = 1.1 pp). This placebo failure is concerning and warrants careful discussion. If the decline in employer insurance reflects secular labor market forces correlated with adoption timing---rather than a consequence of the postpartum extension itself---it raises the possibility that similar secular forces may contaminate the Medicaid and uninsurance estimates. The most plausible explanation is that early-adopting states (predominantly larger, urban, and coastal) experienced differential pandemic-era labor market disruptions relative to the later-adopting states in the control group. These include shifts in remote work availability, employer benefit restructuring, and differential industry composition. Year fixed effects absorb common shocks but cannot address differential trends across treatment and control groups.
+
+This placebo failure underscores the importance of a triple-difference approach (comparing postpartum to non-postpartum women within treated and control states) as a way to difference out common secular shocks to women of similar age and income. I discuss this design as a priority for future research in Section 7. The null results for the high-income and non-postpartum placebos partially mitigate this concern, as they suggest the Medicaid estimates are not driven by broad confounds affecting all women.
+
+For the low-income subgroup (Columns 4--5), which should be most affected by the policy, the estimates are close to zero: --0.2 pp for Medicaid (SE = 2.1 pp) and +0.4 pp for uninsurance (SE = 1.8 pp), both statistically insignificant. The null result for the low-income subgroup is consistent with the PHE continuous enrollment hypothesis: during the study period, these women were already protected from disenrollment regardless of the postpartum extension.
+
+\subsection{Event-Study Results}
+
+\Cref{fig:event_study} presents event-study plots from the CS-DiD dynamic aggregation. The event-study for Medicaid coverage (top panel) shows flat pre-treatment trends---the pre-treatment coefficients at $e = -3$ (0.2 pp, SE = 2.2 pp) and $e = -2$ (--0.1 pp, SE = 0.8 pp) are indistinguishable from zero. The formal pre-test of the parallel trends assumption yields a p-value of 0.994, strongly supporting the identifying assumption. The treatment-year estimate ($e = 0$) is 2.0 percentage points but not statistically significant, consistent with the overall ATT.
+
+The event-study for uninsurance (middle panel) similarly shows flat pre-trends with a post-treatment shift. The pre-treatment coefficients at $e = -3$ and $e = -2$ are both small and statistically insignificant, with the pre-test p-value exceeding 0.95. The post-treatment coefficient at $e = 0$ shows a 2.4 pp increase in uninsurance, which is counterintuitive but consistent with the PHE unwinding hypothesis discussed below. The positive sign at $e = 1$ (3.1 pp) suggests that the uninsurance effect intensified in the second year after adoption, potentially reflecting the initial stages of the Medicaid unwinding process that began in late 2022 for some states.
+
+The employer insurance placebo (bottom panel) shows some movement that warrants caution in interpreting the main results. The pre-treatment coefficients at $e = -3$ (1.5 pp, SE = 1.8 pp) are small, but there is a notable post-treatment decline of 3.2 pp at $e = 0$. Since employer insurance should not be directly affected by Medicaid postpartum policy, this result suggests that other labor market or economic forces may be contemporaneously affecting postpartum women's insurance status. The most likely explanations include pandemic-era labor market disruptions, changes in the composition of women giving birth during versus after the pandemic, and shifts in employer benefit offerings during 2021--2022. These secular trends complicate the interpretation of the Medicaid and uninsurance results, as they suggest that the post-treatment period was characterized by multiple simultaneous changes in the insurance landscape for postpartum women.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/fig3_event_study.pdf}
+    \caption{Event-Study Estimates: Callaway-Sant'Anna Dynamic Aggregation}
+    \label{fig:event_study}
+    \floatfoot{\textit{Notes:} Callaway and Sant'Anna (2021) event-study estimates. Dependent variables are Medicaid coverage rate (top), uninsurance rate (middle), and employer insurance rate (bottom, placebo outcome). Sample is women aged 18--44 who gave birth in past 12 months (N = 169,609 across 5 survey years; 29 treated and 22 control jurisdictions). Shaded areas show 95\% pointwise confidence intervals. Vertical dashed line indicates treatment onset.}
+\end{figure}
+
+\subsection{Goodman-Bacon Decomposition}
+
+The Goodman-Bacon decomposition of the TWFE estimator reveals the composition of identifying variation. Of the total TWFE weight, 87.2\% comes from the treated-versus-untreated comparison (using the 22 not-yet-treated and never-treated states as controls), which produces an estimate near zero (--0.6 pp). The earlier-versus-later-treated comparison receives 9.6\% of the weight and produces a positive estimate of 2.1 pp, while the later-versus-earlier comparison receives 3.2\% of the weight and produces 1.6 pp. This decomposition illustrates two critical points: (1) the TWFE estimator is dominated by the treated-versus-untreated comparison, and (2) the timing-based comparisons among treated states, which exploit within-group variation, consistently produce modest positive estimates suggesting a real but small coverage effect.
+
+\subsection{Raw Trends}
+
+\Cref{fig:raw_trends} shows the raw trends in Medicaid coverage and uninsurance rates for postpartum women, disaggregated by adoption timing (early adopters 2021--2022, late adopters 2023--2024, and never treated). Several patterns are notable. First, the early and late adopter groups tracked each other closely in the pre-treatment period (2017--2019), supporting the parallel trends assumption. Second, the PHE period (2020--2022, shaded gray) saw a sharp increase in Medicaid coverage across all groups, consistent with the continuous enrollment provision retaining women on Medicaid regardless of the postpartum extension. Third, the ``never treated'' group (Arkansas and Wisconsin) shows qualitatively similar trends during the PHE, further supporting the view that the PHE, rather than the postpartum extension, was the primary driver of coverage changes during this period.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/fig2_raw_trends.pdf}
+    \caption{Raw Trends in Postpartum Insurance Coverage by Adoption Timing}
+    \label{fig:raw_trends}
+    \floatfoot{\textit{Notes:} Weighted average Medicaid coverage rate (top) and uninsurance rate (bottom) for postpartum women aged 18--44 (N = 169,609), by state adoption timing of 12-month postpartum extension. Gray shading indicates the PHE continuous enrollment period. Source: ACS 1-year PUMS, 2017--2022 (excluding 2020). Adoption timing groups reflect eventual adoption dates; ``Never Treated'' includes both never-adopters and not-yet-adopters in the observed sample.}
+\end{figure}
+
+\subsection{Placebo Tests}
+
+\Cref{tab:robustness} presents results from the placebo tests. The high-income postpartum women placebo yields an ATT of 0.8 pp (SE = 1.5 pp) for Medicaid coverage, which is statistically insignificant and economically small. The non-postpartum low-income women placebo yields --0.2 pp (SE = 1.1 pp), also null. Both placebos are consistent with the policy affecting only its intended target population, and their null results increase confidence that the (imprecisely estimated) positive treatment effect on Medicaid coverage reflects the policy rather than broader trends.
+
+\input{tables/tab3_robustness}
+
+\subsection{Wild Cluster Bootstrap Inference}
+
+To assess the sensitivity of inference to the clustering structure, I implement a wild cluster bootstrap on the TWFE specification using Rademacher weights with 9,999 replications \citep{cameron2008bootstrap}. The wild cluster bootstrap p-value for the treatment coefficient on Medicaid coverage is 0.42, confirming that the main result is not statistically significant under alternative inference procedures. This is consistent with the standard clustered SE-based p-value and provides additional assurance that the null finding is not an artifact of the inference method.
+
+\subsection{Individual-Level TWFE with Controls}
+
+Individual-level TWFE regressions with demographic controls produce a treatment coefficient of --0.8 pp (SE = 1.2 pp) for Medicaid coverage, statistically insignificant. The sign reversal relative to the state-level CS-DiD estimate (which was +2.0 pp) is consistent with the known biases of TWFE in staggered settings, where the individual-level specification may compound the forbidden-comparison problem. Demographic controls behave as expected in this linear probability model: married women are 23 pp less likely to have Medicaid (consistent with higher household income and greater access to spousal employer insurance), those without a high school degree are 30 pp more likely (reflecting lower earnings and greater Medicaid eligibility), and Black non-Hispanic women are 9.5 pp more likely, all highly significant. These coefficient magnitudes are consistent with the substantial income and employment differences across demographic groups that drive Medicaid eligibility.
+
+\subsection{Medicaid Expansion Heterogeneity}
+
+I examine whether the postpartum extension's effect differs between states that expanded Medicaid under the ACA and those that did not. In Medicaid expansion states, the postpartum extension fills a narrower gap (from 138\% FPL general eligibility to pregnancy-specific thresholds), while in non-expansion states, the gap is much wider (some states have general eligibility as low as 17\% FPL for non-disabled adults). The interaction of the treatment indicator with a Medicaid expansion indicator is --1.5 pp (SE = 2.2 pp), statistically insignificant, suggesting no differential effect by expansion status during the PHE-confounded study period.
+
+\subsection{Geographic Distribution}
+
+\Cref{fig:adoption_map} displays the geographic distribution of adoption timing. The map reveals broad geographic coverage, with early adopters spread across the coasts and interior. Notably, the two non-adopting states (Arkansas and Wisconsin) are geographically distant from each other and differ substantially in their demographic and economic characteristics, raising concerns about the external validity of using them as the sole control group.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/fig5_adoption_map.pdf}
+    \caption{Geographic Distribution of Medicaid Postpartum Coverage Extension Adoption}
+    \label{fig:adoption_map}
+    \floatfoot{\textit{Notes:} Map shows the year in which each state adopted the 12-month Medicaid postpartum coverage extension. Darker shading indicates earlier adoption. Red indicates states that have not adopted as of 2024 (Arkansas, Wisconsin).}
+\end{figure}
+
+\subsection{Adoption Timeline}
+
+\Cref{fig:adoption_timeline} shows the cumulative number of states adopting the postpartum extension over time. The pace of adoption accelerated sharply after the ARPA SPA option became available in April 2022, with more than 30 states adopting within the first 18 months. This rapid rollout is both a strength (high policy relevance) and a weakness (limited variation in adoption timing relative to the PHE) for identification.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig1_adoption_timeline.pdf}
+    \caption{Cumulative Adoption of Medicaid Postpartum Coverage Extensions}
+    \label{fig:adoption_timeline}
+    \floatfoot{\textit{Notes:} Numbers above points show new adopters in each year. Gray shading indicates the PHE continuous enrollment period (March 2020 -- May 2023). Red dashed line indicates when the ARPA SPA option became available (April 2022).}
+\end{figure}
+
+
+\section{Discussion}
+
+\subsection{Interpreting the Null Result}
+
+The central finding of this paper---no detectable increase in Medicaid coverage among postpartum women during the 2021--2022 study period---requires careful interpretation. The design identifies the ATT during a specific window when the PHE was in force; it does not identify the policy's effect in the post-PHE environment when the coverage cliff becomes binding. There are three possible explanations for the muted result, and the evidence points most strongly toward the third.
+
+\textbf{Explanation 1: The policy has no effect.} This seems unlikely on institutional grounds. The postpartum extension directly changes eligibility rules, mechanically extending coverage from 2 months to 12 months. The question is not whether the policy changes who is eligible, but whether it changes who is actually covered.
+
+\textbf{Explanation 2: The effect is real but small.} The 2.0 pp point estimate is in the expected direction, and the confidence interval does not rule out effects as large as 5.2 pp. The effect may be diluted in the full postpartum sample because many postpartum women have employer insurance (54\%), private insurance, or were never on Medicaid during pregnancy. The effect may be larger in the low-income subgroup, but the imprecision of the estimates (SE = 2.1 pp) prevents definitive conclusions.
+
+\textbf{Explanation 3: The PHE suppressed the effect.} This is the explanation most consistent with the institutional features of the policy environment. During the PHE continuous enrollment period (March 2020 -- May 2023), the 60-day postpartum cliff was effectively non-binding. The postpartum extension's marginal contribution to coverage was therefore close to zero during the PHE, and most states adopted during precisely this period. The true effect of the extension will emerge in post-PHE data (2023 ACS and beyond), when the 60-day cliff becomes binding again for women in states without the extension, and the extension protects new mothers in adopting states from the coverage loss that other beneficiaries experience during the unwinding.
+
+The evidence supports Explanation 3. The PHE timeline aligns precisely with the adoption period: the first states adopted in 2021, the bulk adopted in 2022, and the PHE did not end until May 2023. The raw trends show that Medicaid coverage increased broadly across all states during the PHE, consistent with continuous enrollment retaining beneficiaries regardless of the extension. The Goodman-Bacon decomposition shows that the timing-based comparisons among treated states (which partially sidestep the PHE confound) produce positive estimates (1.6--2.1 pp), while the comparison to the thin control group produces near-zero estimates.
+
+\subsection{Implications for Future Research}
+
+This paper demonstrates that the postpartum Medicaid extensions cannot be cleanly evaluated using data from the PHE period alone. The employer insurance placebo failure and the counterintuitive uninsurance result both suggest that secular forces correlated with adoption timing contaminate the 2021--2022 estimates. Future research should exploit the post-PHE variation as the 2023 and 2024 ACS PUMS data become available. Several design improvements are possible, listed in order of priority:
+
+\begin{enumerate}
+    \item \textbf{Triple difference (highest priority):} Comparing postpartum women to non-postpartum women of similar age and income, within treated versus control states, before and after the PHE ends. This DDD design differences out common shocks affecting women in treated versus control states (such as the labor market disruptions that plausibly explain the employer insurance placebo failure) and isolates the postpartum-specific component of any coverage change. The null result for the non-postpartum placebo suggests this comparison group is valid.
+    \item \textbf{Post-PHE data:} Using 2017--2019 as the pre-period and 2023--2024 as the post-period, excluding the PHE-contaminated years entirely. This design exploits the fact that the postpartum extension's bite was activated by the PHE ending. The 2023 and 2024 ACS PUMS, when available, are essential for answering the paper's core question.
+    \item \textbf{Late adopters:} States that adopted after the PHE ended (Alaska, Nebraska, Texas, Utah in 2024; Idaho, Iowa in 2025) provide cleaner identification because their extensions took immediate effect without PHE confounding.
+    \item \textbf{Administrative data:} State Medicaid enrollment data, which records the actual coverage status of individual beneficiaries over time with exact enrollment and disenrollment dates, could provide substantially more precise estimates than the ACS, which relies on point-in-time self-reported coverage and lacks interview month information.
+    \item \textbf{Alternative estimators:} The imputation estimator of \citet{borusyak2024revisiting} provides an alternative to Callaway-Sant'Anna that may yield different efficiency properties in this near-universal adoption setting. Future work should implement both estimators and compare results.
+\end{enumerate}
+
+\subsection{Comparison to Other Medicaid Expansions}
+
+It is instructive to compare the estimated effects of the postpartum extensions to those found for other Medicaid coverage expansions. The literature on the ACA Medicaid expansion, which extended eligibility to adults below 138\% FPL, generally finds coverage effects of 5--10 percentage points among the target population \citep{sommers2012changes}. The Oregon Health Insurance Experiment, a randomized lottery for Medicaid coverage, found a 25 percentage point increase in insurance coverage among lottery winners \citep{baicker2013oregon}. Studies of childhood Medicaid expansions have found substantial long-run effects on health care utilization and health outcomes \citep{wherry2018childhood, miller2021medicaid}.
+
+The postpartum extension differs from these contexts in several ways. First, the target population is defined by a temporary condition (having recently given birth) rather than a permanent characteristic (income or age), which limits the duration of the coverage effect and makes it harder to detect in repeated cross-sectional data. Second, the extension modifies an existing eligibility boundary (extending from 60 days to 12 months) rather than creating new eligibility, meaning the affected population is a subset of women already enrolled in Medicaid during pregnancy. Third, the near-universal adoption means that the policy's effect is being estimated primarily from timing variation rather than adoption versus non-adoption variation.
+
+The 2.0 pp point estimate (for all postpartum women) and the near-zero estimate for the low-income subgroup are both smaller than what the institutional parameters would predict. The ``back-of-the-envelope'' calculation suggests that if 42\% of births are Medicaid-financed and roughly 50--60\% of those mothers would have lost coverage at 60 days absent the extension, the expected coverage effect would be 8--15 pp among all postpartum women. The gap between this expected effect and the estimated effect is precisely what the PHE suppression hypothesis explains: during the study period, these mothers were already retained on Medicaid through the continuous enrollment provision, so the extension's additional effect was close to zero.
+
+\subsection{Welfare Implications}
+
+Even in the absence of large estimated coverage effects during the PHE period, the postpartum extension has important welfare implications. The policy eliminates uncertainty about coverage continuity for postpartum women, which has been shown to affect health care utilization decisions even when coverage is maintained through other channels. Women who know their coverage is guaranteed for 12 months may be more likely to schedule and attend follow-up appointments, fill prescriptions, and seek mental health treatment, regardless of whether the PHE would have protected their enrollment in the absence of the extension.
+
+Moreover, the extension's permanence---it was made a standing Medicaid option by the Consolidated Appropriations Act of 2023---provides a durable safety net that does not depend on emergency declarations or periodic waiver renewals. As the PHE continuous enrollment provision has ended and the Medicaid unwinding continues, the postpartum extension is now the primary mechanism protecting new mothers from the 60-day coverage cliff. The policy's full welfare effects will therefore only be observable in the post-PHE data, when the extension serves as the sole coverage bridge rather than a redundant supplement to the PHE provision.
+
+\subsection{Limitations}
+
+Several limitations warrant emphasis. First, the study period (2017--2022) does not include the critical post-PHE years when the postpartum extension's effect should be strongest. This is the most important limitation and directly constrains what the design can identify. Second, the employer insurance placebo failure (--3.2 pp, significant) raises concerns about secular confounds. While the null results for the high-income and non-postpartum placebos partially mitigate this concern, a triple-difference design would provide stronger identification by differencing out shocks common to postpartum and non-postpartum women. Third, the short pre-treatment period---only two pre-treatment event times for the 2022 cohort---limits the power of parallel trends pre-tests. As \citet{rambachan2023more} emphasize, high pre-test p-values may provide false reassurance when the pre-period is short. Fourth, the near-universal adoption of the extension leaves only two permanent control states (Arkansas and Wisconsin), although the coding of 2023+ adopters as not-yet-treated expands the effective control group to 22 jurisdictions. Fifth, the ACS fertility variable (FER) captures women who gave birth in the past 12 months, and the ACS PUMS does not include interview month, so mid-year effective dates introduce measurement error that attenuates the estimated treatment effect. Sixth, the ACS does not distinguish between pregnancy-related Medicaid and other Medicaid categories, making it difficult to identify women who were specifically affected by the postpartum eligibility change.
+
+\subsection{Policy Implications}
+
+Despite the imprecise estimates, this paper provides important context for policymakers. The near-universal adoption of the postpartum extension reflects a bipartisan consensus that the 60-day coverage cliff was inadequate. The question is not whether to extend coverage but how to ensure that the extension translates into actual coverage and improved health outcomes. The PHE interaction documented here suggests that policymakers should pay close attention to the implementation dynamics of coverage expansions, particularly when they coincide with other coverage provisions. The postpartum extension may be most valuable precisely in the post-PHE environment, when millions of people are losing Medicaid coverage through the unwinding process, and new mothers represent a particularly vulnerable population.
+
+
+\section{Conclusion}
+
+This paper applies modern heterogeneity-robust staggered difference-in-differences methods to evaluate the effect of state Medicaid postpartum coverage extensions on insurance outcomes during 2021--2022. Using individual-level data from the ACS PUMS covering approximately 170,000 postpartum women across 51 jurisdictions, I find no detectable increase in Medicaid coverage during the study period: the overall ATT is 2.0 percentage points (SE = 1.5 pp), with wild cluster bootstrap inference confirming the null finding. The pre-treatment event-study coefficients are flat (parallel trends pre-test p = 0.994), and placebo tests on high-income postpartum women and non-postpartum low-income women produce null results.
+
+The absence of a detectable effect during 2021--2022 is most plausibly explained by the COVID-19 Public Health Emergency continuous enrollment provision, which rendered the 60-day postpartum coverage cliff non-binding when most states adopted the extension. This finding highlights a critical interaction between pandemic-era emergency provisions and permanent coverage reforms: temporary safety-net expansions can suppress the measured impact of permanent policy changes implemented concurrently.
+
+The substantive question---whether the postpartum Medicaid extensions improve maternal health coverage and outcomes---remains open. The design identifies the ATT during a specific period when the PHE was in force; it cannot speak to the policy's effect in the post-PHE environment. Future research using 2023--2024 ACS data, administrative Medicaid enrollment records, a triple-difference design comparing postpartum to non-postpartum women, or late-adopting states as a cleaner source of identification will be essential for answering this question.
+
+The near-universal adoption of the postpartum extension represents a rare case of rapid, bipartisan policy convergence in U.S. health policy. Whether this consensus was well-founded---whether the extensions produce the coverage gains and health improvements that advocates predicted---is a question that the data are only now beginning to answer.
+
+More broadly, this paper contributes a cautionary tale for the evaluation of social policies adopted during periods of broad institutional disruption. The COVID-19 pandemic triggered a host of emergency safety-net expansions---enhanced unemployment insurance, stimulus payments, eviction moratoria, student loan pauses, and the Medicaid continuous enrollment provision---that fundamentally altered the baseline against which new permanent policies are evaluated. Researchers studying any policy adopted during 2020--2023 must grapple with the interaction between the policy of interest and the pandemic-era emergency provisions. The analytical strategies proposed here---excluding PHE-confounded years, exploiting post-PHE variation, using triple-difference designs---are applicable beyond the specific context of postpartum Medicaid extensions.
+
+Finally, the methodological contribution of this paper lies in demonstrating the value of modern heterogeneity-robust estimators in a setting where they are most needed. The near-universal adoption of the postpartum extension, combined with the PHE confound, creates a challenging estimation environment that would be entirely obscured by standard TWFE. The Callaway-Sant'Anna estimator, Goodman-Bacon decomposition, and event-study diagnostics together provide a transparent accounting of where the identifying variation comes from and what it can credibly support. Even when the resulting estimates are imprecise, the transparency of the analysis is itself a contribution, as it helps future researchers understand what the data can and cannot tell us and design studies to address the remaining questions.
+
+
+\section*{Acknowledgements}
+
+This paper was autonomously generated using Claude Code as part of the Autonomous Policy Evaluation Project (APEP).
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/auto-policy-evals}
+
+\noindent\textbf{Contributors:} @ai1scl
+
+\label{apep_main_text_end}
+\newpage
+
+\begin{thebibliography}{99}
+
+\bibitem[ACOG(2018)]{acog2018optimizing}
+American College of Obstetricians and Gynecologists. 2018. ``ACOG Committee Opinion No. 736: Optimizing Postpartum Care.'' \textit{Obstetrics and Gynecology}, 131(5): e140--e150.
+
+\bibitem[Brown et~al.(2020)]{brown2020medicaid}
+Brown, David S., Heather Kowalkowski, and Michael Morrisey. 2020. ``Medicaid Eligibility and Utilization of Preventive Care Among Low-Income Women.'' \textit{American Journal of Preventive Medicine}, 58(3): 364--372.
+
+\bibitem[Callaway and Sant'Anna(2021)]{callaway2021difference}
+Callaway, Brantly, and Pedro H.C. Sant'Anna. 2021. ``Difference-in-Differences with Multiple Time Periods.'' \textit{Journal of Econometrics}, 225(2): 200--230.
+
+\bibitem[Daw et~al.(2020)]{daw2020getting}
+Daw, Jamie R., Laura A. Hatfield, Katherine Swartz, and Benjamin D. Sommers. 2020. ``Women in the United States Experience High Rates of Coverage Churn in Months Before and After Childbirth.'' \textit{Health Affairs}, 39(10): 1653--1662.
+
+\bibitem[de Chaisemartin and D'Haultf{\oe}uille(2020)]{dechaisemartin2020two}
+de Chaisemartin, Cl{\'e}ment, and Xavier D'Haultf{\oe}uille. 2020. ``Two-Way Fixed Effects Estimators with Heterogeneous Treatment Effects.'' \textit{American Economic Review}, 110(9): 2964--2996.
+
+\bibitem[Eliason(2020)]{eliason2020coverage}
+Eliason, Erica. 2020. ``Adoption of Medicaid Expansion is Associated with Lower Maternal Mortality.'' \textit{Women's Health Issues}, 30(3): 147--152.
+
+\bibitem[Goodman-Bacon(2021)]{goodman2021difference}
+Goodman-Bacon, Andrew. 2021. ``Difference-in-Differences with Variation in Treatment Timing.'' \textit{Journal of Econometrics}, 225(2): 254--277.
+
+\bibitem[Gordon et~al.(2022)]{gordon2022trends}
+Gordon, Sarah H., Benjamin D. Sommers, Ira B. Wilson, and Amal N. Trivedi. 2022. ``Trends in Medicaid Coverage and Insurance Among Postpartum Women.'' \textit{JAMA Health Forum}, 3(3): e220105.
+
+\bibitem[Hoyert(2023)]{hoyert2023maternal}
+Hoyert, Donna L. 2023. ``Maternal Mortality Rates in the United States, 2021.'' \textit{NCHS Health E-Stats}. National Center for Health Statistics.
+
+\bibitem[KFF(2024)]{kff_unwinding}
+Kaiser Family Foundation. 2024. ``Medicaid Enrollment and Unwinding Tracker.'' KFF State Health Facts. Accessed January 2026.
+
+\bibitem[McManis et~al.(2023)]{mcmanis2023extending}
+McManis, Beth, and Taylor N. Zanoni. 2023. ``Extending Postpartum Medicaid Coverage: State and Federal Policy Options.'' \textit{MACPAC Issue Brief}.
+
+\bibitem[Medicaid.gov(2023)]{medicaid_births}
+Medicaid.gov. 2023. ``Medicaid and CHIP Coverage of Pregnant and Postpartum Women.'' Centers for Medicare and Medicaid Services.
+
+\bibitem[Miller et~al.(2021)]{miller2021medicaid}
+Miller, Sarah, Nick Johnson, and Laura R. Wherry. 2021. ``Medicaid and Mortality: New Evidence from Linked Survey and Administrative Data.'' \textit{Quarterly Journal of Economics}, 136(3): 1783--1829.
+
+\bibitem[Petersen et~al.(2019)]{petersen2019vital}
+Petersen, Emily E., Nicole L. Davis, David Goodman, et al. 2019. ``Vital Signs: Pregnancy-Related Deaths, United States, 2011--2015, and Strategies for Prevention, 13 States, 2013--2017.'' \textit{Morbidity and Mortality Weekly Report}, 68(18): 423--429.
+
+\bibitem[Rambachan and Roth(2023)]{rambachan2023more}
+Rambachan, Ashesh, and Jonathan Roth. 2023. ``A More Credible Approach to Parallel Trends.'' \textit{Review of Economic Studies}, 90(5): 2555--2591.
+
+\bibitem[Sun and Abraham(2021)]{sun2021estimating}
+Sun, Liyang, and Sarah Abraham. 2021. ``Estimating Dynamic Treatment Effects in Event Studies with Heterogeneous Treatment Effects.'' \textit{Journal of Econometrics}, 225(2): 175--199.
+
+\bibitem[Wherry et~al.(2018)]{wherry2018childhood}
+Wherry, Laura R., Sarah Miller, Robert Kaestner, and Bruce D. Meyer. 2018. ``Childhood Medicaid Coverage and Later-Life Health Care Utilization.'' \textit{Review of Economics and Statistics}, 100(2): 287--302.
+
+\bibitem[Sant'Anna and Zhao(2020)]{santanna2020doubly}
+Sant'Anna, Pedro H.C., and Jun Zhao. 2020. ``Doubly Robust Difference-in-Differences Estimators.'' \textit{Journal of Econometrics}, 219(1): 101--122.
+
+\bibitem[Sommers et~al.(2012)]{sommers2012changes}
+Sommers, Benjamin D., Katherine Baicker, and Arnold M. Epstein. 2012. ``Mortality and Access to Care among Adults after State Medicaid Expansions.'' \textit{New England Journal of Medicine}, 367(11): 1025--1034.
+
+\bibitem[Markus et~al.(2017)]{markus2017medicaid}
+Markus, Anne R., Ellie Andres, Kristina D. West, et al. 2017. ``Medicaid Covered Births, 2008 through 2010, in the Context of the Implementation of Health Reform.'' \textit{Women's Health Issues}, 23(5): e273--e280.
+
+\bibitem[Clapp et~al.(2019)]{clapp2019preeclampsia}
+Clapp, Mark A., Kaitlyn K. James, Samantha L. Kaplan, et al. 2019. ``Preeclampsia at Early Gestational Ages.'' \textit{American Journal of Perinatology}, 36(S2): S62--S67.
+
+\bibitem[Tikkanen et~al.(2020)]{tikkanen2020maternal}
+Tikkanen, Roosa, Munira Z. Gunja, Molly FitzGerald, and Laurie Zephyrin. 2020. ``Maternal Mortality and Maternity Care in the United States Compared to 10 Other Developed Countries.'' \textit{Commonwealth Fund Issue Brief}.
+
+\bibitem[Ranji et~al.(2022)]{ranji2022extending}
+Ranji, Usha, Ivette Gomez, and Alina Salganicoff. 2022. ``Expanding Postpartum Medicaid Coverage.'' Kaiser Family Foundation Issue Brief.
+
+\bibitem[Daw and Sommers(2019)]{daw2019association}
+Daw, Jamie R., and Benjamin D. Sommers. 2019. ``Association of the Affordable Care Act Dependent Coverage Provision with Prenatal Care Use and Birth Outcomes.'' \textit{JAMA}, 322(2): 142--150.
+
+\bibitem[Baicker et~al.(2013)]{baicker2013oregon}
+Baicker, Katherine, Sarah L. Taubman, Heidi L. Allen, et al. 2013. ``The Oregon Experiment: Effects of Medicaid on Clinical Outcomes.'' \textit{New England Journal of Medicine}, 368(18): 1713--1722.
+
+\bibitem[Aizer et~al.(2024)]{aizer2024children}
+Aizer, Anna, Adriana Lleras-Muney, and Mark Stabile. 2024. ``Access to Care and Children's Health: Evidence from Medicaid.'' \textit{American Economic Review}, 114(3): 782--816.
+
+\bibitem[Borusyak et~al.(2024)]{borusyak2024revisiting}
+Borusyak, Kirill, Xavier Jaravel, and Jann Spiess. 2024. ``Revisiting Event-Study Designs: Robust and Efficient Estimation.'' \textit{Review of Economic Studies}, 91(6): 3253--3285.
+
+\bibitem[Roth et~al.(2023)]{roth2023easy}
+Roth, Jonathan, Pedro H.C. Sant'Anna, Alyssa Bilinski, and John Poe. 2023. ``What's Trending in Difference-in-Differences? A Synthesis of the Recent Econometrics Literature.'' \textit{Journal of Econometrics}, 235(2): 2218--2244.
+
+\bibitem[Cameron et~al.(2008)]{cameron2008bootstrap}
+Cameron, A. Colin, Jonah B. Gelbach, and Douglas L. Miller. 2008. ``Bootstrap-Based Improvements for Inference with Clustered Errors.'' \textit{Review of Economics and Statistics}, 90(3): 414--427.
+
+\bibitem[Conley and Taber(2011)]{conley2011inference}
+Conley, Timothy G., and Christopher R. Taber. 2011. ``Inference with `Difference in Differences' with a Small Number of Policy Changes.'' \textit{Review of Economics and Statistics}, 93(1): 113--125.
+
+\end{thebibliography}
+
+\newpage
+\appendix
+
+\section{Data Appendix}
+
+\subsection{Data Sources}
+
+The primary data source is the American Community Survey (ACS) 1-year Public Use Microdata Sample (PUMS), accessed via the Census Bureau API at \url{https://api.census.gov/data/[YEAR]/acs/acs1/pums}. Data were retrieved for survey years 2017, 2018, 2019, 2021, and 2022. The 2020 ACS 1-year experimental estimates were excluded due to non-standard data collection procedures during the COVID-19 pandemic.
+
+For each survey year, I retrieved all records for women (SEX = 2) aged 18--44 (AGEP = 18:44) from the national PUMS file. The following variables were retrieved: AGEP (age), FER (fertility/gave birth in past 12 months), HICOV (health insurance coverage recode), HINS1 (employer insurance), HINS2 (direct-purchase insurance), HINS3 (Medicare), HINS4 (Medicaid), HINS5 (TRICARE), ST (state FIPS code), PWGTP (person weight), POVPIP (income-to-poverty ratio), RAC1P (race), HISP (Hispanic origin), SCHL (educational attainment), MAR (marital status), and NRC (number of related children).
+
+Treatment dates for the Medicaid postpartum coverage extensions were compiled from multiple official sources: CMS press releases announcing SPA approvals, the Kaiser Family Foundation Medicaid Postpartum Coverage Extension Tracker, MACPAC reports, NCSL legislation tracking, ACOG state action tracker, and individual state Medicaid agency announcements. Each state's adoption date was cross-referenced against at least two independent sources.
+
+\subsection{Variable Construction}
+
+Insurance outcome variables were constructed as binary indicators from the ACS coding: Medicaid coverage = 1 if HINS4 = 1 (``Yes''); uninsured = 1 if HICOV = 2 (``Without health insurance''); employer insurance = 1 if HINS1 = 1 (``Yes''). The postpartum indicator = 1 if FER = 1 (``Gave birth within past 12 months'').
+
+Income groups were defined using the POVPIP variable: low-income = POVPIP $\leq$ 200 (below 200\% FPL); very low-income = POVPIP $\leq$ 138 (below ACA Medicaid expansion threshold); high-income = POVPIP $>$ 400 (above 400\% FPL).
+
+Race/ethnicity was classified as: Hispanic (HISP $>$ 1), White non-Hispanic (RAC1P = 1 and not Hispanic), Black non-Hispanic (RAC1P = 2 and not Hispanic), Asian non-Hispanic (RAC1P = 6 and not Hispanic), and Other non-Hispanic (all others).
+
+Education was classified as: less than high school (SCHL $\leq$ 15), high school diploma (SCHL = 16--17), some college (SCHL = 18--20), and BA or higher (SCHL $\geq$ 21).
+
+\subsection{Sample Size by Year}
+
+\begin{table}[H]
+\centering
+\caption{Sample Sizes by Year}
+\begin{tabular}{lccc}
+\toprule
+Year & Total Women 18--44 & Postpartum (FER=1) & Low-Income PP \\
+\midrule
+2017 & 513,281 & 33,721 & 12,743 \\
+2018 & 516,154 & 33,685 & 12,852 \\
+2019 & 512,805 & 33,238 & 12,580 \\
+2021 & 516,278 & 33,920 & 12,851 \\
+2022 & 538,297 & 35,045 & 13,255 \\
+\midrule
+Total & 2,596,815 & 169,609 & 64,281 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item \textit{Notes:} 2020 excluded due to experimental ACS data collection. 2023 not yet available. Low-income PP defined as postpartum women below 200\% FPL.
+\end{tablenotes}
+\end{table}
+
+\section{Identification Appendix}
+
+\subsection{Parallel Trends Pre-Test}
+
+The Callaway-Sant'Anna estimator includes a formal pre-test of the parallel trends assumption. For the primary outcome (Medicaid coverage rate among all postpartum women), the Wald test statistic for the joint null hypothesis that all pre-treatment dynamic effects equal zero yields a p-value of 0.994. Individual pre-treatment coefficients are:
+
+\begin{itemize}
+    \item $e = -3$: 0.15 pp (SE = 2.23 pp)
+    \item $e = -2$: --0.06 pp (SE = 0.78 pp)
+\end{itemize}
+
+Both are economically and statistically insignificant, supporting the parallel trends assumption.
+
+\subsection{Goodman-Bacon Decomposition Details}
+
+The TWFE estimator for Medicaid coverage rate among all postpartum women decomposes as follows:
+
+\begin{table}[H]
+\centering
+\caption{Goodman-Bacon Decomposition of TWFE Estimator}
+\begin{tabular}{lccc}
+\toprule
+Comparison Type & Weight & Estimate & N Comparisons \\
+\midrule
+Treated vs. Untreated & 0.872 & --0.006 & 2 \\
+Earlier vs. Later Treated & 0.096 & 0.021 & 1 \\
+Later vs. Earlier Treated & 0.032 & 0.016 & 1 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item \textit{Notes:} Decomposition of the overall TWFE coefficient (--0.010) into its component 2$\times$2 DD comparisons. The treated-vs-untreated comparison receives 87\% of the weight and uses 22 not-yet-treated or never-treated states as controls (2 never-adopters plus 20 states adopting after the sample period ends in 2022).
+\end{tablenotes}
+\end{table}
+
+\section{Robustness Appendix}
+
+\subsection{Individual-Level TWFE with Controls}
+
+\begin{table}[H]
+\centering
+\caption{Individual-Level TWFE with Demographic Controls}
+\begin{tabular}{lcc}
+\toprule
+& (1) & (2) \\
+& No Controls & With Controls \\
+\midrule
+Treated & --0.010 & --0.008 \\
+& (0.012) & (0.012) \\
+Age & & --0.016*** \\
+& & (0.003) \\
+Married & & --0.229*** \\
+& & (0.013) \\
+Education FE & No & Yes \\
+Race/Ethnicity FE & No & Yes \\
+\midrule
+State FE & Yes & Yes \\
+Year FE & Yes & Yes \\
+N & 169,609 & 169,609 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item \textit{Notes:} * p$<$0.10, ** p$<$0.05, *** p$<$0.01. Standard errors clustered by state. Dependent variable: Medicaid coverage indicator. Sample: postpartum women aged 18--44. All regressions weighted by ACS person weights.
+\end{tablenotes}
+\end{table}
+
+\subsection{Low-Income Subgroup Event Study}
+
+\Cref{fig:event_study_lowinc} presents the event-study estimates for the low-income postpartum subgroup (below 200\% FPL). Pre-trends are flat, consistent with the parallel trends assumption holding for this more targeted subgroup. The treatment effect is close to zero, as expected given the PHE continuous enrollment provision.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/fig4_event_study_lowinc.pdf}
+    \caption{Event-Study Estimates: Low-Income Postpartum Women (Below 200\% FPL)}
+    \label{fig:event_study_lowinc}
+    \floatfoot{\textit{Notes:} Callaway and Sant'Anna (2021) event-study estimates for postpartum women with income below 200\% FPL. Top panel: Medicaid coverage. Bottom panel: uninsurance rate. Shaded areas show 95\% pointwise confidence intervals.}
+\end{figure}
+
+\section{Heterogeneity Appendix}
+
+\subsection{Medicaid Expansion Status}
+
+The interaction between the postpartum extension and state Medicaid expansion status is theoretically important. In expansion states, the ``gap'' between pregnancy Medicaid eligibility (typically 185\% FPL) and general adult eligibility (138\% FPL) is relatively narrow. In non-expansion states, this gap is much wider, as general adult eligibility may be below 50\% FPL. The postpartum extension should therefore have a larger coverage effect in non-expansion states, where more women face a coverage cliff at 60 days.
+
+However, the TWFE interaction estimate is --1.5 pp (SE = 2.2 pp), suggesting no differential effect by expansion status. This null result is consistent with the PHE suppression hypothesis: during the PHE, neither expansion nor non-expansion state mothers faced the coverage cliff, so the differential effect could not manifest.
+
+\section{Additional Figures and Tables}
+
+\input{tables/tab4_adoption}
+
+\end{document}

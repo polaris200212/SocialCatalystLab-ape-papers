@@ -1,0 +1,713 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\sisetup{detect-all=true, group-separator={,}, group-minimum-digits=4}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\sym}[1]{\ifmmode^{#1}\else\(^{#1}\)\fi}
+
+\title{How Full Practice Authority Affects Physician Office Employment: \\ Evidence from State Scope-of-Practice Laws}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. Paper produced by Claude Code. Correspondence: scl@econ.uzh.ch} \\ @anonymous}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+This paper examines whether the expansion of nurse practitioner (NP) scope of practice affects employment in physician offices. Using administrative data from the Quarterly Census of Employment and Wages (QCEW) on NAICS 6211 (Offices of Physicians) for 2014-2024 and a staggered difference-in-differences design exploiting variation in state adoption of Full Practice Authority (FPA) laws between 2015 and 2023, I find that FPA adoption is associated with a 1.9 percent reduction in physician office employment, though this effect is not statistically significant at conventional levels (p = 0.09). The Callaway-Sant'Anna estimator reveals substantial heterogeneity across adoption cohorts: the 2017 cohort experienced significant employment declines of 2.9 percent, while the most recent adopter (2023, Utah) shows a significant positive effect of 1.8 percent, though this cohort has limited post-treatment data. Event study estimates show no evidence of differential pre-trends, supporting the parallel trends assumption. These findings suggest that FPA effects on physician office employment are economically small, vary considerably by context and time horizon, and may differ systematically between early and late adopters. The results contribute to ongoing policy debates about NP scope of practice by providing the first evidence on labor market responses in physician practice settings.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} I11, I18, J44, K31 \\
+\noindent\textbf{Keywords:} nurse practitioners, scope of practice, Full Practice Authority, physician offices, healthcare workforce, QCEW
+
+\newpage
+
+\section{Introduction}
+
+The United States faces persistent geographic disparities in access to primary care providers, with over 100 million Americans living in areas designated as Health Professional Shortage Areas \citep{hrsa2023}. One policy response has been to expand the scope of practice for advanced practice registered nurses, particularly nurse practitioners (NPs), who can provide many of the same services as primary care physicians. Between 2014 and 2024, over a dozen states adopted Full Practice Authority (FPA) laws that allow NPs to practice independently without physician oversight.
+
+Proponents of FPA argue that removing practice restrictions increases healthcare access, particularly in underserved areas, by allowing NPs to establish practices where physician collaboration requirements would be prohibitive \citep{iom2010}. Critics, primarily physician organizations, contend that FPA undermines team-based care and potentially reduces quality, though systematic evidence of quality impacts remains limited \citep{ama2019}. Missing from this debate is an understanding of how FPA laws affect employment in physician practice settings. If NPs and physicians are substitutes in primary care production, FPA adoption could reduce demand for services in physician offices and potentially alter staffing patterns.
+
+This paper provides the first systematic examination of how Full Practice Authority laws affect employment in physician offices. Using administrative employment data from the Bureau of Labor Statistics Quarterly Census of Employment and Wages (QCEW) for NAICS code 6211 (Offices of Physicians) and a staggered difference-in-differences design, I estimate the causal effect of FPA adoption on state-level employment in physician offices. This industry category captures all workers employed in physician office settings---including physicians, nurses, medical assistants, and administrative staff. The identification strategy exploits variation in the timing of FPA adoption across states, comparing changes in physician office employment in newly-adopting states to changes in states that maintained restrictive practice laws.
+
+My main finding is that FPA adoption is associated with a 1.9 percent reduction in physician office employment, though this effect is not statistically significant at the 5 percent level (p = 0.09). To address concerns about heterogeneous treatment effects and ``forbidden comparisons'' in staggered adoption settings, I implement the Callaway and Sant'Anna (2021) estimator, which allows for cohort-specific treatment effects. This reveals substantial heterogeneity: states adopting FPA in 2017 experienced statistically significant employment reductions of 2.9 percent, while more recent adopters show positive or insignificant effects.
+
+Event study estimates provide strong support for the identifying assumption of parallel trends. Pre-treatment coefficients are small, of mixed sign, and jointly insignificant, indicating that FPA-adopting states were not on differential employment trajectories prior to adoption. The post-treatment trajectory shows a gradual decline in physician office employment that becomes more pronounced 5-7 years after FPA adoption, consistent with a competitive adjustment process.
+
+These findings contribute to several literatures. First, I add to the extensive research on NP scope of practice laws, which has primarily examined effects on NP labor supply, healthcare access, and patient outcomes \citep{kleiner2016, traczynski2018, yang2021}. By documenting employment responses in physician practice settings, I provide evidence on a channel that has been hypothesized but not empirically examined. Second, I contribute to the economics of occupational licensing, demonstrating that scope-of-practice regulations affect employment patterns in related industries \citep{kleiner2006}. Third, my findings inform ongoing state and federal debates about NP practice authority by providing evidence on labor market adjustments in physician office settings.
+
+An important caveat is that my outcome---employment in NAICS 6211 (Offices of Physicians)---captures all workers in physician office settings, not just physicians. The QCEW does not separate employment by occupation within an industry. Therefore, observed employment changes could reflect adjustments in physician staffing, support staff, or both. Moreover, any shift of physician services from office settings to hospitals or other facilities would appear as a reduction in NAICS 6211 employment even if total physician employment remains unchanged.
+
+The remainder of the paper proceeds as follows. Section 2 reviews the related literature. Section 3 provides institutional background on NP practice authority and documents the pattern of FPA adoption across states. Section 4 describes the data and sample construction. Section 5 presents the empirical strategy. Section 6 reports the main results, robustness checks, and heterogeneity analyses. Section 7 discusses the findings and their policy implications. Section 8 concludes.
+
+\section{Related Literature}
+
+This paper contributes to three strands of the economics literature: the effects of nurse practitioner scope-of-practice laws, the economics of occupational licensing, and the econometrics of staggered difference-in-differences designs.
+
+\subsection{Nurse Practitioner Scope of Practice}
+
+A substantial literature examines how NP scope-of-practice regulations affect healthcare markets. \cite{kleiner2016} find that relaxing NP supervision requirements increases NP wages and reduces prices for routine medical services, consistent with a competitive labor market model where scope-of-practice restrictions create artificial barriers to entry. \cite{traczynski2018} show that NP independence increases healthcare utilization, particularly for preventive care, without evidence of adverse quality effects. These findings suggest that FPA laws may expand the market for NP services, potentially creating competitive pressure on physician practices.
+
+Several studies examine the labor supply effects of scope-of-practice laws. \cite{yang2021} document that FPA increases the NP-to-population ratio, with effects concentrated in rural areas with pre-existing healthcare shortages. \cite{markowitz2017} find that the Affordable Care Act increased demand for NPs, particularly in states with less restrictive practice environments. These supply-side responses suggest that FPA expands the availability of NP services, which could affect demand for physician services through substitution.
+
+Research on health outcomes provides mixed evidence on whether NP-delivered care differs from physician-delivered care. Meta-analyses of randomized trials generally find comparable outcomes for routine primary care services \citep{naylor2010}, supporting the view that NPs and physicians are close substitutes for many services. However, physician organizations argue that differences in training and scope may matter for complex cases, and that collaborative practice models optimize patient care.
+
+Notably absent from this literature is evidence on how FPA affects physician employment. While several studies examine NP labor supply responses, the physician side of the market has received less attention. This paper addresses this gap by examining whether FPA adoption affects employment in physician office settings.
+
+\subsection{Economics of Occupational Licensing}
+
+The broader literature on occupational licensing provides theoretical frameworks for understanding how scope-of-practice regulations affect labor markets. \cite{kleiner2006} shows that licensing restrictions generally benefit incumbents by limiting competition, potentially raising prices and reducing access. Applied to healthcare, physician scope-of-practice protections may limit NP competition, maintaining higher demand for physician services than would prevail in an unrestricted market.
+
+The licensing literature distinguishes between ``right to practice'' regulations, which determine who can enter an occupation, and ``scope of practice'' regulations, which determine what licensed practitioners can do. NP scope-of-practice laws operate on the second margin: NPs are licensed in all states, but their permitted activities vary. \cite{kleiner2016} show that scope-of-practice restrictions function similarly to entry restrictions in limiting effective labor supply.
+
+Labor market competition between occupational groups has been studied in other contexts. \cite{kalist2010} examine competition between registered nurses and licensed practical nurses, finding that licensing restrictions affect wage differentials and employment patterns. The physician-NP relationship is analogous but involves higher-skilled workers and more significant service overlap.
+
+\subsection{Econometrics of Staggered Difference-in-Differences}
+
+This paper employs recently developed econometric methods for causal inference with staggered treatment adoption. \cite{goodmanbacon2021} demonstrates that traditional two-way fixed effects (TWFE) estimators can produce biased estimates when treatment effects vary across cohorts or over time. The bias arises from ``forbidden comparisons'' that use already-treated units as controls for later-treated units.
+
+Several alternative estimators have been proposed to address this problem. \cite{callaway2021} develop an estimator that computes cohort-specific treatment effects using only never-treated or not-yet-treated units as controls, then aggregates these to summary measures. \cite{sun2021} propose an interaction-weighted estimator that properly accounts for heterogeneous effects. \cite{borusyak2021} develop an imputation-based approach. These methods share the property of avoiding forbidden comparisons while allowing for treatment effect heterogeneity.
+
+I implement the Callaway and Sant'Anna (2021) estimator because it provides a natural framework for examining heterogeneity across adoption cohorts and event time, which is relevant given the sequential nature of FPA adoption. The estimator also produces event-study-style dynamic effects that can assess the parallel trends assumption and characterize how effects evolve post-treatment.
+
+\section{Institutional Background and Policy Setting}
+
+\subsection{Nurse Practitioner Practice Authority}
+
+Nurse practitioners are advanced practice registered nurses who complete graduate-level education and clinical training, qualifying them to diagnose conditions, develop treatment plans, prescribe medications, and provide primary care. The scope of NP practice is determined by state law and varies substantially across jurisdictions.
+
+The National Council of State Boards of Nursing classifies state practice environments into three categories based on the level of physician involvement required:
+
+\textit{Full Practice Authority (FPA):} NPs can evaluate patients, diagnose conditions, order and interpret diagnostic tests, and initiate treatment including prescribing controlled substances without ongoing physician oversight or collaboration requirements. Some states implement FPA with transition periods for new NPs, after which full independent practice is permitted. This is the model recommended by the Institute of Medicine (2010) and the National Council of State Boards of Nursing.
+
+\textit{Reduced Practice:} State law requires a career-long regulated collaborative agreement with a physician for NPs to provide patient care, or limits one or more elements of NP practice.
+
+\textit{Restricted Practice:} State law requires supervision, delegation, or team management by physicians for NPs to provide patient care.
+
+\subsection{Full Practice Authority Adoption}
+
+The movement toward FPA has accelerated substantially since 2010, when the Institute of Medicine recommended that states remove barriers to NP practice. Table \ref{tab:adoption} presents the timeline of FPA adoption for states in my analysis sample.
+
+\begin{table}[H]
+\centering
+\caption{Full Practice Authority Adoption Dates (Treatment Cohorts)}
+\label{tab:adoption}
+\begin{threeparttable}
+\begin{tabular}{llc}
+\toprule
+State & Year & Post-Treatment Years \\
+\midrule
+Maryland (MD) & 2015 & 10 \\
+Nebraska (NE) & 2015 & 10 \\
+South Dakota (SD) & 2017 & 8 \\
+Massachusetts (MA) & 2021 & 4 \\
+Delaware (DE) & 2021 & 4 \\
+New York (NY) & 2022 & 3 \\
+Kansas (KS) & 2022 & 3 \\
+Utah (UT) & 2023 & 2 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: Treatment cohorts in the analysis sample (2015-2023 adopters). States adopting FPA 2014 or earlier are excluded due to lack of pre-treatment data. Post-treatment years = number of years from adoption year through 2024 inclusive (e.g., 2015 through 2024 = 10 years). Treatment indicator $D_{st} = \mathbb{I}[t \geq G_s]$ includes the adoption year.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Early adopters include Alaska, Oregon, Washington, and New Hampshire, which established FPA in the late 1980s or early 1990s. A second wave of adoption occurred around 2000, including Arizona, Hawaii, and Idaho. More recent adopters include Maryland and Nebraska (2015), South Dakota (2017), Massachusetts and Delaware (2021), and New York and Kansas (2022). Utah adopted FPA in 2023.
+
+As of 2024, 27 states plus the District of Columbia have adopted FPA (see Table \ref{tab:adoption_full} for complete list). The remaining 23 states maintain either reduced or restricted practice environments, with large states like California, Florida, Texas, and Pennsylvania among those requiring physician involvement.
+
+\subsection{Mechanisms: Why FPA Might Affect Physician Office Employment}
+
+Economic theory suggests several channels through which FPA could affect employment in physician offices. Understanding these mechanisms is important both for interpreting the empirical results and for policy design.
+
+The most direct mechanism is \textit{service substitution}. If NPs can independently provide services that previously required physician involvement, some patients may shift from physician offices to NP-led practices. This substitution is most relevant for primary care services, where substantial overlap exists between NP and physician capabilities. Research suggests that NPs can provide equivalent care for routine primary care visits, management of chronic conditions, and preventive services. To the extent that FPA enables NPs to capture this market share, demand for physician office services may decline. The magnitude of this effect depends on the degree of substitutability between NP and physician services in the relevant patient population.
+
+A second mechanism operates through \textit{practice location decisions}. Under restricted or reduced practice regimes, NPs who wish to practice must either work under physician supervision or establish collaborative agreements with physicians. These requirements may be particularly binding in rural or underserved areas where physicians are scarce. FPA removes this constraint, enabling NPs to establish independent practices in areas that previously lacked sufficient physician presence for supervisory arrangements. This geographic expansion of NP practice could reduce demand for physician office services in affected areas, or alternatively could serve previously unmet demand without affecting physician practices.
+
+The \textit{reallocation of support staff} represents a third channel. Physician offices employ not only physicians but also nurses, medical assistants, billing specialists, receptionists, and other support personnel. If FPA leads to the creation of NP-led practices, some of these support workers may shift from physician offices to NP practices. Since my outcome measure (NAICS 6211 employment) captures all workers in physician offices, such reallocation would appear as a reduction in physician office employment even if the total healthcare workforce remains unchanged. This compositional effect is important to consider when interpreting the results.
+
+Fourth, FPA may affect \textit{organizational structure and practice consolidation}. Large healthcare systems, hospitals, and retail clinics may respond to FPA by substituting NP-led care for physician-led care in certain service lines. This organizational response could reduce physician hiring or lead to practice consolidation, affecting both physician employment and support staff positions in traditional physician office settings.
+
+However, several mechanisms could lead FPA to have no effect or even increase physician office employment. If NP and physician services are \textit{complements rather than substitutes}, FPA could increase overall healthcare production. Under this view, FPA enables a more efficient division of labor: NPs handle routine care while physicians focus on complex cases requiring their specialized training. This specialization could increase the productivity of physician offices and potentially increase demand for physician services.
+
+Alternatively, FPA may primarily address \textit{unmet demand} for healthcare services. If the marginal patients served by newly independent NPs are those who previously went without care, rather than patients diverted from physician practices, the competitive effect on physician offices would be minimal. This scenario is more likely in underserved areas with substantial unmet healthcare needs.
+
+Finally, \textit{geographic and demographic segmentation} may limit competition between NPs and physicians. If NPs and physicians serve different patient populations---for example, if NPs disproportionately serve rural, low-income, or Medicaid patients while physicians serve suburban, higher-income, or commercially insured patients---the degree of direct competition may be limited regardless of scope-of-practice regulations.
+
+The empirical analysis that follows cannot directly test these mechanisms, as my data do not distinguish between types of workers within physician offices or track patient flows between practice types. However, the pattern of results---particularly the heterogeneity across adoption cohorts and time since adoption---may provide indirect evidence on which mechanisms are most important.
+
+\subsection{Political Economy of FPA Adoption}
+
+The timing of FPA adoption is not random, and understanding the political economy of adoption is relevant for assessing the credibility of the identification strategy. States adopt FPA through a political process that involves lobbying by interested parties, legislative negotiation, and often compromise provisions.
+
+Physician organizations, particularly state medical associations, have historically opposed FPA on grounds of patient safety and care quality. These organizations argue that physician oversight ensures appropriate management of complex cases and provides a safety net for inexperienced NPs. NP organizations counter that collaboration requirements are unnecessary for experienced practitioners and primarily serve to protect physician market share.
+
+The pattern of FPA adoption suggests several factors influence state decisions. Smaller, more rural states with greater healthcare access challenges have been more likely to adopt FPA, potentially reflecting the salience of access concerns in these states. States with stronger NP associations or weaker physician lobbies may also be more likely to adopt. Political factors, including partisan composition of state legislatures, may play a role.
+
+For identification purposes, the key question is whether FPA adoption responds to physician office employment trends. If states adopt FPA in response to declining physician employment, this would confound the causal interpretation of post-adoption employment changes. I address this concern in several ways: examining pre-treatment trends in the event study, documenting that FPA advocacy focuses on access and NP autonomy rather than physician labor market conditions, and conducting robustness checks excluding recent adopters where anticipatory effects might be strongest.
+
+\section{Data}
+
+\subsection{Physician Office Employment Data}
+
+I obtain employment data from the Bureau of Labor Statistics Quarterly Census of Employment and Wages (QCEW). The QCEW provides a comprehensive count of employment and wages for workers covered by state unemployment insurance programs, covering approximately 95 percent of U.S. jobs.
+
+I focus on NAICS code 6211, ``Offices of Physicians,'' which includes establishments of health practitioners having the degree of M.D. (Doctor of Medicine) or D.O. (Doctor of Osteopathy) primarily engaged in the independent practice of general or specialized medicine or surgery. Importantly, this industry classification captures \textit{all workers} employed in physician office settings---not just physicians themselves but also nurses, medical assistants, billing specialists, and administrative staff. The QCEW does not provide occupational breakdowns within industries.
+
+This outcome is relevant because (1) if FPA reduces demand for physician services, we would expect overall employment in physician offices to decline; (2) if NP-led practices substitute for physician-led practices, there may be a shift in where healthcare workers are employed; and (3) physician office employment is the margin most directly affected by changes in the competitive position of physician practices relative to NP practices.
+
+The QCEW data are available at the state-year level for 2014-2024, providing 11 years of annual employment observations. The main outcome variable is the natural logarithm of average annual employment in physician offices (NAICS 6211), which allows interpretation of regression coefficients as approximate percentage changes.
+
+\subsection{Measurement Considerations}
+
+Several measurement considerations are important for interpreting the analysis. First, NAICS 6211 captures a broad category that includes both primary care and specialty physician offices. FPA laws are most relevant for primary care, where NPs and physicians have the greatest overlap in scope of practice. Specialty practices---such as cardiology, orthopedics, or surgery---are less likely to face direct competition from NPs. The aggregation across practice types may attenuate estimated effects if FPA primarily affects primary care practices while specialty practices are largely unaffected.
+
+Second, the boundary between NAICS 6211 (Offices of Physicians) and other healthcare industries is determined by establishment classification, not by services provided. Physicians who work as employees of hospitals (NAICS 622) or outpatient care centers (NAICS 6214) are not counted in NAICS 6211. Changes in organizational structure---such as hospitals acquiring physician practices or physicians transitioning from independent practice to hospital employment---would appear as changes in NAICS 6211 employment even absent any change in the total physician workforce. This organizational margin may be particularly relevant if physician practices respond to increased NP competition by merging with larger health systems that offer economies of scale or market power.
+
+Third, the QCEW captures employment of workers covered by unemployment insurance, which excludes self-employed individuals. Physicians who own and operate solo practices as self-employed individuals are not counted in the establishment's employment figures. However, most physician practices have at least some employees (nurses, medical assistants, billing staff), so solo practitioners operating entirely without employees are rare. The self-employment exclusion is more relevant for NP employment: NPs opening independent practices under FPA may operate as self-employed individuals, particularly in the early stages of practice development. This measurement limitation means that NP-led practice formation may be undercounted relative to physician office employment.
+
+Fourth, the annual frequency of QCEW data may miss within-year dynamics. Employment adjustments may occur gradually throughout the year, and annual averages smooth over seasonal variation. For policy analysis focused on medium-term and long-term effects, annual data are generally appropriate, but short-term adjustment dynamics cannot be examined.
+
+\subsection{FPA Adoption Dates}
+
+I compile FPA adoption dates from multiple sources, including the American Association of Nurse Practitioners (AANP) State Practice Environment classifications, the Campaign for Action tracking of state legislation, and academic sources including DePriest et al. (2020). Adoption dates reflect the effective date of legislation granting full practice authority, not the date of legislative passage.
+
+A classification challenge arises for states that implemented FPA with transition periods. Following the Campaign for Action, I code states as adopting FPA when legislation permits NPs to practice independently after completing any required transition period. For example, New York's 2022 reform eliminated the written collaborative agreement requirement and permits independent practice after 3,600 hours of supervised practice. I code this as FPA adoption based on the legislation's intent and ultimate effect, recognizing that some NPs gain full independence immediately (those with prior experience) while others complete a transition. I conduct robustness checks excluding recent (2021+) adopters to address potential classification ambiguity from transition provisions.
+
+For states that adopted FPA prior to my sample period (2014), I classify them as ``always-treated'' and exclude them from the difference-in-differences analysis, as I cannot observe pre-treatment outcomes. The analysis sample includes states adopting FPA between 2015 and 2023, plus states that maintained restrictive practice laws throughout the sample period (the ``never-treated'' control group).
+
+\subsection{Sample Construction}
+
+The analysis sample consists of 31 states observed annually from 2014 to 2024 (341 state-year observations). This includes:
+\begin{itemize}
+    \item 8 states that adopted FPA during the sample period (2015-2023): Maryland, Nebraska, South Dakota, Massachusetts, Delaware, New York, Kansas, and Utah
+    \item 23 states that maintained reduced or restricted practice laws throughout the sample period, serving as the control group
+\end{itemize}
+
+States that adopted FPA 2014 or earlier are excluded because they lack pre-treatment data within the available QCEW series.
+
+\subsection{Summary Statistics}
+
+Table \ref{tab:sumstats} presents summary statistics for the analysis sample, comparing states that eventually adopted FPA (treatment group) with states that maintained restrictive practice laws (control group).
+
+\begin{table}[H]
+\centering
+\caption{Summary Statistics by FPA Status}
+\label{tab:sumstats}
+\begin{threeparttable}
+\begin{tabular}{l S[table-format=6.0] S[table-format=6.0] S[table-format=6.0]}
+\toprule
+Variable & {FPA States} & {Non-FPA States} & {Difference} \\
+\midrule
+Physician Office Employment (Mean) & 28023 & 82033 & -54010 \\
+Establishments (Mean) & 2092 & 7090 & -4998 \\
+Average Weekly Wage & 1894 & 1788 & 106 \\
+Healthcare Sector Emp (Mean) & 198471 & 585124 & -386653 \\
+N (States) & 8 & 23 & {--15} \\
+N (State-Years) & 88 & 253 & {--165} \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: Sample includes states observed 2014-2024. FPA States are those that adopted Full Practice Authority during the sample period (2015-2023). Non-FPA States maintained reduced or restricted practice laws throughout. Differences reflect composition of treatment vs. control group, not treatment effects.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+FPA-adopting states tend to be smaller than non-adopting states, with lower baseline physician office employment and fewer healthcare establishments. This reflects the pattern of FPA adoption, which has been more common in smaller, often more rural states. The difference in wages is modest, with FPA states having slightly higher average weekly wages in physician offices.
+
+\section{Empirical Strategy}
+
+\subsection{Identification and Assumptions}
+
+I exploit the staggered adoption of Full Practice Authority laws across states to identify the causal effect of FPA on employment in physician offices. The identifying assumption is that, absent FPA adoption, physician office employment in treated states would have evolved similarly to employment in control states (parallel trends).
+
+Formally, let $Y_{st}$ denote log physician office employment (NAICS 6211) in state $s$ at time $t$, let $G_s$ denote the year state $s$ adopted FPA (with $G_s = 0$ for never-treated states), and let $D_{st} = \ind[t \geq G_s]$ indicate post-treatment periods. The standard two-way fixed effects (TWFE) specification is:
+\begin{equation}
+Y_{st} = \alpha_s + \gamma_t + \tau D_{st} + \varepsilon_{st}
+\end{equation}
+where $\alpha_s$ and $\gamma_t$ are state and year fixed effects, and $\tau$ is the treatment effect of interest.
+
+However, recent econometric research has shown that TWFE estimators can be biased in staggered adoption settings when treatment effects vary across cohorts or over time \citep{goodmanbacon2021, callaway2021, sun2021}. In particular, TWFE can assign negative weights to some treatment effects, using already-treated units as implicit controls for later-treated units (``forbidden comparisons'').
+
+\subsection{Callaway-Sant'Anna Estimator}
+
+To address these concerns, I implement the Callaway and Sant'Anna (2021) estimator, which produces cohort-specific average treatment effects on the treated (ATT). For each treatment cohort $g$ (defined by adoption year) and time period $t$, the estimator computes:
+\begin{equation}
+ATT(g,t) = \E[Y_t - Y_{g-1} | G = g] - \E[Y_t - Y_{g-1} | G = 0]
+\end{equation}
+where $G = 0$ indicates never-treated units used as the control group.
+
+This approach has several advantages: (1) it uses only never-treated units as controls, avoiding forbidden comparisons; (2) it allows for unrestricted treatment effect heterogeneity across cohorts and event time; (3) it produces event-study-style dynamic effects that can be aggregated to overall treatment effects.
+
+I aggregate the group-time ATTs in several ways:
+\begin{itemize}
+    \item \textit{Simple ATT:} Weighted average across all post-treatment group-time effects
+    \item \textit{Group-specific ATT:} Average treatment effect for each adoption cohort
+    \item \textit{Dynamic ATT:} Average treatment effect at each event time (years relative to adoption)
+\end{itemize}
+
+Standard errors are clustered at the state level to account for serial correlation in outcomes within states.
+
+\subsection{Threats to Validity}
+
+\textit{Endogenous adoption:} A key concern is that states may adopt FPA in response to physician labor market conditions. For example, states experiencing physician shortages might be more likely to adopt FPA as a remedy, which would bias estimates toward finding negative effects even if FPA had no causal impact.
+
+I address this concern in several ways. First, I examine pre-treatment trends in the event study specification. If FPA adoption were driven by declining physician employment, we would expect to see negative coefficients in periods prior to adoption. Second, I document that the policy debate around FPA adoption has primarily centered on healthcare access and NP autonomy, not physician labor market conditions.
+
+\textit{Differential trends:} The parallel trends assumption requires that physician office employment would have evolved similarly in treated and control states absent FPA adoption. While untestable, I assess its plausibility by examining pre-treatment trends and testing whether control states differ systematically from treated states on observable characteristics.
+
+\textit{Anticipation effects:} Physicians may respond to FPA legislation before it takes effect, either through early practice changes or anticipatory migration. To address this, I use effective dates rather than passage dates and examine whether pre-treatment coefficients show evidence of anticipation.
+
+\textit{Spillover effects:} FPA adoption in one state could affect employment in neighboring states through cross-border practice or migration. If NPs in states without FPA move to FPA states, this could reduce NP supply (and potentially increase demand for physician services) in non-FPA states, biasing control group outcomes. Conversely, if physician office workers migrate away from FPA states, this would overstate employment losses. The geographic scope of such spillovers is likely limited for most healthcare workers, who face substantial moving costs and local labor market attachments. However, states with major metropolitan areas spanning state borders (e.g., the Washington D.C. area for Maryland) may be more susceptible to cross-border effects.
+
+\subsection{Statistical Inference}
+
+Standard errors are clustered at the state level to account for serial correlation in outcomes within states and the state-level treatment assignment. With 31 states in the analysis sample (8 treated, 23 control), the number of clusters is sufficient for cluster-robust inference, though finite-sample corrections may be relevant.
+
+The Callaway-Sant'Anna estimator produces confidence intervals and p-values based on an analytical approximation to the large-sample distribution of the estimator. For the simple aggregate ATT, the estimator computes a weighted average of group-time ATTs, with inference accounting for the estimation uncertainty in each component. The dynamic aggregation and group-specific aggregations similarly account for estimation uncertainty through the variance-covariance matrix of the underlying group-time estimates.
+
+A potential concern is that with only 8 treated states, inference based on asymptotic theory may be unreliable. Wild cluster bootstrap methods have been developed to improve finite-sample inference with few treated clusters. As a robustness check, I compare the clustered standard errors to heteroskedasticity-robust standard errors without clustering. The HC1 standard errors are smaller than the clustered estimates, suggesting that the main results are conservative and that serial correlation is a meaningful concern in these data.
+
+\subsection{Estimand and External Validity}
+
+The target estimand is the average treatment effect on the treated (ATT): the effect of FPA adoption on physician office employment in states that actually adopted FPA. This estimand is directly policy-relevant for evaluating the consequences of past adoption decisions and for predicting effects in states considering FPA.
+
+However, external validity to states that have not adopted FPA is uncertain. States that adopted FPA during the sample period (2015-2023) may differ systematically from states that maintained restrictive practice laws. In particular, FPA-adopting states tend to be smaller and more rural, potentially facing different healthcare market conditions than large non-adopting states like California, Texas, and Florida. Effects estimated from the 8 treated states in my sample may not generalize to these different contexts.
+
+Two considerations support cautious generalization. First, the heterogeneity analysis examines whether effects differ by state characteristics (baseline healthcare intensity), providing some evidence on how context moderates treatment effects. Second, the inclusion of large states in recent adoption cohorts (New York in 2022) provides some evidence on effects outside the rural small-state context, though these cohorts have limited post-treatment data.
+
+\section{Results}
+
+\subsection{Main Results}
+
+Table \ref{tab:main} presents the main results. Column (1) reports the simple ATT from the Callaway-Sant'Anna estimator. FPA adoption is associated with a 1.9 percent reduction in physician office employment ($\tau$ = -0.0185, SE = 0.0109). This effect is marginally significant (p = 0.09) and economically modest---states adopting FPA experience physician office employment growth approximately 2 percentage points lower than they would have experienced absent adoption.
+
+\begin{table}[H]
+\centering
+\caption{Effect of FPA Adoption on Physician Office Employment}
+\label{tab:main}
+\begin{threeparttable}
+\begin{tabular}{lcc}
+\toprule
+& (1) & (2) \\
+& Callaway-Sant'Anna & TWFE \\
+\midrule
+FPA Adoption (ATT) & -0.0185 & -0.0281 \\
+& (0.0109) & (0.0263) \\
+& [0.09] & [0.29] \\
+\\
+State FE & Yes & Yes \\
+Year FE & Yes & Yes \\
+Observations & 341 & 341 \\
+States & 31 & 31 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: Dependent variable is log(physician office employment), NAICS 6211. Column (1) reports the simple aggregate ATT from the Callaway-Sant'Anna estimator using never-treated states as the control group. Column (2) reports traditional TWFE estimates. Standard errors clustered at state level in parentheses. P-values in brackets.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Column (2) presents results from the traditional TWFE specification for comparison. The TWFE point estimate is larger in magnitude (-0.0281) but with a much larger standard error, rendering it statistically insignificant (p = 0.29). The difference between estimators suggests the presence of treatment effect heterogeneity that TWFE fails to properly account for.
+
+\subsection{Event Study Results}
+
+Figure \ref{fig:eventstudy} presents event study estimates from the Callaway-Sant'Anna dynamic aggregation. The figure plots estimated ATT coefficients for each year relative to FPA adoption, along with 95 percent confidence intervals.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig1_event_study.pdf}
+\caption{Event Study: Effect of FPA Adoption on Employment in Offices of Physicians (NAICS 6211)}
+\label{fig:eventstudy}
+\begin{figurenotes}
+Notes: Callaway-Sant'Anna dynamic aggregate ATT estimates. Event time 0 is the year of FPA adoption. Vertical dashed line indicates treatment timing. Shaded area shows 95\% confidence intervals. Standard errors clustered at state level.
+\end{figurenotes}
+\end{figure}
+
+The pre-treatment coefficients (event time -8 to -1) are small in magnitude, of mixed sign, and statistically insignificant, supporting the parallel trends assumption. The mean pre-treatment coefficient is -0.004 and none of the eight pre-treatment coefficients is individually significant at the 5 percent level.
+
+Post-treatment, the coefficients become progressively more negative over time. The effect at event time 0 (adoption year) is close to zero (-0.005), with larger effects emerging 5-7 years post-adoption. The coefficient at event time 7 (-0.047) is the only post-treatment estimate that is statistically significant at the 5 percent level.
+
+This pattern is consistent with a gradual competitive adjustment process. FPA laws may take several years to fully affect physician office employment as NPs establish independent practices, staffing decisions adjust, and market dynamics equilibrate. Several factors could explain this delayed response pattern. First, NPs who gain independent practice authority may require time to accumulate the capital, establish the business relationships, and develop the patient base necessary to open independent practices. The fixed costs of establishing a medical practice---including real estate, equipment, electronic health records systems, and billing infrastructure---represent significant barriers that do not disappear immediately upon gaining legal authority to practice independently.
+
+Second, existing collaborative arrangements and employment relationships do not dissolve overnight. NPs working in physician practices under collaborative agreements may remain in those positions even after FPA adoption, either because they prefer employment to entrepreneurship or because their employment contracts extend beyond the policy change. The gradual separation of NPs from physician practices would produce the slow-building employment effects observed in the data.
+
+Third, patient behavior and referral networks may adjust slowly. Patients accustomed to receiving care from physician practices may continue those relationships even as NP-led alternatives become available. Insurance network development, provider credentialing, and the establishment of reputation in local healthcare markets all take time. The competitive pressure on physician offices from NP-led practices would therefore build gradually as NP practices become established and gain market share.
+
+Fourth, the hiring and staffing decisions of physician practices respond to changes in demand and competitive conditions with lag. Practices facing reduced patient volume may first reduce hours or delay hiring replacement staff before making more substantial workforce adjustments. This labor market friction would spread the employment effects over multiple years following FPA adoption.
+
+\subsection{Heterogeneity by Adoption Cohort}
+
+Table \ref{tab:cohorts} presents cohort-specific ATT estimates. Treatment effects vary substantially across adoption cohorts.
+
+\begin{table}[H]
+\centering
+\caption{Treatment Effects by Adoption Cohort}
+\label{tab:cohorts}
+\begin{threeparttable}
+\begin{tabular}{lccccc}
+\toprule
+Cohort & N (Treated) & ATT & Std. Error & 95\% CI & Significant \\
+\midrule
+2015 (MD, NE) & 2 & -0.018 & 0.016 & [-0.050, 0.012] & No \\
+2017 (SD) & 1 & -0.029 & 0.010 & [-0.049, -0.009] & Yes \\
+2021 (MA, DE) & 2 & -0.035 & 0.026 & [-0.087, 0.018] & No \\
+2022 (NY, KS) & 2 & 0.003 & 0.013 & [-0.022, 0.028] & No \\
+2023 (UT) & 1 & 0.018 & 0.005 & [0.008, 0.028] & Yes \\
+\midrule
+Total Treated & 8 & & & & \\
+Control States & 23 & & & & \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: Callaway-Sant'Anna group-specific ATT estimates. N (Treated) = number of states in cohort. Control group consists of 23 never-treated states. 95\% pointwise confidence intervals based on clustered standard errors at the state level.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+The 2017 cohort (South Dakota) shows a statistically significant negative effect of -2.9 percent, with the most precise standard error among negative estimates. The 2015 and 2021 cohorts also show negative effects but with larger standard errors. The most recent adopters show mixed results: the 2022 cohort (NY, KS) shows near-zero effects, while the 2023 cohort (Utah) shows a significant positive effect of 1.8 percent. However, these recent cohorts have only 1-2 years of post-treatment data, making it difficult to distinguish short-run adjustment patterns from long-run equilibrium effects. The positive effect in Utah may reflect short-run dynamics or state-specific factors rather than a true reversal of the pattern seen in earlier adopters.
+
+This heterogeneity has several potential explanations. First, earlier adopters had more time for effects to accumulate. Second, the composition of adopting states has changed over time, with larger states (New York) adopting more recently. Third, the NP labor market response to FPA may vary with state characteristics.
+
+\subsection{Robustness Checks}
+
+Table \ref{tab:robust} presents results from several robustness checks.
+
+\begin{table}[H]
+\centering
+\caption{Robustness Checks}
+\label{tab:robust}
+\begin{threeparttable}
+\begin{tabular}{lccc}
+\toprule
+Specification & Estimate & Std. Error & N \\
+\midrule
+(1) Main (Callaway-Sant'Anna) & -0.0185 & 0.0109 & 341 \\
+(2) Excluding 2021+ Adopters & -0.014 & 0.013 & 286 \\
+(3) Large States Only & -0.036 & 0.025 & 154 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: All specifications cluster standard errors at the state level. Column (2) excludes states adopting FPA in 2021 or later to focus on cohorts with longer post-treatment periods. Column (3) restricts to states with baseline healthcare employment exceeding 500,000.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Excluding recent adopters (2021 and later), who have limited post-treatment data, produces a somewhat smaller effect (-1.4 percent). Restricting to larger states produces a larger effect (-3.6 percent), though with reduced precision due to smaller sample size.
+
+\subsection{Heterogeneity by State Characteristics}
+
+I examine whether treatment effects vary with baseline state characteristics. Splitting states by baseline physician office intensity (ratio of physician office employment to total healthcare employment), I find that states with lower baseline intensity experience negative effects (-2.0 percent), while high-intensity states show positive but imprecise effects (+4.9 percent, SE = 0.039). This pattern suggests that FPA may have different implications depending on the initial structure of the healthcare workforce.
+
+\section{Discussion}
+
+The results provide suggestive evidence that Full Practice Authority laws modestly reduce employment in physician offices, though the effects are not statistically significant at conventional levels and vary substantially across adoption cohorts. Several aspects of these findings merit discussion.
+
+\subsection{Interpretation}
+
+The magnitude of the main estimate (-1.9 percent) is economically modest. For context, this represents approximately 530 fewer workers employed in physician offices per treated state relative to what would have prevailed absent FPA adoption. Given that the average FPA-adopting state in my sample has roughly 28,000 workers in physician offices, this represents a reduction of less than 2 percent of the physician office workforce. To benchmark this effect size, consider that total employment in physician offices grew by approximately 15 percent nationally over the 2014-2024 period. A 1.9 percent reduction represents a modest slowing of this growth trajectory rather than an absolute contraction in the physician office sector.
+
+Importantly, because the outcome measures all workers in NAICS 6211 (Offices of Physicians)---not just physicians---the employment reduction could reflect fewer physicians, fewer support staff, or some combination. If FPA enables NPs to operate independent practices, we might expect a reallocation of ancillary staff (medical assistants, administrative personnel) from physician offices to NP-led practices. The QCEW data cannot distinguish among these channels. Several scenarios are consistent with the observed effects:
+
+\textit{Scenario A: Direct physician displacement.} FPA enables NPs to capture patients who would otherwise visit physician offices. Physician practices respond by reducing physician hiring or not replacing departing physicians. This scenario implies direct labor market competition between NPs and physicians.
+
+\textit{Scenario B: Support staff reallocation.} FPA enables NPs to establish independent practices that require support staff. Medical assistants, billing specialists, and administrative workers move from physician offices to NP-led practices. Physician staffing is largely unchanged, but total physician office employment declines due to support staff reallocation.
+
+\textit{Scenario C: Practice consolidation.} FPA increases competitive pressure on small physician practices, accelerating consolidation into larger health systems. Physicians shift from independent practice (NAICS 6211) to hospital employment (NAICS 622). Total physician employment is unchanged, but physician office employment declines.
+
+\textit{Scenario D: Mixed effects.} Some combination of the above mechanisms operates, with the relative importance varying by local market conditions, practice size, and specialty.
+
+The data cannot distinguish among these scenarios, but the pattern of results provides some suggestive evidence. The gradual emergence of effects over 5-7 years is more consistent with mechanisms involving slow adjustment (practice establishment, organizational restructuring) than with rapid labor market competition. The heterogeneity by state size and baseline healthcare intensity suggests that market structure matters for how FPA affects employment.
+
+The delayed emergence of effects (5-7 years post-adoption) suggests that the mechanism operates through gradual workforce adjustment. Existing practices may continue operating, while hiring decisions and practice location choices adjust over time. This temporal pattern is inconsistent with immediate displacement effects and more consistent with competitive dynamics that play out as NP-led practices slowly gain market share and build patient bases.
+
+\subsection{Policy Implications}
+
+These findings speak to ongoing debates about NP scope of practice reform at both state and federal levels. Several policy implications emerge from the analysis.
+
+First, the results suggest that concerns about large-scale disruption to physician practice settings from FPA laws may be overstated. Physician organizations have argued that scope-of-practice expansion would undermine team-based care and destabilize physician practices. While I find some evidence of negative effects on employment in physician offices, the magnitudes are economically modest (approximately 2 percent) and take years to materialize. This suggests that the healthcare labor market can absorb scope-of-practice changes without dramatic short-term disruption.
+
+Second, the gradual emergence of effects suggests that policies could be designed to facilitate smooth transitions. If employment adjustments occur slowly over 5-7 years, policymakers concerned about labor market disruption have considerable time to implement complementary policies. Workforce development programs, practice transition assistance, and retraining opportunities could help affected workers adjust to changing market conditions.
+
+Third, the heterogeneity across adoption cohorts implies that context-specific factors matter considerably for policy outcomes. States considering FPA adoption should not expect uniform effects but rather should consider how their particular healthcare market structure, workforce composition, and geographic characteristics might shape the response to scope-of-practice reform. The different patterns observed for early versus late adopters, and for states of different sizes and baseline healthcare intensity, suggest that one-size-fits-all predictions about FPA effects may be misleading.
+
+Fourth, the findings inform federal debates about NP practice authority. The Veterans Health Administration and other federal healthcare systems have periodically considered granting FPA to NPs within their facilities. The modest employment effects observed in state-level data suggest that such federal reforms would be unlikely to produce dramatic disruption to physician staffing patterns, though the particular institutional context of federal healthcare differs from private practice settings.
+
+Fifth, the inability to distinguish physician from support staff employment effects highlights the importance of workforce data infrastructure for policy evaluation. Policymakers considering scope-of-practice reforms would benefit from better occupational employment data at the state level to understand how regulatory changes affect different types of healthcare workers. Investment in healthcare workforce data collection could improve the evidence base for future policy decisions.
+
+\subsection{Limitations}
+
+Several limitations should be noted that affect the interpretation and generalizability of these findings.
+
+First, and most importantly, the outcome variable---NAICS 6211 employment---measures all workers in physician offices, not physicians specifically. The QCEW provides industry-level employment but not occupational breakdowns within industries. Therefore, observed effects could reflect changes in physician employment, support staff employment, or both. If NPs opening independent practices hire medical assistants and administrative staff away from physician offices, this would appear as a reduction in NAICS 6211 employment even if physician staffing is unchanged. Conversely, if physician practices respond to competition by reducing support staff while maintaining physician headcount, the employment effects would similarly conflate these distinct channels. Future research using occupational data---such as the BLS Occupational Employment and Wage Statistics (OEWS) program---could help disaggregate effects on physicians versus other healthcare workers. The OEWS provides occupation-by-industry employment estimates that could separately identify effects on physicians (SOC 29-1060), nurse practitioners (SOC 29-1171), registered nurses (SOC 29-1141), and medical assistants (SOC 31-9092) within healthcare settings.
+
+Second, physician services provided in hospital settings (NAICS 622) or outpatient care centers (NAICS 6214) are not captured by the physician office (NAICS 6211) measure. If FPA causes a shift in physician employment from offices to hospitals---for example, as independent practices face increased competition and sell to hospital systems---this would appear as a reduction in NAICS 6211 employment even if total physician employment is unchanged. The trend toward hospital acquisition of physician practices has accelerated in recent years, and FPA-induced competition could contribute to this organizational restructuring. Examining employment across related NAICS codes could help identify whether apparent employment losses in physician offices are offset by gains in other healthcare settings.
+
+Third, the QCEW data limitation to 2014-2024 restricts the sample to relatively recent FPA adopters with limited post-treatment observation periods. States that adopted FPA in the late 1980s and 1990s (Alaska, Oregon, Washington, New Hampshire) could not be included in the analysis because pre-treatment data are not available. These early adopters may have experienced larger cumulative effects over their 25-35 years of experience with FPA, and their exclusion means the estimates reflect shorter-run adjustments rather than long-run equilibrium effects. As additional years of data become available, extending the analysis to include longer post-treatment periods will permit more precise estimation of cumulative effects.
+
+Fourth, state-level data cannot distinguish between different types of practices (primary care vs. specialty) or geographic variation within states. FPA is most relevant for primary care, where NP scope of practice substantially overlaps with physician practice. Specialty physician offices---such as cardiology, orthopedics, or oncology---face less direct competition from NPs and may be largely unaffected by FPA. The aggregation of primary care and specialty practices in NAICS 6211 may attenuate estimated effects if only primary care practices respond to FPA. Similarly, within-state geographic variation---such as differences between urban and rural areas, or between areas with NP shortages and those with adequate supply---cannot be examined with state-level data. Sub-state analysis using county-level or metropolitan area data could reveal geographic patterns not apparent in state aggregates.
+
+Fifth, the analysis cannot distinguish between intensive and extensive margin employment adjustments. Employment changes in NAICS 6211 could reflect changes in the number of establishments (extensive margin), changes in employment per establishment (intensive margin), or some combination. If FPA leads some physician practices to close entirely while others expand, the net employment effect may mask these offsetting dynamics. Examining establishment counts alongside employment could help characterize the nature of labor market adjustments.
+
+Sixth, the relatively small number of treated units (8 states adopting FPA during the sample period) limits statistical power and the ability to detect modest effects. The marginally significant main estimate (p = 0.09) reflects this power constraint. With more states adopting FPA in coming years, future analyses will have greater power to detect effects and examine heterogeneity across more adoption cohorts.
+
+\section{Conclusion}
+
+This paper provides the first systematic evidence on how Full Practice Authority laws for nurse practitioners affect employment in physician office settings. Using a staggered difference-in-differences design with the Callaway-Sant'Anna estimator, I find that FPA adoption is associated with modest reductions in physician office employment (approximately 1.9 percent), though this effect is marginally significant and emerges gradually over 5-7 years post-adoption. Event study estimates reveal no evidence of differential pre-trends, supporting the parallel trends assumption, while cohort-specific estimates show substantial heterogeneity in treatment effects across adopting states.
+
+The findings contribute to ongoing policy debates about NP scope of practice by providing evidence on employment patterns in physician practice settings---a channel that has been hypothesized but not previously examined empirically. While physician organizations have raised concerns about competitive effects from scope-of-practice expansion, my results suggest that any employment effects in physician offices are economically small and take considerable time to materialize. The gradual emergence of effects over 5-7 years is consistent with a competitive adjustment process in which NPs slowly establish independent practices and capture market share from physician-led practices.
+
+The analysis has several important limitations that suggest directions for future research. Most importantly, the QCEW outcome captures all workers in physician offices, not physicians specifically. Future research should use occupational employment data---such as the Occupational Employment and Wage Statistics (OEWS) survey---to distinguish between effects on physician employment versus support staff. This disaggregation is important for understanding whether FPA reduces demand for physician services or merely reallocates support workers from physician practices to NP-led practices.
+
+Several additional research directions would advance understanding of the labor market implications of scope-of-practice reform. First, examining longer time horizons as more years of post-treatment data become available would help distinguish between transition dynamics and long-run equilibrium effects. The current analysis includes states with at most 10 years of post-treatment data; longer panels would permit more precise estimation of cumulative effects. Second, investigating mechanisms such as physician migration across state lines, shifts between office and hospital settings, and changes in practice organization would illuminate the channels through which FPA affects the healthcare workforce. Third, linking employment data to patient outcomes would permit welfare analysis of scope-of-practice reforms, assessing whether modest employment adjustments in physician offices come with improved healthcare access for underserved populations. Fourth, comparative analysis of NP scope of practice reforms with similar changes for other healthcare professions---such as pharmacists, physical therapists, or physician assistants---would help generalize the findings beyond the NP context.
+
+In sum, this paper documents that Full Practice Authority laws have modest effects on employment in physician office settings, with adjustments occurring gradually over multiple years. While the marginally significant results warrant caution in drawing strong causal conclusions, the analysis suggests that scope-of-practice expansion can occur without dramatic disruption to physician practice employment. As states and the federal government continue to debate NP practice authority, evidence on labor market responses can inform policymakers about the likely adjustment costs and benefits of regulatory reform.
+
+\section*{Acknowledgements}
+
+This paper was autonomously generated using Claude Code as part of the Autonomous Policy Evaluation Project (APEP).
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/auto-policy-evals}
+
+\noindent\textbf{AI System:} Claude Code
+
+\label{apep_main_text_end}
+\newpage
+
+\begin{thebibliography}{99}
+
+\bibitem[American Medical Association(2019)]{ama2019}
+American Medical Association. 2019. ``AMA Scope of Practice Data Series: Nurse Practitioners.'' AMA Policy Research Perspectives.
+
+\bibitem[Callaway and Sant'Anna(2021)]{callaway2021}
+Callaway, Brantly, and Pedro H.C. Sant'Anna. 2021. ``Difference-in-Differences with Multiple Time Periods.'' \textit{Journal of Econometrics} 225(2): 200--230.
+
+\bibitem[DePriest et al.(2020)]{depriest2020}
+DePriest, Kelli, et al. 2020. ``Nurse Practitioners' Workforce Outcomes under Implementation of Full Practice Authority.'' \textit{Nursing Outlook} 68(4): 389--395.
+
+\bibitem[Goodman-Bacon(2021)]{goodmanbacon2021}
+Goodman-Bacon, Andrew. 2021. ``Difference-in-Differences with Variation in Treatment Timing.'' \textit{Journal of Econometrics} 225(2): 254--277.
+
+\bibitem[Health Resources and Services Administration(2023)]{hrsa2023}
+Health Resources and Services Administration. 2023. ``Designated Health Professional Shortage Areas Statistics.'' Bureau of Health Workforce.
+
+\bibitem[Institute of Medicine(2010)]{iom2010}
+Institute of Medicine. 2010. \textit{The Future of Nursing: Leading Change, Advancing Health}. Washington, DC: National Academies Press.
+
+\bibitem[Kleiner(2006)]{kleiner2006}
+Kleiner, Morris M. 2006. \textit{Licensing Occupations: Ensuring Quality or Restricting Competition?} Kalamazoo, MI: W.E. Upjohn Institute.
+
+\bibitem[Kleiner et al.(2016)]{kleiner2016}
+Kleiner, Morris M., et al. 2016. ``Relaxing Occupational Licensing Requirements: Analyzing Wages and Prices for a Medical Service.'' \textit{Journal of Law and Economics} 59(2): 261--291.
+
+\bibitem[Sun and Abraham(2021)]{sun2021}
+Sun, Liyang, and Sarah Abraham. 2021. ``Estimating Dynamic Treatment Effects in Event Studies with Heterogeneous Treatment Effects.'' \textit{Journal of Econometrics} 225(2): 175--199.
+
+\bibitem[Traczynski and Udalova(2018)]{traczynski2018}
+Traczynski, Jeffrey, and Victoria Udalova. 2018. ``Nurse Practitioner Independence, Health Care Utilization, and Health Outcomes.'' \textit{Journal of Health Economics} 58: 90--109.
+
+\bibitem[Yang et al.(2021)]{yang2021}
+Yang, Y. Tony, et al. 2021. ``The Effect of Removing Scope of Practice Barriers on Nurse Practitioners' Labor Supply.'' \textit{Health Services Research} 56(5): 788--800.
+
+\end{thebibliography}
+
+\newpage
+\appendix
+
+\section{Data Appendix}
+
+\subsection{QCEW Data Construction}
+
+Employment data are obtained from the Bureau of Labor Statistics Quarterly Census of Employment and Wages (QCEW) via the open data API. I access annual averages for NAICS code 6211 (Offices of Physicians) at the state level. The QCEW covers approximately 95 percent of U.S. employment through the unemployment insurance system.
+
+Data retrieval: Annual averages for NAICS 6211 (Offices of Physicians) by state were obtained from the BLS QCEW Data Viewer (\texttt{data.bls.gov/cew}) for years 2014-2024. State-level data files were downloaded in CSV format with ownership code 5 (private sector), industry level 6 (6-digit NAICS), and annual averaging period. The private-sector restriction is appropriate because the vast majority of physician office employment is in the private sector; government-owned physician offices (NAICS 6211 with public ownership) are rare and excluded from the analysis.
+
+Variables used:
+\begin{itemize}
+    \item \texttt{annual\_avg\_emplvl}: Annual average employment level
+    \item \texttt{annual\_avg\_estabs}: Annual average number of establishments
+    \item \texttt{annual\_avg\_wkly\_wage}: Annual average weekly wage
+\end{itemize}
+
+\subsection{FPA Adoption Dates}
+
+FPA adoption dates were compiled from multiple sources:
+\begin{itemize}
+    \item American Association of Nurse Practitioners (AANP) State Practice Environment classifications
+    \item Campaign for Action state policy tracking
+    \item DePriest et al. (2020) academic classification
+    \item State legislative records for verification
+\end{itemize}
+
+Table \ref{tab:adoption_full} provides the complete list of adoption dates used in the analysis.
+
+\begin{table}[H]
+\centering
+\caption{FPA Adoption Dates and Sample Classification}
+\label{tab:adoption_full}
+\begin{threeparttable}
+\scriptsize
+\begin{tabular}{llcc|llcc}
+\toprule
+State & Year & Class & Sample & State & Year & Class & Sample \\
+\midrule
+\multicolumn{8}{l}{\textit{Treatment Group (8 states, 2015-2023 Adopters)}} \\
+Maryland & 2015 & T & Yes & Massachusetts & 2021 & T & Yes \\
+Nebraska & 2015 & T & Yes & Delaware & 2021 & T & Yes \\
+South Dakota & 2017 & T & Yes & New York & 2022 & T & Yes \\
+Kansas & 2022 & T & Yes & Utah & 2023 & T & Yes \\
+\midrule
+\multicolumn{8}{l}{\textit{Control Group (23 states, Never Adopted by 2024)}} \\
+Alabama & -- & C & Yes & Missouri & -- & C & Yes \\
+Arkansas & -- & C & Yes & New Jersey & -- & C & Yes \\
+California & -- & C & Yes & North Carolina & -- & C & Yes \\
+Florida & -- & C & Yes & Ohio & -- & C & Yes \\
+Georgia & -- & C & Yes & Oklahoma & -- & C & Yes \\
+Illinois & -- & C & Yes & Pennsylvania & -- & C & Yes \\
+Indiana & -- & C & Yes & South Carolina & -- & C & Yes \\
+Kentucky & -- & C & Yes & Tennessee & -- & C & Yes \\
+Louisiana & -- & C & Yes & Texas & -- & C & Yes \\
+Michigan & -- & C & Yes & Virginia & -- & C & Yes \\
+Mississippi & -- & C & Yes & Wisconsin & -- & C & Yes \\
+& & & & West Virginia & -- & C & Yes \\
+\midrule
+\multicolumn{8}{l}{\textit{Excluded (20 states, 2014-or-earlier Adopters)}} \\
+Alaska & 1988 & E & No & Montana & 2007 & E & No \\
+Oregon & 1990 & E & No & New Mexico & 2007 & E & No \\
+Washington & 1994 & E & No & North Dakota & 2011 & E & No \\
+Maine & 1995 & E & No & Vermont & 2011 & E & No \\
+New Hampshire & 1998 & E & No & Connecticut & 2014 & E & No \\
+Iowa & 1999 & E & No & Nevada & 2013 & E & No \\
+Arizona & 2001 & E & No & Minnesota & 2014 & E & No \\
+Idaho & 2004 & E & No & Rhode Island & 2013 & E & No \\
+Hawaii & 2006 & E & No & Wyoming & 2014 & E & No \\
+Colorado & 2009 & E & No & DC & 2014 & E & No \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\footnotesize
+\item Notes: T=Treated, C=Control (never-treated), E=Excluded (always-treated). 2014-or-earlier adopters excluded due to lack of pre-treatment data in QCEW sample (2014-2024). Total: 51 jurisdictions (50 states + DC). Sources: AANP State Practice Environment, Campaign for Action, DePriest et al. (2020).
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\section{Identification Appendix}
+
+\subsection{Pre-Trends Analysis}
+
+Table \ref{tab:pretrends} reports the event study coefficients for pre-treatment periods. None of the eight pre-treatment coefficients is individually significant at the 5 percent level, and the mean pre-treatment coefficient (-0.004) is close to zero.
+
+\begin{table}[H]
+\centering
+\caption{Pre-Treatment Event Study Coefficients}
+\label{tab:pretrends}
+\begin{threeparttable}
+\begin{tabular}{cccc}
+\toprule
+Event Time & ATT & Std. Error & 95\% CI \\
+\midrule
+-8 & -0.008 & 0.018 & [-0.044, 0.028] \\
+-7 & 0.003 & 0.015 & [-0.027, 0.033] \\
+-6 & -0.012 & 0.014 & [-0.039, 0.015] \\
+-5 & -0.005 & 0.012 & [-0.029, 0.019] \\
+-4 & 0.002 & 0.011 & [-0.020, 0.024] \\
+-3 & -0.006 & 0.010 & [-0.026, 0.014] \\
+-2 & -0.004 & 0.009 & [-0.022, 0.014] \\
+-1 & -0.002 & 0.008 & [-0.018, 0.014] \\
+\midrule
+Mean Pre-Treatment & -0.004 & & \\
+Joint F-test (p-value) & 0.42 & & \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: Callaway-Sant'Anna dynamic aggregate ATT estimates for pre-treatment periods. Event time indicates years before FPA adoption (0 = adoption year). Standard errors clustered at state level. Joint F-test evaluates null hypothesis that all pre-treatment coefficients equal zero.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+A joint F-test of all pre-treatment coefficients equal to zero cannot be rejected (p = 0.42), providing statistical support for the parallel trends assumption.
+
+\subsection{Balance Tests}
+
+While states cannot be randomly assigned to FPA adoption, I examine whether treated and control states differed systematically on baseline characteristics. The main observable difference is state size: FPA-adopting states tend to be smaller in population and healthcare employment. This composition difference does not threaten identification, as the DiD design controls for time-invariant state characteristics through fixed effects.
+
+\section{Robustness Appendix}
+
+\subsection{Alternative Control Groups}
+
+The Callaway-Sant'Anna estimator allows flexibility in defining the control group. My main specification uses ``never-treated'' states as controls. As a robustness check, I estimate the model using ``not-yet-treated'' states as controls, which includes states that will eventually adopt FPA but have not yet done so at a given time period.
+
+Using the not-yet-treated control group, the simple aggregate ATT is -0.0162 (SE = 0.0124, p = 0.19), compared to -0.0185 (SE = 0.0109, p = 0.09) with the never-treated control. The point estimate is slightly smaller in magnitude, and the larger standard error reflects the reduced precision from using a more restricted comparison group. The qualitative conclusions are unchanged: FPA adoption is associated with modest negative effects on physician office employment, though the estimates are imprecisely estimated.
+
+\subsection{Alternative Clustering}
+
+The main results cluster standard errors at the state level, which is appropriate given treatment assignment at the state level. With only 8 treated states and 23 control states, the number of clusters is small, raising concerns about finite-sample bias in cluster-robust standard errors.
+
+As a robustness check, I compute heteroskedasticity-robust standard errors without clustering (HC1). These standard errors are smaller than the clustered estimates, suggesting the main results are conservative. For the main ATT estimate of -0.0185, the HC1 standard error is 0.0082 (compared to 0.0109 with state clustering), yielding a p-value of 0.024. This suggests the marginally significant result would be significant at conventional levels under alternative variance assumptions, though state clustering remains the preferred specification for inference.
+
+\end{document}

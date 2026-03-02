@@ -1,0 +1,364 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{natbib}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{threeparttable}
+\usepackage{tabularx}
+\usepackage{pdflscape}
+\usepackage[T1]{fontenc}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+\doublespacing
+
+\title{Do Prescription Drug Monitoring Program Mandates Reduce Opioid Overdose Deaths? \\ Evidence from Staggered State Adoption}
+
+\author{Autonomous Policy Evaluation Project (APEP) \\ Working Paper 72}
+
+\date{January 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We estimate the effect of state-level Prescription Drug Monitoring Program (PDMP) mandatory query requirements on opioid overdose deaths using a staggered difference-in-differences design. Between 2012 and 2020, 36 U.S. jurisdictions in our analysis sample adopted laws requiring prescribers to check PDMP databases before writing controlled substance prescriptions. Using CDC mortality data from 2015--2020 (198 jurisdiction-years across 41 jurisdictions in the TWFE regression sample after dropping singletons), we find no statistically significant effect of PDMP mandates on opioid deaths (TWFE coefficient = 2.0\%, SE = 5.8\%, p = 0.74). Because mortality data begin in 2015, jurisdictions adopting mandates in 2012--2015 are always-treated and contribute no pre-treatment variation. For the TWFE regression, identification relies on later adopters (2016--2020) compared to never-treated states. For the Sun-Abraham estimator, only 20 later adopters with complete data remain after excluding those with singleton/missing-data issues. Event study analysis reveals some evidence of differential pre-trends, with the $t=-3$ coefficient statistically significant (p = 0.007). The Sun-Abraham heterogeneity-robust estimator---using only 2016--2020 adopters who have observable pre-treatment periods---yields an ATT of $-2.5$\% (SE~=~2.8\%, p~=~0.38), also statistically insignificant. These findings highlight the challenge of credibly evaluating crisis-response policies with limited pre-treatment data.
+
+\medskip
+
+\noindent \textbf{JEL Codes:} I12, I18, K32
+
+\noindent \textbf{Keywords:} Prescription drug monitoring programs, opioid crisis, difference-in-differences, staggered adoption, parallel trends
+\end{abstract}
+
+\newpage
+
+\section{Introduction}
+
+The opioid epidemic represents one of the most severe public health crises in American history. Between 1999 and 2021, more than 600,000 Americans died from opioid overdoses, with annual deaths exceeding 80,000 by 2021 \citep{cdc2023}. In response, policymakers have implemented a range of interventions targeting both the supply and demand for opioid medications.
+
+Among the most prominent supply-side interventions are Prescription Drug Monitoring Programs (PDMPs)---state-run electronic databases that track controlled substance prescriptions. While PDMPs have existed since the 1990s, their potential effectiveness increased substantially when states began requiring prescribers to query these databases before writing opioid prescriptions. Between 2012 and 2020, most U.S. states adopted such mandatory query requirements, creating substantial variation in policy timing that has been exploited by researchers seeking to estimate causal effects \citep{buchmueller2018, patrick2016}.
+
+This paper contributes to the PDMP literature by applying modern staggered difference-in-differences methods to CDC mortality data spanning 2015--2020. We restrict the panel to end in 2020 because several jurisdictions (notably Michigan) enacted PDMP mandates in 2021, which would contaminate the control group in later years. Our primary contribution is methodological transparency: we document that even with this careful sample construction, DiD estimates are imprecise and statistically insignificant, with standard errors large enough to encompass meaningfully positive or negative effects.
+
+Our headline results are null: the two-way fixed effects (TWFE) coefficient is 2.0\% (SE = 5.8\%, p = 0.74), statistically indistinguishable from zero. The heterogeneity-robust Sun-Abraham estimator, which excludes early adopters who lack pre-treatment observations, yields an ATT of $-2.5$\% (SE = 2.8\%, p = 0.38), also insignificant. Event study analysis reveals evidence of differential pre-trends, with the $t = -3$ coefficient statistically significant (p = 0.007), raising concerns about the parallel trends assumption.
+
+These findings contribute to a growing literature that has produced mixed evidence on PDMP effectiveness. \citet{buchmueller2018} find that ``must access'' PDMP provisions reduce opioid prescribing and Medicare Part D spending. \citet{patrick2016} document reductions in opioid-related overdose deaths following PDMP implementation. However, \citet{mallatt2019} and \citet{kaestner2019} raise concerns about endogenous policy adoption and substitution toward illicit opioids. Our results underscore the importance of credible identification in this literature.
+
+The remainder of this paper proceeds as follows. Section 2 describes our data sources. Section 3 presents the empirical strategy. Section 4 reports results. Section 5 discusses limitations and concludes.
+
+\section{Data}
+
+\subsection{Opioid Overdose Deaths}
+
+Our primary outcome data come from the CDC's Vital Statistics Rapid Release (VSRR) provisional drug overdose death counts. This dataset provides monthly state-level counts of drug overdose deaths by drug type, covering the period 2015--2025. We focus on deaths involving opioids, identified by ICD-10 codes T40.0--T40.4 and T40.6, which encompass opium, heroin, natural and semi-synthetic opioids, methadone, synthetic opioids (including fentanyl), and other/unspecified opioids.
+
+The CDC VSRR reports 12-month ending (rolling annual) totals for each month; we use December observations, which capture deaths from January through December of that calendar year, to construct an annual panel. When actual death counts are suppressed due to small cell sizes, we use the CDC's predicted values based on reporting completeness.
+
+\textbf{Sample Construction:} The CDC VSRR data cover all 50 U.S. states plus D.C. and territories. However, Louisiana and Pennsylvania are missing from the CDC VSRR data throughout our sample period due to delayed submission of vital statistics records to the National Vital Statistics System.\footnote{The CDC VSRR relies on timely submission from state vital registration offices; as of our data download (January 2026), Louisiana and Pennsylvania had not submitted complete data for the 2015--2020 period.} Puerto Rico also has substantial missing values. We exclude Puerto Rico and one spurious entry (``YC'') that appears in the raw data. We further restrict the panel to 2015--2020 (6 years) because several jurisdictions (notably Michigan) enacted PDMP mandates in 2021; extending the panel through 2024 would contaminate the control group. After these restrictions, our potential sample is 294 jurisdiction-years (49 jurisdictions $\times$ 6 years). We exclude 94 observations with missing opioid death counts, leaving 200 complete observations from 43 jurisdictions. Our TWFE regression uses 198 observations across 41 jurisdictions after \texttt{fixest} drops 2 singleton states. Table \ref{tab:summary} presents summary statistics.
+
+\textbf{Sample Reconciliation:} Our policy universe includes 49 jurisdictions (50 states + DC, minus Louisiana and Pennsylvania which are missing from CDC data). Of these, 42 adopted comprehensive PDMP mandates by 2020 and 7 never adopted (AK, CA, CO, DC, MI, MO, MT). After restricting to jurisdictions with non-missing mortality outcomes in the 2015--2020 window, we retain 43 jurisdictions: 36 adopters and 7 never-treated. The six adopters with missing outcome data are primarily small states with suppressed counts. After \texttt{fixest} drops 2 singleton states (which have only one observation) from the regression, our TWFE sample contains 41 jurisdictions with 198 observations.
+
+\textbf{Important Data Limitation:} Because our mortality data begin in 2015, jurisdictions that adopted PDMP mandates in 2012--2015 (8 jurisdictions: KY, NM, WV in 2012; NY, TN in 2013; NV, OH, OK in 2015) are \textit{always treated} in our observed window and contribute no pre-treatment outcomes. The TWFE regression uses all 41 jurisdictions with non-singleton data. For Sun-Abraham (which requires pre-treatment observations), only 20 later adopters (2016--2020) with complete data remain after excluding those with singleton/missing-data issues, compared against 7 never-treated jurisdictions (AK, CA, CO, DC, MI, MO, MT).
+
+\begin{table}[H]
+\centering
+\caption{Summary Statistics}
+\label{tab:summary}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\toprule
+& \multicolumn{2}{c}{Pre-Treatment} & \multicolumn{2}{c}{Post-Treatment} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+Variable & Mean & SD & Mean & SD \\
+\midrule
+Opioid deaths (count) & 1,123 & 1,634 & 1,216 & 1,092 \\
+Log(Opioid deaths + 1) & 6.29 & 1.19 & 6.54 & 1.05 \\
+Total overdose deaths & 1,457 & 2,145 & 1,514 & 1,391 \\
+Opioid share of overdoses & 0.72 & 0.11 & 0.74 & 0.10 \\
+\midrule
+N (state-years) & \multicolumn{2}{c}{65} & \multicolumn{2}{c}{135} \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} Pre-treatment (N=65) comprises never-treated jurisdiction-years plus not-yet-treated jurisdiction-years from 2016--2020 adopters before their mandate took effect. Post-treatment (N=135) comprises jurisdiction-years after mandate adoption, including early adopters (2012--2015) who are always-treated in our 2015--2020 window. Total = 200 complete jurisdiction-years from 43 jurisdictions. Data source: CDC VSRR 2015--2020.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\subsection{PDMP Mandatory Query Dates}
+
+We compiled PDMP mandatory query effective dates from multiple sources: the Prescription Drug Abuse Policy System (PDAPS), the National Conference of State Legislatures (NCSL), and the academic literature, particularly \citet{buchmueller2018}. We define ``mandatory query'' narrowly as provisions requiring \textit{all} prescribers to check the PDMP database before writing prescriptions for controlled substances (typically Schedule II--IV drugs), without significant exemptions for delegate access or specific drug categories. Under this strict definition, seven jurisdictions---Alaska, California, Colorado, Michigan, Missouri, Montana, and the District of Columbia---had not enacted comprehensive mandatory query requirements by December 2020. We acknowledge that alternative codings exist. For example, Michigan enacted a query requirement effective June 2018, but it includes a 3-day supply exemption (prescribers must query only when prescribing quantities exceeding 3 days), which falls short of our ``comprehensive mandate'' definition. California's 2018 CURES 2.0 requirements similarly contain exemptions. Our coding follows \citet{buchmueller2018}'s conservative approach. Appendix Table A1 provides the full list of effective dates and sources.
+
+Table \ref{tab:adoption} shows the distribution of mandate adoption by year. Kentucky enacted the first comprehensive mandatory query law in 2012, followed by Tennessee and New York in 2013. The largest wave of adoptions occurred in 2017--2018, when 26 jurisdictions implemented mandates. Seven jurisdictions---Alaska, California, Colorado, Michigan, Missouri, Montana, and the District of Columbia---had not adopted mandatory query requirements by the end of our sample period, providing a comparison group for our analysis.
+
+\begin{table}[H]
+\centering
+\caption{PDMP Mandatory Query Adoption by Year}
+\label{tab:adoption}
+\begin{threeparttable}
+\begin{tabular}{lcc}
+\toprule
+Year & Jurisdictions Adopting & Cumulative Total \\
+\midrule
+2012 & 3 (KY, NM, WV) & 3 \\
+2013 & 2 (NY, TN) & 5 \\
+2014 & 0 & 5 \\
+2015 & 3 (NV, OH, OK) & 8 \\
+\midrule
+\multicolumn{3}{l}{\textit{Identifying variation (2016--2020 adopters):}} \\
+2016 & 4 & 12 \\
+2017 & 11 & 23 \\
+2018 & 15 & 38 \\
+2019 & 2 & 40 \\
+2020 & 2 & 42 \\
+\midrule
+Never Treated & 7 (AK, CA, CO, DC, MI, MO, MT) & --- \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} Policy universe includes 49 jurisdictions (48 states + DC; LA and PA missing from CDC data). Our analysis uses 2015--2020 data only. Early adopters (2012--2015) are always-treated in our data window and contribute no pre-treatment observations. Never-treated jurisdictions serve as controls throughout the sample period.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\section{Empirical Strategy}
+
+\subsection{Two-Way Fixed Effects Specification}
+
+Our baseline specification is a two-way fixed effects (TWFE) model:
+\begin{equation}
+\log(Y_{st} + 1) = \alpha_s + \gamma_t + \beta \cdot \text{Treated}_{st} + \varepsilon_{st}
+\end{equation}
+where $Y_{st}$ is the count of opioid overdose deaths in state $s$ and year $t$, $\alpha_s$ are state fixed effects, $\gamma_t$ are year fixed effects, and $\text{Treated}_{st}$ equals 1 if state $s$ has a mandatory query law in effect in year $t$. Standard errors are clustered at the state level.
+
+Under the parallel trends assumption---that treated and control states would have followed similar trajectories absent the policy---and the additional assumption of homogeneous treatment effects across cohorts and time, $\beta$ identifies the average treatment effect on the treated (ATT). With heterogeneous effects, the TWFE coefficient may not equal the ATT due to negative weighting issues documented by \citet{goodman2021}; we therefore also report the Sun-Abraham estimator which is robust to effect heterogeneity.
+
+\subsection{Event Study Specification}
+
+To assess the parallel trends assumption and examine dynamic treatment effects, we estimate an event study specification. Given concerns about negative weighting in standard TWFE event studies under staggered adoption \citep{sun2021}, we present event study coefficients from the Sun-Abraham interaction-weighted estimator, which uses only ``clean'' comparisons. The estimator recovers cohort-specific effects at each event time, which are then aggregated using appropriate weights:
+\begin{equation}
+\text{ATT}_k = \sum_e \text{share}_e \times \text{ATT}_{e,k}
+\end{equation}
+where $e$ indexes adoption cohorts and $k$ indexes event time relative to treatment. Coefficients on pre-treatment periods ($k < 0$) provide a test of parallel trends; significant pre-treatment coefficients indicate differential trends prior to policy implementation.
+
+\subsection{Sun-Abraham Estimator}
+
+Recent methodological advances have shown that TWFE estimators can be biased in staggered adoption settings when treatment effects are heterogeneous across cohorts or over time \citep{goodman2021, sun2021}. To address this concern, we implement the interaction-weighted estimator of \citet{sun2021}, which uses only ``clean'' comparisons between newly-treated units and not-yet-treated or never-treated units, avoiding comparisons that could introduce negative weights.
+
+\textbf{Sun-Abraham Sample Restriction:} Because the Sun-Abraham estimator requires observable pre-treatment periods for each cohort to normalize treatment effects, we \textit{exclude} the 8 early adopters (2012--2015) from the Sun-Abraham estimation sample. These jurisdictions are always-treated in our 2015--2020 window and cannot provide the within-cohort pre/post contrasts that the estimator requires. After additionally dropping jurisdictions with missing outcomes or singleton issues, the Sun-Abraham sample contains 131 observations across 27 jurisdictions (20 later adopters with valid data plus 7 never-treated).
+
+\section{Results}
+
+\subsection{Main Results}
+
+Table \ref{tab:main} reports our main results. The TWFE regression uses 198 observations across 41 jurisdictions for the 2015--2020 period. Column (1) shows the TWFE specification yields a coefficient of 0.020 (SE = 0.058), indicating that PDMP mandates are associated with a 2.0\% increase in opioid deaths---but this effect is not statistically distinguishable from zero (p = 0.74). Under homogeneous treatment effects, this coefficient equals the ATT; with heterogeneous effects it may be biased. Column (2) shows the Sun-Abraham heterogeneity-robust estimator (which excludes early adopters lacking pre-treatment observations) yields an ATT of $-0.025$ (SE = 0.028), also statistically insignificant (p = 0.38).
+
+\begin{table}[H]
+\centering
+\caption{Effect of PDMP Mandatory Query Laws on Opioid Overdose Deaths}
+\label{tab:main}
+\begin{threeparttable}
+\begin{tabular}{lcc}
+\toprule
+& (1) & (2) \\
+& TWFE & Sun-Abraham \\
+\midrule
+Treated & 0.020 & --- \\
+& (0.058) & \\
+ATT (aggregated) & --- & $-0.025$ \\
+& & (0.028) \\
+\midrule
+Percent effect & +2.0\% & $-2.5$\% \\
+State FE & Yes & Yes \\
+Year FE & Yes & Yes \\
+Observations & 198 & 131 \\
+Jurisdictions & 41 & 27 \\
+R$^2$ (within) & 0.001 & 0.128 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} Dependent variable is log(opioid deaths + 1). Standard errors clustered at jurisdiction level in parentheses. * p$<$0.10, ** p$<$0.05, *** p$<$0.01. Sample: 2015--2020 panel. TWFE uses 198 observations across 41 jurisdictions after dropping singletons. Sun-Abraham \textit{excludes} early adopters (2012--2015) who lack pre-treatment periods; final sample is 131 observations across 27 jurisdictions (20 later adopters with valid data + 7 never-treated).
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\subsection{Event Study and Pre-Trends}
+
+Figure \ref{fig:event} presents Sun-Abraham (2021) heterogeneity-robust event study coefficients. Consistent with Section 3.3, the event study excludes early adopters (2012--2015) who lack pre-treatment periods in our data window. The estimation sample includes 131 observations across 27 jurisdictions: 20 later adopters (2016--2020) with non-missing outcomes and valid event-time variation, plus 7 never-treated jurisdictions. (Eight later adopters are dropped due to missing outcome data or singleton issues.)
+
+Pre-treatment coefficients show some evidence of differential trends: the coefficient at $t = -4$ is 0.19 (SE = 0.14, p = 0.19), while $t = -3$ is $-0.35$ (SE = 0.12, p = 0.007) and $t = -2$ is $-0.13$ (SE = 0.07, p = 0.06). The significant $t = -3$ coefficient (p = 0.007) raises concerns about parallel trends. We interpret causal estimates with substantial caution given this evidence of pre-existing differential trends.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig1_event_study.png}
+\caption{Event Study: PDMP Mandatory Query Laws and Opioid Deaths}
+\label{fig:event}
+\begin{minipage}{0.9\textwidth}
+\footnotesize
+\textit{Notes:} Sun-Abraham (2021) heterogeneity-robust coefficients showing the effect on log(opioid deaths + 1) relative to $t = -1$ (year before mandate adoption). 95\% confidence intervals based on standard errors clustered at the jurisdiction level. Sample: 131 observations across 27 jurisdictions (excludes 2012--2015 adopters who lack pre-treatment periods).
+\end{minipage}
+\end{figure}
+
+Given the statistically significant pre-trend at $t = -3$, we interpret results cautiously. The evidence suggests that treated and control states were on different trajectories prior to mandate adoption, which violates the parallel trends assumption. Combined with the short panel and the substantive concern that mandate adoption was endogenous to opioid crisis severity, our null findings may reflect identification problems rather than true null effects.
+
+\subsection{Geographic Variation}
+
+Figure \ref{fig:map} displays the geographic distribution of mandate adoption timing. Early adopters (2012--2013) were concentrated in Appalachia and the Northeast---regions disproportionately affected by prescription opioid misuse in the early 2010s. Later adopters (2017--2020) include jurisdictions across the South and Midwest that experienced later waves of the epidemic, often involving synthetic opioids. Seven jurisdictions had not adopted mandatory query requirements by the end of our sample period: Alaska, California, Colorado, Michigan, Missouri, Montana, and the District of Columbia. California operates a PDMP but has not mandated universal prescriber querying.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig2_adoption_map.png}
+\caption{PDMP Mandatory Query Law Adoption by State}
+\label{fig:map}
+\begin{minipage}{0.9\textwidth}
+\footnotesize
+\textit{Notes:} Darker shades indicate earlier adoption. Seven states (AK, CA, CO, DC, MI, MO, MT) had not adopted mandatory query requirements by 2020.
+\end{minipage}
+\end{figure}
+
+\subsection{Trends by Cohort}
+
+Figure \ref{fig:trends} plots mean opioid deaths by adoption cohort over time. Early adopters (2012--2013) show higher baseline death rates and continued upward trends through the sample period. Never-treated states show lower and relatively flatter trajectories. These cohort differences are consistent with the statistically significant pre-trend detected in the event study ($t = -3$, p = 0.007), reflecting baseline differences in opioid crisis severity that motivated staggered adoption and that pose challenges for causal identification.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig3_trends_by_cohort.png}
+\caption{Opioid Overdose Deaths by PDMP Mandate Adoption Cohort}
+\label{fig:trends}
+\begin{minipage}{0.9\textwidth}
+\footnotesize
+\textit{Notes:} Lines show mean opioid deaths per state within each adoption cohort. ``Early'' includes states with mandates effective 2012--2015 (always-treated in our 2015--2020 window); ``Middle'' includes 2016--2017 adopters; ``Late'' includes 2018--2020 adopters. Never-treated states (AK, CA, CO, DC, MI, MO, MT) shown separately.
+\end{minipage}
+\end{figure}
+
+\subsection{Robustness}
+
+As a robustness check, we examine whether PDMP mandates affect the share of total overdose deaths attributable to opioids. The coefficient is 0.009 (SE = 0.014, p = 0.54), also statistically insignificant. This null finding persists whether we examine levels, logs, or shares.
+
+\section{Discussion and Conclusion}
+
+This paper provides a transparent assessment of the challenges in credibly estimating the effects of PDMP mandatory query laws on opioid overdose deaths. Our main findings are:
+
+\begin{enumerate}
+\item \textbf{Null point estimates:} Both TWFE and Sun-Abraham estimators yield small, statistically insignificant effects of PDMP mandates on opioid deaths.
+
+\item \textbf{Evidence against parallel trends:} The event study reveals a statistically significant pre-treatment coefficient at $t = -3$ (p = 0.007), raising concerns about the identifying assumption. The DiD estimates should be interpreted with caution.
+
+\item \textbf{Endogenous adoption:} The pattern of results is consistent with reverse causality: states adopted mandates in response to worsening opioid crises, not randomly.
+\end{enumerate}
+
+These findings have important implications for policy evaluation. First, null effects in the presence of parallel trends violations do not necessarily mean PDMP mandates are ineffective---they may simply reflect our inability to construct a credible counterfactual for what would have happened absent the policy. States adopting mandates may have experienced even worse outcomes without them.
+
+Second, our results underscore the value of methodological transparency. Many prior studies report DiD estimates without thoroughly testing or reporting pre-trends \citep[though see][for exceptions]{buchmueller2018}. Our analysis suggests that researchers should be cautious about interpreting PDMP effects as causal without addressing the endogeneity of policy adoption.
+
+Several limitations warrant acknowledgment. First, our mortality data begin in 2015, limiting pre-treatment observations for early adopters; the Sun-Abraham estimator excludes these cohorts entirely. Second, we use annual outcomes but code mid-year mandates as treated for the entire calendar year. For states with late-year effective dates (e.g., Ohio Dec 1, 2015; Texas Sep 1, 2019), the first ``treated'' year includes substantial pre-mandate exposure, mechanically attenuating estimated effects toward zero. Monthly data would resolve this but is not used here. Third, we lack prescribing data that would allow us to examine the primary margin through which PDMP mandates operate. Fourth, we cannot rule out substitution effects---mandates may reduce prescription opioid deaths while increasing illicit opioid deaths, leading to null net effects.
+
+Future research might address these identification challenges through instrumental variables strategies (e.g., neighboring state policies), regression discontinuity designs exploiting implementation timing, or synthetic control methods that construct state-specific counterfactuals. Until such designs are credibly implemented, the causal effect of PDMP mandates on opioid mortality remains uncertain.
+
+\newpage
+
+\appendix
+\section*{Appendix}
+\renewcommand{\thetable}{A\arabic{table}}
+\setcounter{table}{0}
+
+\begin{table}[H]
+\centering
+\caption{PDMP Mandatory Query Effective Dates by Jurisdiction}
+\label{tab:appendix_dates}
+\scriptsize
+\begin{tabular}{llll}
+\toprule
+Jurisdiction & Effective Date & Year & Source \\
+\midrule
+\multicolumn{4}{l}{\textit{Early adopters (2012--2015, always-treated in 2015--2020 panel):}} \\
+Kentucky & July 20, 2012 & 2012 & Buchmueller \& Carey (2018) \\
+New Mexico & July 1, 2012 & 2012 & PDAPS \\
+West Virginia & June 8, 2012 & 2012 & PDAPS \\
+New York & August 27, 2013 & 2013 & Buchmueller \& Carey (2018) \\
+Tennessee & April 1, 2013 & 2013 & Buchmueller \& Carey (2018) \\
+Nevada & October 1, 2015 & 2015 & Buchmueller \& Carey (2018) \\
+Ohio & December 1, 2015 & 2015 & PDAPS \\
+Oklahoma & November 1, 2015 & 2015 & PDAPS \\
+\midrule
+\multicolumn{4}{l}{\textit{2016 adopters:}} \\
+Connecticut & October 1, 2016 & 2016 & NCSL \\
+Massachusetts & October 15, 2016 & 2016 & NCSL \\
+New Hampshire & January 1, 2016 & 2016 & NCSL \\
+Rhode Island & July 1, 2016 & 2016 & NCSL \\
+\midrule
+\multicolumn{4}{l}{\textit{2017 adopters:}} \\
+Arizona & October 16, 2017 & 2017 & NCSL \\
+Arkansas & January 1, 2017 & 2017 & NCSL \\
+Idaho & July 1, 2017 & 2017 & NCSL \\
+Maine & July 1, 2017 & 2017 & NCSL \\
+Minnesota & January 1, 2017 & 2017 & NCSL \\
+New Jersey & May 1, 2017 & 2017 & NCSL \\
+South Carolina & May 1, 2017 & 2017 & NCSL \\
+Utah & May 1, 2017 & 2017 & NCSL \\
+Vermont & July 1, 2017 & 2017 & NCSL \\
+Washington & January 1, 2017 & 2017 & NCSL \\
+Wisconsin & April 1, 2017 & 2017 & NCSL \\
+\midrule
+\multicolumn{4}{l}{\textit{2018 adopters:}} \\
+Delaware & March 1, 2018 & 2018 & NCSL \\
+Florida & July 1, 2018 & 2018 & NCSL \\
+Georgia & July 1, 2018 & 2018 & NCSL \\
+Hawaii & January 1, 2018 & 2018 & NCSL \\
+Illinois & January 1, 2018 & 2018 & NCSL \\
+Indiana & January 1, 2018 & 2018 & NCSL \\
+Iowa & July 1, 2018 & 2018 & NCSL \\
+Maryland & July 1, 2018 & 2018 & NCSL \\
+Mississippi & July 1, 2018 & 2018 & NCSL \\
+Nebraska & January 1, 2018 & 2018 & NCSL \\
+North Carolina & January 1, 2018 & 2018 & NCSL \\
+North Dakota & August 1, 2018 & 2018 & NCSL \\
+Oregon & January 1, 2018 & 2018 & NCSL \\
+Virginia & July 1, 2018 & 2018 & NCSL \\
+Wyoming & July 1, 2018 & 2018 & NCSL \\
+\midrule
+\multicolumn{4}{l}{\textit{2019--2020 adopters:}} \\
+Alabama & January 1, 2019 & 2019 & NCSL \\
+Texas & September 1, 2019 & 2019 & NCSL \\
+Kansas & January 1, 2020 & 2020 & NCSL \\
+South Dakota & July 1, 2020 & 2020 & NCSL \\
+\midrule
+\multicolumn{4}{l}{\textit{Never treated (through December 2020):}} \\
+Alaska & --- & --- & No comprehensive mandate \\
+California & --- & --- & No comprehensive mandate \\
+Colorado & --- & --- & No comprehensive mandate \\
+District of Columbia & --- & --- & No comprehensive mandate \\
+Michigan & --- & --- & 3-day exemption; not comprehensive \\
+Missouri & --- & --- & No statewide PDMP \\
+Montana & --- & --- & No comprehensive mandate \\
+\bottomrule
+\end{tabular}
+\begin{minipage}{0.95\textwidth}
+\vspace{0.5em}
+\scriptsize
+\textit{Notes:} Treatment year is the calendar year in which the \textit{comprehensive} mandate first took effect (all prescribers, all controlled substances, no significant exemptions). Mid-year effective dates are coded as treated starting in that calendar year. This coding choice means that for states with late-year effective dates (e.g., Ohio Dec 1, 2015; Texas Sep 1, 2019), the ``first treated year'' includes substantial pre-mandate exposure, attenuating estimated effects toward zero. We discuss this limitation in Section 5. Sources: PDAPS = Prescription Drug Abuse Policy System; NCSL = National Conference of State Legislatures. Michigan is coded as never-treated because its June 2018 requirement includes a 3-day supply exemption (prescribers need only query for prescriptions exceeding 3 days), which does not meet our comprehensive mandate definition. We restrict analysis to 2015--2020.
+\end{minipage}
+\end{table}
+
+\newpage
+
+\bibliographystyle{aer}
+\bibliography{references}
+
+\end{document}

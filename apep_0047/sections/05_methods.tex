@@ -1,0 +1,65 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+
+\section{Empirical Strategy}
+
+\subsection{Triple-Difference Design}
+
+Our identification strategy relies on a triple-difference (DDD) design that exploits three sources of variation: (1) the timing of the \#MeToo movement in October 2017, (2) cross-industry differences in pre-existing harassment exposure, and (3) within-industry differences between male and female employment.
+
+The key identifying assumption is that, absent \#MeToo, female employment in high-harassment industries would have evolved similarly to female employment in low-harassment industries, after controlling for overall trends in male employment. This assumption would be violated if, for example, technological changes differentially affected female employment in high-harassment industries, or if high-harassment industries were on different employment trajectories prior to October 2017.
+
+We estimate the following specification:
+\begin{align}
+\log(\text{Emp})_{isgt} &= \beta_1 (\text{Female}_g \times \text{HighHarass}_i \times \text{Post}_t) \nonumber \\
+&+ \beta_2 (\text{Female}_g \times \text{HighHarass}_i) + \beta_3 (\text{Female}_g \times \text{Post}_t) \nonumber \\
+&+ \beta_4 (\text{HighHarass}_i \times \text{Post}_t) + \gamma_{is} + \delta_{st} + \theta_{gt} + \epsilon_{isgt}
+\label{eq:ddd}
+\end{align}
+where $\text{Emp}_{isgt}$ is employment in industry $i$, state $s$, gender $g$, and quarter $t$. The indicator $\text{Female}_g$ equals one for female workers, $\text{HighHarass}_i$ equals one for industries above the median harassment rate, and $\text{Post}_t$ equals one for quarters after Q4 2017.
+
+The coefficient of interest is $\beta_1$, which captures the differential change in female employment (relative to male) in high-harassment industries (relative to low-harassment industries) after \#MeToo (relative to before). A negative $\beta_1$ would indicate that female employment fell disproportionately in high-harassment industries following the movement.
+
+\subsection{Fixed Effects Structure}
+
+Our most saturated specification includes:
+\begin{itemize}
+    \item \textbf{State $\times$ Quarter fixed effects} ($\delta_{st}$): Absorb time-varying state-level shocks, including changes in state economic conditions, state policies, and regional trends.
+    \item \textbf{Industry $\times$ Gender fixed effects} ($\gamma_{ig}$): Absorb time-invariant differences in female representation across industries.
+    \item \textbf{Gender $\times$ Quarter fixed effects} ($\theta_{gt}$): Absorb national trends in female employment that affect all industries equally.
+    \item \textbf{Industry $\times$ Quarter fixed effects} ($\gamma_{it}$): Absorb industry-specific shocks that affect both genders equally.
+\end{itemize}
+
+With this fixed effects structure, the triple-difference coefficient is identified from differential changes in female employment across high- and low-harassment industries within state-quarters, after controlling for industry-specific and gender-specific time trends.
+
+\subsection{Standard Errors and Inference}
+
+A critical challenge for inference in our design is that the key treatment variable---industry harassment exposure---varies at the industry level, with only 19 two-digit NAICS industries providing identification \citep{moulton1990, bertrand2004much}. This creates a ``grouped regressor'' problem: while we observe many state-industry-gender-quarter observations, the effective number of independent clusters for the treatment variable is small.
+
+We address this challenge through multiple inference approaches following best practices for designs with few treated clusters \citep{conleytaber2011, mackinnon2017}. Our baseline specification clusters standard errors at the state-industry level, which accounts for serial correlation within cells but may overstate precision given industry-level treatment variation \citep{cameronmiller2015}. As robustness, we implement: (1) clustering at the industry level, which directly addresses the grouped regressor problem but provides only 19 clusters; (2) wild cluster bootstrap procedures appropriate for few clusters; (3) two-way clustering by state and industry; and (4) randomization inference that permutes industry exposure labels.
+
+Readers should interpret our inference with appropriate caution. While point estimates are robust across specifications, standard errors increase substantially under industry-level clustering---from approximately 0.001 to 0.008---and the effective t-statistic drops from approximately 30 to approximately 4. Even with this more conservative inference, results remain statistically significant at conventional levels, though we emphasize that precision should be evaluated relative to the small number of treated industries. We also acknowledge limitations in pre-trends testing when the number of clusters is small \citep{roth2022}.
+
+\subsection{Event Study Specification}
+
+To examine the timing of treatment effects and test for pre-trends, we estimate an event study version of our triple-difference:
+\begin{equation}
+\log(\text{Emp})_{isgt} = \sum_{k \neq -1} \beta_k (\text{Female}_g \times \text{HighHarass}_i \times \mathbf{1}[t = k]) + \text{FE} + \epsilon_{isgt}
+\label{eq:event_study}
+\end{equation}
+where $k$ indexes quarters relative to Q4 2017 (the omitted reference period). The coefficients $\beta_k$ for $k < 0$ test the parallel trends assumption, while coefficients for $k \geq 0$ trace out the dynamic treatment effect.
+
+\subsection{Identification Concerns}
+
+Several potential threats to identification warrant discussion.
+
+\paragraph{Selection into Treatment.} Our research design treats the timing and intensity of \#MeToo as exogenous to industry-level employment trends. This assumption seems plausible: the movement's emergence was precipitated by journalism investigating a specific individual (Harvey Weinstein) rather than by patterns in industry employment. Moreover, we classify industries based on pre-\#MeToo harassment rates, ensuring that the treatment intensity measure is not contaminated by post-treatment reporting changes.
+
+\paragraph{Coincident Policies.} The post-\#MeToo period saw numerous state-level policy changes, including harassment training mandates and NDA limitations. These policies could independently affect female employment. We address this concern by including state $\times$ quarter fixed effects, which absorb all time-varying state-level factors, and by noting that the immediate emergence of treatment effects in Q4 2017 predates most state policies enacted in 2018-2019.
+
+\paragraph{COVID-19.} The COVID-19 pandemic disproportionately affected high-harassment industries like accommodation and food services. Our main specification includes data through 2023, but we present robustness checks excluding the pandemic period (2020 onward). Results are qualitatively similar, though somewhat attenuated in magnitude.
+
+\paragraph{Pre-Trends.} The key testable implication of our design is that high-harassment and low-harassment industries exhibited parallel trends in female employment prior to October 2017. We test this assumption through event study estimates and find no statistically significant pre-trends in the 15 quarters before treatment.
+
+\end{document}

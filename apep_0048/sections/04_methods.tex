@@ -1,0 +1,166 @@
+\section{Empirical Strategy}
+\label{sec:methods}
+
+This section develops the econometric framework for estimating the effects of women's suffrage on female labor force participation, with particular attention to heterogeneity across urban and rural areas. We begin by describing the challenges that arise in difference-in-differences designs with staggered treatment timing, drawing on recent advances in the econometrics literature. We then present our estimation strategy, which combines the group-time aggregation approach of \citet{callaway2021} with the interaction-weighted estimator of \citet{sun2021} to produce treatment effect estimates robust to heterogeneity across cohorts and over time. We conclude with a discussion of identification assumptions, threats to validity, and our approach to inference.
+
+\subsection{The Challenge of Staggered Adoption}
+
+Our identification strategy exploits the staggered adoption of women's suffrage across U.S. states between 1893 and 1918. The canonical approach to such settings employs a two-way fixed effects (TWFE) regression of the form:
+\begin{equation}
+Y_{ist} = \alpha_s + \gamma_t + \beta \cdot D_{st} + X_{ist}'\delta + \varepsilon_{ist}
+\label{eq:twfe}
+\end{equation}
+where $Y_{ist}$ is the outcome (labor force participation) for woman $i$ in state $s$ at time $t$, $\alpha_s$ and $\gamma_t$ are state and year fixed effects, $D_{st}$ is an indicator for whether state $s$ has adopted suffrage by time $t$, $X_{ist}$ is a vector of individual-level controls, and $\varepsilon_{ist}$ is an error term. The coefficient $\beta$ is typically interpreted as the average treatment effect on the treated (ATT).
+
+Recent methodological advances have demonstrated that this interpretation can be misleading when treatment effects are heterogeneous across units or over time. \citet{goodman2021} provided a decomposition showing that the TWFE estimator $\hat{\beta}$ is a weighted average of all possible two-group, two-period difference-in-differences comparisons in the data, with weights that depend on the variance of the treatment indicator within each comparison. Crucially, when treatment timing is staggered, some of these weights can be negative. The negative weights arise because the TWFE estimator implicitly uses already-treated units as controls for newly-treated units. When treatment effects grow or shrink with time since treatment, this comparison yields biased estimates of the causal effect.
+
+The intuition is straightforward: if California adopted suffrage in 1911 and New York adopted in 1917, the TWFE estimator will use California in 1920 as a control for New York's treatment effect. But California in 1920 has been treated for nearly a decade, and if treatment effects evolve over time, California's 1920 outcome reflects this accumulated effect. Using such units as controls contaminates the estimate with comparisons that do not identify the causal effect of treatment. \citet{goodman2021} shows that when treatment effects are heterogeneous, the TWFE estimator can be biased, and the bias can be substantial---even flipping the sign of the estimated effect in extreme cases.
+
+\citet{callaway2021} and \citet{sun2021} proposed alternative estimators that address this problem by restricting attention to ``clean'' comparisons that use only not-yet-treated or never-treated units as controls. We implement both approaches in our analysis and show that our conclusions are robust to the choice of estimator.
+
+\subsection{The Callaway-Sant'Anna Group-Time Estimator}
+
+Our preferred specification uses the \citet{callaway2021} group-time average treatment effect estimator, implemented via the \texttt{did} package in R. This estimator proceeds in two steps. First, it estimates group-time average treatment effects $ATT(g,t)$ for each treatment cohort $g$ (defined by the year of suffrage adoption) and each time period $t$. Second, it aggregates these group-time effects into summary measures of interest, such as an overall ATT or event-study coefficients that trace out treatment effect dynamics.
+
+The group-time ATT for cohort $g$ at time $t$ is defined as:
+\begin{equation}
+ATT(g,t) = \mathbb{E}\left[Y_{t} - Y_{t}^{(0)} \mid G = g\right]
+\label{eq:attgt}
+\end{equation}
+where $Y_t$ is the observed outcome, $Y_t^{(0)}$ is the potential outcome under no treatment, and $G = g$ indicates membership in cohort $g$ (i.e., first treated at time $g$). Because $Y_t^{(0)}$ is unobserved for treated units, identification requires an assumption about how to construct the counterfactual.
+
+The parallel trends assumption states that, absent treatment, the average change in outcomes for units in cohort $g$ would have been equal to the average change for units in a comparison group. Formally:
+\begin{equation}
+\mathbb{E}\left[Y_{t}^{(0)} - Y_{g-1}^{(0)} \mid G = g\right] = \mathbb{E}\left[Y_{t}^{(0)} - Y_{g-1}^{(0)} \mid C = 1\right]
+\label{eq:pt}
+\end{equation}
+where $C = 1$ indicates membership in the comparison group. We use never-treated states---those that adopted suffrage only upon the Nineteenth Amendment in 1920---as our comparison group. This choice avoids the contamination that arises when already-treated units are used as controls, and it is conservative in the sense that never-treated units provide a clean counterfactual throughout the sample period.
+
+Under the parallel trends assumption, the group-time ATT is identified by:
+\begin{equation}
+ATT(g,t) = \mathbb{E}\left[Y_t - Y_{g-1} \mid G = g\right] - \mathbb{E}\left[Y_t - Y_{g-1} \mid C = 1\right]
+\label{eq:attgt_id}
+\end{equation}
+
+The \citet{callaway2021} estimator computes these group-time effects nonparametrically, then aggregates them into summary measures using appropriate weights. The overall ATT is computed as:
+\begin{equation}
+ATT^{O} = \sum_{g} \sum_{t \geq g} \omega_{g,t} \cdot ATT(g,t)
+\label{eq:att_overall}
+\end{equation}
+where $\omega_{g,t}$ are weights proportional to the number of observations in each group-time cell. Event-study coefficients are computed by aggregating across cohorts for each event time $e = t - g$ (years since treatment):
+\begin{equation}
+ATT(e) = \sum_{g} \omega_{g,e} \cdot ATT(g, g+e)
+\label{eq:att_event}
+\end{equation}
+
+This approach has several advantages for our setting. First, it produces treatment effect estimates that are robust to arbitrary heterogeneity in treatment effects across cohorts and over time. Second, the event-study specification allows us to examine pre-treatment dynamics, providing a direct test of the parallel trends assumption. Third, the modular structure facilitates heterogeneity analysis: we can compute separate group-time effects for urban and rural women, then aggregate within each subsample.
+
+\subsection{The Sun-Abraham Interaction-Weighted Estimator}
+
+As a robustness check, we also implement the interaction-weighted estimator of \citet{sun2021}. This approach is algebraically related to \citet{callaway2021} but offers a regression-based implementation that may be more familiar to applied researchers.
+
+The \citet{sun2021} estimator begins with a saturated regression that includes interactions between cohort indicators and relative time indicators:
+\begin{equation}
+Y_{ist} = \alpha_s + \gamma_t + \sum_{g \neq \infty} \sum_{e \neq -1} \beta_{g,e} \cdot \mathbf{1}\{G_s = g\} \cdot \mathbf{1}\{t - g = e\} + X_{ist}'\delta + \varepsilon_{ist}
+\label{eq:sa_saturated}
+\end{equation}
+where $G_s$ is the treatment cohort for state $s$ (with $G_s = \infty$ for never-treated states), and $e = t - g$ is event time (years since treatment). The coefficients $\beta_{g,e}$ capture the cohort-specific effect at each event time, with $e = -1$ (the year before treatment) serving as the reference period.
+
+To obtain an interpretable event-study plot, \citet{sun2021} propose aggregating across cohorts using weights proportional to cohort size:
+\begin{equation}
+\hat{\beta}_e^{IW} = \sum_{g} \hat{\omega}_g \cdot \hat{\beta}_{g,e}
+\label{eq:sa_iw}
+\end{equation}
+where $\hat{\omega}_g$ is the share of treated observations belonging to cohort $g$. These interaction-weighted coefficients trace out the average treatment effect dynamics, with pre-treatment coefficients ($e < 0$) serving as a test of parallel trends and post-treatment coefficients ($e \geq 0$) capturing the causal effect of suffrage.
+
+We implement this estimator using the \texttt{fixest} package in R, which provides efficient estimation of high-dimensional fixed effects models and supports the cohort-by-event-time interactions required for the \citet{sun2021} approach.
+
+\subsection{Triple-Difference Design for Urban-Rural Heterogeneity}
+
+Our primary research question concerns heterogeneity in suffrage effects across urban and rural areas. The standard approach to heterogeneity analysis would estimate separate regressions for urban and rural subsamples. However, this approach does not permit a formal test of whether the difference in effects is statistically significant, nor does it fully exploit the panel structure of our data.
+
+We therefore implement a triple-difference (difference-in-difference-in-differences, or DDD) design that adds urban-rural residence as a third dimension of comparison:
+\begin{equation}
+\begin{aligned}
+Y_{ist} &= \alpha_s + \gamma_t + \mu \cdot U_{ist} + \phi \cdot (U_{ist} \times \alpha_s) + \psi \cdot (U_{ist} \times \gamma_t) \\
+&\quad + \beta_1 \cdot D_{st} + \beta_2 \cdot (D_{st} \times U_{ist}) + X_{ist}'\delta + \varepsilon_{ist}
+\end{aligned}
+\label{eq:ddd}
+\end{equation}
+where $U_{ist}$ is an indicator for urban residence. The coefficient $\beta_1$ captures the average effect of suffrage on rural women, while $\beta_2$ captures the differential effect for urban women relative to rural women. The total effect for urban women is $\beta_1 + \beta_2$.
+
+The triple-difference design offers several advantages. First, it allows us to test formally whether urban-rural differences in suffrage effects are statistically significant. Second, by including urban-by-state and urban-by-year interactions ($U_{ist} \times \alpha_s$ and $U_{ist} \times \gamma_t$), we absorb state-specific and time-varying differences in labor force participation between urban and rural areas that are unrelated to suffrage. Third, the design is robust to confounders that affect urban and rural areas within the same state-year cell equally---for example, state-level policy changes or economic shocks that affect all residents of a state similarly.
+
+To implement this design within the modern staggered DiD framework, we estimate separate \citet{callaway2021} group-time effects for urban and rural women:
+\begin{align}
+ATT^{Urban}(g,t) &= \mathbb{E}\left[Y_t - Y_{g-1} \mid G = g, U = 1\right] - \mathbb{E}\left[Y_t - Y_{g-1} \mid C = 1, U = 1\right] \label{eq:att_urban} \\
+ATT^{Rural}(g,t) &= \mathbb{E}\left[Y_t - Y_{g-1} \mid G = g, U = 0\right] - \mathbb{E}\left[Y_t - Y_{g-1} \mid C = 1, U = 0\right] \label{eq:att_rural}
+\end{align}
+
+We then aggregate within each stratum to obtain overall ATTs for urban and rural women, and we compute the difference in effects across strata. Standard errors for the difference are computed using the bootstrap, accounting for the fact that the urban and rural estimates are correlated within states.
+
+\subsection{Identification Assumptions}
+
+The validity of our difference-in-differences design rests on several assumptions. We discuss each in turn, along with the evidence we provide to assess their plausibility.
+
+\subsubsection{Parallel Trends}
+
+The core identifying assumption is that, absent suffrage, trends in female labor force participation would have been parallel in treated and control states. This assumption cannot be tested directly because we do not observe the counterfactual outcomes for treated states. However, we can assess its plausibility by examining pre-treatment dynamics: if treated and control states were on parallel trajectories before treatment, this provides suggestive evidence that they would have continued on parallel trajectories absent treatment.
+
+Our event-study specification provides a direct test of this assumption. We estimate treatment effects for each event time $e$, including pre-treatment periods ($e < 0$). Under parallel trends, the pre-treatment coefficients should be statistically indistinguishable from zero. Significant pre-treatment coefficients would indicate that treated and control states were on divergent trajectories before suffrage adoption, calling into question the parallel trends assumption.
+
+We also implement the sensitivity analysis of \citet{rambachan2023}, which allows us to assess how our conclusions change under bounded violations of parallel trends. This approach posits that the post-treatment trend deviation (i.e., the causal effect) is related to the pre-treatment trend deviation by a parameter $\bar{M}$ that bounds the degree of trend non-parallelism. By varying $\bar{M}$ and computing the resulting confidence intervals, we can characterize the robustness of our conclusions to varying degrees of pre-trend violation.
+
+For our triple-difference design, the identifying assumption is weaker: we require only that the urban-rural difference in trends would have been parallel across treated and control states. This assumption is plausible if state-specific shocks (e.g., industrial development, migration patterns) affected urban and rural labor markets similarly, or if such differential effects were uncorrelated with suffrage timing.
+
+\subsubsection{No Anticipation}
+
+The difference-in-differences design assumes that treatment does not affect outcomes before it is implemented---the ``no anticipation'' assumption. In our setting, this requires that women did not change their labor force participation in anticipation of suffrage adoption. This assumption might be violated if suffrage campaigns themselves altered women's economic behavior, or if women in states considering suffrage began to participate in the labor force in anticipation of policy changes that enfranchisement would bring.
+
+We assess this assumption by examining effects in the period immediately before treatment. If anticipation effects are present, we would expect to see positive effects in the years leading up to suffrage adoption. Our event-study plots allow us to examine this pattern. We find no evidence of significant anticipation effects: coefficients for $e = -1$ and earlier event times are small and statistically insignificant.
+
+\subsubsection{No Spillovers}
+
+The stable unit treatment value assumption (SUTVA) requires that one state's treatment does not affect outcomes in other states. This assumption might be violated if suffrage in neighboring states affected labor market conditions or social norms in non-adopting states. For example, if women from non-suffrage states migrated to suffrage states to take advantage of better labor market conditions, this could affect labor force participation in both origin and destination states.
+
+We address this concern by using never-treated states as our comparison group, which avoids contamination from early adopters. We also conduct robustness checks that exclude states bordering early adopters, finding similar results. The relatively short time horizon between most state adoptions and the Nineteenth Amendment (at most a decade for post-1910 adopters) limits the scope for substantial inter-state spillovers.
+
+\subsubsection{Exogeneity of Treatment Timing}
+
+Our design assumes that the timing of suffrage adoption is exogenous conditional on state and year fixed effects. This assumption would be violated if states adopted suffrage precisely when female labor force participation was about to change for reasons unrelated to suffrage. For example, if states adopted suffrage during periods of rapid industrialization that would have increased female employment regardless, our estimates would conflate the effects of suffrage with the effects of industrialization.
+
+We address this concern in several ways. First, our state fixed effects absorb all time-invariant differences between states, including factors that may have influenced both suffrage timing and labor force participation levels. Second, our year fixed effects absorb common national trends, including the secular increase in female labor force participation driven by industrialization. Third, our event-study specification allows us to examine whether effects emerge precisely at the time of suffrage adoption or whether they reflect pre-existing differential trends. Fourth, we conduct placebo tests using male labor force participation as an outcome; since male labor force participation should be unaffected by women's suffrage, finding effects for men would suggest that our design is picking up spurious correlations rather than causal effects.
+
+\subsection{Inference and Standard Errors}
+
+We cluster standard errors at the state level to account for serial correlation within states and potential correlation of errors across individuals within state-year cells. State-level clustering is appropriate because treatment varies at the state level and because labor market conditions are likely correlated across individuals within states.
+
+With 44 states in our sample (48 states minus Wyoming, Utah, and two states with insufficient observations), concerns about small-cluster bias are relevant. We therefore supplement our clustered standard errors with wild bootstrap confidence intervals \citep{cameron2008}, which provide more reliable inference with a small number of clusters. We also report confidence intervals based on randomization inference, which provides valid inference under minimal assumptions about the error structure.
+
+For our heterogeneity analyses, standard errors account for the correlation between urban and rural estimates within states. We compute standard errors for the difference in effects using a clustered bootstrap that resamples states and computes both urban and rural effects within each bootstrap replication.
+
+\subsection{Sensitivity Analysis with HonestDiD}
+
+Following \citet{rambachan2023}, we conduct sensitivity analyses that assess the robustness of our conclusions to violations of the parallel trends assumption. The key insight of their approach is that parallel trends is fundamentally untestable---we observe only pre-treatment periods, which can inform but not confirm assumptions about post-treatment counterfactuals.
+
+The \citet{rambachan2023} approach parameterizes the degree of non-parallel trends using a bound $\bar{M}$ that restricts how much the treatment-control difference in trends can change between consecutive periods:
+\begin{equation}
+\left| (\Delta_t - \Delta_{t-1}) - (\Delta_{t-1} - \Delta_{t-2}) \right| \leq \bar{M}
+\label{eq:mbar}
+\end{equation}
+where $\Delta_t = \mathbb{E}[Y_t^{(1)}] - \mathbb{E}[Y_t^{(0)}]$ is the treatment-control difference at time $t$.
+
+When $\bar{M} = 0$, this imposes the original parallel trends assumption---the trend difference is constant over time. As $\bar{M}$ increases, the assumption is relaxed to allow for increasingly non-parallel trends. For any given $\bar{M}$, we can compute the range of treatment effects consistent with the data and the assumption.
+
+We implement this sensitivity analysis using the \texttt{HonestDiD} package in R. We report how our confidence intervals widen as $\bar{M}$ increases, providing readers with a clear sense of how robust our conclusions are to violations of parallel trends. If our effects remain statistically significant even for relatively large values of $\bar{M}$, this increases confidence that our findings reflect causal effects of suffrage rather than artifacts of differential trends.
+
+\subsection{Estimation Details}
+
+We estimate all specifications using R version 4.3. The \citet{callaway2021} estimator is implemented using the \texttt{did} package (version 2.1.2), with never-treated states as the comparison group and standard errors computed via the multiplier bootstrap with 1,000 replications. The \citet{sun2021} estimator is implemented using the \texttt{fixest} package (version 0.11.2), with standard errors clustered at the state level. The \citet{rambachan2023} sensitivity analysis is implemented using the \texttt{HonestDiD} package (version 0.2.3).
+
+For our main specifications, we estimate effects separately for each treatment cohort defined by the census year of first treatment. Because suffrage adoption occurred between census years and we observe outcomes only decennially, we assign states to cohorts based on the first census year in which they were treated. For example, states adopting between 1901 and 1910 (Washington, California) are assigned to the ``1920'' cohort (first observed as treated in 1920), while states adopting between 1891 and 1900 (Colorado, Idaho) are assigned to earlier cohorts based on when they first appear as treated in our data.
+
+Individual-level controls include age, age-squared, indicators for marital status (married, widowed/divorced, with never-married as the reference category), and race (Black, Other, with White as the reference category). In specifications with controls, we include these variables interacted with year indicators to allow their effects to vary over time.
+
+All results are reported with 95 percent confidence intervals. We discuss statistical significance using conventional thresholds ($p < 0.05$, $p < 0.01$, $p < 0.001$) but emphasize the magnitude and precision of estimates rather than arbitrary significance cutoffs.
+

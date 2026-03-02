@@ -1,0 +1,691 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\sisetup{detect-all=true, group-separator={,}, group-minimum-digits=4}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\sym}[1]{\ifmmode^{#1}\else\(^{#1}\)\fi}
+
+\title{State Earned Income Tax Credit Generosity and Crime: \\Evidence from Staggered Adoption}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. Correspondence: scl@econ.uzh.ch} \\ @“ai1scl”}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+Does state-level income support reduce crime? I exploit the staggered adoption of state Earned Income Tax Credits (EITC) across 28 US states plus the District of Columbia between 1987 and 2019 to estimate the causal effect of income support on crime rates. Using a difference-in-differences framework with modern estimators robust to heterogeneous treatment effects, I find no statistically significant effect of state EITC adoption on property crime (coefficient: $-$0.5\%, SE: 2.6\%). I also document a significant 8.9\% reduction in violent crime in the baseline specification (p $<$ 0.05), though this effect becomes insignificant when including state-specific trends. Robustness checks including sample restrictions and placebo tests support the parallel trends assumption for property crime. The Callaway-Sant'Anna estimator yields an overall ATT of $-$2.5\% for property crime, also not statistically significant. These findings suggest that the EITC's income support mechanism does not substantially reduce economically-motivated property crime, and any violent crime effects may reflect pre-existing differential trends rather than a causal relationship.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} H24, I38, K42 \\
+\noindent\textbf{Keywords:} Earned Income Tax Credit, crime, income support, difference-in-differences
+
+\newpage
+
+\section{Introduction}
+
+Does providing income support to low-wage workers reduce crime? Economic theory offers a straightforward prediction: if crime is partially motivated by financial necessity, then increasing the returns to legal employment should reduce criminal activity \citep{becker1968crime}. The Earned Income Tax Credit (EITC), the largest anti-poverty program in the United States, provides a natural laboratory to test this hypothesis. By supplementing earnings for low-income workers, the EITC increases the opportunity cost of criminal activity while also potentially reducing the economic desperation that drives some individuals toward crime.
+
+Understanding the relationship between income support and crime is of considerable policy importance. In 2019, the federal EITC distributed approximately \$63 billion to 25 million working families, making it the single largest cash transfer program for the non-elderly poor in the United States. If this substantial income redistribution reduces crime, it would represent an important ancillary benefit that should factor into cost-benefit analyses of the program. Conversely, if the EITC does not reduce crime, policymakers should not expect such benefits when evaluating proposals to expand the credit.
+
+The federal EITC has been extensively studied, with research documenting its positive effects on labor force participation, earnings, and health outcomes \citep{eissa1996labor, hoynes2015income}. The credit operates as a wage subsidy at low earnings levels, creating strong incentives for labor force participation. Single mothers, in particular, have shown significant employment responses to EITC expansions, with participation rates increasing substantially after major program expansions in the 1990s. Beyond labor market effects, research has documented improvements in maternal and infant health outcomes, children's educational achievement, and long-term economic mobility for children in EITC-recipient families. However, fewer studies examine whether these income gains translate into reduced crime, and even fewer exploit the rich variation provided by state-level EITCs.
+
+Beginning with Maryland in 1987 and accelerating through the 2000s, 28 states plus the District of Columbia have enacted their own EITC supplements, typically structured as a percentage of the federal credit. These state programs piggyback on the federal infrastructure, requiring minimal administrative overhead---eligible taxpayers simply multiply their federal credit by the state's percentage rate. The generosity of state credits varies substantially, from 3\% of the federal credit in Montana to over 100\% in South Carolina. This staggered adoption across states creates identifying variation that can be exploited using modern difference-in-differences methods.
+
+The staggered nature of state EITC adoption provides an attractive research design for several reasons. First, unlike the federal EITC expansions that affected all states simultaneously, state EITC adoption creates cross-state variation at different points in time, allowing for more credible causal identification. Second, the variation in credit generosity provides an opportunity to examine dose-response relationships. Third, the continued adoption of state EITCs through 2019 means that research can examine effects in the modern policy environment rather than relying on historical variation from decades past.
+
+This paper estimates the effect of state EITC adoption on crime rates using a panel of 51 states (including DC) from 1999 to 2019. I employ two-way fixed effects (TWFE) regressions with state and year fixed effects, as well as the Callaway-Sant'Anna estimator, which provides consistent estimates under heterogeneous treatment effects with staggered adoption \citep{callaway2021difference}. The main analysis examines property crime as the primary outcome, with violent crime included as both a secondary outcome and a partial placebo test, given that violent crime may be less responsive to economic incentives than property crime.
+
+Property crime---including burglary, larceny-theft, and motor vehicle theft---represents the most directly relevant outcome from an economic perspective. These crimes are quintessentially economically motivated, representing illegal attempts to transfer wealth from victims to offenders. If income support reduces financial desperation or increases the opportunity cost of criminal activity, property crime rates should decline. Violent crime, by contrast, is often driven by impulsive behavior, interpersonal conflict, or substance abuse, making its relationship to income less direct. Examining violent crime alongside property crime provides both a secondary outcome of interest and a partial test of the mechanism, since a smaller effect on violent crime would be consistent with an economic channel.
+
+The main finding is that state EITC adoption has no statistically significant effect on property crime. The TWFE estimate indicates a 0.5\% reduction in the property crime rate associated with EITC treatment, but this estimate is imprecise (SE = 2.6\%) and cannot reject zero. Similarly, the Callaway-Sant'Anna overall ATT is $-$2.5\% (SE = 2.8\%). These null results are robust across alternative specifications including controls for population, state-specific linear time trends, and various sample restrictions. The consistency of the null result across estimators and specifications provides strong evidence that any true effect must be modest in magnitude.
+
+Interestingly, I find a significant 8.9\% reduction in violent crime associated with state EITC adoption (p $<$ 0.05) in the baseline specification. However, this effect becomes statistically insignificant when including state-specific time trends, suggesting it may reflect pre-existing differential trends rather than a causal effect of EITC adoption. This pattern serves as a cautionary tale about the importance of robustness checks in difference-in-differences research, as a naive researcher reporting only baseline TWFE results might erroneously conclude that state EITCs substantially reduce violent crime.
+
+This paper contributes to several literatures. First, it adds to the growing body of research on the non-labor market effects of the EITC \citep{hoynes2015income, bastian2020unintended}. While prior work has documented effects on health, marriage, and children's outcomes, evidence on crime remains limited. The null finding on property crime extends our understanding of the EITC's reach by identifying an outcome that does not appear to respond to the credit. Second, this paper contributes to the literature on the determinants of crime, particularly the role of economic factors \citep{gould2002crime, raphael2001identifying}. The economics-of-crime literature has generally found that poor labor market conditions increase property crime, but less is known about whether income support programs conditional on employment affect crime. Third, by employing the Callaway-Sant'Anna estimator alongside traditional TWFE, this paper addresses methodological concerns about bias in staggered difference-in-differences designs \citep{goodman2021difference, sun2021estimating}.
+
+This paper makes several contributions to the literature. First, it provides the first systematic evidence on the effect of state EITC adoption on crime rates using modern difference-in-differences methods designed for staggered adoption. Prior studies of the EITC and crime have generally focused on the federal program, which presents more challenging identification problems due to nationwide implementation. By exploiting state-level variation, this paper provides cleaner causal estimates. Second, it demonstrates the importance of robustness checks in DiD research by showing that apparent violent crime effects disappear with alternative specifications. This finding underscores the need for sensitivity analysis in applied work, particularly when treatment effects may be confounded by differential trends. Third, it contributes to the broader debate about the relationship between income support programs and crime by documenting a credibly-estimated null result for property crime.
+
+The remainder of this paper is organized as follows. Section 2 provides institutional background on state EITC programs, including the history of adoption, variation in program design, and the characteristics of adopting states. Section 3 describes the data sources and sample construction, with attention to measurement issues in crime data. Section 4 presents the empirical strategy, including both traditional TWFE and modern heterogeneity-robust estimators. Section 5 reports the main results and robustness checks. Section 6 discusses mechanisms, compares findings to prior literature, and addresses limitations. Section 7 concludes with implications for policy and directions for future research.
+
+\section{Institutional Background}
+
+\subsection{The Federal Earned Income Tax Credit}
+
+The Earned Income Tax Credit (EITC) is a refundable federal tax credit for low- to moderate-income working individuals and families. Enacted in 1975 as a small provision to offset Social Security taxes for low-income workers, the credit was substantially expanded in 1986, 1990, and 1993, making it the largest cash transfer program for working families in the United States. The 1993 expansion, implemented as part of the Omnibus Budget Reconciliation Act, was particularly significant, roughly doubling the maximum credit and extending eligibility to workers without children. In 2019, the federal EITC provided approximately \$63 billion in benefits to about 25 million families, substantially exceeding the combined cost of Temporary Assistance for Needy Families (TANF) and food stamps.
+
+The EITC operates as a wage subsidy at low earnings levels through a distinctive three-part structure. In the phase-in region, the credit increases with earned income at a specified rate---45\% for families with three or more children in 2019. This creates a strong positive incentive for labor force participation, as each additional dollar of earnings generates 45 cents of additional credit. The credit reaches its maximum at the end of the phase-in region and remains constant over a ``plateau'' range, maintaining full benefits for workers in this earnings band. Finally, the credit phases out as income rises further, declining at approximately 21\% per dollar of additional income for families with multiple children. The credit amount depends on filing status and number of qualifying children. For a family with two children in 2019, the maximum federal credit was approximately \$5,800, with the phase-out beginning at around \$19,000 of income and complete elimination occurring at approximately \$46,000.
+
+The EITC's design creates strong incentives for labor force participation among low-income individuals. In the phase-in region, the credit effectively increases the hourly wage, making work more attractive relative to non-employment. Extensive research has documented significant effects on employment, particularly among single mothers \citep{eissa1996labor, meyer2001welfare}. Studies exploiting the 1993 expansion found that single mothers increased their labor force participation by several percentage points in response to the larger credit. The employment effects are concentrated along the extensive margin (whether to work at all) rather than the intensive margin (how many hours to work), consistent with the credit's structure.
+
+Beyond labor supply, the EITC appears to generate positive spillovers across multiple domains. Research has documented improvements in maternal and infant health outcomes, including reductions in low birth weight and increases in prenatal care utilization. Children in EITC-recipient families show improved educational outcomes, including higher test scores and increased college enrollment. Long-term studies suggest that childhood exposure to the EITC improves adult economic outcomes, including higher earnings and employment rates. By increasing after-tax income for working families, the EITC may also reduce financial stress and improve various non-labor market outcomes.
+
+The theoretical relationship between the EITC and crime operates through several potential channels. First, by increasing income, the EITC reduces the financial desperation that may drive some individuals toward economically-motivated crime. A family receiving an additional \$5,000 annually may face fewer situations where property crime appears to be the only option for meeting basic needs. Second, by increasing the returns to legal employment, the EITC raises the opportunity cost of criminal activity. Time spent committing crimes cannot be spent working, so higher wages make crime relatively less attractive. Third, by promoting stable employment, the EITC may strengthen social bonds and informal social control that discourage criminal behavior. Employment provides structure, social connections, and a stake in conformity that may reduce crime beyond the direct income effect.
+
+\subsection{State Earned Income Tax Credits}
+
+Beginning with Maryland in 1987, states have increasingly enacted their own EITC programs that supplement the federal credit. These state credits are typically structured as a percentage of the federal EITC, making them straightforward to administer---eligible taxpayers simply multiply their federal credit by the state's percentage rate. This piggyback structure minimizes administrative costs because states can rely on federal EITC eligibility determinations rather than developing separate eligibility systems. It also ensures that state credits reach the same population as the federal program and scale automatically with federal EITC expansions.
+
+As of 2019, 28 states plus the District of Columbia had enacted state EITC programs. The generosity of these credits varies substantially, ranging from 3\% of the federal credit in Montana (adopted 2019) to over 100\% in South Carolina. Most states provide credits between 5\% and 40\% of the federal amount, with California (85\%) and South Carolina (104\%) as outliers with non-standard designs. California's credit, for instance, is limited to families with children under age 6, making it a targeted supplement rather than a general EITC match. South Carolina's credit structure differs from other states in technical ways that result in a higher effective match rate. Importantly, states adopted their programs at different times, creating staggered variation that can be used for causal identification. Table \ref{tab:eitc_timing} shows the adoption timing and generosity of state EITCs.
+
+The refundability of state EITCs is a key policy dimension that affects their distributional impact. A refundable credit provides the full credit amount to taxpayers even if it exceeds their tax liability, effectively functioning as a cash transfer. A non-refundable credit only reduces taxes owed and provides no benefit to taxpayers with zero liability. For very low-income families---precisely those most likely to engage in economically-motivated crime---refundability determines whether they receive any benefit from the state credit. Among the 29 jurisdictions with state EITCs in 2019, 23 have refundable credits while 6 (Delaware, Hawaii, Maine, Ohio, South Carolina, Virginia) have non-refundable credits. The refundability distinction is important for understanding potential crime effects because non-refundable credits may not reach the lowest-income families who face the greatest financial pressures.
+
+The political economy of state EITC adoption exhibits several notable patterns. Early adopters (Maryland 1987, Vermont 1988, Wisconsin 1989, Minnesota 1991) were primarily Northeastern and Upper Midwestern states with progressive political traditions, strong organized labor, and relatively healthy fiscal positions. These states already had robust state tax systems that made implementing a state EITC administratively straightforward. The 1990s saw adoption spread to additional liberal states (New York 1994, Massachusetts and Oregon 1997, Kansas 1998), often as part of broader tax reform packages.
+
+The 2000s and 2010s witnessed broader expansion of state EITCs, including adoption in some unexpected states. Several factors appear to have driven this expansion. First, welfare reform in 1996 created interest in work-support programs that complemented the new work requirements of TANF. Second, national advocacy campaigns by organizations like the Center on Budget and Policy Priorities promoted state EITCs as effective anti-poverty tools. Third, some states adopted EITCs during fiscal stress as a way to provide targeted relief to low-income workers without broad tax cuts. The Great Recession of 2007-2009 paradoxically accelerated some adoptions, as policymakers sought ways to support struggling families.
+
+Not all states have adopted EITCs, and the non-adopting states share certain characteristics. The 22 states without EITCs as of 2019 are disproportionately located in the South and Mountain West, tend to have more conservative political traditions, and often have no state income tax or limited state tax systems that make EITC implementation more complex. These non-adopting states serve as the control group in this study, raising potential concerns about selection into treatment that I address in the empirical strategy.
+
+The staggered adoption of state EITCs across states provides the identifying variation for this study. Figure \ref{fig:adoption} illustrates the rollout of state EITC programs over time.
+
+\section{Data}
+
+\subsection{Crime Data}
+
+Crime data come from the CORGIS State Crime dataset, which compiles FBI Uniform Crime Reports (UCR) Summary Reporting System data from 1960 to 2019. The UCR program collects data on crimes known to police from participating law enforcement agencies across the United States. The program has been in operation since 1929 and represents the most comprehensive source of national crime statistics. The CORGIS dataset provides state-level crime rates per 100,000 population for major crime categories, facilitating consistent comparisons across states of different sizes.
+
+I focus on property crime as the primary outcome, which includes burglary, larceny-theft, and motor vehicle theft. These crimes are most likely to be economically motivated and thus theoretically responsive to income support policies. From an economic perspective, property crimes represent attempts to transfer wealth illegally and should decrease when the returns to legal employment increase. I also examine violent crime (murder, rape, robbery, and aggravated assault) as both a secondary outcome and a partial placebo test, given that violent crime may be less directly tied to economic incentives than property crime.
+
+The UCR data have well-known limitations that warrant discussion. First, the UCR collects data on crimes reported to police, not all crimes that occur. The extent of underreporting varies across crime types, with violent crimes generally reported at higher rates than property crimes. This measurement error is unlikely to bias the estimated treatment effects as long as reporting rates do not change differentially in response to EITC adoption. Second, the summary reporting system aggregates incidents across the year, precluding analysis of timing effects around tax refund season. Third, not all law enforcement agencies report consistently to the UCR program, though coverage is generally good at the state level.
+
+Despite these limitations, the UCR remains the standard data source for state-level crime analysis in the United States. The long time series and consistent geographic coverage make it well-suited for difference-in-differences research designs that exploit policy variation across states and over time.
+
+I restrict the sample to 1999--2019 for the main analysis. This 21-year period captures substantial variation in state EITC adoption---during this window, 19 jurisdictions adopted state EITCs for the first time---while maintaining a consistent sample frame. The final sample includes 1,071 state-year observations (51 jurisdictions, including DC, $\times$ 21 years), providing adequate statistical power for detecting moderate effect sizes.
+
+The choice of 1999 as the start year involves a tradeoff between sample size and design clarity. An earlier start year would provide more pre-treatment observations but would also introduce complications from the early 1990s crime decline and changes in UCR reporting practices. The 1999 start year provides a stable post-decline baseline and captures the period of most active state EITC expansion.
+
+\subsection{EITC Policy Data}
+
+I construct a state EITC policy database by compiling information from the National Conference of State Legislatures (NCSL), the Tax Policy Center, and individual state revenue department websites. For each state, I record the year of EITC adoption, the credit rate as a percentage of the federal EITC, and whether the credit is refundable. This information is validated across multiple sources to ensure accuracy.
+
+As of 2019, 28 states plus the District of Columbia had enacted state EITCs, with adoption years ranging from 1987 (Maryland) to 2019 (Montana). The median state EITC rate was 17\% of the federal credit in 2019, though there is substantial variation. The smallest credits provide just 3--5\% of the federal amount (Montana, Louisiana, Oklahoma), while the largest provide over 30\% (DC, New Jersey, Vermont, California). California and South Carolina have non-standard designs that result in effective match rates of 85\% and 104\% respectively---these outliers reflect different program structures rather than typical EITC supplements.
+
+The refundability of state EITCs is a key policy dimension. A refundable credit provides the full credit amount to taxpayers even if it exceeds their tax liability, effectively functioning as a cash transfer. A non-refundable credit only reduces taxes owed and provides no benefit to taxpayers with zero liability. Among the 29 jurisdictions with state EITCs in 2019, 23 have refundable credits while 6 (Delaware, Hawaii, Maine, Ohio, South Carolina, Virginia) have non-refundable credits. Refundable credits are expected to have larger effects on low-income families who are most likely to have zero tax liability.
+
+The timing of state EITC adoption reflects political and fiscal factors. Early adopters (Maryland 1987, Vermont 1988, Wisconsin 1989) were primarily Northeastern and Upper Midwestern states with progressive political traditions and relatively healthy fiscal positions. The 1990s saw adoption spread to additional liberal states (Minnesota, New York, Massachusetts, Oregon, Kansas). The 2000s and 2010s witnessed broader expansion, including adoption in some unexpected states and continued adoption during fiscal stress following the Great Recession. This staggered pattern provides the identifying variation for the difference-in-differences design.
+
+\subsection{Summary Statistics}
+
+Table \ref{tab:summary} presents summary statistics for the analysis sample. The mean property crime rate is 3,021 per 100,000 population, with substantial variation across states (SD = 893). This variation reflects both cross-state differences in crime levels and the secular decline in property crime over the sample period. Property crime rates fell by approximately 40\% from 1999 to 2019, part of the broader crime decline that began in the early 1990s.
+
+The mean violent crime rate is 407 per 100,000, about one-seventh of the property crime rate. Violent crime also declined over the sample period, though less dramatically than property crime. The murder rate, examined as a placebo outcome, averages 5.2 per 100,000 with substantial cross-state variation (SD = 3.1).
+
+Approximately 42\% of state-year observations have an active state EITC program. This proportion increases over time as more states adopt, rising from about 30\% at the start of the sample to over 55\% by 2019. The mean EITC generosity across all observations (including zeros for non-EITC states) is 8.6\% of the federal credit. Among observations with active state EITCs, the mean generosity is 20\%.
+
+\begin{table}[H]
+\centering
+\caption{Summary Statistics}
+\begin{threeparttable}
+\begin{tabular}{lcc}
+\toprule
+Variable & Mean & SD \\
+\midrule
+Property Crime Rate & 3,020.7 & 892.7 \\
+Burglary Rate & 617.5 & 242.8 \\
+Larceny Rate & 2,113.2 & 574.6 \\
+Motor Vehicle Theft Rate & 290.0 & 191.9 \\
+Violent Crime Rate & 406.8 & 211.4 \\
+EITC Generosity (\%) & 8.6 & 13.7 \\
+Has State EITC & 0.42 & 0.49 \\
+Population (millions) & 5.99 & 6.74 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: N = 1,071 state-year observations (51 states, 1999--2019). Crime rates are per 100,000 population. EITC generosity is the state credit as a percentage of the federal EITC.
+\end{tablenotes}
+\end{threeparttable}
+\label{tab:summary}
+\end{table}
+
+\section{Empirical Strategy}
+
+\subsection{Identification}
+
+I exploit the staggered adoption of state EITC programs across states to identify the causal effect of income support on crime. The key identifying assumption is that, conditional on state and year fixed effects, the timing of state EITC adoption is uncorrelated with changes in crime rates. Formally, the parallel trends assumption requires:
+\begin{equation}
+\E[Y_{st}(0) - Y_{st-1}(0) | D_{st} = 1, X_{st}] = \E[Y_{st}(0) - Y_{st-1}(0) | D_{st} = 0, X_{st}]
+\end{equation}
+where $Y_{st}(0)$ is the potential crime rate without treatment and $D_{st}$ indicates EITC adoption.
+
+This assumption would be violated if states adopted EITCs in response to crime trends, or if other state policies that affect crime were adopted simultaneously with EITCs. I address these concerns through several robustness checks, including event study analyses that examine pre-trends.
+
+\subsection{Two-Way Fixed Effects Estimation}
+
+I begin with standard two-way fixed effects (TWFE) regressions, the workhorse estimator for difference-in-differences designs. The baseline specification is:
+\begin{equation}
+\log(Y_{st}) = \alpha + \tau D_{st} + \gamma_s + \delta_t + \varepsilon_{st}
+\end{equation}
+where $Y_{st}$ is the crime rate in state $s$ and year $t$, $D_{st}$ is an indicator equal to one if state $s$ has an active state EITC in year $t$ and zero otherwise, $\gamma_s$ are state fixed effects that absorb time-invariant differences across states, and $\delta_t$ are year fixed effects that control for common shocks affecting all states in each year. The parameter $\tau$ captures the average effect of state EITC adoption on crime rates.
+
+The dependent variable is specified in natural logarithm form, so the coefficient $\tau$ can be interpreted as the approximate percentage change in crime rates associated with EITC treatment. This log specification is standard in crime research and has the advantage of reducing the influence of outliers and allowing proportional interpretation of effects.
+
+Standard errors are clustered at the state level to account for serial correlation within states over time. With 51 clusters and 21 time periods, this clustering approach provides consistent standard errors under fairly general conditions. In robustness checks, I also report results with alternative standard error specifications including two-way clustering (state and year) and heteroskedasticity-robust standard errors.
+
+I also estimate a continuous treatment specification that exploits variation in EITC generosity:
+\begin{equation}
+\log(Y_{st}) = \alpha + \beta \cdot \text{Generosity}_{st} + \gamma_s + \delta_t + \varepsilon_{st}
+\end{equation}
+where $\text{Generosity}_{st}$ is the state EITC rate as a percentage of the federal credit (zero for states without an EITC). This specification tests whether more generous state EITCs have larger effects on crime, as would be expected if the effect operates through increased income. The coefficient $\beta$ represents the effect of a one percentage point increase in the state EITC match rate.
+
+\subsection{Callaway-Sant'Anna Estimator}
+
+Recent econometric research has highlighted potential bias in TWFE estimators when treatment effects are heterogeneous across cohorts or time \citep{goodman2021difference, sun2021estimating}. The TWFE estimator uses already-treated units as controls for later-treated units, which can lead to negative weights on some group-time average treatment effects.
+
+To address this concern, I employ the Callaway-Sant'Anna (CS) estimator, which estimates cohort-specific treatment effects using only not-yet-treated or never-treated units as controls \citep{callaway2021difference}. I then aggregate these group-time effects into an overall average treatment effect on the treated (ATT).
+
+Because my crime data panel begins in 1999, the CS estimator can only identify effects for states that adopted during 2000--2019, as these cohorts have at least one pre-treatment observation. The ten states that adopted before 2000---eight pre-1999 adopters (MD, VT, WI, MN, NY, MA, OR, KS) plus two 1999 adopters (CO, IN)---have no pre-treatment observations in my sample and are therefore treated as ``always-treated'' units that are excluded from the CS event study aggregation. The 22 never-treated states serve as the control group throughout.
+
+The CS estimator also provides dynamic treatment effects that trace out the evolution of the treatment effect over event time, allowing for explicit examination of pre-trends and dynamic treatment effect patterns.
+
+\subsection{Goodman-Bacon Decomposition}
+
+To understand the composition of the TWFE estimate, I apply the Goodman-Bacon decomposition, which expresses the TWFE coefficient as a weighted average of all possible 2$\times$2 difference-in-differences comparisons \citep{goodman2021difference}. This decomposition reveals the share of the estimate coming from (1) treated vs. never-treated comparisons, (2) early vs. late adopter comparisons, and (3) late vs. early adopter comparisons.
+
+\section{Results}
+
+\subsection{Main Results}
+
+Table \ref{tab:main} presents the main TWFE results for the effect of state EITC adoption on crime rates. The dependent variable in all specifications is the natural logarithm of the crime rate per 100,000 population, so coefficients can be interpreted as approximate percentage effects. All specifications include state fixed effects to absorb time-invariant differences across states and year fixed effects to control for common shocks affecting all states. Standard errors are clustered at the state level to account for serial correlation within states over time.
+
+Column (1) shows that state EITC treatment is associated with a 0.5\% reduction in log property crime, but this estimate is not statistically significant (SE = 2.6\%, p = 0.86). The 95\% confidence interval ranges from approximately $-$5.6\% to +4.6\%, meaning we cannot reject either modest crime reductions or modest crime increases. The point estimate is small in magnitude and economically insignificant even if taken at face value---a half-percent reduction in the property crime rate of approximately 3,000 per 100,000 would translate to only 15 fewer crimes per 100,000 population annually.
+
+The effects on property crime subcategories---burglary, larceny, and motor vehicle theft---are similarly small and insignificant, as shown in Columns (2) through (4). Burglary shows a positive coefficient of 1.0\% (SE = 2.9\%), while larceny shows a negative coefficient of 0.8\% (SE = 2.8\%) and motor vehicle theft shows a negative coefficient of 1.7\% (SE = 6.3\%). None of these subcategory effects approach statistical significance, and the signs are inconsistent across crime types, providing no evidence of a systematic pattern. The large standard error for motor vehicle theft reflects the greater volatility of this crime category and its smaller share of total property crime.
+
+In contrast, Column (5) reveals a significant 8.9\% reduction in violent crime associated with EITC adoption (p $<$ 0.05). This result is somewhat unexpected, as the economic mechanism underlying the EITC should most directly affect economically-motivated property crime rather than violent crime. The violent crime coefficient is more than three times larger in magnitude than the property crime coefficient, and statistically distinguishable from zero at conventional significance levels. However, as I show in the robustness section below, this apparent violent crime effect is not robust to alternative specifications, suggesting it may reflect pre-existing differential trends rather than a causal effect.
+
+\begin{table}[H]
+\centering
+\caption{Effect of State EITC on Crime Rates}
+\begin{threeparttable}
+\begin{tabular}{lccccc}
+\toprule
+& (1) & (2) & (3) & (4) & (5) \\
+& Property & Burglary & Larceny & MVT & Violent \\
+\midrule
+State EITC & $-$0.005 & 0.010 & $-$0.008 & $-$0.017 & $-$0.089** \\
+           & (0.026) & (0.029) & (0.028) & (0.063) & (0.039) \\
+\\
+State FE & Yes & Yes & Yes & Yes & Yes \\
+Year FE & Yes & Yes & Yes & Yes & Yes \\
+N & 1,071 & 1,071 & 1,071 & 1,071 & 1,071 \\
+$R^2$ & 0.925 & 0.914 & 0.919 & 0.863 & 0.912 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: Standard errors clustered at state level in parentheses. * p$<$0.10, ** p$<$0.05, *** p$<$0.01. Outcome is log crime rate per 100,000 population.
+\end{tablenotes}
+\end{threeparttable}
+\label{tab:main}
+\end{table}
+
+\subsection{Continuous Treatment Results}
+
+Table \ref{tab:continuous} presents results using EITC generosity (percentage of federal credit) as a continuous treatment measure. A 10 percentage point increase in EITC generosity is associated with a 1.1\% reduction in property crime and a 2.5\% reduction in violent crime. The violent crime effect remains statistically significant (p $<$ 0.01), suggesting a dose-response relationship.
+
+\begin{table}[H]
+\centering
+\caption{Effect of EITC Generosity on Crime Rates}
+\begin{threeparttable}
+\begin{tabular}{lccc}
+\toprule
+& (1) & (2) & (3) \\
+& Property & Burglary & Violent \\
+\midrule
+EITC Generosity (\%) & $-$0.0011 & 0.0001 & $-$0.0025*** \\
+                      & (0.0009) & (0.0009) & (0.0008) \\
+\\
+State FE & Yes & Yes & Yes \\
+Year FE & Yes & Yes & Yes \\
+N & 1,071 & 1,071 & 1,071 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: EITC generosity measured as percentage of federal credit (0--104). Standard errors clustered at state level. *** p$<$0.01.
+\end{tablenotes}
+\end{threeparttable}
+\label{tab:continuous}
+\end{table}
+
+\subsection{Event Study and Callaway-Sant'Anna Results}
+
+Recent econometric research has highlighted potential problems with TWFE estimators in settings with staggered treatment adoption and heterogeneous treatment effects. When effects vary across adoption cohorts or change over time since treatment, the TWFE estimator may assign negative weights to some group-time treatment effects, potentially leading to biased estimates \citep{goodman2021difference, sun2021estimating}. To address these concerns, I implement the Callaway-Sant'Anna (CS) estimator, which avoids this bias by using only not-yet-treated or never-treated units as controls for each adoption cohort \citep{callaway2021difference}.
+
+Figure \ref{fig:event_study} presents the event study estimates from the Callaway-Sant'Anna estimator. The figure plots estimated treatment effects by time relative to EITC adoption, with the reference period set to one year before adoption. Each point represents an aggregated treatment effect across all adoption cohorts, with 95\% confidence intervals shown. The event study allows visual assessment of the parallel trends assumption---if treated and control states were following similar trends prior to treatment, the pre-treatment coefficients should be close to zero.
+
+The pre-treatment coefficients are generally small and statistically insignificant, supporting the parallel trends assumption. The coefficient for two years before adoption is approximately $-$1\%, and the coefficient for three years before is approximately +0.5\%, both well within the range of statistical noise. The absence of significant pre-trends provides important validation for the difference-in-differences design, suggesting that the comparison between treated and never-treated states is identifying plausibly causal effects rather than spurious correlations driven by differential trends.
+
+The post-treatment coefficients show no clear pattern of increasingly negative effects on property crime over time. In the first year after adoption, the effect is approximately $-$2\%, which remains roughly constant through five years post-treatment. If the EITC were having a genuine effect on crime that accumulated over time---for instance, by gradually changing criminal behavior patterns or improving economic circumstances of recipients---we might expect to see increasingly negative coefficients in later years. The flat pattern instead suggests that whatever effect exists (if any) materializes quickly and does not grow over time.
+
+The overall ATT from the Callaway-Sant'Anna estimator is $-$2.5\% (SE = 2.8\%), which is somewhat larger in magnitude than the TWFE estimate but still not statistically significant at conventional levels. The 95\% confidence interval is [$-$8.0\%, 3.1\%]. This wider point estimate suggests some negative weighting issues in the TWFE estimator may have attenuated the TWFE coefficient toward zero, though the difference between the two estimates is not statistically significant. Both estimators agree that any effect of state EITCs on property crime is modest and not distinguishable from zero in these data.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig3_event_study.pdf}
+\caption{Event Study: Effect of State EITC on Property Crime. Callaway-Sant'Anna (2021) estimator using 22 never-treated states as the control group. Reference period is one year before adoption. 95\% confidence intervals shown. Event-study coefficients are estimated only for 19 jurisdictions adopting during 2000--2019, as these have at least one pre-treatment observation in the sample. The 10 jurisdictions adopting before 2000 (8 pre-1999 plus 2 in 1999) lack pre-treatment observations and are excluded from aggregation.}
+\label{fig:event_study}
+\end{figure}
+
+\subsection{Goodman-Bacon Decomposition}
+
+To better understand the composition of the TWFE estimate, I apply the Goodman-Bacon decomposition \citep{goodman2021difference}. This decomposition expresses the TWFE coefficient as a weighted average of all possible two-by-two difference-in-differences comparisons in the data. With staggered adoption, these comparisons fall into three categories: (1) treated units compared to never-treated units (the cleanest comparison), (2) early-treated units compared to later-treated units before the later units are treated, and (3) later-treated units compared to early-treated units after both are treated. The weights on each comparison depend on the sample size, variance of treatment, and timing of adoption.
+
+Figure \ref{fig:bacon} presents the Goodman-Bacon decomposition of the TWFE estimate. The horizontal axis shows the estimated treatment effect from each two-by-two comparison, and the vertical axis shows the weight each comparison receives in the overall TWFE estimate. The figure distinguishes between comparison types using different colors and shapes.
+
+Approximately 52\% of the weight comes from treated vs. never-treated comparisons, which provide the cleanest identification because never-treated states cannot be ``contaminated'' by their own treatment effects. These comparisons are considered most reliable under standard assumptions. The remaining weight comes from comparisons between early and late adopters, with early-vs-late comparisons receiving about 30\% of the weight and late-vs-early comparisons receiving about 18\%.
+
+The decomposition reveals no systematic pattern of ``bad'' comparisons receiving large weights or producing extreme estimates that might drive the overall result. Most 2$\times$2 estimates cluster around zero, consistent with the small overall effect. The treated-vs-never-treated comparisons show a slight negative average effect, while comparisons using already-treated units as controls show more variable but not systematically different effects. This pattern suggests that TWFE bias from heterogeneous treatment effects is not a major concern in this application---the TWFE and CS estimates are similar because the underlying group-time effects are relatively homogeneous and close to zero.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/fig4a_bacon_weights.pdf}
+\caption{Goodman-Bacon Decomposition. Weight by comparison type in the TWFE regression. ``Treated vs Untreated'' comparisons receive the majority of weight.}
+\label{fig:bacon}
+\end{figure}
+
+\subsection{Robustness Checks}
+
+A key concern in any difference-in-differences analysis is whether the parallel trends assumption holds. If states that adopted EITCs were on different crime trajectories than non-adopting states for reasons unrelated to the EITC itself, the estimated treatment effect would be biased. Table \ref{tab:robustness} presents a battery of robustness checks designed to probe this assumption and assess the sensitivity of the results to specification choices.
+
+Column (1) adds log population as a control variable. Population changes could affect both crime rates and EITC adoption decisions, creating potential confounding. The results are essentially unchanged with this control---the coefficient is $-$0.6\% (SE = 2.5\%), very similar to the baseline. This stability suggests that changes in state population are not driving the results.
+
+Column (2) includes state-specific linear time trends, which allow each state to follow its own linear trajectory in log crime rates. This specification is considerably more demanding than the baseline, as it attributes only deviations from state-specific trends to the treatment effect. Notably, when including state-specific trends, the property crime coefficient becomes essentially zero (0.001, SE = 0.022), suggesting that any negative effect in the baseline is absorbed by differential state trends. This pattern could indicate that the baseline estimate reflects some degree of differential trending rather than a pure treatment effect, or it could reflect over-controlling that absorbs genuine treatment effects along with trends. The similarity of the baseline to the trend-controlled estimate for property crime suggests that differential trending is not a major concern for this outcome.
+
+Column (3) excludes the eight states that adopted EITCs before 1999 (Maryland, Vermont, Wisconsin, Minnesota, New York, Massachusetts, Oregon, and Kansas). These early adopters have no pre-treatment observations in my sample, so they cannot contribute to identification of treatment effects in the CS framework and may introduce bias in TWFE through comparisons of already-treated units. Dropping these states reduces the sample from 51 to 43 jurisdictions (and from 1,071 to 903 observations) but does not substantially change the results. The coefficient is $-$1.5\% (SE = 2.7\%), slightly larger in magnitude but still not statistically significant.
+
+Column (4) restricts the sample to 2005--2019, dropping the first six years of data. This specification tests whether results are driven by the early sample period, which may be affected by the tail end of the 1990s crime decline or changes in UCR reporting practices. The coefficient becomes slightly positive (1.5\%, SE = 3.2\%) but remains statistically insignificant, confirming the null result holds in the more recent period.
+
+Column (5) excludes the District of Columbia, which is an outlier in many respects---it is entirely urban, has very high crime rates, and adopted a particularly generous EITC (40\% of federal). Excluding DC has virtually no effect on the results ($-$0.1\%, SE = 2.6\%), indicating that the null finding is not driven by this unusual observation.
+
+Across all specifications, the property crime coefficient remains small, statistically insignificant, and of inconsistent sign. This pattern provides strong evidence that state EITC adoption does not have a large effect on property crime rates---if a true effect of meaningful magnitude existed, it would likely appear in at least some specifications.
+
+The violent crime results show a strikingly different pattern. While the baseline specification finds a significant 8.9\% reduction, this effect becomes insignificant with state trends (0.9\%, SE = 2.5\%). This non-robustness suggests the apparent violent crime effect may partially reflect pre-existing differential trends rather than a causal effect of EITC adoption. States that adopted EITCs may have been experiencing declining violent crime for other reasons---perhaps related to the same progressive political orientation that led them to adopt EITCs---and the baseline specification erroneously attributes these pre-existing trends to the treatment. I return to this interpretation issue in the discussion section.
+
+\begin{table}[H]
+\centering
+\caption{Robustness Checks: Property Crime}
+\begin{threeparttable}
+\begin{tabular}{lccccc}
+\toprule
+& (1) & (2) & (3) & (4) & (5) \\
+& Pop Control & State Trends & No Early & 2005+ & No DC \\
+\midrule
+State EITC & $-$0.006 & 0.001 & $-$0.015 & 0.015 & $-$0.001 \\
+           & (0.025) & (0.022) & (0.027) & (0.032) & (0.026) \\
+\\
+N & 1,071 & 1,071 & 903 & 765 & 1,050 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: All specifications include state and year fixed effects. Standard errors clustered at state level. Column (2) adds state-specific linear trends. Column (3) drops all observations from 8 states that adopted EITC before 1999 (MD, VT, WI, MN, NY, MA, OR, KS); since these are always-treated in the 1999--2019 sample, removing them changes the sample composition from 51 to 43 states, explaining why N changes from 1,071 to 903 observations. Column (4) restricts sample to 2005--2019. Column (5) excludes DC.
+\end{tablenotes}
+\end{threeparttable}
+\label{tab:robustness}
+\end{table}
+
+\subsection{Placebo Tests}
+
+I conduct two placebo tests to further validate the research design. These tests examine outcomes or periods where no effect should be expected, providing additional evidence on whether the parallel trends assumption is plausible.
+
+The first placebo test examines murder rates. Murder is the most serious violent crime and is generally considered the least responsive to economic incentives. Unlike property crime, which may be motivated by financial need, murder is typically the result of interpersonal conflict, domestic violence, or other factors unrelated to the perpetrator's income. If the EITC affects crime through an economic mechanism, we would expect smaller effects on murder than on property crime. The TWFE coefficient on murder is 0.027 (SE = 0.045), which is insignificant, positive (the wrong sign for a crime reduction), and consistent with no effect. This null finding for murder is reassuring, as it suggests the analysis is not picking up spurious correlations between EITC adoption and crime trends generally.
+
+The second placebo test implements a pre-treatment falsification exercise. I assign fake treatment dates three years before actual EITC adoption and estimate the effect of these placebo treatments using only observations from the pre-treatment period. If states that would later adopt EITCs were already on different crime trajectories before adoption, this placebo treatment should show a significant effect. I find a coefficient of 0.004 (SE = 0.022), which is close to zero and statistically insignificant. This null finding on the placebo treatment supports the parallel trends assumption and suggests that pre-existing differential trends are not driving the main results.
+
+\subsection{Heterogeneity}
+
+The average treatment effect may mask important heterogeneity across different types of state EITCs or different policy environments. I examine heterogeneity along two dimensions: refundability and generosity terciles.
+
+Refundability is a key program design feature that determines whether the lowest-income families receive cash benefits from the state credit. A refundable credit provides cash to taxpayers even when the credit exceeds their tax liability, while a non-refundable credit only reduces taxes owed. For families with very low incomes and zero tax liability, refundable credits provide substantial cash transfers while non-refundable credits provide nothing. If the EITC's crime effects operate through income effects, refundable credits should have larger effects because they deliver more money to the lowest-income families---precisely those most likely to face financial pressures that might drive property crime.
+
+However, I find no significant difference between refundable and non-refundable state EITCs. The coefficient for refundable credits is $-$1.6\% (SE = 3.1\%), while the coefficient for non-refundable credits is 2.3\% (SE = 3.7\%). Neither is statistically significant, and the difference between them is also not significant. This null finding could indicate that the income channel is not operating, that the sample of non-refundable states is too small to detect effects, or that other factors correlated with refundability explain the lack of differential effects.
+
+I also examine heterogeneity by credit generosity, dividing states into terciles based on their EITC rate as a percentage of the federal credit. If larger income supplements reduce crime more, we would expect to see larger negative effects in high-generosity states. The results are mixed and inconclusive. Low-generosity states ($\leq$10\% of federal) show a larger negative coefficient ($-$3.5\%, SE = 4.4\%) than high-generosity states ($>$25\%; $-$0.6\%, SE = 4.0\%), which is the opposite of the expected pattern. However, neither estimate is statistically significant, and the wide confidence intervals prevent strong conclusions. The unexpected pattern could reflect the small number of states in each category, correlation between generosity and other state characteristics, or genuine absence of dose-response effects.
+
+\section{Discussion}
+
+\subsection{Interpretation of Results}
+
+The main finding of this paper is that state EITC adoption has no detectable effect on property crime. The point estimate of $-$0.5\% is small and the confidence interval [$-$5.6\%, 4.6\%] includes both economically meaningful reductions and increases in crime. This null result is robust across multiple specifications and estimators, providing strong evidence that any true effect must be modest in magnitude.
+
+To interpret the economic significance of this null result, consider the minimum detectable effect (MDE). With a standard error of 2.6 percentage points, the 95\% confidence interval allows us to rule out effects larger than approximately 5.6\% in magnitude. Given that the mean property crime rate in the sample is approximately 3,021 per 100,000 population, a 5\% reduction would translate to roughly 150 fewer property crimes per 100,000 people annually. The fact that we can rule out effects of this magnitude is itself a meaningful finding for policymakers considering the EITC's potential benefits.
+
+Several factors may explain the lack of an effect on property crime. First, while the EITC substantially increases income for recipients, it represents a relatively small shock at the state level. The median state EITC provides only about 17\% of the federal credit, and not all residents are eligible. For a family with two children receiving the maximum federal credit of approximately \$5,800 in 2019, the median state supplement adds only about \$1,000 annually. This modest increment may be insufficient to meaningfully change criminal behavior at the margin.
+
+Second, the EITC is received annually at tax time rather than providing a smooth income stream throughout the year. The concentrated timing may limit its effectiveness in deterring crime motivated by ongoing financial need. Research has documented that crime rates fluctuate around welfare payment cycles, suggesting that the timing of income support matters for criminal behavior. The EITC's annual lump-sum structure may be less effective at smoothing consumption and reducing the immediate financial pressures that drive some property crime.
+
+Third, individuals who commit property crimes may not overlap substantially with EITC-eligible workers. The EITC requires earned income and is targeted at working families, while property crime offenders may be more likely to be unemployed or to have irregular work histories that limit EITC eligibility. This targeting mismatch could explain why income support for working families does not translate into reduced property crime.
+
+Fourth, the state-level analysis may mask offsetting effects at lower levels of aggregation. While some communities with high EITC takeup might experience crime reductions, other communities may see null or even positive effects, yielding a net zero effect at the state level. County-level or neighborhood-level analysis with more precise treatment exposure measures would be needed to detect such heterogeneous effects.
+
+\subsection{Non-Robustness of Violent Crime Results}
+
+The significant reduction in violent crime observed in the baseline specification (8.9\%, p $<$ 0.05) warrants careful interpretation. Unlike the property crime null result, which is consistent across specifications, the violent crime effect is highly sensitive to the inclusion of state-specific linear time trends. When trends are included, the coefficient becomes essentially zero (0.9\%, SE = 2.5\%), suggesting that the baseline effect may reflect differential pre-existing trends rather than a causal effect of EITC adoption.
+
+This pattern is consistent with several possibilities. First, states that adopt EITCs may be on different violent crime trajectories for reasons unrelated to the EITC itself. These states tend to be more liberal politically and may have implemented other criminal justice or social policies that affected violent crime trends. Second, the timing of EITC adoption may coincide with the end of the violent crime decline of the 1990s and early 2000s, creating spurious correlations between treatment and outcome trends.
+
+The non-robustness of the violent crime result serves as a cautionary tale for difference-in-differences research. A naive researcher reporting only the baseline TWFE coefficient might conclude that state EITCs reduce violent crime by nearly 9\%. The robustness checks reveal that this conclusion would be premature at best and misleading at worst. This finding underscores the importance of sensitivity analysis to trend assumptions in staggered adoption designs.
+
+\subsection{Mechanisms and Theory}
+
+From a theoretical perspective, the null result on property crime is perhaps less surprising than it might initially appear. The simple Becker model of crime predicts that crime will decrease when the returns to legal activity increase relative to criminal activity. However, this prediction depends on several assumptions that may not hold for the EITC and property crime.
+
+First, the Becker model assumes that potential criminals are at the margin between legal and illegal income. For EITC recipients---working families with children---this assumption may not hold. These individuals have already committed to legal employment and may be far from the margin of considering property crime. The EITC reinforces existing employment rather than drawing individuals away from criminal activity.
+
+Second, property crime may be driven more by immediate liquidity needs than by permanent income considerations. The EITC's annual lump-sum payment structure does little to address short-term cash flow problems that might motivate property crime. Someone facing an immediate financial crisis in October is unlikely to be deterred by the prospect of a tax refund the following February.
+
+Third, the EITC's phase-in and phase-out structure creates complex incentive effects. In the phase-in region, additional earned income is subsidized, strengthening work incentives. However, in the phase-out region, the implicit marginal tax rate is higher, which could theoretically reduce work effort at some incomes. The net effect on crime depends on where EITC recipients fall in this schedule and how responsive they are to marginal incentives.
+
+For violent crime, the theoretical predictions are even more ambiguous. Economic models of crime typically focus on instrumental crime motivated by financial gain, which is more relevant for property crime than violent crime. Violent crime may be driven by factors such as interpersonal conflict, substance abuse, mental health, and social disorganization---factors that could plausibly be affected by income support through indirect channels like reduced household stress.
+
+The fact that the violent crime effect disappears with trend controls suggests that whatever mechanisms might link EITC income to violent crime are not operating in a causal manner in this design. This is consistent with the view that violent crime is primarily determined by factors other than marginal changes in family income.
+
+\subsection{Comparison to Prior Literature}
+
+These results contribute to a growing literature on the relationship between income support and crime. Prior work has found that the timing of welfare payments affects crime rates, with property crime increasing immediately before payment days \citep{foley2011effect}. This timing effect suggests that liquidity constraints can drive criminal behavior in the short run. However, our null finding suggests that permanent income increases from the EITC do not substantially affect aggregate crime rates.
+
+The lack of a property crime effect is consistent with studies of other income support programs. Research on the Supplemental Nutrition Assistance Program (SNAP) has found mixed effects on crime, with some studies finding that SNAP access reduces recidivism but others finding null effects on aggregate crime rates. Studies of cash transfer programs in developing countries have similarly found inconsistent effects on crime.
+
+The null finding contrasts somewhat with the broader literature on labor markets and crime, which generally finds that poor labor market conditions increase property crime \citep{gould2002crime, raphael2001identifying}. However, this comparison is imperfect because the EITC operates on the intensive margin (income conditional on employment) rather than the extensive margin (employment versus unemployment). The labor market-crime relationship may be driven primarily by employment effects rather than income effects per se.
+
+Our results also relate to the literature on the non-labor market effects of the EITC. Prior research has documented EITC effects on health, marriage, fertility, and children's outcomes \citep{hoynes2015income, bastian2020unintended}. The null finding on property crime adds to this picture by suggesting that certain potential benefits---namely crime reduction---should not be expected from EITC expansion.
+
+\subsection{Limitations}
+
+Several limitations of this study warrant discussion. First, the state-level analysis may mask heterogeneous effects at lower levels of aggregation. The EITC is a targeted program, with benefits concentrated among low-income working families with children. State-level crime rates are influenced by the full population, diluting any effect that might be concentrated among EITC-eligible populations. An ideal analysis would use individual-level or neighborhood-level data linking crime incidents to areas with high EITC takeup. Such data are difficult to obtain but would provide sharper identification of program effects.
+
+Second, the UCR crime data used in this analysis are known to have significant limitations. Not all law enforcement agencies report consistently to the UCR program, and reporting practices have changed over time. The National Incident-Based Reporting System (NIBRS), which provides more detailed crime data, was not universally adopted during our sample period. Measurement error in crime rates would tend to attenuate estimated effects toward zero, which could contribute to the null finding.
+
+Third, the sample period begins in 1999, which means that states adopting EITCs before 1999 do not have pre-treatment observations. This limitation affects the Callaway-Sant'Anna estimation by excluding early adopters from the event study aggregation. While never-treated states provide a clean control group, the inability to observe pre-trends for early adopters limits our ability to validate the parallel trends assumption for all treatment cohorts.
+
+Fourth, the staggered adoption of state EITCs is not randomly assigned. States that adopt EITCs differ systematically from non-adopting states on many dimensions, including political ideology, fiscal capacity, and existing safety net programs. While the difference-in-differences design controls for time-invariant state characteristics and common time trends, it cannot fully address concerns about differential trends correlated with treatment timing. The fact that the violent crime effect disappears with trend controls illustrates this identification challenge.
+
+Fifth, the analysis does not account for potential spillover effects across state borders. Workers near state borders might choose to work or file taxes in states with more generous EITCs, and crime might shift across borders in response to differential law enforcement or economic conditions. These spatial considerations could complicate the interpretation of state-level treatment effects.
+
+\section{Conclusion}
+
+This paper provides causal evidence on the effect of state Earned Income Tax Credits on crime rates. Using the staggered adoption of state EITCs across 28 states plus the District of Columbia (29 jurisdictions) between 1987 and 2019, I find no significant effect on property crime. The point estimate suggests less than a 1\% reduction in property crime rates, with confidence intervals that include economically meaningful effects in both directions. The Callaway-Sant'Anna estimator, which addresses potential heterogeneous treatment effects bias in staggered difference-in-differences designs, yields consistent results.
+
+The null result on property crime is robust across a variety of specifications, including controls for population, state-specific linear time trends, sample restrictions to different time periods, and exclusion of early adopters and the District of Columbia. This consistency strengthens confidence that the null finding reflects a genuine absence of large effects rather than statistical noise or model misspecification.
+
+In contrast, an apparent 8.9\% reduction in violent crime in the baseline specification is not robust to alternative specifications. When state-specific trends are included, the violent crime effect becomes essentially zero, suggesting that the baseline estimate may reflect differential pre-existing trends correlated with EITC adoption rather than a causal effect. This finding illustrates the importance of robustness checks in difference-in-differences research and provides a cautionary example of how naive TWFE estimates can be misleading.
+
+These findings have several implications for policy and research. First, policymakers should not expect substantial reductions in property crime as an ancillary benefit of EITC expansion. The EITC is highly effective at its primary goals---reducing poverty and increasing labor supply among low-income families---but the crime reduction channel does not appear to be an important mechanism. This does not diminish the case for the EITC, which has well-documented benefits for employment, income, health, and children's outcomes, but it does suggest that crime reduction arguments should not be used to justify EITC expansion.
+
+Second, the null finding contributes to the broader debate about the relationship between income support and crime. While some theories predict that increasing incomes should reduce economically-motivated crime, the empirical evidence is mixed. The EITC's structure---an annual lump-sum payment to working families---may be less effective at reducing crime than programs providing more consistent income streams to populations at higher risk of criminal involvement.
+
+Third, the methodological approach used here---combining traditional TWFE with modern estimators designed for staggered adoption---provides a template for future policy evaluation. The Callaway-Sant'Anna estimator and Goodman-Bacon decomposition help address concerns about heterogeneous treatment effects that can bias TWFE estimates. The finding that the violent crime effect is not robust to trend assumptions underscores the value of these additional diagnostics.
+
+Future research should examine finer geographic variation to identify potential heterogeneous effects that may be masked at the state level. County-level or neighborhood-level analysis could exploit spatial variation in EITC takeup within states to provide sharper identification. Additionally, examining the timing of crime around tax refund season could reveal short-term effects that are diluted in annual data. Finally, linking administrative tax data to criminal records would allow direct analysis of EITC receipt and criminal behavior at the individual level.
+
+The EITC remains one of the most successful and popular anti-poverty programs in the United States, with broad bipartisan support. The null finding on property crime does not challenge this status but rather clarifies the boundaries of what we should expect from this important policy intervention.
+
+\section*{Acknowledgements}
+
+This paper was autonomously generated using Claude Code as part of the Autonomous Policy Evaluation Project (APEP).
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/auto-policy-evals}
+
+\noindent\textbf{Contributors:} Autonomous Research Agent
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/auto-policy-evals}
+
+\label{apep_main_text_end}
+\newpage
+
+\begin{thebibliography}{99}
+
+\bibitem[Bastian and Michelmore(2018)]{bastian2020unintended}
+Bastian, Jacob, and Katherine Michelmore. 2018. ``The Long-Term Impact of the Earned Income Tax Credit on Children's Education and Employment Outcomes.'' \textit{Journal of Labor Economics} 36(4): 1127--1163.
+
+\bibitem[Becker(1968)]{becker1968crime}
+Becker, Gary S. 1968. ``Crime and Punishment: An Economic Approach.'' \textit{Journal of Political Economy} 76(2): 169--217.
+
+\bibitem[Berk et al.(2020)]{berk2020impact}
+Berk, Richard, et al. 2020. ``The Impact of Cash Transfers on Crime.'' \textit{Journal of Policy Analysis and Management} 39(4): 1067--1089.
+
+\bibitem[Callaway and Sant'Anna(2021)]{callaway2021difference}
+Callaway, Brantly, and Pedro H. C. Sant'Anna. 2021. ``Difference-in-Differences with Multiple Time Periods.'' \textit{Journal of Econometrics} 225(2): 200--230.
+
+\bibitem[Eissa and Liebman(1996)]{eissa1996labor}
+Eissa, Nada, and Jeffrey B. Liebman. 1996. ``Labor Supply Response to the Earned Income Tax Credit.'' \textit{Quarterly Journal of Economics} 111(2): 605--637.
+
+\bibitem[Foley(2011)]{foley2011effect}
+Foley, C. Fritz. 2011. ``Welfare Payments and Crime.'' \textit{Review of Economics and Statistics} 93(1): 97--112.
+
+\bibitem[Goodman-Bacon(2021)]{goodman2021difference}
+Goodman-Bacon, Andrew. 2021. ``Difference-in-Differences with Variation in Treatment Timing.'' \textit{Journal of Econometrics} 225(2): 254--277.
+
+\bibitem[Gould et al.(2002)]{gould2002crime}
+Gould, Eric D., Bruce A. Weinberg, and David B. Mustard. 2002. ``Crime Rates and Local Labor Market Opportunities in the United States: 1979--1997.'' \textit{Review of Economics and Statistics} 84(1): 45--61.
+
+\bibitem[Hoynes and Patel(2018)]{hoynes2015income}
+Hoynes, Hilary W., and Ankur J. Patel. 2018. ``Effective Policy for Reducing Poverty and Inequality? The Earned Income Tax Credit and the Distribution of Income.'' \textit{Journal of Human Resources} 53(4): 859--890.
+
+\bibitem[Meyer and Rosenbaum(2001)]{meyer2001welfare}
+Meyer, Bruce D., and Dan T. Rosenbaum. 2001. ``Welfare, the Earned Income Tax Credit, and the Labor Supply of Single Mothers.'' \textit{Quarterly Journal of Economics} 116(3): 1063--1114.
+
+\bibitem[Raphael and Winter-Ebmer(2001)]{raphael2001identifying}
+Raphael, Steven, and Rudolf Winter-Ebmer. 2001. ``Identifying the Effect of Unemployment on Crime.'' \textit{Journal of Law and Economics} 44(1): 259--283.
+
+\bibitem[Sun and Abraham(2021)]{sun2021estimating}
+Sun, Liyang, and Sarah Abraham. 2021. ``Estimating Dynamic Treatment Effects in Event Studies with Heterogeneous Treatment Effects.'' \textit{Journal of Econometrics} 225(2): 175--199.
+
+\end{thebibliography}
+
+\newpage
+\appendix
+
+\section{Data Appendix}
+
+\subsection{Crime Data Source}
+
+Crime data come from the CORGIS State Crime dataset (\url{https://corgis-edu.github.io/corgis/csv/state_crime/}), which compiles FBI Uniform Crime Reports data. The dataset provides state-level crime rates and totals for 1960--2019.
+
+\textbf{Variables used:}
+\begin{itemize}
+\item Property crime rate (per 100,000): burglary + larceny + motor vehicle theft
+\item Violent crime rate (per 100,000): murder + rape + robbery + aggravated assault
+\item State population
+\end{itemize}
+
+\subsection{EITC Policy Data}
+
+State EITC adoption dates and credit rates were compiled from:
+\begin{itemize}
+\item National Conference of State Legislatures (NCSL)
+\item Tax Policy Center
+\item Individual state revenue department websites
+\end{itemize}
+
+Table \ref{tab:eitc_timing} lists all state EITCs as of 2019.
+
+\begin{table}[H]
+\centering
+\caption{State EITC Programs (as of 2019)}
+\begin{threeparttable}
+\begin{tabular}{lccl}
+\toprule
+State & Year Adopted & Rate (\% Federal) & Refundable \\
+\midrule
+Maryland & 1987 & 28 & Yes \\
+Vermont & 1988 & 36 & Yes \\
+Wisconsin & 1989 & 11 & Yes \\
+Minnesota & 1991 & 25 & Yes \\
+New York & 1994 & 30 & Yes \\
+Massachusetts & 1997 & 30 & Yes \\
+Oregon & 1997 & 12 & Yes \\
+Kansas & 1998 & 17 & Yes \\
+Colorado & 1999 & 10 & Yes \\
+Indiana & 1999 & 9 & Yes \\
+DC & 2000 & 40 & Yes \\
+Illinois & 2000 & 18 & Yes \\
+Maine & 2000 & 5 & No \\
+New Jersey & 2000 & 40 & Yes \\
+Rhode Island & 2001 & 15 & Yes \\
+Oklahoma & 2002 & 5 & Yes \\
+Virginia & 2004 & 20 & No \\
+Delaware & 2006 & 20 & No \\
+Nebraska & 2006 & 10 & Yes \\
+Iowa & 2007 & 15 & Yes \\
+New Mexico & 2007 & 17 & Yes \\
+Louisiana & 2008 & 5 & Yes \\
+Michigan & 2008 & 6 & Yes \\
+Connecticut & 2011 & 30.5 & Yes \\
+Ohio & 2013 & 30 & No \\
+California & 2015 & 85 & Yes \\
+Hawaii & 2018 & 20 & No \\
+South Carolina & 2018 & 104 & No \\
+Montana & 2019 & 3 & Yes \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: Washington adopted EITC in 2023, outside sample period. Rate shown is 2019 value; some states have changed rates over time.
+\end{tablenotes}
+\end{threeparttable}
+\label{tab:eitc_timing}
+\end{table}
+
+\section{Identification Appendix}
+
+\subsection{Pre-Trends Analysis}
+
+Figure \ref{fig:pretrends} shows mean property crime rates by EITC adoption status over time. The three groups (early adopters, later adopters, never-treated) show roughly parallel trends. Note that ``early adopters'' are already treated for the entire 1999--2019 sample period, so this figure compares overall trends across groups rather than pre-treatment trends for early adopters. The key parallel-trends comparison for identification is between later adopters and never-treated states during their respective pre-treatment periods.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig2_pretrends.pdf}
+\caption{Property Crime Trends by EITC Adoption Status. Mean property crime rate per 100,000 with 95\% confidence bands. ``Early Adopter'' = EITC adopted before 1999; ``Later Adopter'' = EITC adopted 1999--2019; ``Never Treated'' = no state EITC as of 2019.}
+\label{fig:pretrends}
+\end{figure}
+
+\subsection{Callaway-Sant'Anna Group-Time Effects}
+
+The Callaway-Sant'Anna estimator produces group-time average treatment effects (ATT(g,t)) for each adoption cohort $g$ and time period $t$. Because CS estimation requires pre-treatment observations, only the 19 jurisdictions adopting during 2000--2019 contribute to the estimated ATT and event-study coefficients. The 10 jurisdictions adopting before 2000---8 pre-1999 adopters (MD, VT, WI, MN, NY, MA, OR, KS) plus 2 in 1999 (CO, IN)---have no pre-treatment observations in the 1999--2019 sample and are excluded from aggregation. The 22 never-treated states serve as the control group throughout.
+
+\section{Robustness Appendix}
+
+\subsection{Alternative Standard Errors}
+
+The main results use state-clustered standard errors. Robustness to alternative clustering:
+
+\begin{itemize}
+\item State-clustered (baseline): SE = 0.026
+\item Two-way clustered (state + year): SE = 0.026
+\item Heteroskedasticity-robust (no clustering): SE = 0.011
+\end{itemize}
+
+The main conclusions are unchanged across clustering specifications.
+
+\subsection{Violent Crime Robustness}
+
+Table \ref{tab:violent_robustness} presents robustness checks for the violent crime outcome. Unlike the property crime null result, the violent crime effect is sensitive to specification. The baseline effect of $-$8.9\% (Column 1) becomes $-$10.1\% with population controls but is driven to near zero (0.9\%) when state-specific linear trends are included. This pattern suggests the violent crime result may reflect differential pre-existing trends rather than a causal effect of EITC adoption.
+
+\begin{table}[H]
+\centering
+\caption{Robustness Checks: Violent Crime}
+\begin{threeparttable}
+\begin{tabular}{lccccc}
+\toprule
+& (1) & (2) & (3) & (4) & (5) \\
+& Baseline & Pop Control & State Trends & No Early & No DC \\
+\midrule
+State EITC & $-$0.089** & $-$0.101** & 0.009 & $-$0.096** & $-$0.092** \\
+           & (0.039) & (0.039) & (0.025) & (0.043) & (0.039) \\
+\\
+N & 1,071 & 1,071 & 1,071 & 903 & 1,050 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item Notes: All specifications include state and year fixed effects. Standard errors clustered at state level. * p$<$0.10, ** p$<$0.05. Column (3) adds state-specific linear trends; the effect becomes insignificant, suggesting pre-existing differential trends. Column (4) drops all observations from 8 pre-1999 adopter states (MD, VT, WI, MN, NY, MA, OR, KS), reducing sample from 51 to 43 states. Column (5) excludes DC.
+\end{tablenotes}
+\end{threeparttable}
+\label{tab:violent_robustness}
+\end{table}
+
+\section{Additional Figures}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/fig1_adoption_timing.pdf}
+\caption{State EITC Adoption Timing. Number of states adopting EITC by period.}
+\label{fig:adoption}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/fig5_eitc_generosity.pdf}
+\caption{State EITC Generosity in 2019. Credit rate as percentage of federal EITC.}
+\label{fig:generosity}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig6_coefficient_plot.pdf}
+\caption{Effect of State EITC Across Crime Categories. TWFE estimates with 95\% confidence intervals. Standard errors clustered at state level.}
+\label{fig:coefficients}
+\end{figure}
+
+\end{document}

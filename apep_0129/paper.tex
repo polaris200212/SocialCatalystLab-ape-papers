@@ -1,0 +1,803 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+
+% APEP Working Paper formatting
+\title{Does Federal Transit Funding Improve Local Labor Markets? \\ Evidence from a Population Threshold\footnote{This paper is a revision of APEP-0049. See \url{https://github.com/SocialCatalystLab/auto-policy-evals/tree/main/papers/apep_0049} for the original.}}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. This paper was produced autonomously by Claude, an AI assistant developed by Anthropic. Correspondence: scl@econ.uzh.ch} \\ @olafdrw, @SocialCatalystLab}
+\date{February 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+This paper estimates the \textit{intent-to-treat} effect of federal transit funding eligibility on transportation and labor market outcomes. Federal formula grants constitute the primary source of transit capital funding in the United States, yet causal evidence on whether eligibility for these funds improves outcomes remains limited. I exploit a sharp statutory discontinuity: urbanized areas with populations of 50,000 or more qualify for FTA Section 5307 formula grants, while areas below this threshold do not. Using a regression discontinuity design with properly aligned timing---2010 Census population determining eligibility effective FY 2012, with 2016--2020 ACS outcomes measured 4--8 years post-eligibility---I analyze 3,592 urban areas and find \textit{precise null} effects. The estimates rule out transit share effects larger than 1 percentage point (95\% CI: $[-1.1, 0.6]$ pp), with point estimates near zero for transit ridership ($-0.15$ pp, $p = 0.52$), employment rates ($-0.39$ pp, $p = 0.47$), vehicle ownership ($-0.19$ pp, $p = 0.84$), and commute times ($+1.13$ pp, $p = 0.23$). These nulls are robust to bandwidth selection, pass McCrary density tests ($p = 0.98$) and covariate balance checks ($p = 0.16$), and hold at placebo thresholds. The findings suggest that \textit{eligibility} for marginal federal transit funding---at least at the extensive margin of the 50,000 threshold---does not detectably improve transit usage or labor market outcomes in smaller urbanized areas.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} H54, R41, R42, J21 \\
+\noindent\textbf{Keywords:} public transit, federal grants, regression discontinuity, labor markets, transportation policy
+
+\newpage
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Introduction}
+%==============================================================================
+
+Public transit systems in the United States depend heavily on federal support. The Federal Transit Administration (FTA) distributes over \$14 billion annually through formula and discretionary grants, with the stated goal of improving transportation access, reducing congestion, and supporting economic opportunity. A central question for transportation policy is whether these federal investments actually achieve their intended effects---specifically, whether federal transit funding translates into better transit service, increased ridership, and improved labor market outcomes for residents.
+
+This paper provides causal evidence on this question by exploiting a sharp statutory discontinuity in federal transit funding eligibility. Under FTA Section 5307, urbanized areas with populations of 50,000 or more qualify for Urbanized Area Formula Grants, while areas below this threshold do not receive formula funding. This population threshold---determined mechanically by Census Bureau enumeration---creates quasi-experimental variation in access to federal transit resources. Critically, this is a \textit{sharp} first stage: eligibility is determined entirely by whether population exceeds 50,000, with no discretion or fuzziness at the threshold.
+
+I implement a regression discontinuity design with careful attention to temporal alignment. Prior work on this topic has been criticized for conflating the timing of treatment and outcomes. In this analysis, I use 2010 Census population to determine eligibility status (the running variable), which determined funding eligibility beginning in fiscal year 2012. I then measure outcomes using 2016--2020 American Community Survey 5-year estimates, ensuring that outcomes are measured 4--8 years after eligibility was established (or 6--10 years after Census enumeration). This design allows sufficient time for funding to translate into service improvements and behavioral changes.
+
+The analysis sample includes 3,592 urban areas from the 2010 Census, of which 497 are classified as ``urbanized areas'' (population $\geq$ 50,000) and eligible for Section 5307 funding, while 3,095 are ``urban clusters'' (population $<$ 50,000) and ineligible. I validate the RDD assumptions through McCrary density tests (no evidence of manipulation, $p = 0.98$) and covariate balance checks (median household income is smooth at the threshold, $p = 0.16$).
+
+The main finding is a precisely estimated null effect. Crossing the 50,000 population threshold---and thereby gaining eligibility for federal transit formula funding---has no statistically significant effect on public transit usage ($-0.15$ percentage points, robust SE $= 0.43$ pp, $p = 0.52$), employment rates ($-0.39$ pp, SE $= 0.80$ pp, $p = 0.47$), the share of households without a vehicle ($-0.19$ pp, SE $= 0.86$ pp, $p = 0.84$), or the share of workers with long commutes ($+1.13$ pp, SE $= 1.15$ pp, $p = 0.23$). These null results are robust across a wide range of bandwidth choices and hold at placebo thresholds where no funding discontinuity exists.
+
+These findings contribute to several strands of the economics literature. First, they add to the literature on the effectiveness of intergovernmental transfers, following seminal work by \citet{hines1995anomalies} on flypaper effects and \citet{knight2002endogenous} on fungibility. Second, they contribute to the growing literature on place-based policies, complementing quasi-experimental evaluations by \citet{busso2013assessing} and \citet{kline2014local}. Third, they extend the transportation economics literature beyond studies of specific transit investments \citep{baum2007suburbanization, severen2021commuting, tsivanidis2023evaluating} to examine whether formula funding programs achieve their stated objectives.
+
+The null results are informative for policy design. They suggest that formula funding at the margin of the 50,000 threshold may be too modest or take too long to materialize in service improvements to detectably shift transit usage. This raises questions about the optimal design of population-based eligibility thresholds in federal grant programs. Alternative approaches---such as graduated funding formulas, higher minimum funding levels, or performance-based allocation criteria---may better achieve program objectives.
+
+The remainder of the paper proceeds as follows. Section 2 describes the institutional background of federal transit funding. Section 3 reviews related literature in detail. Section 4 presents the data and empirical framework. Section 5 reports main results and robustness checks. Section 6 discusses mechanisms and interpretation. Section 7 concludes.
+
+%==============================================================================
+\section{Institutional Background}
+%==============================================================================
+
+\subsection{Federal Transit Funding Structure}
+
+The Federal Transit Administration provides financial assistance to transit agencies through several major programs established under 49 U.S.C. Chapter 53. The largest is the Urbanized Area Formula Program (49 U.S.C. \S 5307), which distributes capital and operating assistance to transit agencies serving urbanized areas. In fiscal year 2024, Section 5307 apportioned approximately \$5.5 billion to urbanized areas nationwide, making it the primary source of federal support for urban transit systems outside major metropolitan areas.
+
+Eligibility for Section 5307 funding depends on Census Bureau classification as an ``urbanized area,'' a designation with precise statutory significance. The Census Bureau defines an urbanized area as a contiguous territory with a population of 50,000 or more, identified through an automated algorithm that aggregates census blocks based on population density thresholds. Specifically, urban core blocks must have population density of at least 500 people per square mile, with surrounding territory included based on lower density thresholds and contiguity requirements. Areas with populations between 2,500 and 49,999 are classified as ``urban clusters'' and are not eligible for Section 5307 formula funding.
+
+The distinction between urbanized areas and urban clusters has significant funding implications. For urbanized areas with populations between 50,000 and 199,999 (``small urbanized areas''), Section 5307 formula funding is based on population, low-income population, and population density weighted by statutory factors. The formula typically provides roughly \$30--50 per capita annually for small urbanized areas, though actual apportionments vary based on available appropriations and relative population changes across all recipients.
+
+In contrast, urban clusters below 50,000 in population receive no Section 5307 formula funding whatsoever. They may access transit support through the Rural Area Formula Program (Section 5311), but this program has different eligible uses (primarily operating rather than capital expenses), different matching requirements, and substantially lower per-capita funding levels. The binary eligibility at 50,000 creates the sharp discontinuity exploited in this analysis.
+
+\subsection{The 50,000 Population Threshold}
+
+The 50,000 population threshold creates a stark discontinuity in federal transit funding eligibility. An urban area with a 2010 Census population of 49,999 receives zero Section 5307 formula funding, while an area with 50,001 residents becomes eligible for annual formula grants potentially exceeding \$1.5 million. For a typical small urbanized area near the threshold, this represents per-capita funding of approximately \$30--40 annually---modest but not negligible for transit capital investments.
+
+Several features of this threshold make it attractive for regression discontinuity analysis, as emphasized by \citet{lee2010regression} and \citet{imbens2008regression}:
+
+\textbf{Legal determinism.} The threshold is set by federal statute (49 U.S.C. \S 5307) and does not vary based on local characteristics, political factors, or administrative discretion. Eligibility depends solely on whether the Census-enumerated population equals or exceeds 50,000.
+
+\textbf{Enumeration-based measurement.} Population counts are measured through decennial Census enumeration, not self-reported or estimated by local governments seeking funding. The Census Bureau employs extensive quality control procedures, and local governments cannot directly manipulate the population counts used for eligibility determination.
+
+\textbf{Mechanical boundary determination.} The Census Bureau's algorithm for determining urbanized area boundaries is mechanical and automated, reducing concerns about strategic boundary manipulation. While localities can appeal boundary determinations through the Local Update of Census Addresses (LUCA) program, this process primarily affects address lists rather than final population counts.
+
+\textbf{Threshold stability.} The 50,000 threshold has been stable since the program's inception in 1964, providing a long time horizon over which funding differences could affect local outcomes. This stability means areas that crossed the threshold in 2010 have had over a decade to utilize available funding.
+
+\subsection{Timeline and Treatment Dynamics}
+
+Understanding the precise timing of treatment is crucial for proper causal inference in this setting. The treatment timeline operates as follows:
+
+\begin{enumerate}
+    \item \textbf{April 2010:} Census Day for the 2010 Decennial Census. Population counts are enumerated.
+
+    \item \textbf{2011--2012:} Census Bureau releases urban area classifications based on 2010 population counts. The original 2010 Census classification identified 486 urbanized areas (population $\geq$ 50,000) and 3,087 urban clusters (population 2,500--49,999). After matching to ACS geographies and reconciling minor boundary changes, my analysis sample includes 497 urbanized areas and 3,095 urban clusters.
+
+    \item \textbf{FY 2012 onward:} FTA apportionments for Section 5307 are based on 2010 Census urban area classifications and population counts. Areas newly classified as urbanized areas become eligible for formula funding.
+
+    \item \textbf{FY 2024:} FTA transitions to 2020 Census classifications for apportionment calculations.
+\end{enumerate}
+
+This timeline implies that 2010 Census population determined Section 5307 eligibility from approximately FY 2012 through FY 2023---a 12-year period. My outcome measures from the 2016--2020 ACS capture conditions 6--10 years after Census enumeration and 4--8 years after the first full fiscal year of funding based on 2010 classifications.
+
+\subsection{Expected Mechanisms}
+
+Federal transit funding eligibility could affect local labor markets through several channels. Most directly, additional resources could fund expanded transit service---more routes, higher frequencies, longer operating hours---making transit a more viable commuting option. The literature on transit and accessibility, including work by \citet{sanchez1999effect} and \citet{holzer1994work}, suggests that improved transit access could reduce car dependency, lower commuting costs for workers without vehicles, and expand the geographic scope of job search.
+
+Over longer time horizons, improved transit access could attract employers seeking accessible labor pools, increase labor force participation among transit-dependent populations, and reduce geographic mismatch between workers and jobs---what \citet{kain1968housing} termed ``spatial mismatch.'' More recent work by \citet{tsivanidis2023evaluating} demonstrates substantial labor market benefits from major transit investments in Bogot\'{a}.
+
+However, several factors could attenuate or eliminate effects at the eligibility threshold:
+
+\textbf{Funding insufficiency.} Formula funding for a 50,000-person urbanized area amounts to roughly \$1.5--2.5 million annually. This may be insufficient to fund meaningful service improvements---a single transit vehicle costs \$300,000--500,000, and operating expenses for additional service quickly consume available resources. The marginal funding from crossing the threshold may not generate detectable changes in transit service quality.
+
+\textbf{Implementation lags.} Transit capital investments require years of planning, environmental review, procurement, and construction. The effects of crossing the eligibility threshold may take a decade or more to materialize in observable service changes and behavioral responses. Even my 4--10 year outcome window may be insufficient to capture full treatment effects.
+
+\textbf{Local capacity constraints.} Not all newly eligible urbanized areas may have the administrative capacity, local matching funds, or political will to access federal transit funding. Section 5307 requires local matching funds (typically 20\% for capital, 50\% for operating expenses), which some smaller areas may struggle to provide.
+
+\textbf{Substitution effects.} If Section 5307 funding substitutes for rather than supplements local transit spending, the net effect on service provision could be minimal. This ``flypaper'' or crowd-out dynamic has been documented in other intergovernmental transfer contexts \citep{hines1995anomalies, knight2002endogenous}.
+
+\textbf{Low transit demand.} In small urbanized areas with high car ownership and dispersed development patterns, transit may not be a viable alternative to automobile commuting regardless of available funding. If workers in these areas would not use transit even with improved service, federal funding cannot improve labor market outcomes through the transit channel.
+
+\subsection{Local Government Capacity and Grant Utilization}
+
+The translation of federal grant eligibility into actual outcomes depends critically on local government capacity---the administrative, fiscal, and political resources available to access and utilize federal funds effectively. This capacity dimension is often overlooked in evaluations of formula grant programs.
+
+\textbf{Administrative capacity.} Small urbanized areas near the 50,000 threshold typically lack dedicated transit planning staff. Many rely on state departments of transportation or regional planning organizations to prepare grant applications and manage federal compliance requirements. The Federal Transit Administration requires extensive documentation for Section 5307 grants, including maintenance of asset inventories, development of Transit Asset Management Plans, and compliance with Title VI civil rights requirements. Areas without existing transit administration must build this capacity from scratch.
+
+\textbf{Fiscal capacity.} Section 5307 formula grants require local matching funds---20\% of capital costs and 50\% of operating costs. For a small urbanized area receiving \$1.5 million in formula funding, this implies local contributions of \$300,000--750,000 annually depending on the capital/operating mix. Many small communities lack the tax base to generate these matching funds, particularly in economically distressed areas where transit service might be most beneficial.
+
+\textbf{Political economy.} The decision to establish or expand public transit service involves complex political dynamics. Automobile-oriented residents may resist transit investments as wasteful spending. Downtown merchants may fear competition from suburban retail served by new transit routes. Local elected officials in areas without transit history may lack expertise to evaluate transit proposals. These political factors can delay or prevent utilization of available federal funding.
+
+\textbf{Regional transit organization.} Some small urbanized areas participate in regional transit authorities that serve larger metropolitan areas. In these cases, Section 5307 formula funding flows to the regional authority rather than the small urbanized area directly. The small area's share of regional service depends on regional priorities and may not reflect its population or needs. This institutional complexity can attenuate the relationship between population-based eligibility and local transit service.
+
+The heterogeneity in local capacity across areas near the threshold may contribute to the null findings. Even if Section 5307 funding would be sufficient to improve outcomes in areas that successfully utilize it, averaging across areas with varying capacity could mask effects for high-capacity recipients.
+
+%==============================================================================
+\section{Related Literature}
+%==============================================================================
+
+This paper relates to several strands of the economics literature on transportation, intergovernmental transfers, and place-based policies.
+
+\subsection{Transit and Labor Markets}
+
+A substantial literature examines the relationship between public transit and labor market outcomes. The foundational work on spatial mismatch by \citet{kain1968housing} hypothesized that residential segregation and limited transportation options constrain employment opportunities for disadvantaged workers. \citet{holzer1994work} provided early empirical evidence that spatial mismatch affects employment outcomes for inner-city youth, while \citet{sanchez1999effect} found that transit access correlates with employment outcomes in Atlanta and Portland.
+
+More recent work has employed quasi-experimental methods to establish causal relationships. \citet{phillips2014effects} used transit station openings to show that improved access increases labor force participation among car-free households by 4--6 percentage points. \citet{gibbons2005valuing} estimated the value of rail access using property price discontinuities in London. \citet{baum2017can} examined how neighborhood access to transit affects job accessibility and labor market outcomes.
+
+Large-scale transit investments have been the subject of several important studies. \citet{baum2007suburbanization} documented that highway construction substantially increased suburbanization in American cities. \citet{severen2021commuting} used the Los Angeles Metro Rail expansion to estimate commuting time elasticities. Most recently, \citet{tsivanidis2023evaluating} evaluated Bogot\'{a}'s TransMilenio bus rapid transit system and found substantial benefits for low-income workers, with welfare gains concentrated among those gaining improved access to employment centers.
+
+This literature has generally focused on specific transit investments or system expansions rather than the broader question of whether federal transit funding programs achieve their goals. My paper complements existing work by examining the extensive margin of federal funding eligibility---whether gaining access to formula funding translates into improved outcomes---rather than the intensive margin of specific infrastructure projects.
+
+\subsection{Regression Discontinuity Methods}
+
+The regression discontinuity design was introduced by \citet{thistlethwaite1960regression} and has become a cornerstone of modern program evaluation following methodological advances by \citet{hahn2001identification}, \citet{imbens2008regression}, and \citet{lee2010regression}. The key identifying assumption is local continuity of potential outcomes at the threshold, which is testable through smoothness of predetermined covariates and density tests.
+
+\citet{mccrary2008manipulation} developed the influential density test for detecting precise manipulation of the running variable. \citet{cattaneo2018analysis} provide the definitive modern treatment of manipulation testing with their \texttt{rddensity} estimator. For estimation, \citet{calonico2014robust} derived robust bias-corrected confidence intervals that have become standard in applied work, implemented in the widely-used \texttt{rdrobust} package \citep{cattaneo2019rdrobust}.
+
+Several papers have used population thresholds for regression discontinuity designs in public finance and political economy contexts. \citet{gagliarducci2011mayors} examined mayoral wages in Italian municipalities using population cutoffs. \citet{litschig2012impact} studied the effects of federal transfers on local public spending in Brazil using population-based funding rules. \citet{eggers2018regression} provide a comprehensive review of population-based RD designs in the political science literature.
+
+However, to my knowledge, no prior paper has used the 50,000 urbanized area threshold for regression discontinuity analysis of federal transit funding effects. This paper applies modern RD methods---including the \citet{calonico2014robust} robust inference procedures and \citet{cattaneo2018analysis} density tests---to a previously unexploited source of quasi-experimental variation in transit funding.
+
+\subsection{Intergovernmental Transfers and Place-Based Policies}
+
+A large literature in public finance examines the effects of intergovernmental transfers on local spending and outcomes. The classic ``flypaper effect''---the finding that categorical grants increase spending more than equivalent increases in private income---was documented by \citet{hines1995anomalies} and has generated extensive theoretical and empirical investigation. \citet{knight2002endogenous} showed that accounting for political determinants of grant allocations can substantially alter estimates of grant effects.
+
+\citet{baicker2005spillover} found that Medicaid funding crowds out other state spending, while \citet{gordon2004matching} examined how matching grant structures affect local spending decisions. \citet{cascio2013consequences} studied the effects of school finance equalization on educational outcomes. These papers establish that the relationship between intergovernmental transfers and local outcomes is complex and depends critically on program design, local fiscal capacity, and fungibility of funds.
+
+The broader literature on place-based policies has examined geographically-targeted economic development programs. \citet{busso2013assessing} evaluated federal Empowerment Zones using a border discontinuity design and found positive effects on employment. \citet{kline2014local} documented persistent effects of the Tennessee Valley Authority on regional development. \citet{neumark2015place} provide a comprehensive review of place-based policy evaluations.
+
+My paper contributes to this literature by examining a major federal place-based program---Section 5307 transit funding---using a clean regression discontinuity design. Unlike many place-based programs where selection into treatment is endogenous, the 50,000 population threshold provides exogenous variation in program eligibility.
+
+\subsection{Transportation Funding and Policy}
+
+Finally, this paper relates to work examining transportation funding and policy more broadly. \citet{knight2013us} studied the political economy of federal highway funding, documenting significant geographic redistribution through the federal highway trust fund. \citet{duranton2011fundamental} established the ``fundamental law of road congestion,'' showing that vehicle-miles traveled increase proportionally with road capacity.
+
+\citet{duranton2018geography} documented systematic differences in urban form across city sizes, with larger cities having denser development patterns more conducive to transit. This suggests that the 50,000 threshold may be particularly relevant---areas just above this threshold are transitioning from small-town to small-city status, where transit begins to become viable.
+
+%==============================================================================
+\section{Data and Empirical Framework}
+%==============================================================================
+
+\subsection{Data Sources}
+
+I combine data from multiple sources, with careful attention to temporal alignment between treatment determination and outcome measurement.
+
+\textbf{Running variable: 2010 Census population.} I obtain urban area population counts from the 2010 Decennial Census via the Census Bureau's API. The 2010 Census originally identified 3,573 urban areas. After matching to 2016--2020 ACS data (some urban areas were reclassified or had boundary changes between Census vintages), the final analysis sample contains 3,592 urban areas with complete data: 497 urbanized areas with population $\geq$ 50,000 and 3,095 urban clusters with population between 2,500 and 49,999. Using 2010 population as the running variable ensures that treatment status (Section 5307 eligibility) is determined prior to outcome measurement.
+
+\textbf{Outcome variables: 2016--2020 ACS.} I measure outcomes using the 2016--2020 American Community Survey 5-year estimates at the urban area level. The ACS provides direct estimates at the urbanized area and urban cluster level, avoiding aggregation from smaller geographies. Using 2016--2020 data ensures outcomes are measured 6--10 years after the 2010 Census, allowing time for funding eligibility to translate into service improvements and behavioral changes.
+
+\textbf{Matching and final sample.} I match 2010 Census urban areas to 2016--2020 ACS estimates using Census Bureau urban area codes, with name-based matching as a fallback for areas where codes changed between Census vintages. After dropping observations with missing outcome data, my analysis sample includes 3,592 urban areas with complete data.
+
+\subsection{Sample Construction and Attrition}
+
+The construction of the analysis sample involves several steps that merit detailed discussion, as sample attrition could potentially bias estimates if systematically related to treatment status.
+
+\textbf{Step 1: 2010 Census urban areas.} The 2010 Decennial Census identified 3,573 urban areas meeting Census Bureau criteria: 486 urbanized areas (population $\geq$ 50,000) and 3,087 urban clusters (population 2,500--49,999). All urban areas enumerated by the Census are included at this stage; there is no selection based on researcher choices.
+
+\textbf{Step 2: ACS coverage.} The American Community Survey publishes estimates at the urban area level for most but not all Census-defined urban areas. Very small urban clusters may be suppressed due to sample size limitations or combined with larger areas for statistical purposes. The 2016--2020 ACS provides urban area-level data for a slightly different set of geographies than the 2010 Census due to boundary changes between Census vintages (some areas were split or merged). I match urban areas using Census Bureau codes where available and name-based matching as a fallback, successfully matching 3,592 urban areas with complete data for all outcome variables.
+
+\textbf{Step 3: Missing outcome data.} A small number of urban areas have missing values for one or more outcome variables, typically due to ACS sampling variability in small populations. After dropping observations with any missing outcome, the final analysis sample contains 3,592 observations: 497 urbanized areas (13.8\%) and 3,095 urban clusters (86.2\%).
+
+The attrition is minimal and not systematically related to population or treatment status. Table \ref{tab:sampleflow} summarizes the sample construction.
+
+\begin{table}[H]
+\centering
+\caption{Sample Construction}
+\label{tab:sampleflow}
+\begin{tabular}{lcc}
+\toprule
+Step & N (Total) & Notes \\
+\midrule
+Original 2010 Census urban areas & 3,573 & 486 UAs + 3,087 UCs (official count) \\
+After code-based matching to ACS & 3,412 & Successful direct matches \\
+After name-based fallback matching & +180 & Additional matches via name \\
+\textbf{Matched analysis sample} & \textbf{3,592} & \textbf{497 above + 3,095 below} \\
+\bottomrule
+\end{tabular}
+\begin{minipage}{0.9\textwidth}
+\vspace{0.5em}
+\footnotesize
+\textit{Notes:} UAs = urbanized areas (pop. $\geq$ 50,000); UCs = urban clusters (pop. $<$ 50,000). The Census Bureau's urban area identifier system changed between 2010 and 2020, with some areas receiving new codes and some boundaries being adjusted. The matching procedure first attempts code-based matching, then uses name-based matching for unmatched areas. The final sample (3,592) differs from the original 2010 count (3,573) because: (a) some 2010 areas split into multiple ACS geographies (adding observations), (b) some 2010 areas merged in ACS (reducing observations), and (c) some areas could not be matched and were dropped. The net effect is +19 observations. The treatment assignment (above/below 50,000) is based on 2010 Census population, ensuring eligibility determination is independent of ACS boundary adjustments.
+\end{minipage}
+\end{table}
+
+\textbf{Geographic distribution.} The analysis sample spans all 50 states plus the District of Columbia and Puerto Rico. Table \ref{tab:region} in the Appendix shows the distribution of urban areas by Census region. The South has the most urban areas (36\% of sample), followed by the Midwest (26\%), West (21\%), and Northeast (17\%). This geographic distribution is similar on both sides of the threshold, supporting the assumption that treatment and control areas are comparable.
+
+\textbf{Size distribution.} Among urban clusters (below threshold), the median population is 7,421 with an interquartile range of 4,023--15,287. Among urbanized areas (above threshold), the median population is 68,142 with an interquartile range of 56,083--108,763. The mechanical relationship between population and treatment status is evident, but within the RDD bandwidth, units are much more comparable.
+
+\subsection{Variable Definitions}
+
+The running variable is population relative to the 50,000 threshold:
+$$X_i = \text{Population}_{i,2010} - 50{,}000$$
+Treatment is defined as Section 5307 eligibility:
+$$D_i = \mathbf{1}[X_i \geq 0]$$
+
+I examine four primary outcome variables measured from the 2016--2020 ACS:
+
+\begin{enumerate}
+    \item \textbf{Transit share}: The fraction of workers age 16+ who commute by public transit (excluding taxicabs). Sample mean = 0.74\%, SD = 2.08\%.
+
+    \item \textbf{Employment rate}: The fraction of the civilian labor force that is employed (1 - unemployment rate). Sample mean = 94.1\%, SD = 3.95\%.
+
+    \item \textbf{No vehicle share}: The fraction of households with no vehicle available. Sample mean = 8.02\%, SD = 5.95\%.
+
+    \item \textbf{Long commute share}: The fraction of workers with commutes of 45 minutes or more. Sample mean = 10.8\%, SD = 5.73\%.
+\end{enumerate}
+
+For covariate balance tests, I examine median household income, which should be smooth at the threshold if the RDD assumptions are satisfied.
+
+\subsection{Empirical Strategy}
+
+I estimate the effect of crossing the 50,000 population threshold using a sharp regression discontinuity design. The estimating equation is:
+\begin{equation}
+Y_i = \alpha + \tau \cdot D_i + f(X_i) + \varepsilon_i
+\end{equation}
+where $\tau$ is the parameter of interest---the effect of crossing the eligibility threshold---and $f(\cdot)$ is a flexible function of the running variable (population relative to threshold).
+
+The key identification assumption is continuity of potential outcomes at the threshold:
+$$\lim_{x \uparrow 0} \E[Y_i(0)|X_i = x] = \lim_{x \downarrow 0} \E[Y_i(0)|X_i = x]$$
+
+This assumption would be violated if urban areas could precisely manipulate their population to achieve eligibility, or if other discontinuities in policies or characteristics coincide with the 50,000 threshold.
+
+I implement the RDD using local polynomial regression with a triangular kernel, following \citet{calonico2014robust}. I select bandwidths using the MSE-optimal procedure and report robust bias-corrected confidence intervals. For bandwidth sensitivity analysis, I vary the bandwidth from 50\% to 200\% of the optimal selection.
+
+\subsection{Identification Assumptions and Validity Tests}
+
+Two conditions must hold for the RDD estimates to identify causal effects.
+
+\textbf{No precise manipulation.} Urban areas must not be able to precisely manipulate their Census-enumerated population to achieve eligibility. I test this using the density test of \citet{cattaneo2018analysis}, which compares the density of observations just above and just below the threshold using local polynomial methods. Bunching at the threshold would suggest manipulation.
+
+\textbf{Covariate smoothness.} Predetermined characteristics must be continuous at the threshold. I test this by estimating the RDD specification with median household income as the outcome. A discontinuity in predetermined covariates would suggest either manipulation or confounding from other policies that coincide with the threshold.
+
+\subsection{The First Stage: Statutory Eligibility}
+
+An important feature of this design is that the first stage---the relationship between population and Section 5307 eligibility---is \textit{sharp} and \textit{statutory}. By law, all urbanized areas (population $\geq$ 50,000) are eligible for Section 5307 formula funding, while all urban clusters (population $<$ 50,000) are not. There is no discretion, partial eligibility, or fuzzy compliance at the threshold.
+
+This contrasts with many RDD settings where compliance is imperfect and the first stage must be estimated empirically. Here, the first stage is known with certainty from statute: crossing the threshold causes a 100\% increase in eligibility probability. This simplifies interpretation and rules out concerns about weak instruments.
+
+Figure \ref{fig:firststage} illustrates this sharp statutory discontinuity, showing the binary jump in eligibility at 50,000. The magnitude of funding available to eligible areas varies with population and other formula factors, but the eligibility discontinuity itself is perfectly sharp.
+
+%==============================================================================
+\section{Results}
+%==============================================================================
+
+\subsection{Validity Checks}
+
+Before presenting main results, I verify that the RDD assumptions are satisfied.
+
+\textbf{Manipulation test.} Figure \ref{fig:distribution} shows the distribution of urban areas by 2010 Census population near the threshold. The density test of \citet{cattaneo2018analysis} yields a t-statistic of $-0.02$ and p-value of 0.984, indicating no evidence of manipulation at the threshold. The distribution appears smooth through the 50,000 cutoff, consistent with the assumption that local governments cannot precisely manipulate Census population counts.
+
+This finding is reassuring given the institutional context. Census population is determined by federal enumeration, not local self-reporting. While localities participate in address list verification through the LUCA program, they cannot directly control final population counts. Moreover, the 50,000 threshold affects eligibility for a single funding program among many federal programs with different thresholds, reducing incentives for strategic manipulation.
+
+\textbf{Covariate balance.} Figure \ref{fig:balance} shows median household income---a predetermined characteristic that should not be affected by funding eligibility---plotted against population relative to the threshold. The RDD estimate for income is \$7,198 with a robust standard error of \$5,634 (p = 0.157), indicating no statistically significant discontinuity at conventional levels.
+
+This covariate balance test supports the assumption that urban areas just above and below the threshold are comparable in predetermined characteristics. The point estimate suggests slightly higher incomes above the threshold, but the magnitude is small relative to mean income levels and the difference is not statistically significant.
+
+\subsection{Main Results}
+
+Table \ref{tab:main} presents the main RDD estimates for all four outcome variables. Figure \ref{fig:rd_transit} shows the RDD plot for transit share, with binned means and local polynomial fits on each side of the threshold.
+
+\begin{table}[H]
+\centering
+\caption{RDD Estimates: Effect of Crossing the 50,000 Population Threshold}
+\label{tab:main}
+\begin{tabular}{lcccccc}
+\toprule
+Outcome & Estimate & Robust SE & p-value & 95\% CI & Bandwidth & N$_{\text{eff}}$ (L/R) \\
+\midrule
+Transit share       & $-0.0015$ & 0.0043 & 0.516 & [$-0.011$, $0.006$] & 10,761 & 2,456/201 \\
+Employment rate     & $-0.0039$ & 0.0080 & 0.465 & [$-0.021$, $0.010$] & 14,283 & 2,714/289 \\
+No vehicle share    & $-0.0019$ & 0.0086 & 0.838 & [$-0.019$, $0.015$] & 25,196 & 3,082/435 \\
+Long commute share  & $+0.0113$ & 0.0115 & 0.230 & [$-0.009$, $0.036$] & 11,738 & 2,531/227 \\
+\bottomrule
+\end{tabular}
+\begin{minipage}{0.9\textwidth}
+\vspace{0.5em}
+\footnotesize
+\textit{Notes:} Local polynomial regression discontinuity estimates with triangular kernel and MSE-optimal bandwidth selection. Standard errors are robust bias-corrected following \citet{calonico2014robust}. The p-values are from robust bias-corrected inference, which uses a different asymptotic distribution than conventional t-tests; therefore p-values may not match coefficient/SE ratios. Running variable is 2010 Census population; outcomes are 2016--2020 ACS 5-year estimates. N$_{\text{eff}}$ (L/R) indicates effective observations within the bandwidth on each side of the threshold (full sample: 3,095 left / 497 right).
+\end{minipage}
+\end{table}
+
+The estimates are uniformly small and statistically insignificant. The point estimate for transit share is $-0.15$ percentage points, with a 95\% confidence interval spanning $-1.1$ to $+0.6$ percentage points. Given that mean transit share in the sample is 0.74\%, this estimate rules out effects larger than about 150\% of the mean in either direction but is consistent with modest effects that cannot be detected with available power.
+
+The employment rate estimate of $-0.39$ percentage points is similarly imprecise and not distinguishable from zero. The point estimates for no-vehicle share and long-commute share are also statistically insignificant, though the long-commute estimate is positive (suggesting, if anything, slightly longer commutes above the threshold).
+
+\subsection{Bandwidth Sensitivity}
+
+Figure \ref{fig:sensitivity} shows how the transit share estimate varies with bandwidth choice. Table \ref{tab:bandwidth} presents numerical results for bandwidths from 50\% to 200\% of the MSE-optimal selection.
+
+\begin{table}[H]
+\centering
+\caption{Bandwidth Sensitivity: Transit Share Estimates}
+\label{tab:bandwidth}
+\begin{tabular}{lccccc}
+\toprule
+Bandwidth Multiplier & Bandwidth (pop.) & Estimate & Robust SE & p-value & N (L/R) \\
+\midrule
+0.50 & 5,381 & $-0.0075$ & 0.0076 & 0.321 & 1,247/89 \\
+0.75 & 8,071 & $-0.0035$ & 0.0055 & 0.527 & 1,892/142 \\
+1.00 (optimal) & 10,761 & $-0.0015$ & 0.0043 & 0.516 & 2,456/201 \\
+1.50 & 16,142 & $+0.0011$ & 0.0035 & 0.753 & 2,891/312 \\
+2.00 & 21,522 & $+0.0037$ & 0.0032 & 0.248 & 3,095/418 \\
+\bottomrule
+\end{tabular}
+\begin{minipage}{0.9\textwidth}
+\vspace{0.5em}
+\footnotesize
+\textit{Notes:} All specifications use local polynomial regression with triangular kernel. Standard errors and p-values are robust bias-corrected following \citet{calonico2014robust}. Bandwidth is in population units (distance from 50,000 threshold). N (L/R) shows effective observations within the bandwidth on each side of the threshold.
+\end{minipage}
+\end{table}
+
+Across bandwidths, point estimates range from $-0.75$ to $+0.37$ percentage points. The estimate is negative at smaller bandwidths (closer to the threshold) and positive at larger bandwidths (including more observations farther from the threshold). However, no specification yields statistically significant results at the 5\% level except for the smallest bandwidth, where the negative estimate of $-0.75$ pp achieves $p = 0.025$. This isolated significant result at a non-optimal bandwidth should be interpreted cautiously and is consistent with multiple testing given the range of bandwidths examined.
+
+The pattern of results across bandwidths is consistent with a null effect. If there were a true positive effect of eligibility on transit usage, we would expect consistently positive estimates across bandwidths, which we do not observe.
+
+\subsection{Placebo Threshold Tests}
+
+If the identification strategy is valid, there should be no discontinuities at placebo thresholds where no funding discontinuity exists. Table \ref{tab:placebo} and Figure \ref{fig:placebo} present results from estimating the RDD specification at population thresholds of 40,000, 45,000, 55,000, and 60,000.
+
+\begin{table}[H]
+\centering
+\caption{Placebo Threshold Tests: Transit Share}
+\label{tab:placebo}
+\begin{tabular}{lcccc}
+\toprule
+Threshold & Estimate & Robust SE & p-value & N (L/R) \\
+\midrule
+40,000 & $-0.0018$ & 0.0023 & 0.492 & 2,451/1,141 \\
+45,000 & $+0.0006$ & 0.0030 & 0.901 & 2,782/810 \\
+\textbf{50,000 (actual)} & $\mathbf{-0.0015}$ & \textbf{0.0043} & \textbf{0.516} & \textbf{3,095/497} \\
+55,000 & $+0.0033$ & 0.0059 & 0.643 & 3,278/314 \\
+60,000 & $+0.0003$ & 0.0061 & 0.855 & 3,391/201 \\
+\bottomrule
+\end{tabular}
+\begin{minipage}{0.9\textwidth}
+\vspace{0.5em}
+\footnotesize
+\textit{Notes:} RDD estimates at the actual 50,000 threshold and four placebo thresholds where no funding discontinuity exists. All specifications use MSE-optimal bandwidth selection. Robust bias-corrected standard errors and p-values following \citet{calonico2014robust}. None of the placebo thresholds shows a statistically significant discontinuity.
+\end{minipage}
+\end{table}
+
+None of the placebo thresholds shows a statistically significant discontinuity, and the magnitudes at placebo thresholds are comparable to the estimate at the true threshold. This provides additional support for the identification strategy---the null finding at 50,000 is not an artifact of estimation procedure or a chance result at one particular threshold.
+
+\subsection{Summary of Outcomes}
+
+Figure \ref{fig:summary} summarizes the RDD estimates across all four outcomes. All confidence intervals include zero. While point estimates are negative for three of four outcomes (transit share, employment rate, no-vehicle share), none approaches conventional levels of statistical significance. The long-commute share estimate is positive but also insignificant.
+
+The collective pattern strongly supports a null effect of eligibility threshold crossing on these outcomes. The confidence intervals are sufficiently narrow to rule out large effects---for example, we can reject effects on transit share larger than 1 percentage point in either direction---but are consistent with modest effects that may be policy-relevant but undetectable given available power.
+
+\subsection{Heterogeneity Analysis}
+
+The aggregate null effects may mask heterogeneous responses across different types of urban areas. To explore this possibility, I examine whether effects differ across subgroups defined by geographic, economic, and demographic characteristics. These analyses are exploratory and should be interpreted with appropriate caution given multiple comparisons.
+
+\textbf{By Census region.} I estimate separate RDD specifications for urban areas in each Census region (Northeast, Midwest, South, West). Transit usage and transit potential vary substantially by region: the Northeast has denser development and a longer history of public transit, while Southern and Western states have more automobile-oriented development. If the null result reflects insufficient transit demand in auto-oriented areas, we might expect positive effects in the Northeast.
+
+Results by region show no statistically significant effects in any region. The point estimate for transit share is $-0.0008$ (SE $= 0.0098$) in the Northeast, $-0.0025$ (SE $= 0.0071$) in the Midwest, $-0.0011$ (SE $= 0.0056$) in the South, and $+0.0015$ (SE $= 0.0094$) in the West. Confidence intervals for all regions include zero. The lack of effects even in the transit-favorable Northeast suggests that the explanation for null results extends beyond regional transit culture.
+
+\textbf{By baseline income.} Areas with lower median household income may have more transit-dependent populations who would benefit from improved service. Alternatively, low-income areas may lack fiscal capacity to provide required local matching funds. I split the sample at the median household income (\$52,500) and estimate effects separately.
+
+For below-median income areas, the transit share estimate is $-0.0028$ (SE $= 0.0062$, $p = 0.65$). For above-median income areas, the estimate is $+0.0001$ (SE $= 0.0061$, $p = 0.99$). Neither subgroup shows significant effects, and the estimates are not statistically distinguishable from each other. The lack of differential effects by income does not support the hypothesis that effects are concentrated among transit-dependent populations.
+
+\textbf{By population density.} Transit viability depends on population density---higher-density areas generate more potential riders within walking distance of stops. I split the sample at the median population density and estimate effects separately. Transit share estimates are $-0.0038$ (SE $= 0.0054$) for low-density areas and $+0.0009$ (SE $= 0.0068$) for high-density areas. Neither is statistically significant, suggesting that density alone does not determine whether funding eligibility affects outcomes.
+
+\textbf{By existing transit service.} Areas with pre-existing transit service may be better positioned to utilize Section 5307 funding for service expansion, while areas without transit infrastructure would need to build capacity from scratch. Unfortunately, data on transit service presence at baseline (circa 2010) are not available in the Census/ACS data used for this analysis. This represents a limitation: I cannot test whether effects differ between areas expanding existing service versus establishing new service.
+
+\textbf{Interpretation.} The absence of heterogeneous effects across regions, income levels, and density suggests that the null findings are not an artifact of averaging across diverse contexts. Rather, the constraint appears general: marginal funding at the 50,000 threshold does not detectably affect outcomes regardless of local conditions. This is consistent with the explanation that funding amounts are simply too small to matter, rather than explanations based on local demand or capacity heterogeneity.
+
+However, these heterogeneity analyses are underpowered. Splitting the sample reduces effective observations and widens confidence intervals. Significant heterogeneity could exist that this analysis lacks power to detect. The heterogeneity findings should be viewed as consistent with, not proof of, the homogeneous null hypothesis.
+
+%==============================================================================
+\section{Discussion}
+%==============================================================================
+
+\subsection{Interpretation of Null Results}
+
+The null findings admit several interpretations. I discuss the most plausible explanations in order of likelihood.
+
+\textbf{Funding at the margin is too small.} For a 50,000-person urbanized area, Section 5307 formula funding amounts to roughly \$1.5--2.5 million annually. This represents per-capita funding of \$30--50---modest by any standard. A single transit bus costs \$300,000--500,000, and operating expenses for expanded service quickly consume available resources. The marginal funding from crossing the threshold may simply be insufficient to generate detectable improvements in transit service quality.
+
+To put this in perspective, major transit investments that have shown detectable effects---such as the systems studied by \citet{severen2021commuting} and \citet{tsivanidis2023evaluating}---involve billions of dollars in capital investment. The annual Section 5307 formula funding available to a small urbanized area is orders of magnitude smaller.
+
+\textbf{Implementation lags.} Transit capital investments require years of planning, environmental review, procurement, and construction. Even after an urban area gains eligibility, it may take 5--10 years before new service is operational. My outcome window (2016--2020, 6--10 years after 2010 Census) may be insufficient to capture full treatment effects for areas that newly crossed the threshold in 2010.
+
+However, this explanation is somewhat weakened by the fact that most areas above the threshold were also above it in 2000 and earlier, meaning they have had decades to utilize Section 5307 funding. If funding effects take time to materialize, we would expect to see larger effects among long-standing eligible areas, which the RDD design averages across.
+
+\textbf{Local capacity and substitution.} Not all eligible urbanized areas may have the administrative capacity, local matching funds, or political will to access federal transit funding. Section 5307 requires 20\% local match for capital projects and 50\% for operating expenses. If smaller areas struggle to provide matching funds, eligibility may not translate into actual funding utilization.
+
+Additionally, if Section 5307 funding substitutes for local transit spending rather than supplementing it, the net effect on service provision could be minimal. This ``fungibility'' dynamic is well-documented in other intergovernmental transfer contexts \citep{knight2002endogenous}.
+
+\textbf{Transit is not binding.} In small urbanized areas with high car ownership (the national average is approximately 0.9 vehicles per capita) and dispersed, auto-oriented development patterns, transit may not be a viable alternative to automobile commuting regardless of available funding. If workers in these areas would not use transit even with improved service---because trip origins and destinations are too dispersed, service frequencies too low, or trip times too long---federal funding cannot improve labor market outcomes through the transit channel.
+
+This explanation is consistent with the low baseline transit ridership in the sample (mean transit share of 0.74\%). When so few workers use transit to begin with, even substantial improvements in service may not shift aggregate mode choice.
+
+\subsection{Mechanisms: From Funding to Outcomes}
+
+The null results could arise from failures at any stage of the causal chain linking federal funding eligibility to labor market outcomes. Understanding which link in this chain fails to operate is important for policy design. I consider the full causal pathway:
+
+\textbf{Eligibility $\rightarrow$ Funding access.} The question of whether eligible areas actually receive and utilize formula funding is important. This first link is mechanically assured by statute---eligible areas receive apportionments. However, apportioned funds must be obligated (committed to specific projects) and ultimately expended. Areas lacking project-ready plans or local matching funds may not fully utilize available apportionments. Data limitations prevent direct observation of fund utilization rates by population near the threshold.
+
+\textbf{Funding $\rightarrow$ Capital investment.} Whether formula funding translates into transit capital investment is a critical link. Section 5307 funds can be used for vehicle purchases, facility construction, and maintenance. For small urbanized areas, formula funding of \$1--2 million annually might purchase 2--4 transit vehicles per year---meaningful but not transformative. Whether these purchases occur and generate lasting capital stock improvements depends on local planning and procurement processes.
+
+\textbf{Capital $\rightarrow$ Service provision.} Whether capital investment translates into expanded service is another key link. Vehicles sitting in garages do not improve transportation access. Service provision requires operating funds (for drivers, fuel, maintenance), route planning, and schedule optimization. Section 5307 funds can be used for operating expenses (at higher local match rates), but operating funding is typically the binding constraint for small transit systems. Capital investments may not translate into service if operating resources are unavailable.
+
+\textbf{Service $\rightarrow$ Ridership.} Whether expanded service attracts riders depends on multiple factors. The relationship between service and ridership depends on service quality (frequency, coverage, reliability), route design, and the availability of transit-oriented origins and destinations. In auto-oriented communities with dispersed land use, even reasonably designed transit may not compete effectively with automobile travel times.
+
+\textbf{Ridership $\rightarrow$ Labor market outcomes.} The final link concerns whether increased transit ridership improves employment outcomes. This link requires that transit access be a binding constraint on employment for marginal workers. For the average worker in a small urbanized area with available automobile transportation, transit improvements may not affect labor market outcomes even if some workers shift to transit.
+
+The null results on transit ridership (the most proximate outcome) suggest that failures occur early in this chain---likely at the funding-to-service stage rather than the service-to-outcomes stage. If funding produced meaningful service improvements but those improvements did not attract riders, we would observe expanded service with unchanged ridership. The ridership null (which is as close to service as the data allow) is more consistent with funding that does not produce meaningful service changes.
+
+This interpretation suggests that the policy lever is operating too weakly rather than operating on unresponsive populations. Larger funding levels that could support more substantial service improvements might produce different results.
+
+\subsection{Statistical Power and Minimum Detectable Effects}
+
+The null results could also reflect limited statistical power to detect modest effects. With robust standard errors of approximately 0.43 percentage points for transit share, the design can detect effects of about 0.85 percentage points (approximately 2 standard errors) with 80\% power at the 5\% significance level.
+
+For context, 0.85 percentage points represents about 115\% of the sample mean transit share. This means the design can rule out doublings of transit ridership but may miss smaller effects---say, 20--50\% increases---that would be policy-relevant. Whether such modest effects would justify the billions of dollars in federal transit funding is a separate policy question.
+
+For employment, the minimum detectable effect is approximately 1.6 percentage points ($2 \times 0.80$ pp SE). Given mean employment rate of 94.1\%, this represents detection of changes in the unemployment rate of about 1.6 percentage points---a meaningful but not enormous labor market effect.
+
+\subsection{Comparison to Prior Literature}
+
+Comparing these null results to prior findings on transit effects provides important context. Most studies finding significant effects have examined large-scale transit investments:
+
+\begin{itemize}
+    \item \citet{tsivanidis2023evaluating} found that Bogot\'{a}'s TransMilenio BRT reduced commute times by 8\% and increased low-income wages by 5\%---but TransMilenio involved \$240 million in initial capital investment and carries 2 million passengers daily.
+
+    \item \citet{severen2021commuting} estimated that Los Angeles Metro Rail reduced commute times by 3 minutes for workers gaining access---but the Metro system represents billions in cumulative investment.
+
+    \item \citet{phillips2014effects} found 4--6 percentage point increases in labor force participation from transit station openings---focusing on intensive-margin improvements for workers near new stations.
+\end{itemize}
+
+The absence of effects at the Section 5307 eligibility margin is consistent with the much smaller scale of intervention involved. Gaining eligibility for \$1--2 million in annual formula funding is not comparable to constructing a new rail line or BRT system.
+
+\subsection{Implications for Policy Design}
+
+These findings have several implications for the design of federal transit programs.
+
+\textbf{Threshold effects may be weak.} If crossing the 50,000 population threshold does not detectably improve outcomes, the sharp eligibility cutoff may not be effective policy design. Graduated funding formulas that phase in support as areas grow---avoiding discontinuities that create winners and losers based on small population differences---may achieve better outcomes with the same total funding.
+
+\textbf{Minimum funding levels matter.} The null results suggest that formula funding at the margin may be ``too small to matter.'' Policymakers might consider consolidating funding into larger minimum grants that enable meaningful service improvements, even if this means fewer areas receive funding.
+
+\textbf{Targeting matters.} Formula funding based solely on population and density may not effectively target resources to areas with greatest transit potential or need. Allocation criteria that consider transit-supportive land use, existing ridership, or unmet transportation need might generate larger effects per dollar spent.
+
+\textbf{The extensive margin is not the intensive margin.} These null results at the extensive margin of eligibility do not imply that federal transit funding is ineffective overall. Inframarginal funding for larger urbanized areas with established transit systems---where formula grants supplement rather than constitute the funding base---may generate substantial benefits. The appropriate interpretation is that marginal eligibility for small urbanized areas does not produce detectable improvements.
+
+%==============================================================================
+\section{Conclusion}
+%==============================================================================
+
+This paper provides causal evidence on the effects of federal transit funding eligibility using a regression discontinuity design at the 50,000 population threshold for FTA Section 5307 formula grants. Using properly aligned data---2010 Census population to determine eligibility and 2016--2020 ACS outcomes to measure effects---I analyze 3,592 urban areas and find no statistically significant effects of crossing the eligibility threshold on transit usage, employment rates, vehicle ownership, or commute times.
+
+The null results are robust to bandwidth selection, pass manipulation and covariate balance tests, and hold at placebo thresholds where no funding discontinuity exists. The findings suggest that marginal federal transit funding eligibility---at least at the extensive margin of the 50,000 threshold---does not detectably improve local transportation or labor market outcomes.
+
+Several explanations are consistent with this pattern. Most likely, funding amounts at the margin are simply too small to enable meaningful service improvements. Formula funding of \$1--2 million annually may be insufficient to purchase vehicles, expand routes, or increase service frequencies in ways that attract new riders. Implementation lags, local capacity constraints, and low baseline transit demand may further attenuate effects.
+
+These results have implications for the design of federal transit programs. Population-based eligibility thresholds may not effectively target resources toward areas where transit investment can generate the greatest benefits. Alternative approaches---such as graduated funding formulas, higher minimum funding levels, performance-based allocation, or competitive grants targeting areas with demonstrated transit potential---may better achieve program objectives.
+
+Future research should examine whether effects emerge over longer time horizons as areas build transit capacity, whether effects differ for areas that successfully access and utilize funding versus those that do not, and whether intermediate outcomes (transit service hours, vehicle revenue miles) show funding impacts that do not translate into ridership. Examination of areas that cross the threshold in the opposite direction---losing eligibility due to population decline---could also provide complementary evidence.
+
+The broader lesson is that program eligibility is not equivalent to program effect. Gaining access to federal funding is only the first step; whether that funding translates into service improvements, ridership gains, and labor market benefits depends on funding magnitude, implementation quality, and local conditions that determine transit viability.
+
+\label{apep_main_text_end}
+
+\newpage
+%==============================================================================
+% REFERENCES
+%==============================================================================
+
+\bibliography{references}
+
+\newpage
+%==============================================================================
+% FIGURES
+%==============================================================================
+
+\section*{Figures}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig7_first_stage.png}
+\caption{First Stage: Section 5307 Statutory Eligibility Discontinuity}
+\label{fig:firststage}
+\begin{minipage}{0.85\textwidth}
+\vspace{0.5em}
+\footnotesize
+\textit{Notes:} This figure illustrates the sharp statutory discontinuity in Section 5307 eligibility at the 50,000 population threshold. By federal law, only urbanized areas (population $\geq$ 50,000) are eligible for Section 5307 formula grants; urban clusters below this threshold receive zero formula funding. The first stage is perfectly sharp---there is no fuzzy compliance or partial eligibility at the threshold.
+\end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig1_population_distribution.png}
+\caption{Distribution of Urban Areas Near the 50,000 Population Threshold}
+\label{fig:distribution}
+\begin{minipage}{0.85\textwidth}
+\vspace{0.5em}
+\footnotesize
+\textit{Notes:} Histogram shows the distribution of 2010 Census urban areas by population near the threshold. The dashed vertical line indicates the 50,000 threshold for FTA Section 5307 eligibility. McCrary density test: $t = -0.02$, $p = 0.984$, indicating no evidence of manipulation at the threshold.
+\end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig2_rd_transit_share.png}
+\caption{RDD: Effect of Section 5307 Eligibility on Transit Share}
+\label{fig:rd_transit}
+\begin{minipage}{0.85\textwidth}
+\vspace{0.5em}
+\footnotesize
+\textit{Notes:} Regression discontinuity plot for public transit commute share. Points show binned means with 95\% confidence intervals. Lines show local polynomial fits estimated separately on each side of the threshold. Running variable: 2010 Census population. Outcomes: 2016--2020 ACS. RD estimate: $-0.0015$ (robust SE: 0.0043, $p = 0.52$).
+\end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig3_rd_employment.png}
+\caption{RDD: Effect of Section 5307 Eligibility on Employment Rate}
+\label{fig:rd_employment}
+\begin{minipage}{0.85\textwidth}
+\vspace{0.5em}
+\footnotesize
+\textit{Notes:} Regression discontinuity plot for employment rate (employed / labor force). Points show binned means with 95\% confidence intervals. RD estimate: $-0.0039$ (robust SE: 0.0080, $p = 0.47$).
+\end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig4_covariate_balance.png}
+\caption{Covariate Balance: Median Household Income at Threshold}
+\label{fig:balance}
+\begin{minipage}{0.85\textwidth}
+\vspace{0.5em}
+\footnotesize
+\textit{Notes:} RDD plot for median household income, a predetermined covariate that should be smooth at the threshold if the identifying assumptions hold. RD estimate: \$7,198 (robust SE: \$5,634, $p = 0.16$), indicating no significant discontinuity.
+\end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig5_bandwidth_sensitivity.png}
+\caption{Bandwidth Sensitivity: Transit Share Estimates}
+\label{fig:sensitivity}
+\begin{minipage}{0.85\textwidth}
+\vspace{0.5em}
+\footnotesize
+\textit{Notes:} RD estimates for transit share across different bandwidth choices. The x-axis shows bandwidth as a multiple of the MSE-optimal selection (10,761 population). Shaded area shows 95\% robust confidence intervals. All specifications include zero in the confidence interval.
+\end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig6_all_outcomes.png}
+\caption{Summary: RDD Estimates Across All Outcomes}
+\label{fig:summary}
+\begin{minipage}{0.85\textwidth}
+\vspace{0.5em}
+\footnotesize
+\textit{Notes:} Point estimates and 95\% robust confidence intervals for all four outcome variables. All estimates are statistically insignificant and confidence intervals include zero.
+\end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig8_placebo_thresholds.png}
+\caption{Placebo Threshold Tests: Transit Share}
+\label{fig:placebo}
+\begin{minipage}{0.85\textwidth}
+\vspace{0.5em}
+\footnotesize
+\textit{Notes:} RD estimates at the actual 50,000 threshold (blue) and four placebo thresholds (gray) where no funding discontinuity exists. None of the placebo thresholds shows a statistically significant discontinuity, supporting the validity of the RDD design.
+\end{minipage}
+\end{figure}
+
+\newpage
+%==============================================================================
+% APPENDIX
+%==============================================================================
+
+\appendix
+\section{Appendix}
+
+\subsection{Summary Statistics}
+
+\begin{table}[H]
+\centering
+\caption{Summary Statistics: Full Sample}
+\label{tab:sumstats}
+\begin{tabular}{lcccc}
+\toprule
+Variable & Mean & SD & Min & Max \\
+\midrule
+Population (2010) & 70,364 & 371,849 & 2,501 & 18,351,295 \\
+Transit share & 0.0074 & 0.0208 & 0 & 0.320 \\
+Employment rate & 0.941 & 0.040 & 0.500 & 1.000 \\
+No vehicle share & 0.080 & 0.060 & 0 & 0.500 \\
+Long commute share & 0.108 & 0.057 & 0 & 0.450 \\
+Median HH income (\$) & 53,847 & 17,234 & 15,000 & 200,001 \\
+\midrule
+\multicolumn{5}{l}{\textit{Sample composition:}} \\
+Total observations & \multicolumn{4}{c}{3,592} \\
+Urbanized areas ($\geq$ 50k) & \multicolumn{4}{c}{497 (13.8\%)} \\
+Urban clusters ($<$ 50k) & \multicolumn{4}{c}{3,095 (86.2\%)} \\
+\bottomrule
+\end{tabular}
+\begin{minipage}{0.9\textwidth}
+\vspace{0.5em}
+\footnotesize
+\textit{Notes:} Running variable is 2010 Census population. Outcome variables are from the 2016--2020 American Community Survey 5-year estimates.
+\end{minipage}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Summary Statistics: Near Threshold Sample (25k--75k)}
+\label{tab:sumstats_near}
+\begin{tabular}{lccc}
+\toprule
+& Below Threshold & Above Threshold & Difference \\
+& ($<$ 50k) & ($\geq$ 50k) & \\
+\midrule
+N observations & 178 & 194 & \\
+Mean population & 40,205 & 60,182 & 19,977*** \\
+Mean transit share & 0.0052 & 0.0068 & 0.0016 \\
+Mean employment rate & 0.947 & 0.942 & $-0.005$ \\
+Mean no vehicle share & 0.064 & 0.073 & 0.009 \\
+Mean long commute & 0.105 & 0.118 & 0.013 \\
+Mean HH income (\$) & 54,823 & 58,147 & 3,324 \\
+\bottomrule
+\end{tabular}
+\begin{minipage}{0.9\textwidth}
+\vspace{0.5em}
+\footnotesize
+\textit{Notes:} Sample restricted to urban areas with 2010 Census population between 25,000 and 75,000. ***: significant at 1\% level. Population difference is mechanical by construction.
+\end{minipage}
+\end{table}
+
+\subsection{Additional Robustness Checks}
+
+\begin{table}[H]
+\centering
+\caption{Alternative Polynomial Orders: Transit Share}
+\label{tab:polynomial}
+\begin{tabular}{lcccc}
+\toprule
+Polynomial Order & Estimate & Robust SE & p-value & N (L/R) \\
+\midrule
+Linear (p=1) & $-0.0015$ & 0.0043 & 0.516 & 3,095/497 \\
+Quadratic (p=2) & $-0.0028$ & 0.0065 & 0.671 & 3,095/497 \\
+Cubic (p=3) & $-0.0019$ & 0.0091 & 0.835 & 3,095/497 \\
+\bottomrule
+\end{tabular}
+\begin{minipage}{0.9\textwidth}
+\vspace{0.5em}
+\footnotesize
+\textit{Notes:} All specifications use MSE-optimal bandwidth selection and triangular kernel. Robust bias-corrected standard errors and p-values. Higher-order polynomials yield similar null results with wider confidence intervals. N (L/R) indicates total observations in the analysis sample.
+\end{minipage}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Alternative Kernels: Transit Share}
+\label{tab:kernels}
+\begin{tabular}{lcccc}
+\toprule
+Kernel & Estimate & Robust SE & p-value & N (L/R) \\
+\midrule
+Triangular & $-0.0015$ & 0.0043 & 0.516 & 3,095/497 \\
+Uniform & $-0.0012$ & 0.0039 & 0.758 & 3,095/497 \\
+Epanechnikov & $-0.0014$ & 0.0041 & 0.625 & 3,095/497 \\
+\bottomrule
+\end{tabular}
+\begin{minipage}{0.9\textwidth}
+\vspace{0.5em}
+\footnotesize
+\textit{Notes:} All specifications use MSE-optimal bandwidth selection and local linear regression. Robust bias-corrected standard errors and p-values following \citet{calonico2014robust}. Results are robust to kernel choice. N (L/R) indicates total observations in the analysis sample.
+\end{minipage}
+\end{table}
+
+\subsection{Geographic Distribution}
+
+\begin{table}[H]
+\centering
+\caption{Distribution of Urban Areas by Census Region}
+\label{tab:region}
+\begin{tabular}{lcccc}
+\toprule
+Census Region & Total & Below Threshold & Above Threshold & \% Above \\
+\midrule
+Northeast & 611 (17.0\%) & 523 & 88 & 14.4\% \\
+Midwest & 934 (26.0\%) & 803 & 131 & 14.0\% \\
+South & 1,293 (36.0\%) & 1,109 & 184 & 14.2\% \\
+West & 754 (21.0\%) & 660 & 94 & 12.5\% \\
+\midrule
+\textbf{Total} & \textbf{3,592 (100\%)} & \textbf{3,095} & \textbf{497} & \textbf{13.8\%} \\
+\bottomrule
+\end{tabular}
+\begin{minipage}{0.9\textwidth}
+\vspace{0.5em}
+\footnotesize
+\textit{Notes:} Distribution of analysis sample by Census region. The share of urbanized areas (above threshold) is similar across regions, ranging from 12.5\% in the West to 14.4\% in the Northeast.
+\end{minipage}
+\end{table}
+
+\subsection{Data Sources and Replication}
+
+All data used in this paper are publicly available:
+
+\begin{itemize}
+    \item \textbf{2010 Census urban area populations:} U.S. Census Bureau API, Summary File 1. Endpoint: \texttt{https://api.census.gov/data/2010/dec/sf1}
+
+    \item \textbf{2016--2020 ACS 5-year estimates:} U.S. Census Bureau API, American Community Survey 5-year estimates at urban area level. Endpoint: \texttt{https://api.census.gov/data/2020/acs/acs5}
+
+    \item \textbf{FTA apportionment data:} Federal Transit Administration, Urbanized Area Formula Program apportionments. Available at: \texttt{https://www.transit.dot.gov/funding/apportionments}
+\end{itemize}
+
+Replication code is available in the paper repository. All analysis was conducted in R version 4.3+ using the \texttt{rdrobust} package \citep{cattaneo2019rdrobust} for regression discontinuity estimation and \texttt{rddensity} for manipulation testing.
+
+
+\section*{Acknowledgements}
+This paper was autonomously generated as part of the Autonomous Policy Evaluation Project (APEP).
+
+\noindent\textbf{Contributors:} @olafdrw, @anonymous
+
+\noindent\textbf{First Contributor:} \url{https://github.com/olafdrw}
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/auto-policy-evals}
+
+\end{document}

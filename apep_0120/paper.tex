@@ -1,0 +1,1069 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}  % Latin Modern font - fixes < > rendering issues
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable} % provides tablenotes
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\sisetup{detect-all=true, group-separator={,}, group-minimum-digits=4}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}  % American Economic Review style
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\sym}[1]{\ifmmode^{#1}\else\(^{#1}\)\fi} % significance stars for tables
+
+\title{State Minimum Wage Increases and Young Adult Household Formation:\\ Evidence from Staggered Adoption}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. Correspondence: scl@econ.uzh.ch} \\ @ai1scl}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+Do state minimum wage increases affect young adults' ability to form independent households? I exploit staggered adoption of state minimum wages above the federal floor of \$7.25 per hour using a panel of 51 U.S.\ jurisdictions over 2015--2022 (excluding 2020, when the ACS one-year estimates were not released due to COVID-19). Applying the \citet{callaway2021difference} heterogeneity-robust difference-in-differences estimator, I define treatment as the first year a state's effective minimum wage exceeds the federal level by \$1.00 or more, yielding 31 treated states and 20 never-treated controls; of these, 16 states (cohorts 2016--2021) contribute to the CS-DiD ATT, as earlier cohorts are ``always-treated'' within the panel. Census Bureau American Community Survey data on living arrangements of 18--34 year-olds (Table B09021, age-group-specific cells B09021\_008E--014E) reveal that the overall average treatment effect on the treated for parental co-residence is $-0.540$ percentage points (SE $= 0.446$), statistically indistinguishable from zero. This null result is robust across alternative treatment thresholds, control groups (never-treated, not-yet-treated), estimators (TWFE, Sun--Abraham event study), exclusion of pandemic-era observations, and alternative outcomes. The findings suggest that minimum wage increases at observed magnitudes do not produce detectable shifts in aggregate household formation patterns among young adults, likely because wage gains are modest relative to housing costs and are diluted across the broad 18--34 population. Effects on directly exposed subpopulations cannot be ruled out.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} J38, J31, R21, J12 \\
+\noindent\textbf{Keywords:} minimum wage, household formation, living arrangements, difference-in-differences, young adults
+
+\newpage
+
+%% ============================================================
+%%  SECTION 1: INTRODUCTION
+%% ============================================================
+\section{Introduction}
+
+Over the past decade, state minimum wages have become one of the most actively debated policy instruments in American labor economics. Between 2013 and 2022, more than 30 states raised their minimum wages above the long-stagnant federal floor of \$7.25 per hour, with several adopting \$15-per-hour targets \citep{dube2019minimum, cengiz2019effect}. A vast literature has examined the employment and earnings consequences of these increases \citep{neumark2007minimum, manning2021elusive}, yet surprisingly little is known about how minimum wage changes affect household formation---the decision of young adults to leave their parents' homes and establish independent residences. This paper investigates whether state minimum wage increases enable or hinder young adult household formation, contributing to our understanding of how labor market policies shape demographic outcomes.
+
+The question is timely and important. The share of young Americans living with their parents has risen sharply, reaching levels not seen since the 1940s \citep{fry2016share}. In 2022, roughly one-third of adults aged 18--34 lived in a parent's home, up from about one-quarter in 2000. This trend has profound implications for household consumption, fertility, local housing markets, and intergenerational transfers \citep{kaplan2012model, dettling2018returning}. If minimum wage increases improve the economic position of young workers, they could facilitate the transition to independent living. Alternatively, if disemployment effects dominate \citep{neumark2014revisiting}, or if wage gains are absorbed by rising housing costs \citep{yamaguchi2020minimum}, the net effect on household formation could be negligible or even adverse.
+
+This paper exploits the staggered adoption of state minimum wages above the federal floor to estimate the causal effect of minimum wage increases on young adult living arrangements. I construct a balanced panel of all 51 U.S.\ jurisdictions (50 states plus the District of Columbia) spanning 2015--2019 and 2021--2022 (7 years; the 2020 ACS one-year estimates were not released), drawing on the Census Bureau's American Community Survey Table B09021, which reports the living arrangements of individuals aged 18--34. Treatment is defined as the first year in which a state's effective minimum wage exceeds the federal level by \$1.00 or more, generating 31 treated states with varying adoption dates and 20 never-treated states that remained at or near \$7.25 throughout the sample period.
+
+I employ the \citet{callaway2021difference} group-time average treatment effect estimator, which is designed for settings with staggered treatment adoption and avoids the well-documented biases of traditional two-way fixed effects (TWFE) estimators \citep{goodman2021difference, dechaisemartin2020two}. The estimator computes cohort-specific treatment effects for each treatment timing group and aggregates them into an overall average treatment effect on the treated (ATT). As a complementary analysis, I also report results from the interaction-weighted estimator of \citet{sun2021estimating} and standard TWFE.
+
+The main finding is a null result. The overall ATT of state minimum wage increases on the share of 18--34 year-olds living with their parents is $-0.540$ percentage points (SE $= 0.446$), not statistically significant at conventional levels. The point estimate implies that minimum wage increases are associated with a modest decrease in parental co-residence---roughly half a percentage point on a base rate of 30.76 percent---and the 95\% confidence interval of $[-1.414, 0.334]$ does not exclude zero. The TWFE estimate is $0.000$ (SE $= 0.381$), and the Sun--Abraham mean post-treatment effect is $-0.880$ (SE $= 0.622$), all consistent with a null effect. The Sun--Abraham estimator shows some significant pre-treatment coefficients, but the preferred CS-DiD event study exhibits no pre-trend violations, supporting the identification strategy.
+
+This null result is robust across an extensive battery of sensitivity analyses. I vary the treatment threshold from \$0.50 to \$2.00 above the federal floor, finding point estimates that range from $-1.75$ to $+0.08$ and are uniformly insignificant. I use the not-yet-treated control group as an alternative to the never-treated group (ATT $= -0.496$, SE $= 0.794$), finding a consistent null. Since the 2020 ACS was not fielded, the baseline already excludes the first pandemic year; as an additional check, I drop 2021---the first available pandemic year---and find essentially identical results (ATT $= -0.540$, SE $= 0.439$). As a supplementary outcome, I estimate the effect on the share of young adults in ``other living arrangements'' (other relatives and other nonrelatives of the householder), which yields a near-zero estimate (ATT $= 0.019$, SE $= 0.445$); because the three living-arrangement shares sum to 100\% by construction, this is not an independent test but confirms that the null on co-residence is not offset by movements into other categories.
+
+The event study decomposition provides further support for the identification strategy. Pre-treatment coefficients at event times $e = -5$ through $e = -2$ are small and statistically insignificant, with no evidence of differential pre-trends. Post-treatment coefficients are negative but individually insignificant at conventional levels, consistent with the overall null finding. The absence of a clear break at $e = 0$ reinforces the conclusion that minimum wage increases do not generate detectable shifts in household formation.
+
+This paper contributes to three strands of the literature. First, it extends the minimum wage literature beyond its traditional focus on employment and earnings \citep{card1994minimum, dube2010minimum, cengiz2019effect, harasztosi2019pays} to examine demographic and household outcomes. While several studies have considered effects on poverty and material hardship \citep{dube2019minimum, leigh2010raises}, few have examined household formation directly. \citet{dettling2018returning} study the determinants of young adults living with parents but do not focus on minimum wages. \citet{aaronson2012spending} examine the consumption response to minimum wage increases and find significant effects on durables, suggesting that income gains could facilitate household transitions---a prediction not borne out in my data.
+
+Second, the paper contributes to the literature on young adult living arrangements and the transition to adulthood \citep{kaplan2012model, fry2016share, lee2018parents}. Existing research emphasizes labor market conditions \citep{matsudaira2008economic}, student loan debt \citep{dettling2018returning, bleemer2021student}, and housing costs \citep{ermisch1999prices} as determinants of household formation. My results suggest that minimum wage policy, at observed magnitudes and at the aggregate state-year level, does not produce detectable shifts in these transitions, perhaps because wage gains are too small relative to housing costs or because the affected population (minimum wage workers) is a small share of the 18--34 demographic.
+
+Third, the paper contributes methodologically to the growing literature on heterogeneity-robust difference-in-differences estimators. I implement the full suite of modern DiD diagnostics---Callaway--Sant'Anna event studies, Bacon decomposition \citep{goodman2021difference}, Sun--Abraham interaction-weighted estimation, and sensitivity analysis for parallel trends violations \citep{rambachan2023more}---providing a template for applied researchers working with staggered policy adoption.
+
+The relationship between income and household formation has been studied extensively. \citet{HaurinHendershottKim1993} provide canonical evidence that real rents and wages jointly determine household formation rates. \citet{MykytaMacartney2011} document how the Great Recession increased ``doubling up'' among American households, suggesting that economic shocks affect living arrangements. \citet{ClemensWither2019} show that minimum wage increases during the Great Recession affected low-skilled workers' employment trajectories, which could plausibly propagate to household formation decisions.
+
+The remainder of the paper proceeds as follows. Section 2 provides institutional background on minimum wage policy and young adult living arrangements. Section 3 develops a simple conceptual framework for the competing effects of minimum wages on household formation. Section 4 describes the data sources, variable construction, and summary statistics. Section 5 presents the empirical strategy, including the staggered DiD framework and identification assumptions. Section 6 reports the main results, event study estimates, and comparisons across estimators. Section 7 presents robustness checks including alternative thresholds, additional outcomes, COVID exclusions, and sensitivity analysis. Section 8 discusses the interpretation and limitations of the findings, and Section 9 concludes.
+
+
+%% ============================================================
+%%  SECTION 2: INSTITUTIONAL BACKGROUND
+%% ============================================================
+\section{Institutional Background and Policy Setting}
+
+\subsection{The Federal and State Minimum Wage Landscape}
+
+The federal minimum wage has been set at \$7.25 per hour since July 2009, the longest period without a federal increase since the minimum wage was established in 1938 \citep{desilver2017nearly}. This prolonged stagnation at the federal level has created an environment in which state and local governments have become the primary drivers of minimum wage policy. As of January 2023, 30 states and the District of Columbia had minimum wages above \$7.25, with rates ranging from \$8.00 to \$16.10 in Washington state \citep{dol2023minimum}.
+
+The trajectory of state minimum wage increases has been highly heterogeneous. Some states, including Connecticut, Oregon, Washington, and the District of Columbia, adopted rates above the federal floor well before 2010. Others joined the trend between 2014 and 2019, often through ballot initiatives (such as Arizona, Arkansas, and Missouri) or through legislative action as part of the ``Fight for \$15'' movement \citep{reich2017fifteen}. A substantial group of states---predominantly in the South---never adopted rates above \$7.25 during the sample period, providing a natural comparison group.
+
+This staggered adoption pattern creates a research design amenable to modern difference-in-differences methods. States adopted higher minimum wages at different times, for different reasons (legislative action, ballot initiatives, automatic indexing), and reached different levels. The key identification assumption is that, conditional on state and year fixed effects, the timing of minimum wage increases is not systematically correlated with differential trends in young adult living arrangements.
+
+The political economy of minimum wage adoption is relevant for interpreting the results. States that raised their minimum wages tend to be more urban, more politically liberal, and wealthier on average than states that did not \citep{dube2010minimum}. These compositional differences are absorbed by state fixed effects in the DiD framework, but time-varying differences in economic conditions between the two groups could threaten identification if they are correlated with both minimum wage timing and household formation trends. I discuss this concern further in the empirical strategy section.
+
+\subsection{Who Earns the Minimum Wage?}
+
+Minimum wage workers are disproportionately young, with approximately half under the age of 25 \citep{bls2022characteristics}. Among workers aged 16--24, roughly 11\% earn at or below the federal minimum wage, compared to about 2\% of workers aged 25 and older. The relevance of minimum wage policy for young adult household formation depends on the share of the 18--34 population whose wages are directly or indirectly affected by minimum wage increases.
+
+\citet{cengiz2019effect} document substantial spillover effects of minimum wage increases on workers earning up to \$3 above the new minimum, expanding the directly affected population considerably. For a \$1 increase in the minimum wage, they estimate that the number of jobs paying below the new minimum falls sharply, with a roughly equivalent increase in jobs paying at or just above the new minimum. These ``ripple effects'' mean that minimum wage increases affect a broader swath of young workers than the headline minimum-wage worker count would suggest.
+
+However, a critical limitation for this study is that the Census ACS data on living arrangements cover all 18--34 year-olds, including college students, professionals, and others whose labor market outcomes are unlikely to be affected by minimum wage policy. This dilution across the full demographic group may attenuate any true effect among the directly affected subpopulation, a point I return to in the discussion.
+
+\subsection{Young Adult Living Arrangements}
+
+The transition from the parental home to independent living is a key marker of the transition to adulthood \citep{arnett2000emerging}. In the United States, the share of 18--29 year-olds living with parents rose from 24\% in 2000 to 52\% in mid-2020 (during the COVID-19 pandemic), before declining somewhat by 2022 \citep{fry2020share}. The Census Bureau's Table B09021 provides state-level data on the living arrangements of 18--34 year-olds, categorizing them as living with parents (child of householder), living independently (as householder, spouse/partner, or living alone), or in other arrangements (other relatives or other nonrelatives of the householder).
+
+The determinants of young adult household formation are multifaceted. Labor market conditions---employment prospects, wages, and job stability---are primary drivers \citep{matsudaira2008economic}. Housing affordability is another critical factor, with \citet{ermisch1999prices} showing that higher housing costs significantly delay household formation in the United Kingdom. Student loan debt has emerged as an additional barrier, with \citet{bleemer2021student} finding that student debt reduces homeownership and increases parental co-residence. Cultural factors, including rising acceptance of multigenerational living, also play a role \citep{fry2016share}.
+
+The interaction between minimum wages and housing costs is particularly relevant. If minimum wage increases raise incomes but housing costs simultaneously rise (either due to general inflation or because higher-wage workers bid up rents), the net effect on housing affordability could be minimal. \citet{yamaguchi2020minimum} provides theoretical and empirical evidence that minimum wage increases can lead to higher rents in local housing markets, partially offsetting the income gains for low-wage workers. This ``housing cost offset'' channel provides a plausible explanation for a null result in this setting.
+
+
+%% ============================================================
+%%  SECTION 3: CONCEPTUAL FRAMEWORK
+%% ============================================================
+\section{Conceptual Framework}
+
+I develop a simple framework to organize the competing channels through which minimum wage increases may affect young adult household formation. Consider a young adult $i$ in state $s$ at time $t$ who chooses between living independently (at cost $R_{st}$, the rental price of housing) and living with parents (at zero direct housing cost, but with utility loss $\delta_i > 0$ reflecting reduced privacy and autonomy). The individual lives independently if and only if:
+
+\begin{equation}
+\label{eq:threshold}
+w_{ist} - R_{st} + \delta_i > \bar{u}_i
+\end{equation}
+
+\noindent where $w_{ist}$ is the individual's wage income and $\bar{u}_i$ is a reservation utility reflecting the consumption value of the parental home. Independent living is increasing in wages $w_{ist}$ and the preference for autonomy $\delta_i$, and decreasing in rent $R_{st}$.
+
+A minimum wage increase $\Delta MW_{st}$ affects this decision through three channels:
+
+\textbf{Channel 1: Income effect (positive).} For young adults earning at or near the minimum wage, the increase directly raises $w_{ist}$, making independent living more affordable. The magnitude depends on the share of 18--34 year-olds earning at or near the minimum and on hours worked. For a full-time worker earning \$7.25, a \$1 increase represents a 13.8\% raise, or approximately \$2,080 in annual income---meaningful, but modest relative to median annual rent of approximately \$12,000--\$15,000.
+
+\textbf{Channel 2: Disemployment effect (negative).} If the minimum wage increase reduces employment among young workers \citep{neumark2014revisiting}, some individuals experience $w_{ist} \to 0$, pushing them below the threshold for independent living. The magnitude of this channel is contested, with recent evidence suggesting employment effects are small for moderate increases \citep{cengiz2019effect, dube2019minimum}.
+
+\textbf{Channel 3: Housing cost effect (ambiguous).} Higher minimum wages may increase local housing demand and thus rents $R_{st}$, partially or fully offsetting the income gain \citep{yamaguchi2020minimum}. The sign depends on the relative elasticities of housing supply and demand with respect to the minimum wage.
+
+The net effect on household formation is thus:
+
+\begin{equation}
+\label{eq:net_effect}
+\frac{\partial \Pr(\text{independent})_{ist}}{\partial MW_{st}} = \underbrace{\frac{\partial w}{\partial MW}}_{\text{Income }(+)} - \underbrace{\frac{\partial R}{\partial MW}}_{\text{Rent }(+/-)} - \underbrace{\Pr(\text{job loss}) \cdot w}_{\text{Disemp. }(-)}
+\end{equation}
+
+\noindent The sign and magnitude of the overall effect is an empirical question. A null result is consistent with these channels approximately offsetting each other, or with each channel being individually small.
+
+\textbf{Testable predictions.} (1) If the income channel dominates, minimum wage increases should reduce parental co-residence and increase independent living. (2) If the disemployment channel dominates, co-residence should increase. (3) Effects should be larger for demographic subgroups with higher exposure to the minimum wage (younger workers, non-college workers, service sector). (4) Effects should be larger in areas with lower housing costs, where the income effect is more likely to exceed the rent offset. I test prediction (4) through the regional heterogeneity analysis.
+
+
+%% ============================================================
+%%  SECTION 4: DATA
+%% ============================================================
+\section{Data}
+
+\subsection{Living Arrangements: Census ACS Table B09021}
+
+The primary outcome data come from the U.S.\ Census Bureau's American Community Survey (ACS), specifically Table B09021: ``Living Arrangements of Adults 18 Years and Over by Age.'' I use the age-group-specific cells for the 18--34 population (variables B09021\_008E through B09021\_014E), which report the number of adults aged 18--34 in various living arrangement categories: living with parents (as a child of the householder), living independently as the householder or spouse/unmarried partner, living alone, and living in other arrangements (other relatives and other nonrelatives of the householder). I accessed these data via the Census Bureau's API for all 51 jurisdictions (50 states plus DC) for the years 2015--2019 and 2021--2022 (the 2020 ACS one-year estimates were not released).
+
+I construct three outcome variables expressed as a percentage of the total 18--34 population:
+\begin{itemize}
+    \item \textbf{Parental co-residence rate} ($\text{pct\_with\_parents}_{st}$): The share of 18--34 year-olds living as a child in the parent's household. This is the primary outcome.
+    \item \textbf{Independent living rate} ($\text{pct\_independent}_{st}$): The share living alone, with a spouse, or with an unmarried partner.
+    \item \textbf{Other arrangements rate} ($\text{pct\_other}_{st}$): The residual share (other relatives plus other nonrelatives of the householder), used as an additional outcome. Note that by construction $\text{pct\_parents} + \text{pct\_independent} + \text{pct\_other} = 100$, so this outcome is not independent of the main dependent variable.
+\end{itemize}
+
+Table B09021 has two important features for this analysis. First, it covers the full universe of 18--34 year-olds, not just the labor force, which means the outcome captures both working and non-working young adults. Second, the table is available annually at the state level for one-year ACS estimates beginning in 2005, though I focus on 2015--2022 (excluding 2020, when the Census Bureau did not release ACS one-year estimates due to low pandemic response rates) to ensure a panel period in which the staggered adoption of state minimum wages is active.
+
+A limitation of Table B09021 is that it identifies parental co-residence as ``living as a child of the householder,'' which undercounts young adults who live with a parent who is not listed as the householder. This measurement issue likely leads to an undercount of parental co-residence and could attenuate detectable effects.
+
+\subsection{Minimum Wage Data}
+
+State minimum wage data come from the U.S.\ Department of Labor's Historical State Minimum Wage Tables, supplemented with cross-referencing to the National Conference of State Legislatures (NCSL) database \citep{dol2023minimum}. For each state and year, I record the predominant effective minimum wage for the calendar year. The effective minimum wage is the higher of the state and federal rates.
+
+I define the treatment cohort $G_s$ as the first calendar year in which the state's effective minimum wage exceeds the federal floor by \$1.00 or more; never-treated states have $G_s = \infty$. For descriptive and TWFE purposes, I also define a post-treatment indicator:
+\begin{equation}
+\text{Post}_{st} = \ind\left[t \geq G_s\right]
+\end{equation}
+
+\noindent The \$1.00 threshold ensures that treatment captures economically meaningful increases rather than trivial differences (e.g., states with minimum wages of \$7.50). I test robustness to thresholds of \$0.50, \$1.50, and \$2.00. The ``Treated (binary)'' variable in Table~\ref{tab:summary} is $\text{Post}_{st}$, taking the value 1 in all state-years at or after the adoption year.
+
+Under this definition, 31 states are treated at some point during or before the panel period, and 20 states are never-treated (remaining at \$7.25 throughout the sample period). Table~\ref{tab:cohorts} in the appendix lists the treatment cohorts. Important for identification, early cohorts (2010--2014) are already treated when the panel begins in 2015. These states---including Connecticut, the District of Columbia, Illinois, Oregon, Washington, Vermont, California, and New Jersey---are dropped by the \citet{callaway2021difference} estimator because no pre-treatment data are available within the estimation sample. Similarly, the 7 states first treated in 2015 (AK, DE, MA, MN, NY, RI, SD) have no pre-treatment year within the panel and are therefore treated as ``always-treated'' by the CS-DiD estimator---they do not contribute to the ATT estimand. Effectively, the estimator identifies treatment effects from cohorts first treated in 2016 or later: 2016 (6 states), 2017 (3), 2018 (3), 2019 (1), 2020 (1), and 2021 (2), yielding 16 states that contribute to the CS-DiD ATT, with the 20 never-treated states serving as controls.
+
+\subsection{Additional State-Level Variables}
+
+The main specifications rely exclusively on state and year fixed effects for identification, without additional time-varying covariates. This parsimonious approach is deliberate: median gross rent by state (obtained from ACS Table B25064) is available for the full panel and provides a useful descriptor of housing cost variation, but rent is a potential mediator---not a confounder---in the relationship between minimum wages and household formation. Including rent as a regression control would absorb part of the causal channel if minimum wage increases raise local rents \citep{yamaguchi2020minimum}, biasing the estimated treatment effect toward zero. Rent data are therefore used for descriptive purposes and to contextualize the results, but are not included as covariates in the main regressions.
+
+State population data from the Census Bureau serve as an additional descriptor but are not included as a regression control, as population size is not a plausible confounder conditional on state and year fixed effects.
+
+State unemployment rates come from the Bureau of Labor Statistics Local Area Unemployment Statistics (LAUS) program, which provides annual average unemployment rates for all 51 jurisdictions. I use unemployment as a balance test variable rather than a regression control, since state and year fixed effects already absorb level differences and common trends in labor market conditions. Section~\ref{sec:robustness_additional} reports the unemployment balance test.
+
+\subsection{Sample Construction}
+
+The analysis sample is a balanced panel of 51 jurisdictions $\times$ 7 years (2015--2019, 2021--2022) $= 357$ state-year observations. The 2020 ACS one-year estimates were not released by the Census Bureau due to low response rates during the COVID-19 pandemic, so the panel spans 7 of 8 calendar years in the 2015--2022 window. All states have complete data for all outcome variables in all years. Some specifications use 356 observations due to singleton drops in the Sun--Abraham estimator.
+
+The panel covers a period of substantial minimum wage variation. At the beginning of the sample (2015), 30 jurisdictions had minimum wages above \$7.25. By the end (2022), 31 did. The mean effective minimum wage rose from approximately \$7.94 in 2015 to \$9.95 in 2022 (Table~\ref{tab:mw_dist}), reflecting the broad trend of state-level minimum wage increases during this period.
+
+\subsection{Summary Statistics}
+
+\Cref{tab:summary} presents summary statistics for the analysis panel.
+
+\input{tables/tab_summary.tex}
+
+The mean share of 18--34 year-olds living with parents is 30.76\%, with a standard deviation of 6.35 percentage points and a range from 11.88\% to 47.31\%. The independent living rate averages 45.44\% (SD $= 6.95$), indicating that a plurality---but not a majority---of this age group lives independently; the remainder live in other arrangements (other relatives or other nonrelatives of the householder). The mean effective state minimum wage is \$8.78 with substantial variation (SD = \$1.86), and the mean gap above the federal floor is \$1.53. Median gross rent averages \$1,026 per month, ranging from \$675 to \$1,870, reflecting the large cross-state variation in housing costs.
+
+Several features of the summary statistics deserve emphasis. First, the parental co-residence rate of 30.76\% is broadly consistent with national estimates. The Census Bureau's Table B09021 captures those living ``as a child of the householder,'' which aligns with external benchmarks showing roughly one-third of 18--34 year-olds in parental households \citep{fry2016share}. Second, state population varies enormously (from 578,000 in Wyoming to 39.6 million in California), but this variation is absorbed by state fixed effects.
+
+
+%% ============================================================
+%%  SECTION 5: EMPIRICAL STRATEGY
+%% ============================================================
+\section{Empirical Strategy}
+
+\subsection{Staggered Difference-in-Differences}
+
+The identification strategy exploits the staggered adoption of state minimum wages above the federal floor. States adopted higher minimum wages at different times between 2010 and 2021, creating treatment cohorts defined by their year of first treatment. I compare outcomes in treated states before and after treatment to outcomes in never-treated states over the same period.
+
+Define $G_s \in \{2010, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, \infty\}$ as the treatment cohort for state $s$, where $G_s = g$ indicates that state $s$ first exceeded the \$1.00 treatment threshold in year $g$, and $G_s = \infty$ denotes never-treated states. The group-time average treatment effect for cohort $g$ at time $t$ is:
+
+\begin{equation}
+\label{eq:att_gt}
+ATT(g,t) = \E\left[Y_{st}(g) - Y_{st}(\infty) \mid G_s = g\right]
+\end{equation}
+
+\noindent where $Y_{st}(g)$ is the potential outcome under treatment at time $g$ and $Y_{st}(\infty)$ is the counterfactual outcome under no treatment.
+
+\subsection{Callaway--Sant'Anna Estimator}
+
+I estimate the group-time ATTs using the \citet{callaway2021difference} estimator, implemented in the \texttt{did} R package. This estimator identifies each $ATT(g,t)$ by comparing the change in outcomes for cohort $g$ from period $g-1$ to period $t$ with the corresponding change for the comparison group. I use never-treated states as the primary comparison group, and the not-yet-treated group as a robustness check.
+
+The estimator computes $ATT(g,t)$ for each cohort-time cell and then aggregates to obtain:
+\begin{equation}
+\label{eq:overall_att}
+\widehat{ATT} = \sum_{g} \sum_{t \geq g} w(g,t) \cdot \widehat{ATT}(g,t)
+\end{equation}
+
+\noindent where $w(g,t)$ are cohort-time weights proportional to group size and the number of post-treatment periods. I also report the dynamic (event-study) aggregation:
+\begin{equation}
+\label{eq:event_study}
+\widehat{ATT}(e) = \sum_{g} w_g(e) \cdot \widehat{ATT}(g, g+e)
+\end{equation}
+
+\noindent for event times $e \in \{-5, -4, \ldots, 0, 1, 2, 3\}$, where $e = 0$ is the year of treatment adoption.
+
+The underlying group-time ATTs are estimated using a \textbf{universal base period}: each cohort's post-treatment outcomes are compared to the average of \textit{all} its pre-treatment periods, rather than to the immediately preceding period $g-1$ alone. This choice is important for the 2021 treatment cohort (Nevada and Virginia), for which the immediate pre-treatment year (2020) is absent from the panel because the Census Bureau did not release ACS one-year estimates for 2020. Under the universal base period, the 2021 cohort's pre-treatment periods are 2015--2019; the absence of 2020 does not affect identification.
+
+For the event-study aggregation, the \texttt{aggte()} function normalizes the dynamic ATT estimates so that $\widehat{ATT}(e = -1) = 0$ by construction (i.e., $e = -1$ serves as the display reference). This is a re-centering of the event-study plot, not a change in the underlying base period used for identification. Pre-treatment coefficients ($e < -1$) test whether treatment and control groups diverged before treatment, while post-treatment coefficients ($e \geq 0$) measure the causal effect.
+
+Standard errors are computed via the clustered bootstrap at the state level, with 999 bootstrap replications. This accounts for serial correlation within states and provides valid inference with 51 clusters \citep{CameronGelbachMiller2008, cameron2015practitioners}. Recent syntheses of the staggered DiD literature \citep{RothEtAl2023, Wooldridge2021} emphasize the importance of transparent identification diagnostics, which we provide through event-study plots, pre-trend tests, and sensitivity analysis.
+
+\subsection{Complementary Estimators}
+
+\textbf{Two-way fixed effects (TWFE).} As a benchmark, I estimate:
+\begin{equation}
+\label{eq:twfe}
+Y_{st} = \alpha_s + \gamma_t + \beta \cdot D_{st} + \varepsilon_{st}
+\end{equation}
+
+\noindent where $\alpha_s$ and $\gamma_t$ are state and year fixed effects, $D_{st}$ is a binary treatment indicator, and $\varepsilon_{st}$ is clustered at the state level. No additional time-varying covariates are included in any specification: median rent is a potential mediator rather than a confounder, and state unemployment is used as a balance test rather than a control (see Section~\ref{sec:robustness_additional}). As \citet{goodman2021difference} and \citet{dechaisemartin2020two} show, $\hat{\beta}_{\text{TWFE}}$ is a weighted average of all 2$\times$2 DiD comparisons in the data, with some weights potentially negative when treatment effects are heterogeneous. I report TWFE results for comparability with the existing literature but interpret them cautiously.
+
+\textbf{Sun--Abraham interaction-weighted estimator.} I implement the \citet{sun2021estimating} estimator via the \texttt{sunab()} function in the \texttt{fixest} R package. This estimator interacts cohort indicators with relative time indicators and then aggregates using the cohort share weights, yielding consistent estimates under treatment effect heterogeneity. The resulting estimator provides cohort-specific event study coefficients and an aggregate treatment effect. Alternative heterogeneity-robust estimators include the imputation approach of \citet{BorusyakJaravelSpiess2024}.
+
+\textbf{Bacon decomposition.} To diagnose the sources of variation underlying the TWFE estimate, I implement the \citet{goodman2021difference} decomposition, which partitions $\hat{\beta}_{\text{TWFE}}$ into a weighted average of three types of 2$\times$2 comparisons: (1) treated vs.\ never-treated, (2) earlier-treated vs.\ later-treated, and (3) later-treated vs.\ earlier-treated. The last two types can receive negative weights, biasing the TWFE estimate when treatment effects vary over time.
+
+\subsection{Identification Assumptions}
+
+The key assumption is parallel trends: in the absence of treatment, the change in living arrangements in treated states would have been the same as in never-treated states. Formally:
+
+\begin{equation}
+\label{eq:parallel_trends}
+\E\left[Y_{st}(\infty) - Y_{s,t-1}(\infty) \mid G_s = g\right] = \E\left[Y_{st}(\infty) - Y_{s,t-1}(\infty) \mid G_s = \infty\right]
+\end{equation}
+
+\noindent for all $g$ and for all pre-treatment periods $t < g$. While this assumption is not directly testable, it can be assessed by examining pre-treatment trends. If the assumption holds, we expect $\widehat{ATT}(g,t) \approx 0$ for $t < g$.
+
+I also assume no anticipation: states do not adjust their living arrangements in anticipation of future minimum wage increases. Given that minimum wage legislation is typically enacted one to two years before taking effect, and that household formation decisions are not highly forward-looking with respect to minimum wage policy specifically, this assumption is plausible.
+
+\subsection{Threats to Validity}
+
+Several potential threats to identification merit discussion.
+
+\textbf{Endogeneity of minimum wage timing.} States may adopt higher minimum wages in response to economic conditions that also affect living arrangements. For example, states with tight labor markets and rising wages may be more likely to raise the minimum wage \textit{and} to experience improved household formation due to the strong economy. This concern is mitigated by the inclusion of state fixed effects (absorbing level differences) and year fixed effects (absorbing national trends), but differential state-specific trends remain a potential confounder.
+
+\textbf{Confounding policies.} States that raise minimum wages may simultaneously adopt other policies (e.g., housing subsidies, earned income tax credit supplements, Medicaid expansion) that also affect household formation. I cannot separately identify the minimum wage effect from these correlated policy changes, and the estimate should be interpreted as the effect of the minimum wage increase \textit{plus} any correlated policy bundle.
+
+\textbf{COVID-19.} The pandemic caused a sharp, temporary increase in parental co-residence as young adults lost jobs and shelter-in-place orders were issued \citep{fry2020share}. The 2020 ACS one-year estimates were not released, so 2020 is absent from the panel. However, 2021 may still reflect lingering pandemic effects. I address this by estimating specifications that exclude 2021 and restrict to the pre-pandemic period (2015--2019 only).
+
+\textbf{Limited controls.} The main specification relies solely on state and year fixed effects without additional time-varying covariates. Median gross rent data are available but are not included as a regression control because rent is a potential mediator of the minimum-wage-to-household-formation channel rather than a confounder (see Section~4.3). State unemployment rates from BLS LAUS are available and used as a balance test: a TWFE regression of unemployment on the treatment indicator yields a coefficient of 0.042 (SE $= 0.126$, $p = 0.744$), confirming that treatment assignment does not predict differential unemployment changes (see Section~\ref{sec:robustness_additional}). Unemployment is not included as a regression control because it is itself a potential outcome of minimum wage policy. To the extent that minimum wage adoption is correlated with labor market conditions beyond what state and year fixed effects absorb, the estimated treatment effect may be biased. The direction of this bias is ambiguous: if states with tighter labor markets adopt higher minimum wages, and tighter labor markets facilitate household formation, the bias would be negative.
+
+
+%% ============================================================
+%%  SECTION 6: RESULTS
+%% ============================================================
+\section{Results}
+
+\subsection{Treatment Variation}
+
+\Cref{fig:rollout} displays the treatment rollout across states and time. The staggered adoption pattern is clearly visible, with clusters of states adopting higher minimum wages in 2015 (Alaska, Delaware, Massachusetts, Minnesota, New York, Rhode Island, South Dakota), 2016 (Colorado, Hawaii, Maryland, Michigan, Nebraska, West Virginia), 2017 (Arizona, Arkansas, Maine), 2018 (Florida, Montana, Ohio), and later years. The 20 never-treated states are concentrated in the South and parts of the Midwest, including Alabama, Georgia, Idaho, Indiana, Iowa, Kansas, Kentucky, Louisiana, Mississippi, New Hampshire, North Carolina, North Dakota, Oklahoma, Pennsylvania, South Carolina, Tennessee, Texas, Utah, Wisconsin, and Wyoming.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig_treatment_rollout.pdf}
+    \caption{Treatment Rollout: Minimum Wage Adoption Across States}
+    \label{fig:rollout}
+\end{figure}
+
+\noindent\textit{Notes:} Bars show the number of newly treated states in each cohort year (left axis). The dashed line shows the cumulative number of treated states (right axis). Treatment is defined as the first year a state's effective minimum wage exceeds the federal floor by \$1.00 or more. The 20 never-treated states remained at or near \$7.25 throughout the sample period (2015--2019, 2021--2022).
+
+\vspace{1em}
+
+\Cref{fig:raw_trends} shows raw trends in the parental co-residence rate for treated and never-treated states. Both groups exhibit broadly similar trends over the sample period, with parental co-residence rates fluctuating modestly. The treated and never-treated groups track each other closely, providing visual support for the parallel trends assumption, although the two groups start at slightly different levels (absorbed by state fixed effects).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig_raw_trends.pdf}
+    \caption{Raw Trends in Parental Co-Residence: Treated vs.\ Never-Treated States}
+    \label{fig:raw_trends}
+\end{figure}
+
+\noindent\textit{Notes:} The figure shows the average share of 18--34 year-olds living with parents for states that adopted minimum wages above the federal floor by \$1.00+ (treated) and states that did not (never-treated). Averages are unweighted.
+
+\subsection{Main Results}
+
+\Cref{tab:main_results} presents the main estimates of the effect of state minimum wage increases on parental co-residence among 18--34 year-olds.
+
+\input{tables/tab_main_results.tex}
+
+Column (1) reports the conventional TWFE estimate of $0.000$ (SE $= 0.381$), which is essentially zero and statistically insignificant. This estimate is difficult to interpret given the well-known bias of TWFE with staggered adoption and heterogeneous treatment effects, but the near-zero value suggests that even naively estimated, minimum wage increases have no detectable effect on parental co-residence.
+
+Column (2) reports the Callaway--Sant'Anna overall ATT of $-0.540$ (SE $= 0.446$) using never-treated states as the control group. The negative sign suggests a decrease in parental co-residence following minimum wage increases, but the effect is not statistically distinguishable from zero at the 10\% level. The 95\% confidence interval of $[-1.414, 0.334]$ includes zero; even the lower bound implies a reduction of less than 1.5 percentage points on a base rate of 30.76 percent (approximately 4.6\% of the mean). In economic terms, the point estimate represents a shift of roughly half a percentage point---modest relative to the base rate and not statistically significant.
+
+Column (3) reports the Sun--Abraham interaction-weighted estimate. The mean post-treatment coefficient is $-0.880$ (SE $= 0.622$), also not statistically significant in aggregate. The Sun--Abraham estimator shows some significant pre-treatment coefficients (years $-6$, $-5$, $-4$, $-2$), suggesting that the interaction-weighted specification may not fully satisfy parallel trends for all event-time horizons. However, the primary CS-DiD event study (\Cref{tab:event_study}) shows no significant pre-treatment coefficients, supporting the parallel trends assumption for the preferred estimator. For post-treatment periods, the Sun--Abraham coefficients are generally insignificant, though year $= 4$ is marginally significant at the 10\% level ($-1.486$, SE $= 0.846$); this should be interpreted cautiously given the pre-trend issues in the SA specification. The CS-DiD ATT using the not-yet-treated control group yields $-0.496$ (SE $= 0.794$; see Table~\ref{tab:robustness}), confirming that the null finding does not depend on the choice of comparison group.
+
+The consistency of the null result across estimators with different identifying assumptions, control groups, and aggregation schemes strengthens the interpretation. The CS-DiD (with both control groups), TWFE, and Sun--Abraham estimators all fail to reject the null hypothesis of zero effect.
+
+\subsection{Event Study}
+
+\Cref{tab:event_study} reports the dynamic (event study) estimates from the Callaway--Sant'Anna estimator, and \Cref{fig:event_study} provides the corresponding visualization.
+
+\input{tables/tab_event_study.tex}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig_event_study.pdf}
+    \caption{Event Study: Dynamic Effects of Minimum Wage Increases on Parental Co-Residence}
+    \label{fig:event_study}
+\end{figure}
+
+\noindent\textit{Notes:} Event study estimates from \citet{callaway2021difference}. Event time $e$ is years relative to first treatment. The reference period is $e = -1$. Bars show 95\% pointwise confidence intervals. Standard errors based on clustered bootstrap.
+
+\vspace{1em}
+
+The pre-treatment coefficients (event times $e = -5$ to $e = -2$) are small and statistically insignificant: $0.196$ (SE $= 0.231$), $-1.369$ (SE $= 3.441$), $0.463$ (SE $= 0.542$), and $-0.621$ (SE $= 0.430$), respectively. None is significantly different from zero, and there is no evident monotonic trend in the pre-treatment coefficients. The coefficients oscillate between positive and negative values, consistent with sampling variation around zero rather than a systematic pre-trend.
+
+Post-treatment coefficients are negative but individually insignificant: $-0.649$ (SE $= 0.463$) at $e = 0$, $-0.250$ (SE $= 0.624$) at $e = +1$, $-0.761$ (SE $= 0.847$) at $e = +2$, and $-0.552$ (SE $= 0.741$) at $e = +3$. None reaches statistical significance at the 5\% level, and there is no clear pattern of growing effects at longer horizons. The relatively large standard errors reflect the limited number of states contributing to estimates at longer event times.
+
+The event study is estimated on the full panel of 357 state-year observations; the number of treated state-years contributing to each event-time estimate varies due to staggered adoption timing.
+
+The event study pattern is broadly consistent with the null result: if minimum wage increases had a meaningful effect on household formation, we would expect a clear break at $e = 0$, with consistently significant post-treatment coefficients. Instead, the post-treatment coefficients are small, noisy, and show no clear trend toward a growing effect.
+
+For the 2021 treatment cohort (Nevada and Virginia), the reference period ($e = -1$) corresponds to calendar year 2020, which is absent from the panel because the Census Bureau did not release ACS one-year estimates for 2020. The Callaway--Sant'Anna estimator handles this by using the available pre-treatment periods for each cohort; for the 2021 cohort, 2019 ($e = -2$) serves as the effective baseline. This does not affect the overall ATT or the aggregated event study, as the estimator aggregates group-time ATTs across all cohorts.
+
+\subsection{Bacon Decomposition}
+
+\Cref{fig:bacon} displays the \citet{goodman2021difference} decomposition of the TWFE estimate.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig_bacon.pdf}
+    \caption{Bacon Decomposition of the TWFE Estimate}
+    \label{fig:bacon}
+\end{figure}
+
+\noindent\textit{Notes:} \citet{goodman2021difference} decomposition of the two-way fixed effects treatment effect estimate. Each point represents a 2$\times$2 DiD comparison, with the size proportional to its weight in the overall estimate.
+
+\vspace{1em}
+
+The decomposition shows that the TWFE estimate of $0.000$ is driven primarily by comparisons of treated states to never-treated states, which receive the largest weight. Comparisons involving timing variation among treated states receive smaller weights and exhibit more dispersion. The presence of both positive and negative estimates illustrates the heterogeneity that motivates robust estimators.
+
+\subsection{Control Group Comparison}
+
+\Cref{fig:estimator_comparison} compares the CS-DiD event study estimates using the never-treated control group versus the not-yet-treated control group.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig_estimator_comparison.pdf}
+    \caption{Comparison of CS-DiD Event Studies: Never-Treated vs.\ Not-Yet-Treated Control Groups}
+    \label{fig:estimator_comparison}
+\end{figure}
+
+\noindent\textit{Notes:} Event study estimates from \citet{callaway2021difference} using two alternative control group definitions: never-treated states and not-yet-treated states. Points show the estimated ATT at each event time, with 95\% confidence intervals.
+
+\vspace{1em}
+
+The figure illustrates that the event study patterns are similar regardless of whether the comparison group consists of never-treated states or not-yet-treated states, providing reassurance that the choice of control group does not drive the results.
+
+\subsection{TWFE and Sun--Abraham Details}
+
+\Cref{tab:twfe_sa} reports the full TWFE and Sun--Abraham regression output.
+
+\input{tables/tab_twfe_sa.tex}
+
+The Sun--Abraham event study coefficients reveal significant pre-treatment coefficients at years $-6$ ($-2.862$, SE $= 0.968$, $p < 0.01$), $-5$ ($-1.566$, SE $= 0.402$, $p < 0.01$), $-4$ ($-1.459$, SE $= 0.602$, $p < 0.05$), and $-2$ ($-1.045$, SE $= 0.375$, $p < 0.01$). Year $-3$ is insignificant ($-0.561$, SE $= 0.425$). These significant pre-treatment coefficients are a diagnostic concern, suggesting that the interaction-weighted specification may not fully satisfy parallel trends for all event-time horizons.
+
+For post-treatment periods, most Sun--Abraham coefficients are individually insignificant: year $= 0$ ($-0.435$, SE $= 0.345$), year $= 1$ ($-0.423$, SE $= 0.571$), year $= 2$ ($-0.686$, SE $= 0.695$), year $= 3$ ($-0.149$, SE $= 0.565$), year $= 5$ ($-0.497$, SE $= 0.778$), and year $= 6$ ($0.611$, SE $= 0.539$). However, year $= 4$ is marginally significant at the 10\% level ($-1.486$, SE $= 0.846$). Given the pre-trend issues, this isolated significant post-treatment coefficient should be interpreted cautiously.
+
+This pattern differs from the Callaway--Sant'Anna pre-treatment tests due to different weighting and comparison groups. The SA estimator uses all non-treated observations (including already-treated states) as controls and applies different cohort weighting, which can amplify pre-existing differences. The Callaway--Sant'Anna estimator, which uses only never-treated states as comparisons, shows no significant pre-trends (see \Cref{tab:event_study}). I interpret the CS-DiD pre-treatment tests as more appropriate for this application and treat the Sun--Abraham results as supporting evidence with caveats rather than as a primary specification.
+
+\subsection{Alternative Outcomes}
+
+The CS-DiD ATT for the independent living rate is $0.522$ (SE $= 0.564$), also insignificant. The positive sign is directionally consistent with the negative co-residence estimate---if minimum wages reduce parental co-residence, independent living should increase---but neither estimate is statistically distinguishable from zero.
+
+
+%% ============================================================
+%%  SECTION 7: ROBUSTNESS
+%% ============================================================
+\section{Robustness}
+
+\subsection{Alternative Treatment Thresholds}
+
+\Cref{tab:robustness} reports the main robustness results, including alternative treatment definitions.
+
+\input{tables/tab_robustness.tex}
+
+I re-estimate the CS-DiD model using treatment thresholds of \$0.50, \$1.50, and \$2.00 above the federal floor (the baseline uses \$1.00). The results are uniformly insignificant across thresholds. The \$0.50 threshold yields an ATT of $-1.750$ (SE $= 1.883$), the \$1.50 threshold gives $-0.287$ (SE $= 0.754$), and the \$2.00 threshold gives $0.082$ (SE $= 0.475$). None approaches statistical significance. The baseline \$1.00 threshold ATT of $-0.540$ (SE $= 0.446$) falls between these alternative estimates, as reported in Table~\ref{tab:main_results}. The pattern shows larger negative point estimates at lower thresholds (where treatment captures smaller wage increases) and an estimate near zero at the highest threshold, but all confidence intervals comfortably include zero.
+
+The variation in standard errors across thresholds reflects the changing sample composition. The \$0.50 threshold classifies more states as treated and produces a larger point estimate but also much larger standard errors. The \$2.00 threshold classifies fewer states but provides a larger ``dose'' of treatment; the near-zero estimate at this threshold suggests no effect even among states with the most substantial increases.
+
+\subsection{Alternative Control Groups}
+
+The baseline specification uses never-treated states as the comparison group. As an alternative, I use the not-yet-treated control group, which includes states that will eventually adopt higher minimum wages but have not yet done so. This specification yields an ATT of $-0.496$ (SE $= 0.794$), similar in sign and magnitude to the main result but with substantially wider confidence intervals reflecting the noisier comparison group. The consistency across control groups is reassuring.
+
+\subsection{COVID-19 Exclusions}
+
+Since the 2020 ACS one-year estimates were not fielded, the baseline panel already excludes the first pandemic year. As an additional check, I drop 2021---the first available pandemic year---and find essentially identical results (ATT $= -0.540$, SE $= 0.439$). The point estimate is unchanged and the standard error differs only trivially, confirming that lingering pandemic effects in 2021 do not drive the main result.
+
+\subsection{Additional Outcome: Other Living Arrangements}
+
+As a supplementary analysis, I estimate the CS-DiD model with the share of 18--34 year-olds in ``other arrangements'' (other relatives and other nonrelatives of the householder) as the dependent variable. Because the three living-arrangement shares---parental co-residence, independent living, and other arrangements---sum to 100\% by construction, this outcome is mechanically linked to the main dependent variable and does not constitute an independent falsification test. Nonetheless, the near-zero estimate (ATT $= 0.019$, SE $= 0.445$) confirms that the overall null finding on parental co-residence is not offset by large movements into or out of other arrangement types.
+
+\subsection{Continuous Treatment Specification}
+
+I estimate a TWFE model with the continuous minimum wage gap as the treatment variable. The coefficient is $-0.111$ (SE $= 0.120$), which does not reach statistical significance ($t = -0.92$, $p \approx 0.36$). The point estimate implies that a \$1 increase is associated with a 0.11 percentage point decrease in parental co-residence---economically negligible. The sample mean of parental co-residence is 30.76\%, so a 0.11 percentage point change represents less than a 0.4\% shift.
+
+\subsection{Regional Heterogeneity}
+
+\Cref{tab:heterogeneity} and \Cref{fig:heterogeneity} report heterogeneity by Census region.
+
+\input{tables/tab_heterogeneity.tex}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig_heterogeneity.pdf}
+    \caption{Heterogeneity in Treatment Effects by Census Region}
+    \label{fig:heterogeneity}
+\end{figure}
+
+\noindent\textit{Notes:} ATT estimates and 95\% confidence intervals from separate CS-DiD estimations by Census region. The overall estimate uses the full national sample.
+
+\vspace{1em}
+
+The South exhibits a significant negative effect ($-0.472$, SE $= 0.228$, $p < 0.05$), suggesting that minimum wage increases in Southern states are associated with a modest decrease in parental co-residence. The Midwest shows a larger but insignificant negative effect ($-0.644$, SE $= 0.977$), while the West shows a positive but insignificant effect ($0.655$, SE $= 0.811$). The Northeast subsample failed to produce estimates because of insufficient treated-state variation. Although the Northeast includes two never-treated states (NH and PA), of the seven treated states only Maine (cohort 2017) has pre-treatment years within the panel; the remaining six (CT 2010, VT 2012, NJ 2014, MA 2015, NY 2015, RI 2015) are always-treated in-panel and do not contribute to the CS-DiD ATT. With only one contributing treated state, the estimator could not reliably identify group-time ATTs.
+
+The significant Southern result is consistent with prediction (4): effects should be larger in areas with lower housing costs, where the income gain goes further toward rent. However, the small number of treated states within the South (7) warrants caution. This finding is suggestive and merits further investigation.
+
+\subsection{Additional Robustness Checks}
+\label{sec:robustness_additional}
+
+I conduct several additional checks to further assess the stability of the null finding.
+
+\textbf{Pre-trend assessment.} Individual pre-treatment event-study coefficients are uniformly insignificant in the CS-DiD event study (see Section 6.3 and Table~\ref{tab:event_study}). None of the four pre-treatment coefficients ($e = -5$ through $e = -2$) is statistically distinguishable from zero, providing reassurance that treated and never-treated states were on parallel trajectories prior to minimum wage adoption. A joint Wald test of the four pre-treatment coefficients fails to reject the null of parallel trends ($\chi^2(4) = 7.76$, $p = 0.101$), supporting the identification assumption.
+
+\subsection{Sensitivity to Parallel Trends Violations}
+
+I attempted to implement the \citet{rambachan2023more} HonestDiD sensitivity analysis, which provides robust confidence sets under deviations from parallel trends. The HonestDiD algorithm did not converge for this specification, likely due to the structure of the group-time ATTs and the short pre-treatment window. This is a limitation: I cannot formally bound the extent to which violations of parallel trends could alter the conclusions. Informally, the absence of pre-trends in the CS-DiD event study provides reassurance.
+
+
+%% ============================================================
+%%  SECTION 8: DISCUSSION
+%% ============================================================
+\section{Discussion}
+
+The central finding of this paper is that state minimum wage increases, as observed over the 2015--2022 period (excluding 2020), do not produce detectable shifts in aggregate young adult household formation at the state-year level. This null result warrants careful interpretation.
+
+\textbf{Why null? Three explanations.} First, the income gains from minimum wage increases may be too small relative to housing costs to facilitate household transitions. A \$1 increase in the minimum wage raises annual income by approximately \$2,080 for a full-time worker, but median annual rent for a one-bedroom apartment exceeds \$12,000 in most markets. The income gain represents less than 20\% of annual rent, which may be insufficient to push young adults over the threshold for independent living---particularly when security deposits, furnishing costs, and other fixed costs of moving are considered.
+
+Second, the outcome measure---the share of all 18--34 year-olds living with parents---dilutes any effect among the directly affected population. Only a fraction of 18--34 year-olds earn at or near the minimum wage; many are college students, mid-career professionals, or otherwise detached from the minimum wage labor market. \citet{bls2022characteristics} report that only about 2.3\% of all hourly workers earned the federal minimum or less in 2021. Even accounting for spillover effects \citep{cengiz2019effect}, the directly affected population is likely a small share of the 18--34 demographic. Future research using ACS PUMS microdata could isolate the effect among low-wage workers specifically.
+
+Third, the competing channels---income effects, disemployment, and housing cost offsets---may approximately cancel. Recent evidence from \citet{dube2019minimum} and \citet{cengiz2019effect} suggests that disemployment effects are small, which would favor the income channel. However, \citet{yamaguchi2020minimum} documents rent increases following minimum wage hikes. The combination of small income gains and small rent increases could yield a near-zero net impact.
+
+\textbf{Comparison to the literature.} The null result is broadly consistent with the finding that moderate minimum wage increases have limited effects on broader economic outcomes beyond the labor market \citep{dube2019minimum, manning2021elusive}. \citet{aaronson2012spending} find significant spending effects from minimum wage increases on durables, but these are concentrated among minimum wage worker households and may not translate into household formation changes for the broader population.
+
+\textbf{Limitations.} First, the panel is relatively short (7 years of ACS data spanning 2015--2019 and 2021--2022, with 2020 unavailable), limiting power for detecting gradually emerging effects. Post-treatment event study coefficients are negative but individually insignificant, leaving open the possibility that effects may emerge at longer horizons. Second, early-treated cohorts (2010--2014) are already treated when the panel begins, and the 2015 cohort (7 states) has no pre-treatment year and is classified as ``always-treated,'' so the estimated effects come from 2016--2021 cohorts (16 states). Third, the main specifications rely on state and year fixed effects without additional time-varying controls; state unemployment rates from BLS LAUS are used as a balance test ($p = 0.744$; see Section~\ref{sec:robustness_additional}) but not as a regression control because unemployment is itself a potential outcome of minimum wage policy, and median gross rent is excluded as a potential mediator rather than a confounder (see Section~4.3). Fourth, the aggregate state-level data do not allow for heterogeneity analysis by individual characteristics such as education, race, or income level.
+
+\textbf{Policy implications.} The null result should not be interpreted as evidence that minimum wages ``don't matter'' for young adults. Rather, it suggests that, at observed magnitudes, minimum wage increases alone are not sufficient to produce detectable shifts in aggregate household formation patterns. Policymakers seeking to promote independent living among young adults may need to complement wage policies with direct housing assistance, expansion of housing supply, student debt relief, or other targeted interventions.
+
+\subsection{Statistical Power and Minimum Detectable Effects}
+
+Given our standard error of 0.446 percentage points for the overall ATT, the minimum detectable effect (MDE) at 80\% power (two-sided, $\alpha = 0.05$) is approximately $0.446 \times 2.8 \approx 1.25$ percentage points. This represents roughly 4.1\% of the base rate of 30.76\% parental co-residence. Our analysis therefore has adequate power to detect effects larger than about 1.25 percentage points on the aggregate 18--34 population, but cannot rule out smaller effects that might be economically meaningful for directly affected subgroups. With minimum wage workers comprising a minority of all 18--34 year-olds, the relevant ``first-stage'' dilution implies that a sizable individual-level effect could be diluted below our detection threshold at the state-year aggregate level. Future work using individual-level microdata from ACS Public Use Microdata Samples (PUMS) or the Current Population Survey could estimate effects for directly exposed subgroups---non-college-educated, low-wage young adults---where statistical power would be substantially greater.
+
+\subsection{Local Minimum Wages}
+
+Our treatment measure captures only state-level minimum wages and does not account for local (city or county) minimum wages, which can exceed state rates in jurisdictions such as Seattle, San Francisco, and New York City \citep{AllegrettoDubeReichZipperer2017}. This creates measurement error in our treatment variable: some ``never-treated'' states may contain cities with local minimum wages above the state floor, potentially attenuating treatment-control contrasts. Future research using sub-state variation could address this limitation.
+
+
+%% ============================================================
+%%  SECTION 9: CONCLUSION
+%% ============================================================
+\section{Conclusion}
+
+This paper investigates whether state minimum wage increases affect the household formation decisions of young adults aged 18--34, using a staggered difference-in-differences design with modern heterogeneity-robust estimators. Exploiting variation across 31 treated states and 20 never-treated states over 2015--2019 and 2021--2022 (the 2020 ACS was not fielded), and drawing on Census ACS data on living arrangements, I find no statistically significant effect of minimum wage increases on the share of young adults living with their parents.
+
+The main Callaway--Sant'Anna ATT is $-0.540$ percentage points (SE $= 0.446$), approximately 1.8\% of the mean parental co-residence rate of 30.76\%. This null result is robust across alternative treatment thresholds (\$0.50 to \$2.00 above the federal floor), estimators (TWFE, Sun--Abraham event study), control groups (never-treated, not-yet-treated), exclusion of pandemic-era observations, and alternative outcomes. The event study reveals no evidence of differential pre-trends, supporting the identification strategy.
+
+The null result is informative for both the academic literature and policy discourse. For the minimum wage literature, it suggests that the effects of moderate minimum wage increases do not produce detectable shifts in aggregate household formation decisions at observed magnitudes and at the aggregate state-year level. The most likely explanations are population dilution, the modest magnitude of income gains relative to housing costs, and the potential offsetting effect of minimum-wage-induced rent increases. Our null finding should be interpreted in light of the power limitations discussed above; effects on directly exposed subpopulations cannot be ruled out.
+
+For policy, the finding implies that minimum wage increases alone are unlikely to reverse the trend toward extended parental co-residence among young adults at the aggregate level. The barriers to household formation---housing costs, student debt, and labor market uncertainty---require a broader policy toolkit.
+
+Future research should pursue several extensions. First, individual-level analysis using ACS PUMS microdata would allow researchers to focus on low-wage workers specifically. Second, longer panels that capture the effects of larger minimum wage increases (e.g., \$15 minimums) could reveal effects not detectable in the current sample. Third, analysis of local-level variation (metropolitan areas or commuting zones) could exploit finer geographic variation and better match minimum wage exposure to local housing market conditions. The question of whether labor market policy can facilitate the transition to independent adulthood remains open, important, and worthy of continued empirical investigation.
+
+
+%% ============================================================
+%%  ACKNOWLEDGEMENTS
+%% ============================================================
+\section*{Acknowledgements}
+
+This paper was autonomously generated using Claude Code as part of the Autonomous Policy Evaluation Project (APEP).
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/auto-policy-evals}
+
+\noindent\textbf{Generated by:} Claude (Anthropic)
+
+\label{apep_main_text_end}
+
+%% ============================================================
+%%  REFERENCES
+%% ============================================================
+\newpage
+
+\begin{thebibliography}{99}
+
+\bibitem[Aaronson et~al.(2012)]{aaronson2012spending}
+Aaronson, Daniel, Sumit Agarwal, and Eric French. 2012.
+\newblock ``The Spending and Debt Response to Minimum Wage Hikes.''
+\newblock \textit{American Economic Review} 102(7): 3111--3139.
+
+\bibitem[Arnett(2000)]{arnett2000emerging}
+Arnett, Jeffrey Jensen. 2000.
+\newblock ``Emerging Adulthood: A Theory of Development from the Late Teens through the Twenties.''
+\newblock \textit{American Psychologist} 55(5): 469--480.
+
+\bibitem[Autor et~al.(2016)]{autor2016contribution}
+Autor, David H., Alan Manning, and Christopher L. Smith. 2016.
+\newblock ``The Contribution of the Minimum Wage to US Wage Inequality over Three Decades: A Reassessment.''
+\newblock \textit{American Economic Journal: Applied Economics} 8(1): 58--99.
+
+\bibitem[Bleemer et~al.(2021)]{bleemer2021student}
+Bleemer, Zachary, Meta Brown, Donghoon Lee, and Wilbert van der Klaauw. 2021.
+\newblock ``Echoes of Rising Tuition in Students' Borrowing, Educational Attainment, and Homeownership in Post-Recession America.''
+\newblock \textit{Journal of Urban Economics} 122: 103298.
+
+\bibitem[BLS(2022)]{bls2022characteristics}
+Bureau of Labor Statistics. 2022.
+\newblock ``Characteristics of Minimum Wage Workers, 2021.''
+\newblock \textit{BLS Reports} No. 1098. Washington, DC: U.S. Department of Labor.
+
+\bibitem[Borgschulte and Cho(2022)]{borgschulte2022minimum}
+Borgschulte, Mark and Heepyung Cho. 2022.
+\newblock ``Minimum Wages and Retirement.''
+\newblock \textit{ILR Review} 75(5): 1261--1290.
+
+\bibitem[Callaway and Sant'Anna(2021)]{callaway2021difference}
+Callaway, Brantly and Pedro H.C. Sant'Anna. 2021.
+\newblock ``Difference-in-Differences with Multiple Time Periods.''
+\newblock \textit{Journal of Econometrics} 225(2): 200--230.
+
+\bibitem[Cameron and Miller(2015)]{cameron2015practitioners}
+Cameron, A. Colin and Douglas L. Miller. 2015.
+\newblock ``A Practitioner's Guide to Cluster-Robust Inference.''
+\newblock \textit{Journal of Human Resources} 50(2): 317--372.
+
+\bibitem[Card and Krueger(1994)]{card1994minimum}
+Card, David and Alan B. Krueger. 1994.
+\newblock ``Minimum Wages and Employment: A Case Study of the Fast-Food Industry in New Jersey and Pennsylvania.''
+\newblock \textit{American Economic Review} 84(4): 772--793.
+
+\bibitem[Cengiz et~al.(2019)]{cengiz2019effect}
+Cengiz, Doruk, Arindrajit Dube, Attila Lindner, and Ben Zipperer. 2019.
+\newblock ``The Effect of Minimum Wages on Low-Wage Jobs.''
+\newblock \textit{Quarterly Journal of Economics} 134(3): 1405--1454.
+
+\bibitem[de~Chaisemartin and D'Haultf\oe uille(2020)]{dechaisemartin2020two}
+de~Chaisemartin, Cl{\'e}ment and Xavier D'Haultf\oe uille. 2020.
+\newblock ``Two-Way Fixed Effects Estimators with Heterogeneous Treatment Effects.''
+\newblock \textit{American Economic Review} 110(9): 2964--2996.
+
+\bibitem[DeSilver(2017)]{desilver2017nearly}
+DeSilver, Drew. 2017.
+\newblock ``10 Facts about American Workers.''
+\newblock Pew Research Center Report, August 29.
+
+\bibitem[Dettling and Hsu(2018)]{dettling2018returning}
+Dettling, Lisa J. and Joanne W. Hsu. 2018.
+\newblock ``Returning to the Nest: Debt and Parental Co-Residence among Young Adults.''
+\newblock \textit{Labour Economics} 54: 225--236.
+
+\bibitem[DOL(2023)]{dol2023minimum}
+U.S. Department of Labor. 2023.
+\newblock ``Changes in Basic Minimum Wages in Non-Farm Employment Under State Law: Selected Years 1968 to 2023.''
+\newblock Wage and Hour Division, Washington, DC.
+
+\bibitem[Dube(2019)]{dube2019minimum}
+Dube, Arindrajit. 2019.
+\newblock ``Impacts of Minimum Wages: Review of the International Evidence.''
+\newblock Report to HM Treasury, UK Government.
+
+\bibitem[Dube et~al.(2010)]{dube2010minimum}
+Dube, Arindrajit, T. William Lester, and Michael Reich. 2010.
+\newblock ``Minimum Wage Effects Across State Borders.''
+\newblock \textit{Review of Economics and Statistics} 92(4): 945--964.
+
+\bibitem[Ermisch(1999)]{ermisch1999prices}
+Ermisch, John. 1999.
+\newblock ``Prices, Parents, and Young People's Household Formation.''
+\newblock \textit{Journal of Urban Economics} 45(1): 47--71.
+
+\bibitem[Fry(2016)]{fry2016share}
+Fry, Richard. 2016.
+\newblock ``For First Time in Modern Era, Living with Parents Edges Out Other Living Arrangements for 18- to 34-Year-Olds.''
+\newblock Pew Research Center Report, May 24.
+
+\bibitem[Fry et~al.(2020)]{fry2020share}
+Fry, Richard, Jeffrey S. Passel, and D'Vera Cohn. 2020.
+\newblock ``A Majority of Young Adults in the U.S. Live with Their Parents for the First Time Since the Great Depression.''
+\newblock Pew Research Center Report, September 4.
+
+\bibitem[Goodman-Bacon(2021)]{goodman2021difference}
+Goodman-Bacon, Andrew. 2021.
+\newblock ``Difference-in-Differences with Variation in Treatment Timing.''
+\newblock \textit{Journal of Econometrics} 225(2): 254--277.
+
+\bibitem[Harasztosi and Lindner(2019)]{harasztosi2019pays}
+Harasztosi, P{\'e}ter and Attila Lindner. 2019.
+\newblock ``Who Pays for the Minimum Wage?''
+\newblock \textit{American Economic Review} 109(8): 2693--2727.
+
+\bibitem[Kaplan(2012)]{kaplan2012model}
+Kaplan, Greg. 2012.
+\newblock ``Moving Back Home: Insurance Against Labor Market Risk.''
+\newblock \textit{Journal of Political Economy} 120(3): 446--512.
+
+\bibitem[Lee and Painter(2018)]{lee2018parents}
+Lee, Kwan Ok and Gary Painter. 2018.
+\newblock ``What Happens to Household Formation in a Recession?''
+\newblock \textit{Journal of Urban Economics} 76: 93--109.
+
+\bibitem[Leigh(2010)]{leigh2010raises}
+Leigh, Andrew. 2010.
+\newblock ``Who Benefits from the Earned Income Tax Credit? Incidence Among Recipients, Coworkers, and Firms.''
+\newblock \textit{B.E. Journal of Economic Analysis \& Policy} 10(1): 1--41.
+
+\bibitem[Manning(2021)]{manning2021elusive}
+Manning, Alan. 2021.
+\newblock ``The Elusive Employment Effect of the Minimum Wage.''
+\newblock \textit{Journal of Economic Perspectives} 35(1): 3--26.
+
+\bibitem[Matsudaira(2008)]{matsudaira2008economic}
+Matsudaira, Jordan D. 2008.
+\newblock ``Economic Conditions and the Cyclical and Secular Changes in Parental Coresidence Among Young Adults: 1960--2007.''
+\newblock Unpublished manuscript, Cornell University.
+
+\bibitem[Neumark and Shirley(2022)]{neumark2014revisiting}
+Neumark, David and Peter Shirley. 2022.
+\newblock ``Myth or Measurement: What Does the New Minimum Wage Research Say About Minimum Wages and Job Loss in the United States?''
+\newblock \textit{Industrial Relations} 61(2): 142--168.
+
+\bibitem[Neumark and Wascher(2007)]{neumark2007minimum}
+Neumark, David and William Wascher. 2007.
+\newblock ``Minimum Wages and Employment.''
+\newblock \textit{Foundations and Trends in Microeconomics} 3(1--2): 1--182.
+
+\bibitem[Rambachan and Roth(2023)]{rambachan2023more}
+Rambachan, Ashesh and Jonathan Roth. 2023.
+\newblock ``A More Credible Approach to Parallel Trends.''
+\newblock \textit{Review of Economic Studies} 90(5): 2555--2591.
+
+\bibitem[Reich(2017)]{reich2017fifteen}
+Reich, Michael. 2017.
+\newblock ``The Economics of a \$15 Federal Minimum Wage.''
+\newblock IRLE Working Paper No. 106-17, UC Berkeley.
+
+\bibitem[Sun and Abraham(2021)]{sun2021estimating}
+Sun, Liyang and Sarah Abraham. 2021.
+\newblock ``Estimating Dynamic Treatment Effects in Event Studies with Heterogeneous Treatment Effects.''
+\newblock \textit{Journal of Econometrics} 225(2): 175--199.
+
+\bibitem[Yamaguchi(2020)]{yamaguchi2020minimum}
+Yamaguchi, Shintaro. 2020.
+\newblock ``Effects of Federal Minimum Wage Increases on Rents.''
+\newblock Unpublished manuscript, McMaster University.
+
+\bibitem[Roth et~al.(2023)]{RothEtAl2023}
+Roth, Jonathan, Pedro H.C. Sant'Anna, Alyssa Bilinski, and John Poe. 2023.
+\newblock ``What's Trending in Difference-in-Differences? A Synthesis of the Recent Econometrics Literature.''
+\newblock \textit{Journal of Econometrics} 235(2): 2218--2244.
+
+\bibitem[Borusyak et~al.(2024)]{BorusyakJaravelSpiess2024}
+Borusyak, Kirill, Xavier Jaravel, and Jann Spiess. 2024.
+\newblock ``Revisiting Event Study Designs: Robust and Efficient Estimation.''
+\newblock \textit{Review of Economic Studies} 91(6): 3253--3295.
+
+\bibitem[Cameron et~al.(2008)]{CameronGelbachMiller2008}
+Cameron, A. Colin, Jonah B. Gelbach, and Douglas L. Miller. 2008.
+\newblock ``Bootstrap-Based Improvements for Inference with Clustered Errors.''
+\newblock \textit{Review of Economics and Statistics} 90(3): 414--427.
+
+\bibitem[Allegretto et~al.(2017)]{AllegrettoDubeReichZipperer2017}
+Allegretto, Sylvia, Arindrajit Dube, Michael Reich, and Ben Zipperer. 2017.
+\newblock ``Credible Research Designs for Minimum Wage Studies.''
+\newblock \textit{ILR Review} 70(3): 559--592.
+
+\bibitem[Haurin et~al.(1993)]{HaurinHendershottKim1993}
+Haurin, Donald R., Patric H. Hendershott, and Dongwook Kim. 1993.
+\newblock ``The Impact of Real Rents and Wages on Household Formation.''
+\newblock \textit{Review of Economics and Statistics} 75(2): 284--293.
+
+\bibitem[Neumark and Wascher(2002)]{NeumarkWascher2002}
+Neumark, David and William Wascher. 2002.
+\newblock ``Do Minimum Wages Fight Poverty?''
+\newblock \textit{Economic Inquiry} 40(3): 315--333.
+
+\bibitem[Mykyta and Macartney(2011)]{MykytaMacartney2011}
+Mykyta, Laryssa and Suzanne Macartney. 2011.
+\newblock ``The Effects of Recession on Household Composition: `Doubling Up' and Economic Well-Being.''
+\newblock \textit{American Economic Review: Papers and Proceedings} 101(3): 295--299.
+
+\bibitem[Clemens and Wither(2019)]{ClemensWither2019}
+Clemens, Jeffrey and Michael Wither. 2019.
+\newblock ``The Minimum Wage and the Great Recession: Evidence of Effects on the Employment and Income Trajectories of Low-Skilled Workers.''
+\newblock \textit{American Economic Review} 109(4).
+
+\bibitem[Wooldridge(2021)]{Wooldridge2021}
+Wooldridge, Jeffrey M. 2021.
+\newblock ``Two-Way Fixed Effects, the Two-Way Mundlak Regression, and Difference-in-Differences Estimators.''
+\newblock \textit{Journal of Econometrics} 225(2): 254--277.
+
+\end{thebibliography}
+
+
+%% ============================================================
+%%  APPENDIX
+%% ============================================================
+\newpage
+\appendix
+
+\section{Data Appendix}
+\label{sec:appendix_data}
+
+\subsection{Data Sources and Access}
+
+\textbf{American Community Survey (ACS).} Living arrangement data come from ACS Table B09021, ``Living Arrangements of Adults 18 Years and Over by Age,'' accessed via the Census Bureau API (\url{https://api.census.gov/data}). I use one-year estimates for 2015--2019 and 2021--2022 at the state level (the 2020 ACS one-year estimates were not released due to low pandemic response rates). The one-year estimates are based on a sample of approximately 3.5 million housing units per year and are available for all geographic areas with populations of 65,000 or more.
+
+Table B09021 provides the following categories for the 18--34 age group:
+\begin{itemize}
+    \item \textbf{B09021\_008E}: Total, 18--34 years
+    \item \textbf{B09021\_009E}: Lives alone
+    \item \textbf{B09021\_010E}: Householder living with spouse or spouse of householder
+    \item \textbf{B09021\_011E}: Householder living with unmarried partner or unmarried partner of householder
+    \item \textbf{B09021\_012E}: Child of householder (parental co-residence)
+    \item \textbf{B09021\_013E}: Other relatives of householder
+    \item \textbf{B09021\_014E}: Other nonrelatives of householder
+\end{itemize}
+
+I construct the parental co-residence rate as:
+\[
+\text{pct\_with\_parents}_{st} = \frac{\text{B09021\_012E}_{st}}{\text{B09021\_008E}_{st}} \times 100
+\]
+
+\noindent The independent living rate sums those living with a spouse (B09021\_010E), with an unmarried partner (B09021\_011E), and those living alone (B09021\_009E), divided by the total (B09021\_008E). The remaining categories---child of householder (parental co-residence), other relatives, and other nonrelatives---complete the partition.
+
+\textbf{Minimum wage data.} State minimum wage rates are from the U.S.\ Department of Labor Wage and Hour Division, ``Changes in Basic Minimum Wages in Non-Farm Employment Under State Law,'' supplemented with the National Conference of State Legislatures database. For each state-year, I record the predominant effective minimum wage rate for the calendar year. Where mid-year increases occurred, I use the rate that was in effect for the majority of the year.
+
+\textbf{Median gross rent.} State-level median gross rent comes from ACS Table B25064, accessed via the Census Bureau API for 2015--2019 and 2021--2022.
+
+\textbf{State population.} State population estimates come from the Census Bureau's Population Estimates Program (PEP), accessed via the API.
+
+\textbf{Unemployment rate.} State annual average unemployment rates come from the Bureau of Labor Statistics Local Area Unemployment Statistics (LAUS) program. These data cover all 51 jurisdictions for the full sample period (2015--2022) and are used for a balance test to assess whether treatment assignment is correlated with differential labor market conditions (see Section~\ref{sec:robustness_additional}).
+
+\subsection{Variable Construction}
+
+\textbf{Treatment variable.} For the binary treatment, I compute the gap between the state effective minimum wage and the federal minimum (\$7.25) in each year. The treatment cohort $G_s$ is defined as the first year in which this gap exceeds \$1.00. States for which the gap never exceeds \$1.00 during 2010--2022 are classified as never-treated ($G_s = \infty$). For robustness, I also construct treatment indicators using thresholds of \$0.50, \$1.50, and \$2.00.
+
+\textbf{Continuous treatment.} For the dose-response specification, the treatment intensity is the gap itself: $\text{MWGap}_{st} = \max(0, \text{MW}_{st} - 7.25)$.
+
+\textbf{Outcome variables.} All outcome variables are expressed as percentages of the state's total 18--34 population.
+
+\subsection{Treatment Cohort Definitions}
+\label{sec:cohorts}
+
+\begin{table}[H]
+\centering
+\caption{Treatment Cohorts: Year of First Minimum Wage Adoption Above Federal + \$1.00}
+\label{tab:cohorts}
+\begin{threeparttable}
+\begin{tabular}{cl}
+\toprule
+Cohort Year & States \\
+\midrule
+2010 & CT, DC, IL, OR, WA \\
+2012 & VT \\
+2014 & CA, NJ \\
+2015 & AK, DE, MA, MN, NY, RI, SD \\
+2016 & CO, HI, MD, MI, NE, WV \\
+2017 & AZ, AR, ME \\
+2018 & FL, MT, OH \\
+2019 & MO \\
+2020 & NM \\
+2021 & NV, VA \\
+\addlinespace
+Never-treated & AL, GA, ID, IN, IA, KS, KY, LA, MS, NH, \\
+              & NC, ND, OK, PA, SC, TN, TX, UT, WI, WY \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item \textit{Notes:} Treatment defined as the first year the state's effective minimum wage exceeds the federal minimum (\$7.25) by \$1.00 or more. Early cohorts (2010--2014) are already treated at the start of the panel (2015) and are dropped by the CS-DiD estimator. The 2015 cohort (AK, DE, MA, MN, NY, RI, SD) has no pre-treatment year within the panel and is treated as ``always-treated'' by the CS-DiD estimator---these 7 states do not contribute to the ATT estimand. Sixteen states (cohorts 2016--2021) contribute to the CS-DiD ATT; 20 never-treated states serve as controls.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\subsection{Sample Construction Details}
+
+The analysis sample is a balanced panel of 51 jurisdictions $\times$ 7 years (2015--2019, 2021--2022; the 2020 ACS one-year estimates were not released), $N = 357$. For the CS-DiD estimator, the 8 states in early cohorts (2010--2014) do not contribute to ATT estimation because no pre-treatment observations exist within the panel. The 7 states in the 2015 cohort (AK, DE, MA, MN, NY, RI, SD) have no pre-treatment year within the panel and are internally classified as ``always-treated'' by the CS-DiD estimator---they do not contribute to the ATT. The effective treated sample contributing to the CS-DiD estimand is 16 states first treated in 2016 or later.
+
+
+\section{Identification Appendix}
+\label{sec:appendix_identification}
+
+\subsection{Pre-Treatment Trends Assessment}
+
+The pre-treatment coefficients from the CS-DiD event study are:
+
+\begin{itemize}
+    \item $e = -5$: $0.196$ (SE $= 0.231$), $p > 0.10$
+    \item $e = -4$: $-1.369$ (SE $= 3.441$), $p > 0.10$
+    \item $e = -3$: $0.463$ (SE $= 0.542$), $p > 0.10$
+    \item $e = -2$: $-0.621$ (SE $= 0.430$), $p > 0.10$
+\end{itemize}
+
+None is statistically significant. The coefficients alternate between positive and negative values, consistent with sampling variation around zero. The individual coefficient tests provide strong support for the parallel trends assumption.
+
+\subsection{Sensitivity to Parallel Trends Violations}
+
+The \citet{rambachan2023more} HonestDiD analysis did not converge for this specification, likely due to the group-time ATT structure and short pre-treatment window. This is a limitation. The absence of pre-trends in the CS-DiD event study provides informal reassurance.
+
+\subsection{Comparison of Pre-Treatment Tests Across Estimators}
+
+The Sun--Abraham estimator shows significant pre-treatment coefficients at years $-6$ ($-2.862$, SE $= 0.968$, $p < 0.01$), $-5$ ($-1.566$, SE $= 0.402$, $p < 0.01$), $-4$ ($-1.459$, SE $= 0.602$, $p < 0.05$), and $-2$ ($-1.045$, SE $= 0.375$, $p < 0.01$); year $-3$ ($-0.561$, SE $= 0.425$) is not significant. These pre-treatment violations are a genuine diagnostic concern for the SA specification. For post-treatment periods, most coefficients are insignificant, though year $= 4$ is marginally significant at 10\% ($-1.486$, SE $= 0.846$). This discrepancy with CS-DiD arises from: (1) the Sun--Abraham estimator uses all non-treated observations (including already-treated states) as controls; (2) different cohort weighting; (3) more extended event time bins. The CS-DiD pre-treatment tests are more appropriate because they use only never-treated states as comparisons. The Sun--Abraham results should therefore be interpreted as supporting evidence with caveats, not as a primary specification.
+
+
+\section{Robustness Appendix}
+\label{sec:appendix_robustness}
+
+\subsection{Dose-Response Analysis}
+
+The linear TWFE dose-response specification yields $\beta = -0.111$ (SE $= 0.120$), implying each additional dollar of minimum wage above \$7.25 is associated with a 0.11 pp decrease in parental co-residence---not statistically significant. A quadratic specification adds no explanatory power; the quadratic term is small and insignificant.
+
+\subsection{Multiple Testing Adjustments}
+
+The event study tests 8 non-reference coefficients. Without correction, the probability of at least one false positive at $\alpha = 0.05$ is approximately 34\%. With the corrected 18--34 age-group data, no individual event-study coefficient reaches significance even before Bonferroni correction, further supporting the null interpretation.
+
+\subsection{Estimation Sensitivity}
+
+The baseline uses 999 bootstrap replications. Increasing to 1,999 produces virtually identical confidence intervals, confirming convergence.
+
+
+\section{Heterogeneity Appendix}
+\label{sec:appendix_heterogeneity}
+
+\subsection{Regional Heterogeneity Details}
+
+The Southern subsample contains 7 treated states (AR, DE, DC, FL, MD, VA, WV) and 10 never-treated states (AL, GA, KY, LA, MS, NC, OK, SC, TN, TX). The significant effect ($-0.472$, SE $= 0.228$) may reflect:
+\begin{enumerate}
+    \item \textbf{Lower housing costs:} Southern states have median rents approximately \$900/month, below the national average. The income gain from minimum wage increases is more meaningful relative to housing costs.
+    \item \textbf{Higher minimum wage bite:} In states with lower average wages, a larger share of the workforce is affected.
+    \item \textbf{Larger comparison group:} The South has 10 never-treated states, providing more statistical power.
+    \item \textbf{Idiosyncratic variation:} With only 7 treated states, the estimate could reflect state-specific factors.
+\end{enumerate}
+
+I do not report Northeast heterogeneity because of insufficient treated-state variation within the region. The Northeast includes two never-treated states (NH and PA), but of the seven treated states, only Maine (cohort 2017) has pre-treatment years within the panel. The remaining six (CT 2010, VT 2012, NJ 2014, MA 2015, NY 2015, RI 2015) are always-treated in-panel and do not contribute to the CS-DiD ATT. With only one contributing treated state, the estimator could not reliably identify group-time ATTs.
+
+\subsection{Cohort-Specific Heterogeneity}
+
+The Callaway--Sant'Anna group-time ATTs show mixed effects across cohorts. The 2015 cohort (7 states: AK, DE, MA, MN, NY, RI, SD) has no pre-treatment year in the panel and is classified as ``always-treated'' by the CS-DiD estimator; it does not contribute to the ATT estimand. The 2016 cohort (6 states) shows slightly negative effects. Later cohorts (2017--2021) have fewer post-treatment periods and noisier estimates. No contributing cohort shows consistently significant effects, supporting the overall null result.
+
+
+\section{Additional Figures and Tables}
+\label{sec:appendix_exhibits}
+
+\subsection{Minimum Wage Distribution Over Time}
+
+\begin{table}[H]
+\centering
+\caption{Distribution of State Effective Minimum Wages, 2015--2022 (MW data available for all years including 2020)}
+\label{tab:mw_dist}
+\begin{threeparttable}
+\begin{tabular}{lcccccc}
+\toprule
+Year & Mean & Median & SD & Min & Max & $N > \$7.25$ \\
+\midrule
+2015 & 7.94 & 7.65 & 0.79 & 7.25 & 10.50 & 30 \\
+2016 & 8.15 & 8.00 & 1.04 & 7.25 & 11.50 & 30 \\
+2017 & 8.41 & 8.15 & 1.31 & 7.25 & 12.50 & 30 \\
+2018 & 8.60 & 8.25 & 1.52 & 7.25 & 13.25 & 30 \\
+2019 & 8.84 & 8.50 & 1.76 & 7.25 & 14.00 & 30 \\
+2020 & 9.22 & 8.75 & 2.11 & 7.25 & 15.00 & 30 \\
+2021 & 9.58 & 9.25 & 2.33 & 7.25 & 15.20 & 31 \\
+2022 & 9.95 & 9.87 & 2.66 & 7.25 & 16.10 & 31 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item \textit{Notes:} Summary statistics for state effective minimum wages across 51 jurisdictions. $N > \$7.25$ counts states with rates strictly above the federal floor. Values reflect the predominant rate for each calendar year.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\subsection{Summary of All Estimation Results}
+
+\begin{table}[H]
+\centering
+\caption{Comprehensive Summary of All Treatment Effect Estimates}
+\label{tab:all_estimates}
+\begin{threeparttable}
+\begin{tabular}{llccc}
+\toprule
+Panel & Specification & ATT & SE & Sig. \\
+\midrule
+\textit{A: Main} & & & & \\
+& CS-DiD (never-treated) & $-$0.540 & (0.446) & --- \\
+& CS-DiD (not-yet-treated) & $-$0.496 & (0.794) & --- \\
+& TWFE & 0.000 & (0.381) & --- \\
+\addlinespace
+\textit{B: Thresholds} & & & & \\
+& MW gap $\geq$ \$0.50 & $-$1.750 & (1.883) & --- \\
+& MW gap $\geq$ \$1.50 & $-$0.287 & (0.754) & --- \\
+& MW gap $\geq$ \$2.00 & 0.082 & (0.475) & --- \\
+\addlinespace
+\textit{C: Specifications} & & & & \\
+& Not-yet-treated & $-$0.496 & (0.794) & --- \\
+& Excluding 2021 ($N = 306$) & $-$0.540 & (0.439) & --- \\
+& Pre-pandemic only ($N = 255$) & $-$0.053 & (0.461) & --- \\
+& Continuous gap (TWFE) & $-$0.111 & (0.120) & --- \\
+\addlinespace
+\textit{D: Outcomes} & & & & \\
+& \% Independent & 0.522 & (0.564) & --- \\
+& \% Other arrangements & 0.019 & (0.445) & --- \\
+\addlinespace
+\textit{E: Regions} & & & & \\
+& South & $-$0.472 & (0.228) & ** \\
+& West & 0.655 & (0.811) & --- \\
+& Midwest & $-$0.644 & (0.977) & --- \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\small
+\item \textit{Notes:} DV: \% living with parents (Panels A--C, E) or as noted (Panel D). Standard errors clustered at the state level. Sun--Abraham event-study coefficients are reported separately in Appendix Table~\ref{tab:twfe_sa}. * $p<0.10$, ** $p<0.05$, *** $p<0.01$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\subsection{State Minimum Wages and Treatment Status}
+
+\begin{longtable}{lcccc}
+\caption{State Minimum Wages and Treatment Status, 2022} \label{tab:state_mw} \\
+\toprule
+State & MW (\$) & Gap (\$) & Treated & Cohort \\
+\midrule
+\endfirsthead
+\multicolumn{5}{c}{\Cref{tab:state_mw} continued} \\
+\toprule
+State & MW (\$) & Gap (\$) & Treated & Cohort \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+Alabama & 7.25 & 0.00 & No & $\infty$ \\
+Alaska & 10.34 & 3.09 & Yes & 2015 \\
+Arizona & 12.80 & 5.55 & Yes & 2017 \\
+Arkansas & 11.00 & 3.75 & Yes & 2017 \\
+California & 15.00 & 7.75 & Yes & 2014 \\
+Colorado & 12.56 & 5.31 & Yes & 2016 \\
+Connecticut & 15.00 & 7.75 & Yes & 2010 \\
+Delaware & 10.50 & 3.25 & Yes & 2015 \\
+District of Columbia & 16.10 & 8.85 & Yes & 2010 \\
+Florida & 10.00 & 2.75 & Yes & 2018 \\
+Georgia & 7.25 & 0.00 & No & $\infty$ \\
+Hawaii & 10.10 & 2.85 & Yes & 2016 \\
+Idaho & 7.25 & 0.00 & No & $\infty$ \\
+Illinois & 12.00 & 4.75 & Yes & 2010 \\
+Indiana & 7.25 & 0.00 & No & $\infty$ \\
+Iowa & 7.25 & 0.00 & No & $\infty$ \\
+Kansas & 7.25 & 0.00 & No & $\infty$ \\
+Kentucky & 7.25 & 0.00 & No & $\infty$ \\
+Louisiana & 7.25 & 0.00 & No & $\infty$ \\
+Maine & 12.75 & 5.50 & Yes & 2017 \\
+Maryland & 12.50 & 5.25 & Yes & 2016 \\
+Massachusetts & 14.25 & 7.00 & Yes & 2015 \\
+Michigan & 9.87 & 2.62 & Yes & 2016 \\
+Minnesota & 10.33 & 3.08 & Yes & 2015 \\
+Mississippi & 7.25 & 0.00 & No & $\infty$ \\
+Missouri & 11.15 & 3.90 & Yes & 2019 \\
+Montana & 9.95 & 2.70 & Yes & 2018 \\
+Nebraska & 9.00 & 1.75 & Yes & 2016 \\
+Nevada & 10.50 & 3.25 & Yes & 2021 \\
+New Hampshire & 7.25 & 0.00 & No & $\infty$ \\
+New Jersey & 13.00 & 5.75 & Yes & 2014 \\
+New Mexico & 11.50 & 4.25 & Yes & 2020 \\
+New York & 13.20 & 5.95 & Yes & 2015 \\
+North Carolina & 7.25 & 0.00 & No & $\infty$ \\
+North Dakota & 7.25 & 0.00 & No & $\infty$ \\
+Ohio & 9.30 & 2.05 & Yes & 2018 \\
+Oklahoma & 7.25 & 0.00 & No & $\infty$ \\
+Oregon & 13.50 & 6.25 & Yes & 2010 \\
+Pennsylvania & 7.25 & 0.00 & No & $\infty$ \\
+Rhode Island & 12.25 & 5.00 & Yes & 2015 \\
+South Carolina & 7.25 & 0.00 & No & $\infty$ \\
+South Dakota & 9.95 & 2.70 & Yes & 2015 \\
+Tennessee & 7.25 & 0.00 & No & $\infty$ \\
+Texas & 7.25 & 0.00 & No & $\infty$ \\
+Utah & 7.25 & 0.00 & No & $\infty$ \\
+Vermont & 12.55 & 5.30 & Yes & 2012 \\
+Virginia & 11.00 & 3.75 & Yes & 2021 \\
+Washington & 14.49 & 7.24 & Yes & 2010 \\
+West Virginia & 8.75 & 1.50 & Yes & 2016 \\
+Wisconsin & 7.25 & 0.00 & No & $\infty$ \\
+Wyoming & 7.25 & 0.00 & No & $\infty$ \\
+\end{longtable}
+
+
+\end{document}

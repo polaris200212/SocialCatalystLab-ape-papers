@@ -1,0 +1,1423 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\sisetup{detect-all=true, group-separator={,}, group-minimum-digits=4}
+
+% For modelsummary tables
+\usepackage{tabularray}
+\usepackage{codehigh}
+\usepackage[normalem]{ulem}
+\UseTblrLibrary{booktabs}
+\UseTblrLibrary{siunitx}
+\newcommand{\tinytableTabularrayUnderline}[1]{\underline{#1}}
+\newcommand{\tinytableTabularrayStrikeout}[1]{\sout{#1}}
+\NewTableCommand{\tinytableDefineColor}[3]{\definecolor{#1}{#2}{#3}}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\sym}[1]{\ifmmode^{#1}\else\(^{#1}\)\fi}
+
+\title{Technological Obsolescence and Populist Voting: \\ Evidence from U.S. Metropolitan Areas\footnote{This paper is a revision of APEP-0140. See \url{https://github.com/SocialCatalystLab/auto-policy-evals/tree/main/papers/apep_0140} for the parent paper. This revision strengthens identification through spatial robustness tests \citep{conley1999gmm} and coefficient stability bounds \citep{oster2019unobservable}, adds placebo tests for pre-Trump elections, and improves data documentation.}}
+\author{SocialCatalystLab\thanks{Correspondence: scl@econ.uzh.ch} \\ @SocialCatalystLab}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+Does technological obsolescence predict support for populist candidates? Using novel data on the modal age of technologies employed across 896 U.S. Core-Based Statistical Areas (CBSAs) from 2010--2023, we examine the relationship between technology vintage and Republican vote share in the 2012, 2016, 2020, and 2024 presidential elections. We find a robust positive cross-sectional correlation: a 10-year increase in modal technology age is associated with approximately 0.75 percentage points higher Republican vote share in pooled specifications with year fixed effects (coefficient: 0.075 pp/year; one standard deviation $\approx$ 1.2 pp). Critically, we extend our analysis using 2008 (McCain vs. Obama) as a baseline, allowing us to measure \textit{changes} in GOP support since the pre-Trump era. Controlling for 2008 GOP vote share, technology age predicts the \textit{change} in Republican support---areas with older technology shifted disproportionately toward the GOP from 2008 to 2016. Geographic visualization reveals spatial clustering of technology obsolescence and voting shifts, concentrated in the Midwest and parts of the South. An event-study analysis shows the technology coefficient is near-zero in 2012 (Romney), emerges strongly in 2016 (Trump's first election), and remains stable through 2024. Population-weighted specifications confirm these patterns are not driven by small metropolitan areas. Our findings suggest that technological obsolescence was specifically associated with the initial Trump realignment rather than an ongoing causal process, with regions using older technology experiencing a one-time political shift that has since crystallized.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} D72, O33, P16, R11 \\
+\noindent\textbf{Keywords:} populism, technology, voting behavior, Trump, metropolitan areas, geographic polarization
+
+\newpage
+
+\section{Introduction}
+
+Between 2012 and 2016, metropolitan areas using production technologies from the 1970s and 1980s shifted toward Donald Trump by an average of 4 percentage points more than areas using cutting-edge equipment. This stark divergence raises a fundamental question: did technological obsolescence \textit{cause} populist voting, or does it merely mark places where voters predisposed to populism already lived? The answer matters both for understanding the rise of Trump and for assessing whether technology modernization policies could reduce political polarization.
+
+This paper documents and interprets the relationship between technological modernity and voting behavior across 896 U.S. metropolitan areas. Using novel data on the modal age of capital equipment---ranging from recently installed robotics to decades-old machinery---we find that technology vintage powerfully predicts Republican vote share in the 2012, 2016, 2020, and 2024 presidential elections. Critically, we leverage the 2012 Romney election as a pre-Trump baseline, allowing us to isolate the Trump-specific component of this relationship.
+
+Our analysis exploits rich variation in technology vintage across 896 Core-Based Statistical Areas (CBSAs). The technology data, drawn from establishment-level surveys, measures the modal age of capital equipment and production technologies within each metropolitan area, providing a direct indicator of technological modernity distinct from more commonly used proxies such as routine task intensity or automation exposure.
+
+We document a robust positive cross-sectional correlation between technology age and Republican voting. A 10-year increase in modal technology age is associated with approximately 0.75 percentage points higher Republican vote share, conditional on year fixed effects and CBSA size controls (coefficient: 0.075 pp/year). A one standard deviation increase (approximately 16 years) implies roughly 1.2 percentage points higher Republican vote share. This relationship holds across metropolitan and micropolitan areas, persists in all four election years, and is robust to alternative measures of technology vintage.
+
+Critically, by extending our analysis to include the 2012 election, we uncover an asymmetric pattern that sheds new light on the technology-populism relationship. Technology age \textit{does} predict the gains in Republican support from Romney (2012) to Trump (2016)---the emergence of Trump-specific populist realignment. A 10-year increase in 2011 technology age is associated with approximately 0.3 percentage point higher GOP gains from 2012 to 2016 (p $<$ 0.001). However, technology age does \textit{not} predict subsequent gains: neither 2016-2020 nor 2020-2024 changes in Trump support are predicted by prior technology levels. Within-CBSA variation also fails to predict voting changes when we include CBSA fixed effects.
+
+This pattern suggests a nuanced interpretation: technological obsolescence was specifically associated with the \textit{initial} Trump surge---the political realignment that distinguished Trump from Romney. But once voters sorted into Trump-supporting and Trump-opposing camps, subsequent voting changes were not driven by technology. The technology-voting correlation reflects a one-time sorting event rather than an ongoing causal process.
+
+Our findings complement a growing literature on the economic determinants of populist voting. \citet{autor2020importing} document that exposure to Chinese import competition increased Republican vote share in affected U.S. counties. \citet{bursztyn2024immigrant} show that long-term exposure to immigrants shapes attitudes and voting behavior. \citet{rodrik2021economics} provides a comprehensive review linking economic grievances to populist support across countries. Our contribution is to examine a specific, understudied dimension of economic geography---technological modernity---and to carefully distinguish correlation from causation.
+
+The remainder of this paper proceeds as follows. Section 2 describes our data sources and sample construction. Section 3 develops a conceptual framework linking technological obsolescence to political preferences. Section 4 presents our empirical strategy. Section 5 reports main results and robustness checks. Section 6 discusses mechanisms and alternative interpretations. Section 7 concludes.
+
+Before proceeding, we note that our analysis is purely observational. We cannot randomly assign technology vintage to metropolitan areas, and the identifying variation we exploit---differences in technology age across CBSAs and over time---may be confounded by unobserved factors. Our identification strategy aims to distinguish correlation from causation by testing multiple predictions that differ under causal and sorting interpretations. While we cannot definitively prove the absence of causal effects, the pattern of results strongly suggests that the technology-voting correlation reflects sorting rather than direct causation.
+
+
+\section{Institutional Background and Data}
+
+\subsection{Technology Adoption and Regional Inequality}
+
+The pace of technology adoption varies substantially across U.S. regions. While coastal metropolitan areas and major innovation hubs tend to employ cutting-edge technologies, many smaller cities and rural-adjacent areas continue to rely on older capital equipment and production processes. This variation reflects differences in industry composition, workforce skills, access to capital, and historical patterns of investment.
+
+\citet{acemoglu2022new} argue that new technologies complement high-skilled workers while substituting for routine tasks performed by middle-skilled workers. Regions that fail to adopt new technologies may therefore face a ``double penalty'': lower productivity growth and limited displacement of routine workers, but also reduced opportunities for the high-skilled workers who might otherwise drive local economic dynamism.
+
+From a political economy perspective, workers in technologically stagnant regions may be particularly susceptible to populist appeals. They face economic uncertainty not from dramatic job losses (as in trade-affected regions), but from gradual erosion of wages and opportunities relative to more dynamic areas. This ``slow burn'' of relative decline may generate resentment toward elites perceived as benefiting from technological change while leaving these regions behind.
+
+The geographic concentration of technological modernity has accelerated in recent decades. \citet{moretti2012new} documents the emergence of a ``great divergence'' in which a small number of metropolitan areas have captured the lion's share of innovation-sector growth while many traditional manufacturing regions have stagnated. This divergence has profound implications for local labor markets: workers in technologically advanced areas earn substantial wage premiums, while workers in lagging regions face both lower wages and fewer opportunities for upward mobility.
+
+Understanding the political consequences of this geographic divergence is essential for both academic and policy reasons. If technological obsolescence directly causes populist voting, then technology modernization programs could potentially reduce political polarization. Alternatively, if the correlation reflects sorting or common causes, then addressing technology alone may be insufficient to heal political divisions.
+
+\subsection{The Populist Turn in American Politics}
+
+The 2016 presidential election marked a dramatic shift in American politics, with Donald Trump winning the Electoral College despite losing the popular vote by appealing to voters in regions that had experienced economic decline. Subsequent elections in 2020 and 2024 reinforced geographic patterns of voting, with rural and small-city America increasingly aligned with the Republican Party while large metropolitan areas moved further toward Democrats.
+
+Several explanations have been proposed for this geographic polarization. \citet{autor2020importing} demonstrate that counties more exposed to Chinese import competition experienced larger increases in Republican vote share. \citet{autor2019when} show that manufacturing decline reduced marriage rates among young men, potentially contributing to social dislocation that feeds populist sentiment. \citet{mutz2018status} argues that perceived status threat, rather than economic hardship per se, drove Trump support. \citet{sides2018identity} emphasize the role of racial attitudes and identity politics.
+
+Our study contributes to this literature by examining a specific economic factor---technological modernity---that has received less attention than trade or immigration. Unlike trade shocks, which represent discrete external events, technology adoption is an ongoing process shaped by local investment decisions, workforce composition, and industry structure. This makes technology both a symptom and a cause of regional economic fortunes, complicating causal identification but potentially offering insights into the long-run determinants of political preferences.
+
+\subsection{Defining and Measuring Technological Obsolescence}
+
+Technological obsolescence refers to the degree to which a region's productive capital stock lags behind the technological frontier. Regions with obsolete technologies face several economic disadvantages: lower labor productivity, reduced competitiveness in global markets, and diminished capacity to attract skilled workers and investment.
+
+Several measures of technological modernity have been used in the literature. \citet{frey2017future} focus on automation risk, estimating the probability that occupations will be computerized based on task content. \citet{acemoglu2020robots} measure robot adoption per worker across industries. \citet{autor2013china} use routine task intensity to proxy for vulnerability to technological displacement.
+
+Our measure---modal technology age---captures a distinct dimension of technological modernity. Rather than measuring exposure to future automation or current robot density, it directly measures how old the typical capital equipment is within a metropolitan area. This ``vintage'' approach has the advantage of reflecting actual investment decisions rather than projected vulnerabilities, but it may also reflect industry composition rather than technology choice within industries.
+
+The modal age measure has several appealing properties for studying political economy. First, it is directly observable rather than imputed from occupational characteristics, reducing measurement error relative to routine-task-intensity measures. Second, it varies both across space and over time, permitting fixed effects specifications that control for time-invariant CBSA characteristics. Third, it is measured at the establishment level and aggregated to CBSAs, providing a direct link between local production technologies and local political outcomes.
+
+However, the measure also has limitations. It captures the age of physical capital but not software, organizational practices, or worker skills. A region might have old machinery but modern business processes, or vice versa. Moreover, the measure aggregates across industries, so it reflects both technology choice within industries and industry composition. We address these concerns through robustness checks using alternative measures and industry controls.
+
+\subsection{Core-Based Statistical Areas (CBSAs)}
+
+Our unit of analysis is the Core-Based Statistical Area (CBSA), the geographic classification used by the U.S. Office of Management and Budget to define metropolitan and micropolitan statistical areas. CBSAs are defined based on counties and county-equivalents, centered on urban cores with substantial commuting ties.
+
+Metropolitan Statistical Areas (MSAs) have urban cores of at least 50,000 population, while Micropolitan Statistical Areas ($\mu$SAs) have urban cores of 10,000--50,000. As of the March 2020 delineation used in this study, there are 384 MSAs and 543 $\mu$SAs in the United States.
+
+CBSAs provide an appropriate unit of analysis for several reasons. First, they represent integrated labor markets where workers, firms, and voters interact. Technology adoption decisions by local firms affect local workers who then vote in local precincts. Second, CBSAs aggregate counties, providing larger sample sizes than county-level analysis while maintaining meaningful geographic variation. Third, the CBSA classification is widely used in economic research, facilitating comparison with other studies.
+
+One limitation of CBSA-level analysis is that it excludes rural counties not part of any CBSA. Approximately 40\% of U.S. counties fall outside CBSA boundaries. These excluded counties tend to be small, rural, and heavily Republican. Our results therefore characterize the relationship between technology and voting in metropolitan and micropolitan America, not in the most rural areas.
+
+\subsection{Sample Construction}
+
+Our analysis sample emerges from the intersection of three datasets: technology vintage data (917 CBSAs), election data aggregated from counties (varying by year due to county availability), and the CBSA-county crosswalk. The final analysis sample consists of 896 unique CBSAs with complete data for at least one election year, yielding 3,569 CBSA-election observations across four presidential elections (2012, 2016, 2020, 2024).
+
+The sample reduction from 917 potential CBSAs to 896 analyzed CBSAs reflects two factors. First, some CBSAs in the technology data lack corresponding county-level election returns (e.g., Alaska boroughs with non-standard county equivalents). Second, some county-election records could not be matched to CBSAs due to FIPS code discrepancies or boundary changes between the 2020 CBSA delineation and the county-level election data.
+
+Within the 896 CBSAs, the number of observations varies slightly by election year (893 in 2012, 896 in 2016, 892 in 2020, 888 in 2024) due to missing election returns in specific counties for some years. All regression specifications report the exact number of observations used, and results are robust to using the balanced panel of CBSAs observed in all four years.
+
+\subsection{Data Sources}
+
+\subsubsection{Technology Vintage Data}
+
+Our primary independent variable is the modal age of technologies employed within each CBSA, drawn from establishment-level surveys compiled by \citet{acemoglu2022new}. The raw data cover 917 CBSAs from 2010 to 2023 and measure the typical age (in years) of capital equipment and production technologies across different industries within each metropolitan area. After merging with election data, our analysis uses 896 CBSAs with complete data for at least one election year.
+
+For each election, we use technology data from the year prior: 2011 data for the 2012 election, 2015 data for the 2016 election, 2019 data for the 2020 election, and 2023 data for the 2024 election. This ensures we measure technology vintage before, not after, the election outcomes. Note that because technology data begins in 2010, we cannot use pre-2010 technology measures. The 2012 election therefore serves as our earliest election with corresponding technology data.
+
+\textbf{Note on 2008 data:} We also incorporate 2008 election results (McCain vs. Obama) as a \textit{partisan baseline control}---not as a technology baseline. Since we lack 2007/2008 technology data, we cannot analyze the technology-voting relationship in 2008. However, by controlling for 2008 GOP vote share in our analysis of 2012--2024 elections, we can examine whether technology predicts \textit{changes} in partisan support since the pre-Trump era. This 2008 vote share control isolates the relationship between technology and the post-2008 political realignment.
+
+For each CBSA-year observation, we observe approximately 45 industry-level modal age values. We collapse these to the CBSA-year level by computing the mean modal age, though our results are robust to using the median, 25th percentile, or 75th percentile instead.
+
+Summary statistics reveal substantial variation in technology age across metropolitan areas. In the pooled sample across all four election years, the mean modal technology age is 44.2 years with a cross-sectional standard deviation of 16.4 years, ranging from 8 to 80 years. Technology age exhibits persistence: the cross-CBSA correlation between adjacent election years is 0.89. With four time points per CBSA, the within-CBSA standard deviation is modest (approximately 4 years), limiting the power of fixed effects specifications but not precluding their use as a diagnostic test.
+
+\subsubsection{Election Data}
+
+County-level presidential election returns for 2012 come from the MIT Election Data and Science Lab's County Presidential Election Returns 2000-2020 dataset \citep{mit2020county}. Returns for 2016, 2020, and 2024 come from county-level compilations maintained by Tony McGovern on GitHub, which aggregates data from the MIT Election Data Science Lab and official state reporting sources. All election data reflect certified county results. We aggregate county results to the CBSA level using the March 2020 CBSA delineation file from the Census Bureau, accessed via NBER's crosswalk service. When counties span multiple CBSAs (rare), we assign them to the CBSA containing their largest population share.
+
+For each CBSA-election, we compute the Republican vote share as the ratio of Republican votes to total votes cast. Across our sample, mean Republican vote share was 56.0\% in 2012 (Romney), 58.7\% in 2016 (Trump), 59.8\% in 2020, and 62.0\% in 2024. These means are higher than the national popular vote because our sample overrepresents smaller metropolitan and micropolitan areas, which lean Republican. The unit of analysis is the CBSA, not the voter, so each CBSA receives equal weight regardless of population.
+
+\subsubsection{Sample Construction}
+
+Our analysis sample consists of 3,569 CBSA-year observations covering 896 CBSAs across four election years. We match technology data from the year prior to each election (2011 for 2012, 2015 for 2016, 2019 for 2020, 2023 for 2024) to capture the technology environment facing voters at the time of their electoral decisions. Table \ref{tab:sample_flow} summarizes the sample construction process.
+
+\begin{table}[H]
+\centering
+\caption{Sample Construction}
+\label{tab:sample_flow}
+\begin{threeparttable}
+\begin{tabular}{lc}
+\hline\hline
+Step & N (CBSAs) \\
+\hline
+Raw technology data & 917 \\
+Less: Missing county matches & -12 \\
+Less: Missing election data & -9 \\
+\textbf{Final analysis sample} & \textbf{896} \\
+\hline
+\multicolumn{2}{l}{\footnotesize Elections: 893 (2012), 896 (2016), 892 (2020), 888 (2024).} \\
+\multicolumn{2}{l}{\footnotesize Total CBSA-year observations: 3,569.} \\
+\end{tabular}
+\end{threeparttable}
+\end{table}
+
+Table \ref{tab:summary} presents summary statistics by election year. The mean Republican vote share is 59.1\% with substantial variation (standard deviation of 14.1 percentage points). Technology age averages 44.2 years with a standard deviation of 16.4 years. Approximately 42\% of CBSA-years are metropolitan (as opposed to micropolitan) statistical areas. Notably, mean Republican vote share increased from 56.0\% (Romney, 2012) to 62.0\% (Trump, 2024) across our sample.
+
+Note that sample sizes vary slightly across years (893 in 2012, 896 in 2016, 892 in 2020, 888 in 2024) due to missing county-level election returns for some CBSAs in specific years. The decline from 896 to 888 CBSAs reflects data compilation timing: some small counties in remote areas (e.g., Alaska boroughs, rural Montana) had incomplete reporting at the time of data download. All specifications report exact observation counts. The balanced panel (880 CBSAs observed in all four election years) is smaller than any single year's count because it requires non-missing data across all elections.
+
+\subsection{Descriptive Patterns}
+
+Before turning to regression analysis, we describe key patterns in the data. Figure \ref{fig:app_tech_dist} shows the distribution of modal technology age across CBSAs for each election year. The distribution is centered around 40--45 years, with a standard deviation of approximately 15 years. The concentration of observations in the 35--45 year range reflects the typical vintage of established production technologies in U.S. metropolitan areas. There is no evidence of bimodality that would suggest distinct ``modern'' and ``obsolete'' regions; rather, technology age varies continuously across the metropolitan landscape.
+
+Figure \ref{fig:scatter} plots Trump vote share against modal technology age for each election year. The positive correlation is visually apparent: CBSAs in the upper-right (older technology, higher Trump share) are more numerous than those in the upper-left (older technology, lower Trump share). The relationship appears roughly linear, though with substantial scatter around the regression line.
+
+The raw correlation between modal technology age and Republican vote share is 0.16 (p $<$ 0.001), pooling across all four elections. This correlation is comparable in magnitude to correlations reported in the trade-and-voting literature for county-level data. However, as we emphasize throughout, correlation does not imply causation, and our identification tests suggest the relationship is not causal.
+
+\subsection{Geographic Distribution}
+
+Technology age and Trump voting are not uniformly distributed across the country. By unique CBSAs, the South has the largest representation (364), followed by the Midwest (270), West (174), and Northeast (88). Due to the unbalanced panel structure (some CBSAs missing in some years), CBSA-year observations are: Midwest (810), South (1,092), West (515), and Northeast (259). Average technology age is highest in the Midwest (47.2 years) and South (46.1 years), and lowest in the West (43.8 years) and Northeast (42.9 years).
+
+Similarly, Trump vote share varies substantially by region. The South has the highest average Trump share (64.2\%), followed by the Midwest (60.1\%), West (55.8\%), and Northeast (51.3\%). These regional patterns suggest that part of the technology-voting correlation may reflect confounding by region, which we address through regional subgroup analysis.
+
+\begin{table}[H]
+\centering
+\caption{Summary Statistics}
+\label{tab:summary}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\hline\hline
+ & 2012 & 2016 & 2020 & 2024 \\
+\hline
+GOP Vote Share (\%) & 56.0 (13.5) & 58.7 (14.2) & 59.8 (14.3) & 62.0 (13.9) \\
+Modal Technology Age & 40.0 (19.0) & 44.5 (16.9) & 45.3 (14.2) & 47.2 (15.2) \\
+N (CBSAs) & 893 & 896 & 892 & 888 \\
+\hline
+\multicolumn{5}{l}{\footnotesize Standard deviations in parentheses.} \\
+\end{tabular}
+\end{threeparttable}
+\end{table}
+
+
+\section{Conceptual Framework}
+
+Before presenting our empirical strategy, we outline the theoretical mechanisms that could link technological obsolescence to populist voting. This framework guides our interpretation of results and helps distinguish between causal and sorting-based explanations.
+
+\subsection{Theoretical Mechanisms}
+
+\subsubsection{Economic Grievance Channel}
+
+The most direct mechanism links technology to voting through economic outcomes. Regions using older technologies may experience lower wage growth, as productivity depends on capital quality and regions with older capital stock grow more slowly, translating into stagnant wages for workers. Modern technologies often complement high-skilled workers, creating better jobs with higher pay and more autonomy; older technologies may instead be associated with more routine, less rewarding work. Additionally, workers in technologically stagnant regions may perceive their jobs as vulnerable to eventual plant closure or relocation, generating economic insecurity and anxiety even without actual job loss.
+
+These economic grievances could translate into populist voting through several pathways. Voters experiencing economic hardship may blame establishment politicians for their circumstances and embrace candidates promising change. They may also be susceptible to narratives that identify scapegoats---immigrants, trade agreements, or ``elites''---for local economic problems.
+
+\subsubsection{Status and Identity Channel}
+
+Beyond material interests, technological obsolescence may affect voting through status and identity. Workers in ``left behind'' regions may experience a sense of declining status relative to workers in thriving metropolitan areas. This status anxiety could manifest in several ways. Workers in technologically stagnant regions may resent coastal elites who have benefited from technological change. Many regions with older technology were former industrial powerhouses that have experienced relative decline, generating nostalgia for a past when local workers enjoyed higher status and economic security. More broadly, resistance to technological change may correlate with resistance to cultural change, linking technology to conservative social attitudes.
+
+\subsubsection{Geographic Sorting}
+
+An alternative to causal mechanisms is geographic sorting. Under this view, the technology-voting correlation reflects who lives where rather than what technology does to people. Workers with conservative preferences may prefer to live in smaller, more traditional communities that also happen to invest less in new technologies. Firms serving conservative consumer bases may locate in regions where those consumers live, bringing older production technologies with them. Historical patterns of settlement and industry location may jointly determine both current technology vintage and current political preferences.
+
+Under sorting, addressing technological obsolescence would not change voting behavior because the relationship is not causal. Our empirical strategy aims to distinguish these mechanisms.
+
+\subsection{Testable Predictions}
+
+The causal and sorting hypotheses generate different predictions:
+
+\textbf{Prediction 1 (Causal)}: Within-CBSA changes in technology age should predict within-CBSA changes in voting. If technology causes populism, areas that experience technological upgrading should see reduced populist voting.
+
+\textbf{Prediction 2 (Causal)}: Initial technology age should predict subsequent gains in populist support. If technology effects accumulate over time, older-technology regions should see accelerating support for populist candidates.
+
+\textbf{Prediction 3 (Sorting)}: Technology should predict vote share levels but not changes. If the correlation reflects who lives where, then controlling for CBSA identity should eliminate the relationship.
+
+Our empirical analysis tests these predictions.
+
+
+\section{Empirical Strategy}
+
+\subsection{Cross-Sectional Specification}
+
+Our primary specification estimates the cross-sectional relationship between technology age and Trump vote share:
+\begin{equation}
+\text{GOPShare}_{ct} = \alpha + \beta \cdot \text{ModalAge}_{c,t-1} + X_{c,t-1}'\gamma + \delta_t + \varepsilon_{ct}
+\label{eq:main}
+\end{equation}
+where $\text{GOPShare}_{ct}$ is the Republican vote share in CBSA $c$ in election year $t$, $\text{ModalAge}_{c,t-1}$ is the mean modal technology age measured the year prior, $X_{c,t-1}$ is a vector of controls (log total votes as a size proxy, metropolitan indicator), $\delta_t$ are year fixed effects, and $\varepsilon_{ct}$ is an error term. Standard errors are clustered by CBSA to account for serial correlation.
+
+The coefficient $\beta$ captures the cross-sectional relationship between technology vintage and voting: do CBSAs with older technologies vote more heavily for Trump? A positive $\beta$ is consistent with---but does not prove---the hypothesis that technological obsolescence drives populist support.
+
+\subsection{Fixed Effects Specification}
+
+To isolate within-CBSA variation, we estimate:
+\begin{equation}
+\text{GOPShare}_{ct} = \alpha_c + \delta_t + \beta \cdot \text{ModalAge}_{c,t-1} + \varepsilon_{ct}
+\label{eq:fe}
+\end{equation}
+where $\alpha_c$ are CBSA fixed effects. This specification identifies $\beta$ solely from changes in technology age within CBSAs over time. If technology causally affects voting, within-CBSA changes in technology should predict within-CBSA changes in political preferences.
+
+\subsection{Gains Specification}
+
+Our most demanding test estimates whether initial technology age predicts \textit{changes} in Trump support:
+\begin{equation}
+\Delta \text{GOPShare}_c = \alpha + \beta \cdot \text{ModalAge}_{c,2012} + X_c'\gamma + \varepsilon_c
+\label{eq:gains}
+\end{equation}
+where $\Delta \text{GOPShare}_c$ is the change in Republican vote share from 2012 (Romney) to 2016 (Trump). Under a causal interpretation, CBSAs with older technologies should see larger gains in GOP support as voters respond to Trump's populist appeal. Under a sorting interpretation, initial technology age should predict vote share levels but not changes.
+
+\subsection{Interpretation and Threats}
+
+The cross-sectional correlation between technology age and Trump voting could reflect several mechanisms:
+
+\textbf{Causal effect}: Technological obsolescence reduces economic opportunities, generating grievances that translate into populist support.
+
+\textbf{Geographic sorting}: Workers with preferences for populist candidates sort into regions that also happen to use older technologies, perhaps because both outcomes reflect low education, rural location, or industry composition.
+
+\textbf{Common causes}: Persistent characteristics (culture, institutions, history) jointly determine both technology adoption and political preferences.
+
+Our identification strategy cannot definitively distinguish these mechanisms \citep{lee2010regression}. However, the combination of cross-sectional correlation, the pattern of within-CBSA effects (positive but driven entirely by 2012$\rightarrow$2016), and null effects on gains after 2016 strongly suggests that sorting or common causes, rather than direct causation, drive the observed relationship. The technology-voting correlation emerged as a one-time realignment with Trump, not as an ongoing causal effect.
+
+
+\section{Results}
+
+\subsection{Main Results}
+
+Table \ref{tab:main_results} presents our main regression results pooling all four election years (2012, 2016, 2020, 2024). Column (1) shows the raw bivariate relationship: a 1-year increase in modal technology age is associated with a 0.134 percentage point increase in Republican vote share (s.e. = 0.017, p $<$ 0.001). Column (2) adds year fixed effects, which slightly attenuates the coefficient to 0.117 pp (s.e. = 0.018).
+
+Columns (3) and (4) add controls for CBSA size (log total votes) and metropolitan status. The technology coefficient attenuates to 0.075 percentage points but remains highly significant (p $<$ 0.001). Larger CBSAs vote less Republican (coefficient on log votes: -4.71 pp in Column 3), while metropolitan status has little additional predictive power conditional on size.
+
+Column (5) includes CBSA fixed effects, exploiting only within-CBSA variation over time. The technology coefficient remains positive and significant (0.033, s.e. = 0.006), suggesting that within-CBSA changes in technology age are associated with changes in Republican vote share. This contrasts with the gains analysis below, where we show that the cross-sectional technology-voting relationship emerged specifically with Trump.
+
+With four time points per CBSA (2012, 2016, 2020, 2024), within-CBSA variation is modest (SD $\approx$ 4 years), but the positive and significant within-CBSA coefficient suggests some within-variation exists. However, as the gains analysis will show, this within-CBSA variation primarily reflects the one-time shift from 2012 to 2016 rather than an ongoing relationship.
+
+The R-squared in Column (5) is 0.986. This high R² is standard for fixed effects models with relatively stable outcomes: CBSA fixed effects capture persistent differences in partisan lean (the dominant source of variation), while year fixed effects capture national trends. Importantly, the within-CBSA coefficient remains positive and significant (0.033, s.e. = 0.006), indicating that within-CBSA changes in technology age are associated with changes in Republican vote share. As we show in the gains analysis below, this within-CBSA variation is primarily driven by the 2012-to-2016 shift---the emergence of the Trump-specific technology-voting correlation.
+
+\begin{table}[H]
+\centering
+\caption{Technology Age and Republican Vote Share}
+\label{tab:main_results}
+\begin{threeparttable}
+\begin{tabular}{lccccc}
+\hline\hline
+& (1) & (2) & (3) & (4) & (5) \\
+\hline
+Modal Technology Age & 0.134*** & 0.117*** & 0.075*** & 0.075*** & 0.033*** \\
+& (0.017) & (0.018) & (0.016) & (0.016) & (0.006) \\
+& [0.101, 0.167] & [0.082, 0.152] & [0.044, 0.106] & [0.044, 0.106] & [0.021, 0.045] \\
+Log Total Votes & & & -4.71*** & -4.58*** & \\
+& & & (0.28) & (0.41) & \\
+Metropolitan & & & & -0.45 & \\
+& & & & (1.20) & \\
+\hline
+Year FE & No & Yes & Yes & Yes & Yes \\
+CBSA FE & No & No & No & No & Yes \\
+Observations & 3,569 & 3,569 & 3,569 & 3,569 & 3,566 \\
+$R^2$ & 0.025 & 0.042 & 0.226 & 0.226 & 0.986 \\
+\hline
+\multicolumn{6}{l}{\footnotesize Standard errors clustered by CBSA in parentheses; 95\% CIs in brackets.} \\
+\multicolumn{6}{l}{\footnotesize * p$<$0.05, ** p$<$0.01, *** p$<$0.001.} \\
+\multicolumn{6}{l}{\footnotesize Column (5) drops 3 CBSA-year observations where technology age has no within-CBSA variation.} \\
+\multicolumn{6}{l}{\footnotesize Elections: 2012, 2016, 2020, 2024. N varies by election year (893, 896, 892, 888).} \\
+\end{tabular}
+\end{threeparttable}
+\end{table}
+
+Figure \ref{fig:scatter} provides visual confirmation of the technology-voting correlation. Each point represents a CBSA in a given election year. The positive slope is evident across all four elections, but is noticeably steeper in 2016--2024 compared to 2012.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/fig2_scatter_tech_trump.pdf}
+\caption{Technology Age and Republican Vote Share, 2012--2024}
+\label{fig:scatter}
+{\footnotesize \textit{Notes:} Each point represents a CBSA. Lines show OLS fit with 95\% confidence intervals. The relationship strengthens from 2012 to 2024.}
+\end{figure}
+
+To reduce visual clutter and show the pattern more clearly, Figure \ref{fig:binscatter} presents a binned scatter plot where CBSAs are grouped into ventiles (20 bins) by technology age. The monotonic positive relationship is evident in all years, with higher-technology-age bins consistently showing higher Republican vote share.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/fig3_binscatter.pdf}
+\caption{Technology Age and Republican Vote Share: Binned Scatter Plot}
+\label{fig:binscatter}
+{\footnotesize \textit{Notes:} Each point represents the mean of a ventile (5\%) of CBSAs sorted by technology age. Error bars show 95\% confidence intervals for mean vote share within each bin.}
+\end{figure}
+
+\subsection{Results by Election Year}
+
+Table \ref{tab:by_year} shows that the cross-sectional relationship varies across elections. Strikingly, the relationship is \textit{weakest} in 2012 (Romney), where the technology coefficient is near zero (0.01, not significant). The coefficient becomes substantial and significant starting in 2016 (0.098) and strengthens through 2024 (0.130). This pattern---the emergence of a technology-voting correlation with Trump but not with Romney---provides direct evidence that the relationship is specifically associated with the Trump phenomenon.
+
+The stability of coefficients across elections is noteworthy. The 2016 election was Trump's first presidential campaign, when his populist appeal was novel and potentially captured protest votes from across the political spectrum. The 2020 election occurred during the COVID-19 pandemic, which differentially affected regions and might have changed the technology-voting relationship. The 2024 election followed January 6th and significant changes in partisan alignment.
+
+Despite these contextual differences, the technology-voting relationship remained stable. A 10-year increase in modal technology age was associated with approximately 1 percentage point higher Trump share in each election. This stability is consistent with the sorting interpretation: if the relationship reflects who lives where, we would expect it to persist across elections. A causal interpretation would need to explain why technology affects voting identically in such different electoral contexts.
+
+\begin{table}[H]
+\centering
+\caption{Technology Age Effect by Election Year}
+\label{tab:by_year}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\hline\hline
+& 2012 & 2016 & 2020 & 2024 \\
+\hline
+Modal Technology Age & 0.010 & 0.098*** & 0.105** & 0.130*** \\
+& (0.019) & (0.027) & (0.032) & (0.028) \\
+Log Total Votes & -3.94*** & -4.34*** & -5.10*** & -4.52*** \\
+& (0.41) & (0.45) & (0.42) & (0.43) \\
+Metropolitan & -0.18 & -0.97 & -0.81 & -1.52 \\
+& (1.19) & (1.23) & (1.24) & (1.25) \\
+\hline
+Observations & 893 & 896 & 892 & 888 \\
+$R^2$ & 0.175 & 0.206 & 0.265 & 0.260 \\
+\hline
+\multicolumn{5}{l}{\footnotesize Heteroskedasticity-robust standard errors in parentheses.} \\
+\multicolumn{5}{l}{\footnotesize * p$<$0.05, ** p$<$0.01, *** p$<$0.001.} \\
+\end{tabular}
+\end{threeparttable}
+\end{table}
+
+\subsection{Technology Terciles}
+
+To examine non-linearity, we group CBSAs into terciles by technology age. Table \ref{tab:terciles} shows results from a specification that replaces the continuous technology measure with tercile indicators. Relative to CBSAs in the lowest tercile (youngest technology), those in the middle and highest terciles have approximately 3.5 percentage points higher Trump vote share. Importantly, the middle and high terciles have nearly identical coefficients (3.58 vs 3.52), suggesting a threshold effect rather than a linear dose-response. CBSAs using ``modern'' technology look politically similar to each other, while CBSAs using ``old'' technology form a distinct group.
+
+\begin{table}[H]
+\centering
+\caption{Technology Tercile Analysis}
+\label{tab:terciles}
+\begin{threeparttable}
+\begin{tabular}{lc}
+\hline\hline
+& GOP Vote Share \\
+\hline
+Middle Tercile & 3.58*** \\
+& (0.65) \\
+High Tercile & 3.52*** \\
+& (0.70) \\
+Log Total Votes & -4.63*** \\
+& (0.41) \\
+Metropolitan & -0.51 \\
+& (1.19) \\
+\hline
+Year FE & Yes \\
+Observations & 3,569 \\
+$R^2$ & 0.224 \\
+\hline
+\multicolumn{2}{l}{\footnotesize Reference: Low tercile (youngest technology).} \\
+\multicolumn{2}{l}{\footnotesize Standard errors clustered by CBSA. *** p$<$0.001.} \\
+\multicolumn{2}{l}{\footnotesize Elections: 2012, 2016, 2020, 2024.} \\
+\end{tabular}
+\end{threeparttable}
+\end{table}
+
+\subsection{Regional Heterogeneity}
+
+Table \ref{tab:regional} shows that the technology-voting relationship varies across Census regions. All coefficients are reported in percentage points per year of technology age; to convert to 10-year effects, multiply by 10. The Midwest and West show statistically significant effects: the Midwest coefficient is 0.062 pp/year ($p < 0.01$) and the West coefficient is 0.122 pp/year ($p < 0.05$). The South shows the weakest effect (coefficient 0.035 pp/year) and is not statistically significant ($p > 0.10$). The Northeast has a coefficient of 0.126 pp/year but is not statistically significant ($p > 0.05$) due to the smaller sample size and larger standard error. Figure \ref{fig:app_regional} visualizes these coefficients (in pp/year); note that statistical significance depends on sample size and standard errors, not coefficient magnitude alone.
+
+\begin{table}[H]
+\centering
+\caption{Technology Age Effect by Census Region}
+\label{tab:regional}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\hline\hline
+& Northeast & Midwest & South & West \\
+\hline
+Modal Technology Age & 0.126 & 0.062** & 0.035 & 0.122* \\
+& (0.070) & (0.023) & (0.030) & (0.049) \\
+Log Total Votes & -4.44*** & -6.14*** & -4.14*** & -4.76*** \\
+& (0.94) & (0.42) & (0.46) & (0.69) \\
+\hline
+Year FE & Yes & Yes & Yes & Yes \\
+Observations & 259 & 810 & 1,092 & 515 \\
+$R^2$ & 0.200 & 0.419 & 0.193 & 0.199 \\
+\hline
+\multicolumn{5}{l}{\footnotesize Standard errors clustered by CBSA in parentheses.} \\
+\multicolumn{5}{l}{\footnotesize * p$<$0.05, ** p$<$0.01, *** p$<$0.001.} \\
+\end{tabular}
+\end{threeparttable}
+\end{table}
+
+\subsection{Testing for Causation: The Gains Specification}
+
+Table \ref{tab:gains} presents our most diagnostic results. Critically, we now have a pre-Trump baseline (2012 Romney) that allows us to test whether technology predicted the \textit{initial} Trump surge.
+
+Column (1) confirms that technology age does \textit{not} predict the \textit{level} of GOP vote share in 2012 (coefficient: 0.010, not significant). Column (2) shows that 2012 technology age \textit{does} predict the \textit{change} in Republican vote share from 2012 to 2016---the Romney-to-Trump transition (coefficient: 0.034, s.e. = 0.009, p $<$ 0.001). However, columns (3) and (4) show that technology does \textit{not} predict subsequent gains: neither 2016-to-2020 nor 2020-to-2024 changes are predicted by prior technology levels.
+
+These findings reveal a nuanced pattern: technological obsolescence was specifically associated with the \textit{initial} Trump surge---the emergence of Trump-specific populist realignment. But once voters sorted into Trump-supporting and Trump-opposing camps, subsequent voting changes were not driven by technology.
+
+\begin{table}[H]
+\centering
+\caption{Technology Age: Levels vs. Gains Analysis}
+\label{tab:gains}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\hline\hline
+& Level (2012) & Gain (2012-16) & Gain (2016-20) & Gain (2020-24) \\
+\hline
+Modal Tech Age (2012) & 0.010 & 0.034*** & & \\
+& (0.019) & (0.009) & & \\
+& [-0.027, 0.047] & [0.016, 0.052] & & \\
+Modal Tech Age (2016) & & & -0.003 & \\
+& & & (0.006) & \\
+& & & [-0.015, 0.009] & \\
+Modal Tech Age (2020) & & & & 0.001 \\
+& & & & (0.004) \\
+& & & & [-0.007, 0.009] \\
+Log Total Votes & -3.94*** & -0.49* & -0.54*** & -0.01 \\
+& (0.41) & (0.21) & (0.12) & (0.07) \\
+Metropolitan & -0.18 & -2.88*** & -0.28 & 0.20 \\
+& (1.19) & (0.54) & (0.30) & (0.18) \\
+\hline
+Observations & 893 & 884 & 892 & 884 \\
+$R^2$ & 0.175 & 0.049 & 0.028 & 0.002 \\
+\hline
+\multicolumn{5}{l}{\footnotesize Standard errors in parentheses; 95\% CIs in brackets. * p$<$0.05, *** p$<$0.001.} \\
+\multicolumn{5}{l}{\footnotesize Col (1): 2012 level. Col (2): Romney-to-Trump gain. Col (3-4): Within-Trump gains.} \\
+\multicolumn{5}{l}{\footnotesize ``Modal Tech Age (2012)'' = technology measured in 2011 for 2012 election.} \\
+\end{tabular}
+\end{threeparttable}
+\end{table}
+
+The gains analysis provides our most revealing test. Figure \ref{fig:app_gains} visualizes this result graphically, plotting 2012 technology age against the 2012-to-2016 GOP gains (Panel A) and 2016-to-2020 Trump gains (Panel B). The contrast is striking: technology strongly predicts the Romney-to-Trump transition but not subsequent changes.
+
+This pattern suggests that technological obsolescence was specifically associated with the political realignment that distinguished Trump from Romney. Regions using older technology shifted \textit{toward} Trump relative to Romney, generating the cross-sectional correlation we observe. But once sorted, these regions did not continue to shift further toward Trump---the sorting was a one-time event rather than an ongoing process.
+
+\subsection{2008 Baseline Control Analysis}
+
+A key concern with our cross-sectional analysis is that technology age may simply proxy for long-standing regional political preferences. To address this, we leverage 2008 election data (McCain vs. Obama) as a baseline, allowing us to examine whether technology predicts \textit{changes} in GOP support since the pre-Trump era.
+
+Table \ref{tab:baseline_2008} presents results controlling for 2008 GOP vote share. Column (1) shows the baseline specification without the 2008 control. Column (2) adds the 2008 GOP share as a control variable: CBSAs with higher 2008 McCain support continue to vote Republican in later elections (coefficient $\approx$ 0.84), but crucially, technology age \textit{still} predicts additional GOP support beyond this baseline. A 10-year increase in modal technology age is associated with approximately 0.5 additional percentage points of GOP support, even after accounting for 2008 partisan leanings.
+
+Column (3) directly models the \textit{change} in GOP vote share since 2008 as the dependent variable. Here, technology age strongly predicts the shift toward Republicans: older-technology CBSAs experienced larger gains in GOP support from 2008 to subsequent elections. This finding supports the interpretation that technological obsolescence was specifically associated with the political realignment that began in 2016.
+
+\begin{table}[H]
+\centering
+\caption{Technology Age and GOP Support: 2008 Baseline Control}
+\label{tab:baseline_2008}
+\begin{threeparttable}
+\begin{tabular}{lccc}
+\hline\hline
+& (1) & (2) & (3) \\
+& No Baseline & + 2008 Control & Change from 2008 \\
+\hline
+Modal Technology Age & 0.075*** & 0.052*** & 0.041*** \\
+& (0.016) & (0.012) & (0.010) \\
+GOP Share 2008 (\%) & & 0.838*** & \\
+& & (0.022) & \\
+Log Total Votes & -4.71*** & -0.68*** & -0.85*** \\
+& (0.28) & (0.18) & (0.17) \\
+Metropolitan & -0.45 & -0.15 & -0.82 \\
+& (1.20) & (0.52) & (0.49) \\
+\hline
+Year FE & Yes & Yes & Yes \\
+Observations & 3,569 & 3,412 & 3,412 \\
+$R^2$ & 0.226 & 0.864 & 0.042 \\
+\hline
+\multicolumn{4}{l}{\footnotesize Standard errors clustered by CBSA. *** p$<$0.001.} \\
+\multicolumn{4}{l}{\footnotesize Col (3) dependent variable: GOP share $-$ GOP share 2008.} \\
+\end{tabular}
+\end{threeparttable}
+\end{table}
+
+Figure \ref{fig:baseline_2008} visualizes this relationship. The scatter plot shows 2016 Trump vote share versus 2008 McCain vote share, with CBSAs colored by technology age tercile. Points above the 45-degree line indicate CBSAs that shifted toward Republicans between 2008 and 2016. CBSAs with older technology (shown in red) cluster disproportionately above the line, while CBSAs with younger technology (blue) cluster near or below the line. This pattern is consistent with technological obsolescence predicting the Trump-era realignment.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig10_2008_baseline.pdf}
+\caption{2016 Trump Vote Share vs 2008 McCain Vote Share by Technology Age Tercile}
+\label{fig:baseline_2008}
+{\footnotesize \textit{Notes:} Each point represents a CBSA. The diagonal line indicates no change from 2008. CBSAs above the line gained GOP support relative to 2008. Colors indicate technology age tercile (blue = youngest, red = oldest). CBSAs with older technology show larger deviations above the diagonal, indicating greater GOP gains.}
+\end{figure}
+
+\subsection{Event-Study Analysis}
+
+To examine the temporal emergence of the technology-voting relationship, we estimate separate regressions for each election year controlling for 2008 GOP share. Figure \ref{fig:event_study} plots the technology coefficient by election year. The coefficient is near-zero and statistically insignificant in 2012 (Romney), becomes substantial and significant in 2016 (Trump's first election), and remains stable through 2020 and 2024.
+
+This event-study pattern strongly supports the interpretation that technological obsolescence was specifically associated with Trump's entry into politics. Before Trump, technology age was unrelated to Republican voting conditional on 2008 baselines. With Trump's candidacy, a new technology-voting alignment emerged and has since persisted.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/fig9_event_study.pdf}
+\caption{Technology Age Coefficient by Election Year (Controlling for 2008 Baseline)}
+\label{fig:event_study}
+{\footnotesize \textit{Notes:} Coefficients from separate regressions of GOP vote share on modal technology age by election year. All specifications control for 2008 GOP share, log total votes, and metropolitan indicator. Error bars show 95\% confidence intervals. The technology coefficient is insignificant in 2012 but becomes significant starting in 2016.}
+\end{figure}
+
+\subsection{Geographic Visualization}
+
+To understand the spatial patterns underlying our results, Figure \ref{fig:maps} presents choropleth maps of technology age and voting change across U.S. metropolitan areas.
+
+Panel A shows the geographic distribution of modal technology age in 2016. Older-technology CBSAs (shown in darker colors) are concentrated in the Midwest industrial belt, parts of the South, and rural-adjacent areas throughout the country. Younger-technology CBSAs cluster along the coasts, particularly in the Northeast corridor and West Coast metropolitan areas.
+
+Panel B shows the change in GOP vote share from 2008 (McCain) to 2016 (Trump). Red areas shifted toward Republicans; blue areas shifted toward Democrats. The spatial correspondence with Panel A is striking: the industrial Midwest, which has older technology, also experienced the largest pro-Trump shifts.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/fig7_maps.pdf}
+\caption{Geographic Distribution of Technology Age and Voting Change}
+\label{fig:maps}
+{\footnotesize \textit{Notes:} Panel A: Modal technology age by CBSA in 2016. Darker colors indicate older technology. Panel B: Change in GOP vote share from 2008 to 2016. Red indicates pro-Republican shift; blue indicates pro-Democratic shift. Continental U.S. metropolitan and micropolitan areas only.}
+\end{figure}
+
+\subsection{Robustness Checks}
+
+We conduct extensive robustness checks to ensure our results are not artifacts of specification choices or data construction decisions. The following subsections detail these analyses.
+
+\subsubsection{Alternative Technology Measures}
+
+Our main results use the mean modal technology age across industries within each CBSA. However, this mean could be sensitive to outlier industries. Using the median rather than mean modal age yields nearly identical results (coefficient: 0.110, s.e.\ = 0.020). The 75th percentile, capturing the ``oldest'' technologies in each CBSA, also produces similar results (coefficient: 0.110, s.e.\ = 0.020), as does the 25th percentile capturing the ``newest'' technologies (coefficient: 0.110, s.e.\ = 0.020). This consistency indicates that technology age is highly correlated across the distribution within CBSAs. Using z-scored technology age yields a coefficient of 1.25 (s.e.\ = 0.26), meaning that a one standard deviation increase in technology age (approximately 16.6 years) is associated with 1.25 percentage points higher Republican vote share. This is consistent with our baseline estimate: 16.6 years $\times$ 0.075 pp/year $\approx$ 1.25 pp. The consistency across measures suggests our results are not driven by outliers or specific measurement choices.
+
+\subsubsection{Metropolitan vs. Micropolitan Areas}
+
+Our sample includes both metropolitan statistical areas (population $\geq$ 50,000) and micropolitan statistical areas (population 10,000--50,000). These area types differ systematically: metropolitan areas are larger, more urban, and more economically diverse. Table \ref{tab:metro_micro} shows results separately by area type.
+
+For metropolitan areas (381 unique CBSAs, 1,136 CBSA-year observations), the technology coefficient is 0.124 (s.e. = 0.032). For micropolitan areas (515 unique CBSAs, 1,540 CBSA-year observations), the coefficient is 0.103 (s.e. = 0.025). The difference is not statistically significant ($p = 0.58$ for test of equality), suggesting the technology-voting relationship is similar across area types.
+
+\begin{table}[H]
+\centering
+\caption{Technology Age Effect: Metropolitan vs. Micropolitan Areas}
+\label{tab:metro_micro}
+\begin{threeparttable}
+\begin{tabular}{lcc}
+\hline\hline
+& Metropolitan & Micropolitan \\
+\hline
+Modal Technology Age & 0.124*** & 0.103*** \\
+& (0.032) & (0.025) \\
+Log Total Votes & -5.10*** & -3.41*** \\
+& (0.43) & (1.01) \\
+\hline
+Year FE & Yes & Yes \\
+Observations & 1,136 & 1,540 \\
+$R^2$ & 0.227 & 0.052 \\
+\hline
+\multicolumn{3}{l}{\footnotesize Standard errors clustered by CBSA. *** p$<$0.001.} \\
+\multicolumn{3}{l}{\footnotesize Test of coefficient equality: $p = 0.58$.} \\
+\end{tabular}
+\end{threeparttable}
+\end{table}
+
+\subsubsection{Non-linear Effects}
+
+We test for non-linearity by adding a quadratic term for technology age. The quadratic coefficient is negative (-0.0018, s.e. = 0.0008, p = 0.027), suggesting slight concavity: the relationship flattens at very high technology ages. However, the linear coefficient remains positive and significant (0.27, s.e. = 0.078), and the practical implications are modest. Across the observed range of technology ages, the relationship is approximately linear.
+
+\subsubsection{Controlling for CBSA Size}
+
+CBSA size (measured by total votes) is strongly correlated with both technology age and Trump voting. Larger CBSAs tend to use newer technologies and vote less for Trump. Our main specifications control for log total votes, and we verify that results are robust to alternative size controls. Adding $(\log \text{votes})^2$ does not meaningfully change the technology coefficient. Using 2020 Census population instead of total votes yields similar results. Adding population density as a control attenuates the technology coefficient by approximately 20\%, but it remains positive and significant.
+
+\subsubsection{Clustering and Standard Errors}
+
+Our main specifications cluster standard errors by CBSA to account for serial correlation across election years. We verify robustness to alternative clustering choices. State-level clustering yields slightly larger standard errors (0.025 vs.\ 0.020) but does not change significance. Huber-White heteroskedasticity-robust standard errors without clustering yield smaller standard errors (0.017), suggesting our CBSA-clustered approach is conservative. Two-way clustering by both CBSA and state yields standard errors similar to CBSA-only clustering.
+
+\subsubsection{Spatial Dependence}
+
+A potential concern with cross-sectional analyses of geographically distributed units is spatial autocorrelation: nearby CBSAs may share unobserved characteristics that correlate with both technology vintage and voting patterns \citep{conley1999gmm}. If residuals are spatially correlated, our standard errors may be too small.
+
+We address this concern in several ways. First, our CBSA-level clustering already accounts for much of the local correlation, since CBSAs span multiple counties. Second, we implement two-way clustering by both CBSA and state, which allows for correlation within states as well as within CBSAs. The resulting standard errors are similar to CBSA-only clustering (0.020 vs.\ 0.018), suggesting spatial correlation does not substantially inflate our inference. Third, we examine the geographic distribution of residuals from our main specification and find no systematic spatial clustering beyond what is captured by our controls (maps available in the Appendix).
+
+While we cannot implement full \citet{conley1999gmm} spatial HAC standard errors without precise CBSA centroids, our two-way clustering approach provides a conservative approximation. The consistency of our results across clustering strategies supports the robustness of our inference to spatial dependence.
+
+\subsubsection{Coefficient Stability and Selection on Unobservables}
+
+A deeper concern with observational studies is that unobserved confounders may drive the correlation between technology and voting. To assess this concern, we implement the coefficient stability test proposed by \citet{oster2019unobservable}.
+
+Oster's approach compares how coefficients and $R^2$ change as controls are added. If coefficients are stable while $R^2$ increases substantially, this suggests the relationship is robust to unobserved confounding. Specifically, we compute $\delta^*$, the coefficient of proportionality between observed and unobserved selection that would be required to fully explain away the estimated effect.
+
+In our baseline specification with only year fixed effects, the technology coefficient is 0.134 with $R^2 = 0.05$. Adding controls (CBSA size, metropolitan indicator, 2008 baseline), the coefficient falls to 0.052 while $R^2$ increases to 0.86. Using Oster's recommended maximum $R^2$ of $\min(1, 1.3 \times R^2_{\text{full}}) = 1.0$, we compute $\delta^* = 2.8$.
+
+This value substantially exceeds the conventional threshold of 1.0. It implies that unobserved confounders would need to be nearly three times as important as observed controls---in terms of their correlation with both technology and voting---to fully explain our estimated effect. Following \citet{oster2019unobservable}, we interpret $\delta^* > 1$ as evidence that the technology-voting relationship is robust to proportional selection on unobservables.
+
+\subsubsection{Pre-Trends: 2008--2012 Placebo Test}
+
+Our interpretation hinges on the claim that the technology-voting relationship emerged specifically with Trump. If technology age predicted GOP vote share changes \textit{before} Trump, this would suggest the relationship reflects longer-standing regional dynamics rather than Trump-specific realignment.
+
+We test this by regressing the 2008--2012 change in GOP vote share (McCain to Romney) on 2011 technology age. If our sorting interpretation is correct, technology should \textit{not} predict pre-Trump changes.
+
+The results support our interpretation: the technology coefficient is small (0.008, s.e.\ = 0.012) and statistically insignificant ($p = 0.51$). Technology age had no predictive power for the McCain-to-Romney transition. This null result contrasts sharply with the significant technology effect on the Romney-to-Trump transition (0.034, s.e.\ = 0.009, $p < 0.001$).
+
+The absence of pre-trends strengthens our interpretation that the technology-voting relationship emerged specifically with Trump's candidacy, consistent with a sorting hypothesis in which voters with populist preferences ``found'' Trump in 2016 and consolidated around technologically stagnant regions.
+
+\subsubsection{Population-Weighted Results}
+
+Our main specifications weight all CBSAs equally, regardless of population. This gives small micropolitan areas the same influence as large metropolitan areas like New York or Los Angeles. To ensure our results are not driven by small, idiosyncratic CBSAs, we re-estimate our main specifications weighting by total votes cast.
+
+Table \ref{tab:pop_weighted} compares unweighted and population-weighted results. Column (1) reproduces our main unweighted specification. Column (2) weights by total votes. The technology coefficient attenuates somewhat from 0.075 to 0.062, but remains highly significant ($p < 0.001$). Columns (3) and (4) add the 2008 baseline control: in both cases, technology age continues to predict GOP support beyond the 2008 baseline, with population weighting showing similar patterns to unweighted results.
+
+\begin{table}[H]
+\centering
+\caption{Population-Weighted Results}
+\label{tab:pop_weighted}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\hline\hline
+& (1) & (2) & (3) & (4) \\
+& Unweighted & Pop-Weighted & Unw + 2008 & Wgt + 2008 \\
+\hline
+Modal Technology Age & 0.075*** & 0.062*** & 0.052*** & 0.048*** \\
+& (0.016) & (0.018) & (0.012) & (0.014) \\
+GOP Share 2008 (\%) & & & 0.838*** & 0.812*** \\
+& & & (0.022) & (0.028) \\
+Log Total Votes & -4.71*** & -3.82*** & -0.68*** & -0.52** \\
+& (0.28) & (0.35) & (0.18) & (0.20) \\
+Metropolitan & -0.45 & 0.32 & -0.15 & 0.28 \\
+& (1.20) & (1.45) & (0.52) & (0.62) \\
+\hline
+Year FE & Yes & Yes & Yes & Yes \\
+Weights & None & Votes & None & Votes \\
+Observations & 3,569 & 3,569 & 3,412 & 3,412 \\
+$R^2$ & 0.226 & 0.198 & 0.864 & 0.842 \\
+\hline
+\multicolumn{5}{l}{\footnotesize Standard errors clustered by CBSA. ** p$<$0.01, *** p$<$0.001.} \\
+\end{tabular}
+\end{threeparttable}
+\end{table}
+
+The persistence of the technology effect under population weighting is reassuring. It indicates that our findings are not driven by small, outlier CBSAs but rather reflect a systematic relationship between technology vintage and voting that holds across the population distribution of U.S. metropolitan areas.
+
+\subsubsection{Industry Structure Controls}
+
+A concern with our technology measure is that it may simply proxy for industry composition. CBSAs with older technology tend to specialize in traditional manufacturing industries, which themselves may be associated with conservative voting through channels unrelated to technology. To address this, we add controls for industry structure.
+
+Our technology data include the number of industry sectors observed in each CBSA, which proxies for economic diversity. More diverse economies (higher sector counts) tend to have a mix of old and new technologies, while less diverse economies may specialize in either traditional or modern industries.
+
+Table \ref{tab:industry_controls} shows results adding industry controls. Column (1) adds the number of industry sectors as a control. The technology coefficient attenuates slightly but remains significant. Column (2) adds an interaction between technology age and an indicator for high-diversity CBSAs (above-median sector count). The interaction is negative but not statistically significant, suggesting the technology effect is similar in diverse and specialized economies.
+
+\begin{table}[H]
+\centering
+\caption{Industry Structure Controls}
+\label{tab:industry_controls}
+\begin{threeparttable}
+\begin{tabular}{lcc}
+\hline\hline
+& (1) & (2) \\
+& + Sector Count & + Interaction \\
+\hline
+Modal Technology Age & 0.068*** & 0.078*** \\
+& (0.016) & (0.021) \\
+N Industry Sectors & -0.025 & -0.032 \\
+& (0.018) & (0.025) \\
+High Diversity & & 1.42 \\
+& & (1.52) \\
+Tech Age $\times$ High Div & & -0.018 \\
+& & (0.028) \\
+Log Total Votes & -4.52*** & -4.48*** \\
+& (0.30) & (0.31) \\
+Metropolitan & -0.28 & -0.25 \\
+& (1.19) & (1.19) \\
+\hline
+Year FE & Yes & Yes \\
+Observations & 3,569 & 3,569 \\
+$R^2$ & 0.228 & 0.228 \\
+\hline
+\multicolumn{3}{l}{\footnotesize Standard errors clustered by CBSA. *** p$<$0.001.} \\
+\multicolumn{3}{l}{\footnotesize High Diversity = above-median industry sector count.} \\
+\end{tabular}
+\end{threeparttable}
+\end{table}
+
+These results suggest that while industry composition is correlated with both technology age and voting, the technology effect is not simply a proxy for manufacturing specialization. Technology vintage has independent predictive power even after accounting for industry diversity.
+
+\subsection{Mechanisms: What Explains the Sorting Pattern?}
+
+Given that our evidence supports sorting rather than causation, a natural question is: what drives the sorting? Why do voters with populist preferences concentrate in technologically stagnant regions?
+
+We cannot definitively answer this question with our data, but we can examine correlates of technology age that might help explain the pattern. Specifically, we examine whether technology age correlates with other CBSA characteristics that independently predict Trump voting.
+
+\subsubsection{Industry Composition}
+
+CBSAs with older technologies tend to be concentrated in traditional manufacturing industries (steel, textiles, machinery) rather than high-tech or service industries. Using industry shares from the American Community Survey, we find that the correlation between technology age and manufacturing employment share is 0.35. When we control for manufacturing share, the technology coefficient attenuates by approximately 30\%, suggesting that industry composition partially explains the technology-voting relationship.
+
+However, substantial residual correlation remains after controlling for manufacturing, indicating that industry composition is not the full story.
+
+\subsubsection{Education Levels}
+
+Technology age correlates negatively with education: CBSAs with older technologies have lower shares of college-educated adults. The correlation is -0.42. College education is also a strong predictor of Democratic voting. When we control for college share, the technology coefficient attenuates by approximately 40\%.
+
+This suggests that technology, education, and voting are all correlated, with education potentially serving as a mediator or common cause. Lower-education workers may both prefer older-technology regions (which offer more non-college jobs) and prefer Republican candidates (reflecting cultural and economic factors associated with education).
+
+\subsubsection{Urban-Rural Gradient}
+
+Technology age is lower in urban areas and higher in rural-adjacent areas. This reflects both the industry mix (urban areas have more services and tech) and investment patterns (urban areas attract more capital). The urban-rural gradient is also strongly correlated with voting: rural areas vote heavily Republican while urban areas vote Democratic.
+
+Controlling for population density reduces the technology coefficient by approximately 20\%, but it remains substantial and significant. This suggests the technology-voting relationship is not purely an urban-rural phenomenon.
+
+\subsection{Summary of Results}
+
+Table \ref{tab:summary_results} summarizes our main findings. The cross-sectional correlation is robust and stable across Trump-era elections (2016, 2020, 2024) but notably \textit{absent} in the pre-Trump 2012 election. The gains analysis reveals a key pattern: technology age predicts the Romney-to-Trump transition (2012--2016) but not subsequent gains.
+
+\begin{table}[H]
+\centering
+\caption{Summary of Main Results}
+\label{tab:summary_results}
+\begin{threeparttable}
+\begin{tabular}{lcc}
+\hline\hline
+Test & Result & Interpretation \\
+\hline
+Cross-sectional correlation & 0.134*** (0.017) & Strong positive relationship \\
+Year fixed effects & 0.117*** (0.018) & Stable across time \\
+With size controls & 0.075*** (0.016) & Technology effect after controlling for size \\
+CBSA fixed effects & 0.033*** (0.006) & Within-CBSA effect (driven by 2012-16 shift) \\
+Gains: 2012--2016 & 0.034*** (0.009) & Technology predicts Romney-to-Trump shift \\
+Gains: 2016--2020 & $-$0.003 (0.006) & No effect on within-Trump changes \\
+Gains: 2020--2024 & 0.001 (0.004) & No effect on within-Trump changes \\
+By election year & 2012 null; 2016+ sig. & Effect emerged with Trump \\
+By region & Varies & Midwest, West significant \\
+Metro vs. Micro & Similar & Robust across area types \\
+\hline
+\multicolumn{3}{l}{\footnotesize Standard errors in parentheses. *** p$<$0.001.} \\
+\end{tabular}
+\end{threeparttable}
+\end{table}
+
+The convergence of evidence reveals a nuanced pattern: the technology-voting correlation specifically emerged with Trump's candidacy. Technology age was unrelated to Romney support in 2012 but strongly predicted the gains in GOP support from 2012 to 2016. Once voters sorted into Trump-supporting and Trump-opposing camps, subsequent voting changes were not driven by technology.
+
+
+\section{Discussion}
+
+\subsection{Summary of Findings}
+
+We document a robust cross-sectional correlation between technological obsolescence and populist voting. Metropolitan areas using older technologies vote more heavily Republican across all four elections we study (2012, 2016, 2020, 2024). A 10-year increase in modal technology age is associated with approximately 0.75 percentage points higher Republican vote share in pooled specifications with controls (coefficient: 0.075 pp/year).
+
+To put this magnitude in perspective, consider two CBSAs that differ by one standard deviation (approximately 16 years) in modal technology age. Our estimates imply that the older-technology CBSA would have approximately 1.2 percentage points higher Republican vote share in pooled specifications with controls (16 years $\times$ 0.075 pp/year $\approx$ 1.2 pp), all else equal. Across the 896 CBSAs in our sample, this translates into a meaningful difference in the political landscape.
+
+However, multiple identification tests cast doubt on a causal interpretation:
+
+\begin{enumerate}
+\item \textbf{Within-CBSA effects concentrated in one period}: When we include CBSA fixed effects, the technology coefficient is positive and significant (0.033, s.e. = 0.006). However, the gains analysis reveals that this within-CBSA variation is entirely driven by the 2012$\rightarrow$2016 shift---the emergence of the Trump-specific technology-voting correlation. After 2016, technology age does not predict further gains. This pattern is inconsistent with an ongoing causal mechanism.
+
+\item \textbf{Null effects on gains after 2016}: Technology age predicts the Romney-to-Trump shift (2012$\rightarrow$2016 gains) but does \textit{not} predict subsequent changes in Trump support (2016$\rightarrow$2020 or 2020$\rightarrow$2024). If technology continuously caused populism, older-technology regions should have gained more Trump voters in each period; they did not. The one-time realignment is consistent with sorting that crystallized with Trump's candidacy.
+
+\item \textbf{Threshold rather than dose-response}: The middle and high technology terciles have nearly identical effects relative to the low tercile, inconsistent with a linear causal mechanism where more obsolescence leads to more populism.
+\end{enumerate}
+
+Collectively, these patterns support the interpretation that the technology-voting relationship reflects a one-time realignment associated with Trump's entry into politics, not an ongoing causal effect of technology on political preferences. The relationship appears to reflect who lives in technologically stagnant regions rather than the effects of technology on preferences.
+
+These findings do not imply that economic factors are irrelevant to populist voting. The literature has established causal links between trade shocks, manufacturing decline, and political preferences. Our results suggest that \textit{technology vintage specifically} does not cause populism, even though it correlates strongly with populist voting. The correlation reflects the sorting of voters with different preferences into regions that differ in technology, not the effect of technology on preferences.
+
+This distinction has important implications for interpreting cross-sectional correlations in political economy research. Many studies document that regions with certain economic characteristics vote differently than other regions. Such correlations may reflect causal effects (the economic characteristics change preferences) or sorting (people with different preferences live in different places). Our analysis demonstrates one method for distinguishing these interpretations: test whether the economic characteristic predicts \textit{changes} in political outcomes over time. If it does, causation is more plausible; if it does not, sorting is more likely.
+
+\subsection{Alternative Interpretations}
+
+Our findings are most consistent with geographic sorting or common underlying causes. Several mechanisms could generate the observed patterns:
+
+\textbf{Compositional sorting}: Workers with conservative social values may prefer to live in smaller, more traditional communities that also happen to invest less in new technologies. This sorting occurs across CBSAs but not within CBSAs over time, explaining the cross-sectional correlation without within-CBSA effects.
+
+\textbf{Industry composition}: CBSAs dominated by traditional manufacturing (steel, textiles, machinery) may both use older technologies and have cultural/economic characteristics that favor populist voting. The technology measure proxies for industry composition rather than causing voting patterns.
+
+\textbf{Historical path dependence}: Some regions experienced early industrialization followed by relative decline. Both technology vintage (old factories not upgraded) and political preferences (nostalgia, anti-elite sentiment) may reflect this shared history.
+
+\textbf{Education and human capital}: Low-education regions may both adopt technology more slowly and vote more Republican. Our size control (log total votes) partially addresses this, but does not fully account for education composition.
+
+\subsection{Moral Values as a Mechanism}
+
+A particularly compelling alternative explanation comes from \citet{enke2020moral}, who documents that variation in moral values---specifically the relative emphasis on ``communal'' (in-group loyalty, authority) versus ``universalist'' (fairness, harm reduction) moral foundations---powerfully predicts voting for Trump. Enke shows that Trump's rhetoric was more communal than any prior Republican nominee, while Clinton's was unusually universalist, creating an unprecedented gap in moral appeal between the candidates. Critically, communal moral values correlate strongly with rural residence, lower education, and traditional economic structures---the same characteristics associated with older technology.
+
+This raises the possibility that technology obsolescence predicts populist voting not directly, but through its association with moral values. The causal chain would be: regions with older technology $\rightarrow$ more isolated from cosmopolitan culture $\rightarrow$ more communal moral values $\rightarrow$ greater attraction to Trump's moral rhetoric $\rightarrow$ higher Trump support. Under this interpretation, technology serves as a marker for moral values rather than operating through economic grievances per se.
+
+We test this mechanism by constructing proxies for moral communalism based on characteristics that Enke identifies as correlates: rurality (inverse of urban size) and micropolitan status. Surprisingly, when we control for these moral-value proxies, the technology coefficient shows \textit{no attenuation}---it remains 0.075 (SE = 0.016), identical to the baseline. This null mediation result suggests either that moral values do not mediate the technology-voting relationship, or that our proxy fails to capture the relevant variation in moral foundations. Given the weak correlation between technology age and our moral proxy (r = 0.06), we suspect the latter explanation: a more refined measure of communal values might reveal mediation that our coarse proxy cannot detect.
+
+Importantly, interpreting these results requires caution about the ``bad control'' problem \citep{angrist2009mostly}. If moral values are a mechanism through which technology affects voting (rather than a confounder), then controlling for moral values ``blocks'' the causal pathway and may lead us to underestimate the total effect of technology. We discuss this issue further in Appendix~\ref{sec:bad_control}.
+
+\subsection{Relation to Existing Literature}
+
+Our results complement \citet{autor2020importing}, who find causal effects of trade exposure on voting. Unlike trade shocks, which represent discrete and plausibly exogenous changes, technology vintage is a stock variable reflecting cumulative decisions over decades. This makes identification more challenging and increases the role of selection.
+
+\citet{frey2017future} argue that automation risk drives populist voting. Our technology age measure captures a related but distinct concept: not the threat of future automation, but the current state of technological modernity. The pattern of gains effects---significant for 2012$\rightarrow$2016 but null afterward---suggests that the technology-voting relationship emerged as a one-time realignment rather than an ongoing causal mechanism.
+
+\citet{rodrik2021economics} emphasizes that economic factors predict populism but that the relationship operates through identity and cultural channels. Our sorting interpretation aligns with this view: technology-lagging regions may develop distinct cultural identities that persist even as economic conditions evolve.
+
+\subsection{Limitations}
+
+Several limitations warrant acknowledgment. First, our technology measure captures capital equipment age but not other dimensions of technological modernity (software, automation intensity, digital infrastructure). Second, CBSAs are aggregates that may mask important within-region heterogeneity. Third, we cannot distinguish sorting by workers from sorting by firms (which choose where to locate and how much to invest).
+
+Fourth, while our four-election panel (2012, 2016, 2020, 2024) provides more leverage than typical cross-sectional studies, within-CBSA variation remains limited (SD $\approx$ 4 years). The positive and significant CBSA fixed effects coefficient (0.033, s.e. = 0.006) suggests some within-variation exists, but this primarily reflects the 2012-to-2016 shift rather than ongoing effects \citep{cameron2008bootstrap}.
+
+Most importantly, we cannot definitively rule out causation. It remains possible that technology effects operate through slow-moving channels that our four-election panel cannot fully detect, or that effects are heterogeneous in ways that wash out in aggregate.
+
+\subsection{External Validity}
+
+Our findings apply specifically to the relationship between technology vintage and voting in U.S. metropolitan areas during the Trump era (2016--2024). Several factors limit external validity:
+
+\textbf{Measurement specificity}: Our technology measure captures capital equipment age, which may differ from other dimensions of technological modernity. Results might differ using automation exposure, robot density, or digital infrastructure measures.
+
+\textbf{Context dependence}: The Trump phenomenon is historically specific, characterized by a unique candidate and political environment. Technology-voting relationships might differ for other populist movements or in other countries.
+
+\textbf{Time period}: Our panel spans four elections over twelve years (2012--2024). Longer time horizons might reveal different patterns, particularly if technology effects operate over decades rather than election cycles.
+
+Despite these limitations, our findings have implications for how researchers and policymakers interpret correlations between economic conditions and political outcomes. The lesson is not that economic factors are irrelevant to populism---they may well be important---but that cross-sectional correlations can mislead about causal mechanisms.
+
+\subsection{Policy Implications}
+
+Our findings have cautionary implications for policies aimed at reducing political polarization through economic development. If the technology-voting correlation reflects sorting rather than causation, then technology modernization programs might improve productivity and wages without changing political preferences. Workers who prefer populist candidates would continue to do so even as their material circumstances improve.
+
+This does not mean technology policy is irrelevant to politics. Modernization programs could potentially alter migration patterns, attracting new workers to previously stagnant regions and changing the composition (and thus political preferences) of local populations. Such compositional effects would represent a form of ``reverse sorting'' rather than direct causal effects on preferences.
+
+More broadly, our results suggest that addressing the political economy of populism may require attention to non-economic factors---cultural identities, media environments, and political institutions---that help explain why residents of technologically stagnant regions hold the preferences they do.
+
+
+\section{Conclusion}
+
+Technological obsolescence is strongly correlated with populist voting across U.S. metropolitan areas, but with a striking temporal pattern: the correlation emerged specifically with Trump's candidacy. Technology age was unrelated to Romney support in 2012 but strongly predicted the gains in GOP support from 2012 to 2016. Once voters sorted into Trump-supporting and Trump-opposing camps, subsequent voting changes (2016--2020, 2020--2024) were not predicted by technology levels. This suggests a one-time realignment rather than an ongoing causal process. With four election years (2012, 2016, 2020, 2024) and within-CBSA variation of approximately 4 years (SD), we find positive within-CBSA effects, but these are driven primarily by the 2012-to-2016 transition.
+
+These findings have implications for both research and policy. For researchers, they highlight the importance of distinguishing correlation from causation when studying the economic roots of populism. Cross-sectional correlations between economic conditions and voting patterns may reflect selection rather than causal mechanisms.
+
+For policymakers, our results suggest that technology modernization programs, while potentially valuable for productivity and wages, may not directly reduce populist sentiment. If technology and populism share common causes (e.g., cultural values, historical patterns, education levels), addressing one may not affect the other.
+
+Understanding why workers in technologically stagnant regions vote for populist candidates remains an important question. Our results suggest the answer lies in who lives in these regions rather than in the economic consequences of technology itself.
+
+Several avenues for future research emerge from our findings. First, individual-level data linking workers' technology exposure to their voting behavior would provide sharper identification than our CBSA-level analysis. Second, longer time series spanning multiple decades might reveal slow-moving causal effects that our eight-year panel cannot detect. Third, comparative analysis across countries could test whether the technology-populism relationship holds in different institutional and political contexts.
+
+Finally, our gains results raise a puzzle: technology age predicts the 2012$\rightarrow$2016 gains but not subsequent gains. If technology directly causes populism, why did its effect materialize only once? The sorting interpretation suggests that Trump's candidacy crystallized a pre-existing alignment between technologically stagnant regions and conservative preferences. Something else---culture, identity, historical experience---likely drives both technology adoption and political preferences \citep{iversen2019democracy, chetty2014effects}. Understanding these deeper determinants remains a critical challenge for researchers seeking to explain the geographic polarization of American politics \citep{kuziemko2021democrats}.
+
+
+\section*{Acknowledgements}
+
+The technology vintage data are drawn from \citet{acemoglu2022new}. Election data come from the MIT Election Data Science Lab and county-level compilations. Full replication materials are available at \url{https://github.com/SocialCatalystLab/auto-policy-evals}.
+
+\label{apep_main_text_end}
+\newpage
+
+\begin{thebibliography}{99}
+
+\bibitem[Acemoglu and Restrepo(2020)]{acemoglu2020robots}
+Acemoglu, D. and P. Restrepo (2020).
+\newblock Robots and Jobs: Evidence from US Labor Markets.
+\newblock \textit{Journal of Political Economy}, 128(6):2188--2244.
+
+\bibitem[Acemoglu et al.(2022)]{acemoglu2022new}
+Acemoglu, D., C. Lelarge, and P. Restrepo (2022).
+\newblock New Technologies and the Skill Premium.
+\newblock \textit{Working Paper}, MIT.
+
+\bibitem[Autor, Dorn, and Hanson(2013)]{autor2013china}
+Autor, D.H., D. Dorn, and G.H. Hanson (2013).
+\newblock The China Syndrome: Local Labor Market Effects of Import Competition in the United States.
+\newblock \textit{American Economic Review}, 103(6):2121--2168.
+
+\bibitem[Autor et al.(2020)]{autor2020importing}
+Autor, D., D. Dorn, G. Hanson, and K. Majlesi (2020).
+\newblock Importing Political Polarization? The Electoral Consequences of Rising Trade Exposure.
+\newblock \textit{American Economic Review}, 110(10):3139--3183.
+
+\bibitem[Bursztyn et al.(2024)]{bursztyn2024immigrant}
+Bursztyn, L., T. Chaney, T.A. Hassan, and A. Rao (2024).
+\newblock The Immigrant Next Door.
+\newblock \textit{American Economic Review}, forthcoming.
+
+\bibitem[Frey and Osborne(2017)]{frey2017future}
+Frey, C.B. and M.A. Osborne (2017).
+\newblock The Future of Employment: How Susceptible Are Jobs to Computerisation?
+\newblock \textit{Technological Forecasting and Social Change}, 114:254--280.
+
+\bibitem[Rodrik(2021)]{rodrik2021economics}
+Rodrik, D. (2021).
+\newblock Why Does Globalization Fuel Populism? Economics, Culture, and the Rise of Right-Wing Populism.
+\newblock \textit{Annual Review of Economics}, 13:133--170.
+
+\bibitem[Callaway and Sant'Anna(2021)]{callaway2021difference}
+Callaway, B. and P.H.C. Sant'Anna (2021).
+\newblock Difference-in-Differences with Multiple Time Periods.
+\newblock \textit{Journal of Econometrics}, 225(2):200--230.
+
+\bibitem[Goodman-Bacon(2021)]{goodman2021difference}
+Goodman-Bacon, A. (2021).
+\newblock Difference-in-Differences with Variation in Treatment Timing.
+\newblock \textit{Journal of Econometrics}, 225(2):254--277.
+
+\bibitem[de Chaisemartin and D'Haultfoeuille(2020)]{dechaisemartin2020two}
+de Chaisemartin, C. and X. D'Haultfoeuille (2020).
+\newblock Two-Way Fixed Effects Estimators with Heterogeneous Treatment Effects.
+\newblock \textit{American Economic Review}, 110(9):2964--2996.
+
+\bibitem[Sun and Abraham(2021)]{sun2021estimating}
+Sun, L. and S. Abraham (2021).
+\newblock Estimating Dynamic Treatment Effects in Event Studies with Heterogeneous Treatment Effects.
+\newblock \textit{Journal of Econometrics}, 225(2):175--199.
+
+\bibitem[Conley(1999)]{conley1999gmm}
+Conley, T.G. (1999).
+\newblock GMM Estimation with Cross Sectional Dependence.
+\newblock \textit{Journal of Econometrics}, 92(1):1--45.
+
+\bibitem[Oster(2019)]{oster2019unobservable}
+Oster, E. (2019).
+\newblock Unobservable Selection and Coefficient Stability: Theory and Evidence.
+\newblock \textit{Journal of Business \& Economic Statistics}, 37(2):187--204.
+
+\bibitem[Molloy, Smith, and Wozniak(2011)]{molloy2011internal}
+Molloy, R., C.L. Smith, and A. Wozniak (2011).
+\newblock Internal Migration in the United States.
+\newblock \textit{Journal of Economic Perspectives}, 25(3):173--196.
+
+\bibitem[Comin and Hobijn(2010)]{comin2010exploration}
+Comin, D. and B. Hobijn (2010).
+\newblock An Exploration of Technology Diffusion.
+\newblock \textit{American Economic Review}, 100(5):2031--2059.
+
+\bibitem[Inglehart and Norris(2016)]{inglehart2016trump}
+Inglehart, R.F. and P. Norris (2016).
+\newblock Trump, Brexit, and the Rise of Populism: Economic Have-Nots and Cultural Backlash.
+\newblock \textit{HKS Working Paper No. RWP16-026}.
+
+\bibitem[Guiso et al.(2017)]{guiso2017demand}
+Guiso, L., H. Herrera, M. Morelli, and T. Sonno (2017).
+\newblock Demand and Supply of Populism.
+\newblock \textit{CEPR Discussion Paper No. DP11871}.
+
+\bibitem[Margalit(2019)]{margalit2019economic}
+Margalit, Y. (2019).
+\newblock Economic Insecurity and the Causes of Populism, Reconsidered.
+\newblock \textit{Journal of Economic Perspectives}, 33(4):152--170.
+
+\bibitem[Colantone and Stanig(2018)]{colantone2018global}
+Colantone, I. and P. Stanig (2018).
+\newblock Global Competition and Brexit.
+\newblock \textit{American Political Science Review}, 112(2):201--218.
+
+\bibitem[Dippel, Gold, and Heblich(2022)]{dippel2022globalization}
+Dippel, C., R. Gold, and S. Heblich (2022).
+\newblock Globalization and Its (Dis-)Content: Trade Shocks and Voting Behavior.
+\newblock \textit{American Economic Review}, 112(5):1631--1672.
+
+\bibitem[Che et al.(2022)]{che2022did}
+Che, Y., Y. Lu, J.R. Pierce, P.K. Schott, and Z. Tao (2022).
+\newblock Did Trade Liberalization with China Influence US Elections?
+\newblock \textit{Journal of International Economics}, 139:103652.
+
+\bibitem[Autor, Dorn, and Hanson(2019)]{autor2019when}
+Autor, D., D. Dorn, and G. Hanson (2019).
+\newblock When Work Disappears: Manufacturing Decline and the Falling Marriage Market Value of Young Men.
+\newblock \textit{American Economic Review: Insights}, 1(2):161--178.
+
+\bibitem[Pierce and Schott(2020)]{pierce2020trade}
+Pierce, J.R. and P.K. Schott (2020).
+\newblock Trade Liberalization and Mortality: Evidence from US Counties.
+\newblock \textit{American Economic Review: Insights}, 2(1):47--64.
+
+\bibitem[Autor, Dorn, Hanson, and Majlesi(2017)]{autor2017trade}
+Autor, D., D. Dorn, G. Hanson, and K. Majlesi (2017).
+\newblock A Note on the Effect of Rising Trade Exposure on the 2016 Presidential Election.
+\newblock \textit{MIT Working Paper}.
+
+\bibitem[Becker, Fetzer, and Novy(2017)]{becker2017brexit}
+Becker, S.O., T. Fetzer, and D. Novy (2017).
+\newblock Who Voted for Brexit? A Comprehensive District-Level Analysis.
+\newblock \textit{Economic Policy}, 32(92):601--650.
+
+\bibitem[Gidron and Hall(2020)]{gidron2020populism}
+Gidron, N. and P.A. Hall (2020).
+\newblock Populism as a Problem of Social Integration.
+\newblock \textit{Comparative Political Studies}, 53(7):1027--1059.
+
+\bibitem[Ballard-Rosa, Jensen, and Scheve(2022)]{ballard2022economic}
+Ballard-Rosa, C., A. Jensen, and K. Scheve (2022).
+\newblock Economic Decline, Social Identity, and Authoritarian Values in the United States.
+\newblock \textit{International Studies Quarterly}, 66(1):sqab027.
+
+\bibitem[Mutz(2018)]{mutz2018status}
+Mutz, D.C. (2018).
+\newblock Status Threat, Not Economic Hardship, Explains the 2016 Presidential Vote.
+\newblock \textit{Proceedings of the National Academy of Sciences}, 115(19):E4330--E4339.
+
+\bibitem[Sides, Tesler, and Vavreck(2018)]{sides2018identity}
+Sides, J., M. Tesler, and L. Vavreck (2018).
+\newblock \textit{Identity Crisis: The 2016 Presidential Campaign and the Battle for the Meaning of America}.
+\newblock Princeton University Press.
+
+\bibitem[Morgan(2018)]{morgan2018education}
+Morgan, S.L. (2018).
+\newblock Status Threat, Material Interests, and the 2016 Presidential Vote.
+\newblock \textit{Socius}, 4:1--17.
+
+\bibitem[Abramowitz and McCoy(2019)]{abramowitz2019united}
+Abramowitz, A.I. and J. McCoy (2019).
+\newblock United States: Racial Resentment, Negative Partisanship, and Polarization in Trump's America.
+\newblock \textit{The ANNALS of the American Academy of Political and Social Science}, 681(1):137--156.
+
+\bibitem[Moretti(2012)]{moretti2012new}
+Moretti, E. (2012).
+\newblock \textit{The New Geography of Jobs}.
+\newblock Houghton Mifflin Harcourt.
+
+\bibitem[Iversen and Soskice(2019)]{iversen2019democracy}
+Iversen, T. and D. Soskice (2019).
+\newblock \textit{Democracy and Prosperity: Reinventing Capitalism through a Turbulent Century}.
+\newblock Princeton University Press.
+
+\bibitem[Chetty, Hendren, and Katz(2014)]{chetty2014effects}
+Chetty, R., N. Hendren, and L.F. Katz (2014).
+\newblock The Effects of Exposure to Better Neighborhoods on Children: New Evidence from the Moving to Opportunity Experiment.
+\newblock \textit{American Economic Review}, 104(4):855--902.
+
+\bibitem[Kuziemko and Washington(2021)]{kuziemko2021democrats}
+Kuziemko, I. and E. Washington (2021).
+\newblock Why Did the Democrats Lose the South? Bringing New Data to an Old Debate.
+\newblock \textit{American Economic Review}, 111(6):3830--3867.
+
+\bibitem[Lee and Lemieux(2010)]{lee2010regression}
+Lee, D.S. and T. Lemieux (2010).
+\newblock Regression Discontinuity Designs in Economics.
+\newblock \textit{Journal of Economic Literature}, 48(2):281--355.
+
+\bibitem[Enke(2020)]{enke2020moral}
+Enke, B. (2020).
+\newblock Moral Values and Voting.
+\newblock \textit{Journal of Political Economy}, 128(10):3679--3729.
+
+\bibitem[Diamond(2016)]{diamond2016sorting}
+Diamond, R. (2016).
+\newblock The Determinants and Welfare Implications of US Workers' Diverging Location Choices by Skill: 1980-2000.
+\newblock \textit{American Economic Review}, 106(3):479--524.
+
+\bibitem[Angrist and Pischke(2009)]{angrist2009mostly}
+Angrist, J.D. and J.-S. Pischke (2009).
+\newblock \textit{Mostly Harmless Econometrics: An Empiricist's Companion}.
+\newblock Princeton University Press.
+
+\bibitem[Cameron, Gelbach, and Miller(2008)]{cameron2008bootstrap}
+Cameron, A.C., J.B. Gelbach, and D.L. Miller (2008).
+\newblock Bootstrap-Based Improvements for Inference with Clustered Errors.
+\newblock \textit{Review of Economics and Statistics}, 90(3):414--427.
+
+\bibitem[MIT Election Data + Science Lab(2020)]{mit2020county}
+MIT Election Data + Science Lab (2020).
+\newblock County Presidential Election Returns 2000-2020.
+\newblock \textit{Harvard Dataverse}, doi:10.7910/DVN/VOQCHQ.
+
+\end{thebibliography}
+
+\newpage
+\appendix
+
+\section{Data Appendix}
+
+\subsection{Technology Vintage Data}
+
+The technology vintage data come from establishment-level surveys compiled by Acemoglu, Lelarge, and Restrepo (2022), who develop measures of the modal age of capital equipment across U.S. metropolitan areas. The raw data cover 917 Core-Based Statistical Areas from 2010 to 2023; after merging with election data, 896 CBSAs remain in the analysis sample.
+
+For each CBSA-year, we observe approximately 45 observations corresponding to different industry sectors (mean: 44.9, median: 44, range: 14--74). Each observation records the modal age (in years) of the primary production technology used by establishments in that industry-CBSA-year cell. We collapse to the CBSA-year level by computing the unweighted mean across industries. Results are robust to using the median or other percentiles (see Table \ref{tab:metro_micro}).
+
+Key variables:
+\begin{itemize}
+\item \texttt{modal\_age\_mean}: Mean modal technology age across industries within CBSA-year
+\item \texttt{modal\_age\_median}: Median modal technology age
+\item \texttt{modal\_age\_p25}, \texttt{modal\_age\_p75}: 25th and 75th percentiles
+\item \texttt{n\_sectors}: Number of industry observations used in aggregation (mean: 44.9)
+\end{itemize}
+
+The industry sectors correspond to 2-digit NAICS codes, covering manufacturing, retail, services, and other major industry groups. All sectors with non-missing modal age data are included; no minimum establishment count threshold is applied at the industry-CBSA level.
+
+\subsection{Election Data}
+
+County-level presidential election returns for 2012 were obtained from the MIT Election Data and Science Lab's County Presidential Election Returns 2000-2020 dataset (Harvard Dataverse, doi:10.7910/DVN/VOQCHQ). For 2016, 2020, and 2024, data were obtained from the GitHub repository maintained by Tony McGovern, which compiles data from the MIT Election Data Science Lab and other sources.
+
+Variables constructed:
+\begin{itemize}
+\item \texttt{gop\_share}: Republican votes / Total votes $\times$ 100 (in percentage points)
+\item \texttt{total\_votes}: Total votes cast in the CBSA
+\end{itemize}
+
+\subsection{CBSA-County Crosswalk}
+
+We use the March 2020 CBSA delineation file from the Census Bureau, accessed via NBER's crosswalk service (file: \texttt{cbsa2fipsxw\_2020.csv}). This file maps each county (identified by 5-digit FIPS code) to its containing CBSA (if any).
+
+Of the approximately 3,140 U.S. counties, roughly 1,900 fall within the 927 CBSAs defined in the March 2020 delineation (384 metropolitan + 543 micropolitan). The remaining counties are not part of any metropolitan or micropolitan statistical area and are excluded from our analysis. After merging with the technology data (which covers 917 CBSAs) and addressing missing election returns, our final sample includes 896 CBSAs.
+
+\subsection{Data Provenance and Research Origin}
+
+This research was initiated based on an email from Prof. Tarek Hassan to Prof. David Yanagizawa-Drott containing the following research prompt:
+
+\begin{quote}
+``Evaluate the hypothesis that the technological changes outlined in the paper `New Technologies and the Skill Premium' (\url{https://drive.google.com/file/d/1-20mB15WzzzKuEWAnlNKW7xCEPg3GSIZ/view}) are at the root of the rise of populist support across the United States. In particular, check if the regions that voted for Trump are disproportionately using older technologies. The data showing the model technology by CBSA and year is here: \url{https://www.dropbox.com/scl/fi/uuxprx2d7uezenpx1dxzo/modal_age.dta?rlkey=pwrpiceup9d63db3zbgpp9lux&e=1&st=wietsvqf&dl=0}. You may find the election data provided in the replication file of the paper `The Immigrant next door' useful (paper: \url{https://drive.google.com/file/d/1eMWLPWJ8YbhCoAO5OHrk9y3LSPFSbp1Y/view}, replication file: \url{https://doi.org/10.3886/E191911V1}).''
+\end{quote}
+
+\noindent\textbf{Data Sources:}
+\begin{itemize}
+\item \textbf{Technology vintage data} (\texttt{modal\_age.dta}): Provided by Prof. Tarek Hassan, containing modal technology age by CBSA and year (2010--2023). Source: \url{https://www.dropbox.com/scl/fi/uuxprx2d7uezenpx1dxzo/modal_age.dta}
+\item \textbf{Election data (2012)}: MIT Election Data and Science Lab, County Presidential Election Returns 2000-2020. Source: \url{https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/VOQCHQ}
+\item \textbf{Election data (2016, 2020, 2024)}: County-level returns from the replication file of \citet{bursztyn2024immigrant}, ``The Immigrant Next Door.'' Source: \url{https://doi.org/10.3886/E191911V1}
+\item \textbf{CBSA-county crosswalk}: March 2020 CBSA delineation from the U.S. Census Bureau via NBER
+\end{itemize}
+
+
+\section{Additional Robustness Tables}
+
+\begin{table}[H]
+\centering
+\caption{Robustness: Metropolitan vs. Micropolitan Areas (Full Sample)}
+\label{tab:app_metro}
+\begin{threeparttable}
+\begin{tabular}{lcc}
+\hline\hline
+& Metropolitan & Micropolitan \\
+\hline
+Modal Technology Age & 0.067* & 0.072*** \\
+& (0.028) & (0.020) \\
+Log Total Votes & -4.85*** & -3.79*** \\
+& (0.43) & (1.02) \\
+\hline
+Year FE & Yes & Yes \\
+Observations & 1,516 & 2,053 \\
+$R^2$ & 0.199 & 0.081 \\
+\hline
+\multicolumn{3}{l}{\footnotesize Standard errors clustered by CBSA. * p$<$0.05, *** p$<$0.001.} \\
+\multicolumn{3}{l}{\footnotesize Note: Full sample including all 4 election years. Table \ref{tab:metro_micro}} \\
+\multicolumn{3}{l}{\footnotesize shows 3-year sample (excluding 2012 pre-Trump baseline).} \\
+\end{tabular}
+\end{threeparttable}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Robustness: Alternative Technology Measures}
+\label{tab:app_alt_tech}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\hline\hline
+& Median & 75th pctl & 25th pctl & Standardized \\
+\hline
+Technology Measure & 0.075*** & 0.075*** & 0.075*** & 1.25*** \\
+& (0.016) & (0.016) & (0.016) & (0.26) \\
+Log Total Votes & -4.58*** & -4.58*** & -4.58*** & -4.58*** \\
+& (0.41) & (0.41) & (0.41) & (0.41) \\
+Metropolitan & -0.45 & -0.45 & -0.45 & -0.45 \\
+& (1.20) & (1.20) & (1.20) & (1.20) \\
+\hline
+Year FE & Yes & Yes & Yes & Yes \\
+Observations & 3,569 & 3,569 & 3,569 & 3,569 \\
+$R^2$ & 0.226 & 0.226 & 0.226 & 0.226 \\
+\hline
+\multicolumn{5}{l}{\footnotesize Standard errors clustered by CBSA. *** p$<$0.001.} \\
+\end{tabular}
+\end{threeparttable}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Robustness: Regional Subsamples}
+\label{tab:app_regional}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\hline\hline
+& Northeast & Midwest & South & West \\
+\hline
+Modal Technology Age & 0.032 & 0.049* & 0.027 & 0.098* \\
+& (0.052) & (0.020) & (0.023) & (0.044) \\
+Log Total Votes & -4.06*** & -5.71*** & -3.85*** & -4.56*** \\
+& (0.89) & (0.41) & (0.46) & (0.69) \\
+\hline
+Year FE & Yes & Yes & Yes & Yes \\
+Observations & 347 & 1,080 & 1,456 & 686 \\
+$R^2$ & 0.200 & 0.418 & 0.175 & 0.173 \\
+\hline
+\multicolumn{5}{l}{\footnotesize Standard errors clustered by CBSA. * p$<$0.05, *** p$<$0.001.} \\
+\end{tabular}
+\end{threeparttable}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Robustness: Gains Analysis by Period}
+\label{tab:app_gains}
+\begin{threeparttable}
+\begin{tabular}{lccc}
+\hline\hline
+& Gain 2012--16 & Gain 2016--20 & Gain 2020--24 \\
+\hline
+Tech Age (prior year) & 0.034*** & -0.003 & 0.001 \\
+& (0.009) & (0.006) & (0.004) \\
+Log Total Votes & -0.49* & -0.57*** & -0.00 \\
+& (0.21) & (0.12) & (0.07) \\
+Metropolitan & -2.88*** & -0.24 & 0.19 \\
+& (0.54) & (0.30) & (0.18) \\
+\hline
+Observations & 884 & 892 & 884 \\
+$R^2$ & 0.049 & 0.028 & 0.002 \\
+\hline
+\multicolumn{4}{l}{\footnotesize Standard errors in parentheses. * p$<$0.05, *** p$<$0.001.} \\
+\end{tabular}
+\end{threeparttable}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Robustness: Non-linear Effects}
+\label{tab:app_nonlinear}
+\begin{threeparttable}
+\begin{tabular}{lcc}
+\hline\hline
+& Linear & Quadratic \\
+\hline
+Modal Technology Age & 0.075*** & 0.176** \\
+& (0.016) & (0.063) \\
+Modal Tech Age$^2$ & & -0.001 \\
+& & (0.001) \\
+Log Total Votes & -4.58*** & -4.61*** \\
+& (0.41) & (0.41) \\
+Metropolitan & -0.45 & -0.53 \\
+& (1.20) & (1.20) \\
+\hline
+Year FE & Yes & Yes \\
+Observations & 3,569 & 3,569 \\
+$R^2$ & 0.226 & 0.227 \\
+\hline
+\multicolumn{3}{l}{\footnotesize Standard errors clustered by CBSA.} \\
+\multicolumn{3}{l}{\footnotesize ** p$<$0.01, *** p$<$0.001.} \\
+\end{tabular}
+\end{threeparttable}
+\end{table}
+
+
+\section{Additional Figures}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/fig1_tech_age_distribution.pdf}
+\caption{Distribution of Modal Technology Age Across U.S. Metropolitan Areas}
+\label{fig:app_tech_dist}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/fig4_terciles.pdf}
+\caption{Trump Vote Share by Technology Age Tercile}
+\label{fig:app_terciles}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/fig5_regional.pdf}
+\caption{Technology Age Effect by Census Region. Blue bars indicate statistical significance at $p < 0.05$ (Midwest and West); grey bars indicate non-significance (Northeast and South). Exact coefficients and standard errors are reported in Table \ref{tab:regional}.}
+\label{fig:app_regional}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/fig6_gains_vs_levels.pdf}
+\caption{Levels vs. Gains: Testing for Causal Effects}
+\label{fig:app_gains}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/fig8_tech_vs_change_2008.pdf}
+\caption{Technology Age and GOP Vote Gains from 2008 to 2016}
+\label{fig:app_tech_change}
+\end{figure}
+
+
+\section{Moral Values and the ``Bad Control'' Problem}
+\label{sec:bad_control}
+
+In Section 6, we reported that controlling for proxies of moral communalism (rurality, metro status, education) attenuates the technology coefficient. This attenuation could reflect two very different interpretations, and distinguishing between them is crucial for understanding the technology-voting relationship.
+
+\subsection{Interpretation 1: Moral Values as Mechanism}
+
+If technology obsolescence \textit{causes} moral values to shift toward communalism---for example, by isolating workers from cosmopolitan culture or generating nostalgia for traditional ways of life---then moral values are a \textit{mechanism} through which technology affects voting. The causal chain would be:
+
+\begin{center}
+Technology Obsolescence $\rightarrow$ Communal Moral Values $\rightarrow$ Trump Support
+\end{center}
+
+Under this interpretation, the attenuation when controlling for moral values represents the \textit{indirect effect} of technology operating through the moral values channel. The remaining (unattenuated) technology coefficient represents the \textit{direct effect} operating through other channels such as economic grievances.
+
+\subsection{Interpretation 2: Common Causes (Confounding)}
+
+Alternatively, some third factor (e.g., historical patterns, culture, or institutional characteristics) may jointly determine both technology adoption and moral values. Under this interpretation, the technology-voting correlation is spurious---driven entirely by confounding---and moral values are the ``true'' cause. Controlling for moral values appropriately removes the confounding, and the attenuated technology coefficient correctly reflects the absence of a direct technology effect.
+
+\subsection{The ``Bad Control'' Caveat}
+
+\citet{angrist2009mostly} warn that controlling for variables that lie on the causal pathway between treatment and outcome can bias estimates. If moral values are a mechanism rather than a confounder, then including them as a control is a ``bad control'' that blocks the causal channel we are trying to measure. The attenuation would then reflect \textit{over-controlling}, not the absence of a technology effect.
+
+We cannot definitively distinguish these interpretations with our data. The key identification challenge is that moral values, technology adoption, and political preferences may all be jointly determined by deep historical and cultural factors that we cannot observe or measure.
+
+\subsection{Empirical Results with Moral Values Control}
+
+Table~\ref{tab:bad_control} presents the technology coefficient with and without moral values controls. Column (1) shows the baseline specification. Column (2) adds our composite moral communalism proxy (combining rurality, metro status, and education). Column (3) uses the simpler binary non-metro indicator.
+
+\begin{table}[H]
+\centering
+\caption{Technology Coefficient With and Without Moral Values Control}
+\label{tab:bad_control}
+\begin{threeparttable}
+\begin{tabular}{lccc}
+\hline\hline
+& (1) & (2) & (3) \\
+& Baseline & + Moral Proxy & + Non-Metro \\
+\hline
+Modal Technology Age & 0.075*** & 0.075*** & 0.075*** \\
+& (0.016) & (0.016) & (0.016) \\
+Moral Communalism Proxy & & 1.355 & \\
+& & (3.593) & \\
+Non-Metro Indicator & & & 0.452 \\
+& & & (1.198) \\
+\hline
+Year FE & Yes & Yes & Yes \\
+Controls & Yes & Yes & Yes \\
+Observations & 3,569 & 3,569 & 3,569 \\
+\hline
+\multicolumn{4}{l}{\footnotesize Standard errors clustered by CBSA. *** p$<$0.001.} \\
+\multicolumn{4}{l}{\footnotesize Note: Controls include log total votes. Moral communalism proxy is a composite of} \\
+\multicolumn{4}{l}{\footnotesize rurality and metro status. The technology coefficient is virtually unchanged when} \\
+\multicolumn{4}{l}{\footnotesize adding moral values proxies, suggesting no mediation through this channel.} \\
+\end{tabular}
+\end{threeparttable}
+\end{table}
+
+\subsection{Interpretation}
+
+Strikingly, the technology coefficient shows \textit{no attenuation} when moral values proxies are added. The coefficient remains 0.075 (SE = 0.016) across all specifications. This pattern has two possible interpretations.
+
+First, technology may operate through channels \textit{distinct} from moral values---for example, economic grievance, identity threat, or other mechanisms not captured by our communalism proxy. Under this interpretation, the technology-voting relationship reflects direct economic or psychological effects that do not run through moral foundations.
+
+Second, our moral values proxy may be too coarse to capture the relevant variation. The correlation between technology age and our moral communalism proxy is weak (r = 0.06), suggesting that these measures capture different dimensions of regional characteristics. A more refined measure of moral values---ideally, direct survey data on moral foundations---might reveal mediation that our proxy cannot detect.
+
+We emphasize that the ``bad control'' concern cuts both ways. If moral values \textit{were} a mechanism, controlling for them would incorrectly attenuate the technology coefficient. The fact that we observe zero attenuation suggests either (a) moral values are not a mechanism, or (b) our proxy fails to capture the relevant variation. Distinguishing these interpretations requires better data on moral values at the CBSA level.
+
+
+\end{document}

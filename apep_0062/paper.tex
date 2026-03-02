@@ -1,0 +1,458 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\sisetup{detect-all=true, group-separator={,}, group-minimum-digits=4}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\sym}[1]{\ifmmode^{#1}\else\(^{#1}\)\fi}
+
+\title{Betting on Jobs? The Employment Effects of Legal Sports Betting in the United States\footnote{This paper is a revision of APEP-0051. See \url{https://github.com/anthropics/auto-policy-evals/tree/main/papers/apep_0051} for the original.}}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. This paper was generated autonomously by Claude Code.} \\ @anonymous}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+The legalization of sports betting following the Supreme Court's 2018 \emph{Murphy v.\ NCAA} decision created a natural experiment affecting 38 states by 2024. This paper provides rigorous causal estimates of the employment effects using a staggered difference-in-differences design. Employing the Callaway-Sant'Anna estimator to address heterogeneous treatment effects across adoption cohorts, we analyze Quarterly Census of Employment and Wages (QCEW) data for NAICS 7132 (Gambling Industries) from 2014--2023. Contrary to industry projections of substantial job creation, we find \textbf{no statistically significant effect} of legalization on gambling industry employment. The overall ATT is $-56$ jobs (SE $= 336$), economically small and statistically indistinguishable from zero ($p = 0.87$). This null result is robust across estimators (TWFE: $-205$, SE $= 243$) and specifications. Pre-treatment event study coefficients strongly support parallel trends ($p = 0.92$ for joint test). These findings challenge claims that sports betting legalization is an engine of job creation and suggest policymakers should weigh other considerations when evaluating legalization.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} J21, L83, H71, K23 \\
+\noindent\textbf{Keywords:} sports betting, gambling, employment, difference-in-differences, state policy
+
+\newpage
+
+\section{Introduction}
+
+On May 14, 2018, the Supreme Court fundamentally reshaped the American gambling landscape. In \emph{Murphy v.\ National Collegiate Athletic Association}, the Court struck down the Professional and Amateur Sports Protection Act (PASPA) of 1992, which had effectively prohibited sports betting outside Nevada for over two decades. Within weeks, states began legalizing sports wagering, creating a staggered natural experiment across the country. By the end of 2024, 38 states plus the District of Columbia had legalized some form of sports betting, generating over \$10 billion in annual handle and transforming a once-underground industry into a mainstream entertainment sector.
+
+This paper asks a policy-relevant question: did sports betting legalization create jobs? The gambling industry and its advocates have promoted sports betting as an engine of economic development, projecting that nationwide legalization could support over 200,000 jobs and generate \$8 billion in tax revenue \citep{aga2018}. State legislators considering legalization have cited job creation as a primary justification. Yet despite these claims, rigorous causal estimates of employment effects have been lacking.
+
+We address this gap using a difference-in-differences (DiD) research design that exploits the staggered adoption of sports betting across states following the \emph{Murphy} decision. Our identification strategy compares employment outcomes in states that legalized sports betting to outcomes in states that did not (or had not yet) legalized, before and after legalization. The key identifying assumption is that, absent legalization, employment in treated states would have evolved similarly to employment in control states---the parallel trends assumption.
+
+A methodological challenge is that treatment effects may vary across adoption cohorts and over time since treatment. Recent econometric research has shown that standard two-way fixed effects (TWFE) estimators can be severely biased under such heterogeneity \citep{goodman2021, dechaisemartin2020}. We address this concern by implementing the \citet{callaway2021} estimator, which constructs group-time average treatment effects robust to treatment effect heterogeneity.
+
+Critically, we improve upon prior work in several dimensions. First, we address \textbf{iGaming confounding}---several states legalized online casino games (iGaming) simultaneously with or shortly after sports betting, making it difficult to isolate sports betting effects. We code iGaming as a separate confounder and conduct sensitivity analyses excluding affected states. Second, we apply \textbf{modern heterogeneity-robust estimators} (Callaway-Sant'Anna) rather than problematic TWFE, addressing methodological limitations in prior work.
+
+Our main finding is that sports betting legalization has \textbf{no detectable effect on gambling industry employment}. The Callaway-Sant'Anna overall ATT estimate is $-56$ jobs per state (SE $= 336$), negative but economically small and statistically indistinguishable from zero ($p = 0.87$). This null result starkly contradicts both the fabricated claims in prior work (APEP-0051) and industry projections of substantial job creation.
+
+The null finding is robust. Pre-treatment event study coefficients are close to zero and statistically insignificant, strongly supporting parallel trends (joint test $p = 0.92$). Results are qualitatively similar using traditional TWFE ($-205$, SE $= 243$). The 95\% confidence interval [$-714$, $602$] rules out the large positive effects projected by industry advocates.
+
+Why no detectable employment effect despite the explosion in sports betting handle? Several mechanisms may explain the null. First, sports betting employment may be coded to industries other than NAICS 7132---technology firms, customer service centers, and media companies employ workers serving sports betting markets. Second, mobile-dominated markets require fewer in-state workers than retail casinos. Third, sports betting may cannibalize employment from other gambling sectors (casinos, lotteries, daily fantasy). Fourth, statistical power limitations mean we cannot rule out modest positive effects that fall below our detection threshold.
+
+This paper contributes to several literatures. First, we contribute to the economics of gambling by providing credible causal estimates of employment effects, complementing work on problem gambling \citep{grinols2004} and household financial outcomes \citep{baker2024}. Second, we contribute methodologically by applying recent advances in staggered DiD to a policy context where heterogeneous treatment effects are likely. Third, we contribute to policy debates by providing empirical grounding for job creation claims that have influenced legislative deliberations.
+
+The paper proceeds as follows. Section 2 provides institutional background on sports betting legalization. Section 3 describes our data sources. Section 4 presents our empirical strategy. Section 5 reports results. Section 6 discusses robustness. Section 7 concludes.
+
+
+\section{Institutional Background}
+
+\subsection{The Professional and Amateur Sports Protection Act}
+
+From 1992 to 2018, the Professional and Amateur Sports Protection Act effectively banned sports betting in all but four states with pre-existing legal frameworks: Nevada, Delaware, Montana, and Oregon. Of these, only Nevada permitted comprehensive single-game sports wagering; the others were limited to parlay betting or sports lotteries. As a practical matter, Nevada was the only state with a meaningful legal sports betting market during the PASPA era.
+
+PASPA did not make sports betting a federal crime but rather prohibited states from ``authorizing'' or ``licensing'' sports gambling. This anti-commandeering approach---directing states what they could not do rather than criminalizing conduct directly---would prove to be the statute's constitutional vulnerability.
+
+\subsection{Murphy v.\ NCAA}
+
+New Jersey's path to legal sports betting began in 2011, when voters approved a constitutional amendment permitting sports wagering at Atlantic City casinos. The state's initial attempts to implement sports betting were blocked in federal court. New Jersey then pursued a creative legal strategy: rather than affirmatively ``authorizing'' sports betting, the state would simply repeal its prohibitions.
+
+The Supreme Court granted certiorari, and on May 14, 2018, ruled 7-2 that PASPA violated the Tenth Amendment's anti-commandeering principle. Justice Alito, writing for the majority, held that Congress cannot ``issue direct orders to state legislatures'' requiring them to maintain prohibitions on sports betting. The entire statute was invalidated.
+
+\subsection{Post-Murphy State Adoption}
+
+The \emph{Murphy} decision immediately opened the door for state-by-state legalization, creating the staggered adoption pattern we exploit for identification.
+
+\textbf{First movers (2018):} Delaware moved fastest, launching legal sports betting on June 5, 2018. New Jersey followed on June 14, launching what would become the nation's largest market outside Nevada. Mississippi, West Virginia, Pennsylvania, and Rhode Island followed later in 2018. These six states form our first treatment cohort.
+
+\textbf{Second wave (2019):} Six additional states legalized in 2019, including Indiana, Iowa, New Hampshire, New York, and Oregon. Additional states followed in 2020, including Tennessee (November 2020) and Montana.
+
+\textbf{2020 and COVID-19:} The 2020 cohort included Colorado, Illinois, Michigan, Montana, and Tennessee. Virginia launched in early 2021. Market launches were complicated by the COVID-19 pandemic, creating confounding concerns we address in robustness analysis.
+
+\textbf{Continued expansion (2021--2024):} Adoption continued through 2024. New York's mobile launch in January 2022 created the nation's largest market almost overnight. By late 2024, 38 states plus DC had legalized.
+
+\subsection{Implementation Heterogeneity}
+
+States have implemented sports betting in diverse ways:
+
+\textbf{Retail vs.\ Mobile:} Some states initially permitted only retail (in-person) betting at casinos or racetracks. Others launched immediately with mobile betting via smartphone apps. The distinction matters enormously for market size: in mature markets, mobile betting accounts for 80--90\% of handle. Workforce implications also differ---mobile operations require customer service, compliance, and technology staff.
+
+\textbf{iGaming Confounding:} Several states legalized online casino games (iGaming) alongside or shortly after sports betting. New Jersey's iGaming market predated \emph{Murphy}; Pennsylvania launched iGaming eight months after sports betting; Michigan launched both simultaneously. This creates confounding concerns, as employment gains may reflect bundled gambling expansion rather than sports betting alone.
+
+
+\section{Data}
+
+\subsection{Data Sources}
+
+Our primary employment data comes from the Quarterly Census of Employment and Wages (QCEW), a comprehensive database covering approximately 97\% of U.S.\ wage and salary civilian employment. QCEW provides industry-level employment counts at the state-by-quarter level based on unemployment insurance records.
+
+We focus on NAICS industry code 7132 (Gambling Industries), which includes ``establishments primarily engaged in operating gambling facilities, such as casinos, bingo halls, and video gaming terminals, or in the provision of gambling services, such as lotteries and off-track betting'' (BLS, 2024). This category captures both traditional casino employment and newer sports betting operations.
+
+Due to data suppression at quarterly frequency for smaller states, we use \textbf{annual} frequency for our main analysis. States with suppressed or zero employment in NAICS 7132 (due to disclosure restrictions or no gambling establishments) are excluded from estimation, creating an unbalanced panel.
+
+Policy timing data comes from Legal Sports Report, an industry publication tracking state-by-state legalization dates, verified against state gaming commission announcements. We code treatment at the \textbf{year of first statewide sports betting availability}---that is, when legal sports betting became available to consumers in the state following the 2018 Supreme Court decision, regardless of operator type (commercial casinos, lottery, or tribal compacts). This definition captures the policy change that potentially affects NAICS 7132 (Gambling Industries) employment. States legalizing mid-year (e.g., November 2018) are coded as treated beginning that calendar year. States where launches occurred in 2024 (after our sample period) are coded as never-treated through 2023.
+
+\subsection{Sample Construction}
+
+Our analysis sample spans 2014--2023, providing four years of pre-treatment data and up to five years of post-treatment data for early adopters. We begin in 2014 to ensure consistent QCEW data availability while providing sufficient pre-treatment observations for trend estimation.
+
+The sample includes 50 states minus Nevada (always-treated under our definition). We additionally \textbf{drop} three states with design complications: Washington and North Carolina (statewide commercial/online sports betting launched only in 2024, after our sample period; earlier tribal retail activity was limited and localized) and Florida (market launched briefly November--December 2021 before federal court suspension; such treatment reversals violate the ``once-treated-always-treated'' assumption required by Callaway-Sant'Anna). This yields 46 states in our estimation sample. After excluding observations with suppressed or zero employment, our final sample contains 376 state-year observations: 30 treated states and 16 never-treated states.
+
+\subsection{Treatment and Confounders}
+
+We code treatment cohorts ($G_s$) as the year of first legal wagering. States that never legalized through 2023 are coded as $G = 0$ (never-treated) and serve as our primary control group.
+
+We additionally code:
+\begin{itemize}
+    \item \textbf{Mobile launch timing}: Separate indicator for when mobile betting became available
+    \item \textbf{iGaming dates}: States that legalized online casino games
+    \item \textbf{Implementation type}: Retail-only, mobile-only, or both at launch
+\end{itemize}
+
+\subsection{Measurement Considerations}
+
+Several measurement issues merit discussion. NAICS 7132 captures employment at gambling establishments but cannot isolate sports-betting-specific employment. Sports betting is often integrated into existing casino operations, and mobile sportsbook operators employ workers coded to other industries (data processing, customer service) or located in other states. QCEW data are suppressed in small states with few gambling establishments, creating missing observations that we flag in our panel.
+
+
+\section{Empirical Strategy}
+
+\subsection{Identification}
+
+We employ a difference-in-differences design exploiting staggered adoption. The identifying assumption is parallel trends: absent legalization, employment in states that legalized would have evolved similarly to employment in control states.
+
+Formally, let $Y_{st}$ denote employment in state $s$ at time $t$, and let $G_s$ denote the year state $s$ legalized (with $G_s = 0$ for never-treated). The parallel trends assumption requires:
+\begin{equation}
+\E[Y_{st}(0) - Y_{s,t-1}(0)|G_s = g] = \E[Y_{st}(0) - Y_{s,t-1}(0)|G_s = g'] \quad \forall g, g' \geq t
+\end{equation}
+
+Several features support this assumption. The timing of the Supreme Court's decision was exogenous to state-level employment trends. Conditional on \emph{Murphy}, state-level legalization decisions depended on pre-existing legislative capacity and idiosyncratic political factors rather than anticipated employment trends. Visual evidence shows roughly parallel pre-treatment trends across cohorts.
+
+\subsection{Threats to Identification}
+
+\textbf{Anticipation effects:} If states increased employment in anticipation of legalization, this would bias estimates downward. We examine event study coefficients immediately before treatment.
+
+\textbf{iGaming confounding:} States that legalized iGaming alongside sports betting may show employment gains from bundled gambling expansion. We conduct sensitivity analyses excluding these states.
+
+\textbf{COVID-19 confounding:} The sports betting expansion overlapped substantially with the pandemic. States legalizing 2020--2022 launched during unprecedented labor market disruption. We conduct sensitivity analyses using pre-COVID cohorts.
+
+\textbf{SUTVA violations:} Cross-border betting could generate spillovers. Remote workers may be located in states other than where bets are placed.
+
+\subsection{Estimators}
+
+\subsubsection{Callaway-Sant'Anna Estimator}
+
+We address TWFE limitations using the \citet{callaway2021} estimator, which estimates group-time average treatment effects:
+\begin{equation}
+ATT(g,t) = \E[Y_t - Y_{g-1}|G = g] - \E[Y_t - Y_{g-1}|G = 0]
+\end{equation}
+using only never-treated (or not-yet-treated) units as controls. This avoids problematic comparisons that can bias TWFE.
+
+The overall ATT aggregates group-time ATTs:
+\begin{equation}
+ATT = \sum_g \sum_{t \geq g} w_{g,t} \cdot ATT(g,t)
+\end{equation}
+
+We implement this using the \texttt{did} package in R with bootstrap inference clustered at the state level.
+
+\subsubsection{Traditional TWFE}
+
+For comparison, we report traditional TWFE estimates while acknowledging known biases.
+
+\subsection{Event Study Specification}
+
+We estimate event study specifications:
+\begin{equation}
+ATT(e) = \sum_g w_g \cdot ATT(g, g+e)
+\end{equation}
+where $e$ is event time (years relative to legalization). Pre-treatment coefficients ($e < 0$) test parallel trends; post-treatment coefficients trace dynamic effects.
+
+
+\section{Results}
+
+\subsection{Pre-Trends and Parallel Trends Validation}
+
+We first examine pre-treatment employment trends by cohort. Prior to 2018, treatment cohorts (2018, 2019, 2020, 2021+ adopters) and never-treated states follow roughly parallel trajectories. All groups show gradual growth in gambling employment during the pre-period. There is no evidence of differential pre-trends between groups that would later adopt at different times.
+
+Post-treatment, we observe no systematic divergence between treated and control states. Employment trajectories remain parallel, with no visible upward shift at treatment dates. This visual pattern is consistent with a null treatment effect and supports the parallel trends assumption.
+
+Event study coefficients confirm this pattern. Pre-treatment coefficients (event times $-4$ to $-1$) are close to zero and statistically insignificant. A joint test of the null hypothesis that all pre-treatment coefficients equal zero fails to reject at conventional significance levels ($p = 0.92$), providing strong statistical support for the parallel trends assumption.
+
+\subsection{Main Results}
+
+Table~\ref{tab:main_results} presents our main estimates. The Callaway-Sant'Anna overall ATT is $-56$ jobs (SE $= 336$), negative but statistically indistinguishable from zero ($p = 0.87$). The 95\% confidence interval is $[-714, 602]$, which rules out the large positive effects (1,000+ jobs per state) projected by industry advocates but cannot distinguish between modest positive, null, or modest negative effects.
+
+\begin{table}[H]
+\centering
+\caption{Main Employment Effects of Sports Betting Legalization}
+\label{tab:main_results}
+\begin{threeparttable}
+\begin{tabular}{lccccc}
+\toprule
+Estimator & ATT & SE & 95\% CI & $p$-value & $N$ \\
+\midrule
+Callaway-Sant'Anna & $-56$ & (336) & [$-714$, 602] & 0.87 & 376 \\
+Two-Way Fixed Effects & $-205$ & (243) & [$-680$, 271] & 0.40 & 375 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} $N$ = state-year observations with non-missing employment. Sample includes 46 states for 2014--2023: 30 treated, 16 never-treated. Nevada excluded (always-treated); WA, NC, FL dropped (see text). Outcome is annual NAICS 7132 (Gambling Industries) employment. Standard errors clustered at state level. ATT = Average Treatment Effect on the Treated.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Both estimators yield qualitatively similar conclusions: point estimates are negative, modest in magnitude, and statistically insignificant. The consistency across estimators increases confidence that the null result is not an artifact of specification choice.
+
+\subsection{Event Study Dynamics}
+
+Table~\ref{tab:event_study} presents event study coefficients. Pre-treatment coefficients (event times $-4$ to $-1$) are close to zero and statistically insignificant, consistent with parallel trends. A joint test of the null hypothesis that all pre-treatment coefficients equal zero fails to reject ($p = 0.92$), providing statistical support for the identifying assumption.
+
+\begin{table}[H]
+\centering
+\caption{Event Study Coefficients}
+\label{tab:event_study}
+\begin{threeparttable}
+\begin{tabular}{rrrr}
+\toprule
+Event Time & ATT & SE & 95\% CI \\
+\midrule
+$-4$ & $-25$ & (206) & [$-429$, 380] \\
+$-3$ & 85 & (164) & [$-237$, 407] \\
+$-2$ & $-140$ & (177) & [$-487$, 207] \\
+$-1$ & 26 & (218) & [$-401$, 453] \\
+0 & $-54$ & (124) & [$-296$, 188] \\
+1 & $-28$ & (292) & [$-601$, 544] \\
+2 & $-120$ & (417) & [$-938$, 699] \\
+3 & 56 & (575) & [$-1070$, 1183] \\
+4 & $-321$ & (812) & [$-1913$, 1271] \\
+5 & 324 & (952) & [$-1542$, 2191] \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} $N = 376$ state-year observations. Event time in years relative to legalization. Pre-treatment coefficients ($<0$) test parallel trends; joint test $p = 0.92$. Standard errors clustered at state level.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Post-treatment coefficients fluctuate around zero and are imprecisely estimated, with standard errors increasing substantially as event time grows (reflecting fewer treated state-year observations at longer horizons). No post-treatment coefficient is statistically significant. The pattern is consistent with a null effect rather than gradual treatment effect buildup.
+
+\section{Robustness}
+
+Table~\ref{tab:robustness} compares our main Callaway-Sant'Anna estimate with traditional TWFE. We also report additional robustness analyses in text below. Across all specifications, point estimates remain negative and statistically insignificant.
+
+\begin{table}[H]
+\centering
+\caption{Estimator Comparison}
+\label{tab:robustness}
+\begin{threeparttable}
+\begin{tabular}{lccccc}
+\toprule
+Specification & ATT & SE & 95\% CI & $p$-value & $N$ \\
+\midrule
+\textit{Main estimate (C-S)} & $-56$ & (336) & [$-714$, 602] & 0.87 & 376 \\
+\addlinespace
+\multicolumn{6}{l}{\textit{Alternative Estimators}} \\
+\quad Two-Way Fixed Effects & $-205$ & (243) & [$-680$, 271] & 0.40 & 375 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Notes:} $N$ = state-year observations with non-missing employment. C-S = Callaway-Sant'Anna. All specifications use NAICS 7132 employment. Standard errors clustered at state level. TWFE reported for comparison but may be biased under treatment effect heterogeneity.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\subsection{COVID-19 Sensitivity}
+
+The COVID-19 pandemic disrupted both employment and gambling markets during 2020--2021, potentially confounding estimates for cohorts legalizing during this period. Excluding 2020 entirely yields an ATT of $-97$ (SE $= 282$). Restricting to pre-COVID cohorts (2018--2019 adopters) yields $-244$ (SE $= 430$). Both specifications confirm the null result, though precision decreases with sample restriction.
+
+\subsection{iGaming Confounding}
+
+Several states legalized online casino gaming (iGaming) alongside sports betting, creating confounding concerns. Excluding states with simultaneous or near-simultaneous iGaming legalization (New Jersey, Pennsylvania, Michigan, Connecticut) yields an ATT of $-233$ (SE $= 251$). The null result persists, suggesting our estimates are not driven by bundled iGaming effects.
+
+\subsection{Alternative Control Groups}
+
+Using not-yet-treated states as controls instead of never-treated states yields similar results (ATT $= -190$, SE $= 240$). This addresses concerns that never-treated states may be systematically different from treated states.
+
+\subsection{Pre-Trend Sensitivity}
+
+Pre-treatment event study coefficients support parallel trends, with a joint test yielding $p = 0.92$. Visual inspection shows no evidence of differential pre-trends between treatment and control groups.
+
+
+\section{Discussion and Limitations}
+
+Our analysis provides rigorous causal estimates that challenge claims of substantial job creation from sports betting legalization. Several mechanisms may explain the null finding.
+
+\textbf{Industry classification limitations:} NAICS 7132 captures employment at gambling establishments but cannot isolate sports betting employment specifically. Technology companies providing backend services, customer service centers, marketing agencies, and media companies covering sports betting may employ substantial workforces coded to other NAICS categories. If sports betting employment occurs primarily outside NAICS 7132, our estimates understate true effects.
+
+\textbf{Geographic displacement:} Mobile sportsbook operators often locate their workforce in states other than where bets are placed. New Jersey's sports betting handle is among the nation's largest, but technology and customer service workers may be located in Nevada, Arizona, or offshore. State-level QCEW data cannot capture such employment.
+
+\textbf{Substitution within gambling:} Sports betting may substitute for other forms of gambling rather than expanding the overall market. Employment gains in sports betting could be offset by losses in casinos, lotteries, or daily fantasy operations, yielding no net effect on NAICS 7132.
+
+\textbf{Formalization:} Some sports betting employment may formalize previously informal or illegal activity rather than creating new jobs. Workers in underground bookmaking operations are not captured by QCEW; their transition to legal operators would appear as zero net change.
+
+\textbf{Treatment timing complexity:} Sports betting legalization is not a clean binary treatment. Some states (Delaware, Montana, Oregon) had pre-PASPA exemptions for limited sports wagering. Washington state permits tribal sports betting that may not appear in commercial QCEW data. Florida's sports betting market experienced interruptions due to legal challenges. Our treatment coding based on ``first legal sports bet'' at commercial sportsbooks may not capture all relevant policy variation, and edge cases could affect estimates.
+
+\textbf{Statistical power:} Our confidence intervals are wide. We cannot rule out modest positive effects (e.g., 200--300 jobs per state) that fall below our detection threshold. With 30 treated states and substantial outcome variance, precision is limited.
+
+\textbf{Temporal aggregation:} Our annual analysis may miss short-run dynamics that would appear at quarterly or monthly frequency. Additionally, states that legalized mid-year (e.g., November 2018) are coded as treated for the full calendar year, which includes several pre-treatment months in the ``post'' period. This measurement issue mechanically attenuates estimated effects, though we note that even with this attenuation bias our confidence intervals rule out large positive effects.
+
+
+\section{Conclusion}
+
+This paper provides rigorous causal estimates of the employment effects of sports betting legalization. Using a difference-in-differences design that exploits staggered state adoption following \emph{Murphy v.\ NCAA} and applying the Callaway-Sant'Anna estimator to address heterogeneous treatment effects, we find \textbf{no statistically significant effect} of legalization on gambling industry employment.
+
+The overall ATT is $-56$ jobs per state (SE $= 336$), economically small and statistically indistinguishable from zero ($p = 0.87$). This null result is robust across estimators (TWFE yields similar conclusions). Pre-treatment event study coefficients strongly support the parallel trends assumption ($p = 0.92$).
+
+These findings have important policy implications. Industry projections suggested sports betting legalization would create over 200,000 jobs nationwide and generate substantial economic development. Our estimates provide no support for such claims---at least for employment captured by NAICS 7132 (Gambling Industries). States considering legalization should not expect substantial direct employment gains as a primary benefit.
+
+The null finding also serves as a methodological corrective. Prior work on this question (APEP-0051) reported large, statistically significant employment gains but was based on fabricated data rather than actual QCEW analysis. Our replication using real data underscores the importance of transparent, reproducible research.
+
+Several avenues for future research remain. Alternative outcome measures (broader industry classifications, establishment counts, wages) may reveal effects not captured by NAICS 7132 employment. Longer post-treatment periods will allow assessment of whether effects emerge as markets mature. And as California, Texas, and Florida consider legalization, future researchers will have additional policy variation to study.
+
+
+\section*{Acknowledgements}
+
+This paper was autonomously generated using Claude Code as part of the Autonomous Policy Evaluation Project (APEP).
+
+\noindent\textbf{Project Repository:} \url{https://github.com/anthropics/auto-policy-evals}
+
+\noindent\textbf{Generated by:} Claude Code (Claude Opus 4.5)
+
+
+\newpage
+\begin{thebibliography}{99}
+
+\bibitem[American Gaming Association(2018)]{aga2018}
+American Gaming Association. 2018. ``Economic Impact of Legalized Sports Betting.'' Oxford Economics Report.
+
+\bibitem[Baker et al.(2024)]{baker2024}
+Baker, Scott R., Justin Balthrop, Mark J. Johnson, Jason D. Kotter, and Kevin Pisciotta. 2024. ``Gambling Away Stability: Sports Betting's Impact on Vulnerable Households.'' \emph{NBER Working Paper} 33108.
+
+\bibitem[Bertrand, Duflo, and Mullainathan(2004)]{bertrand2004}
+Bertrand, Marianne, Esther Duflo, and Sendhil Mullainathan. 2004. ``How Much Should We Trust Differences-in-Differences Estimates?'' \emph{Quarterly Journal of Economics} 119(1): 249--275.
+
+\bibitem[Callaway and Sant'Anna(2021)]{callaway2021}
+Callaway, Brantly, and Pedro H.C. Sant'Anna. 2021. ``Difference-in-Differences with Multiple Time Periods.'' \emph{Journal of Econometrics} 225(2): 200--230.
+
+\bibitem[de Chaisemartin and D'Haultfoeuille(2020)]{dechaisemartin2020}
+de Chaisemartin, Cl\'{e}ment, and Xavier D'Haultfoeuille. 2020. ``Two-Way Fixed Effects Estimators with Heterogeneous Treatment Effects.'' \emph{American Economic Review} 110(9): 2964--2996.
+
+\bibitem[Goodman-Bacon(2021)]{goodman2021}
+Goodman-Bacon, Andrew. 2021. ``Difference-in-Differences with Variation in Treatment Timing.'' \emph{Journal of Econometrics} 225(2): 254--277.
+
+\bibitem[Grinols(2004)]{grinols2004}
+Grinols, Earl L. 2004. \emph{Gambling in America: Costs and Benefits}. Cambridge University Press.
+
+\bibitem[Rambachan and Roth(2023)]{rambachan2023}
+Rambachan, Ashesh, and Jonathan Roth. 2023. ``A More Credible Approach to Parallel Trends.'' \emph{Review of Economic Studies} 90(5): 2555--2591.
+
+\bibitem[Roth(2022)]{roth2022}
+Roth, Jonathan. 2022. ``Pretest with Caution: Event-Study Estimates after Testing for Parallel Trends.'' \emph{American Economic Review: Insights} 4(3): 305--322.
+
+\end{thebibliography}
+
+
+\newpage
+\appendix
+
+\section{Data Appendix}
+
+\subsection{QCEW Data Access}
+
+Quarterly Census of Employment and Wages data were accessed from the Bureau of Labor Statistics QCEW Data Files at \url{https://www.bls.gov/cew/downloadable-data-files.htm}. We downloaded annual industry files for NAICS 7132 (Gambling Industries) for years 2014--2023.
+
+\subsection{Policy Timing Sources}
+
+Sports betting legalization dates were compiled from Legal Sports Report (\url{https://www.legalsportsreport.com/sportsbetting-bill-tracker/}), verified against state gaming commission announcements. We use the date of first legal sports bet, not the date legislation was signed.
+
+\subsection{Treatment Cohorts}
+
+\begin{table}[H]
+\centering
+\caption{Treatment Cohorts by Year of First Legal Bet (Verified Launch Dates)}
+\label{tab:cohorts}
+\begin{tabular}{ll}
+\toprule
+Year & States \\
+\midrule
+2018 & DE, MS, NJ, PA, RI, WV (6 states) \\
+2019 & AR, IA, IN, NH, NY, OR (6 states) \\
+2020 & CO, IL, MI, MT, TN (5 states) \\
+2021 & AZ, CT, LA, MD, SD, VA, WY (7 states) \\
+2022 & KS (1 state) \\
+2023 & KY, MA, ME, NE, OH (5 states) \\
+\midrule
+Never-treated & AL, AK, CA, GA, HI, ID, MN, MO, NM, ND, OK, SC, TX, UT, VT, WI (16 states) \\
+\midrule
+Dropped & NV (always-treated), WA (tribal-only), NC (tribal-only), FL (treatment reversal) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent Our estimation sample includes 30 treated states and 16 never-treated states (46 total). Four states are \textbf{dropped}: Nevada (always-treated pre-sample), Washington (statewide launch 2024), North Carolina (statewide launch 2024), and Florida (treatment reversal in December 2021 violates absorbing treatment assumption). Some state-years are additionally dropped due to suppressed or zero NAICS 7132 employment. Key timing notes: Tennessee and Montana launched in 2020 (not 2019, as legislation predated launch); Ohio launched January 2023; Virginia launched January 2021 (mobile).
+
+\section{Replication}
+
+Data and code for replicating all results are available in the APEP repository at \url{https://github.com/anthropics/auto-policy-evals}.
+
+\end{document}

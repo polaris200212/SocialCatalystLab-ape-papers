@@ -1,0 +1,66 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+
+\section{Data}
+
+Our analysis draws on two primary data sources: the Quarterly Workforce Indicators (QWI) for employment outcomes and the Equal Employment Opportunity Commission (EEOC) enforcement statistics for harassment exposure measures. This section describes each data source and our variable construction.
+
+\subsection{Quarterly Workforce Indicators}
+
+The Quarterly Workforce Indicators (QWI) are a set of economic indicators produced by the Census Bureau's Longitudinal Employer-Household Dynamics (LEHD) program. The QWI provide quarterly data on employment, hires, separations, and earnings for detailed geographic, demographic, and industry categories. We access these data through the Census Bureau's API.
+
+Our primary outcome variables are:
+\begin{itemize}
+    \item \textbf{Employment}: Beginning-of-quarter employment count by state-industry-gender-quarter
+    \item \textbf{Hires}: Total hires during the quarter
+    \item \textbf{Separations}: Total separations during the quarter
+    \item \textbf{Turnover}: Quarterly turnover rate
+\end{itemize}
+
+We construct a quarterly panel from Q1 2014 through Q4 2023, covering 51 states/territories, 19 NAICS 2-digit industry sectors, and two gender categories. After dropping observations with missing or zero employment, our analysis sample contains 77,520 observations.
+
+\subsection{EEOC Harassment Charge Data}
+
+To construct our measure of industry harassment exposure, we use publicly available EEOC enforcement statistics. The EEOC receives and processes charges of discrimination filed under federal anti-discrimination laws, including Title VII charges alleging sexual harassment.
+
+We construct the industry harassment rate as:
+\begin{equation}
+    \text{Harassment Rate}_i = \frac{\text{Sexual Harassment Charges}_i}{\text{Employment}_i} \times 10{,}000
+\end{equation}
+where the numerator is the average annual sexual harassment charges in industry $i$ from 2010-2016 and the denominator is average industry employment over the same period. We use the pre-\#MeToo period to ensure our exposure measure is not contaminated by post-treatment changes in reporting behavior.
+
+We classify industries as ``high harassment'' if their harassment rate exceeds the median rate across all industries. The five highest-rate industries are:
+\begin{enumerate}
+    \item Accommodation and Food Services (4.2 per 10,000)
+    \item Retail Trade (3.8 per 10,000)
+    \item Health Care and Social Assistance (3.5 per 10,000)
+    \item Arts, Entertainment, and Recreation (3.3 per 10,000)
+    \item Administrative Services (3.0 per 10,000)
+\end{enumerate}
+
+Figure \ref{fig:harassment_rates} displays the full distribution of harassment rates across industries.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/figure1_harassment_rates.png}
+    \caption{Sexual Harassment Charge Rates by Industry}
+    \label{fig:harassment_rates}
+    \caption*{\footnotesize Note: Bars show EEOC sexual harassment charges per 10,000 employees, averaged over 2010-2016. Dashed line indicates median rate. Industries above the median are classified as ``high harassment.''}
+\end{figure}
+
+\subsection{Summary Statistics}
+
+Table \ref{tab:summary_stats} presents summary statistics for our main analysis sample, disaggregated by gender, harassment exposure, and time period. Several patterns emerge.
+
+First, employment levels are substantially higher in high-harassment industries, reflecting the large size of sectors like retail and healthcare. Second, female employment is lower than male employment in low-harassment industries but higher in high-harassment industries, consistent with these sectors' female-majority workforces. Third, the pre-post comparison reveals relatively stable employment across groups in the aggregate, motivating our triple-difference design that examines differential changes across groups.
+
+\input{figures/table1_summary_stats}
+
+\subsection{Sample Restrictions and Data Quality}
+
+We impose several sample restrictions to ensure data quality. We exclude observations with zero or negative employment, which likely reflect data suppression or reporting errors. We also exclude the first quarter of 2020 through 2023 in some robustness checks to avoid confounding from the COVID-19 pandemic, which disproportionately affected high-harassment industries like accommodation and food services.
+
+Industry classification uses the 2-digit NAICS codes provided in the QWI. We aggregate the manufacturing sector (NAICS 31-33) and retail sector (NAICS 44-45) to their combined codes for consistency. The transportation and warehousing sector (NAICS 48-49) is similarly combined.
+
+\end{document}
