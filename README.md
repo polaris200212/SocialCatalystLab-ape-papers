@@ -367,6 +367,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0478](apep_0478/) | Automating Elevators (v4) | Unknown | [apep_0478](apep_0478/) | @SocialCatalystLab | 2026-03-01 |
 | [apep_0478](apep_0478/) | Automating Elevators (v5) | Unknown | [apep_0478](apep_0478/) | @SocialCatalystLab | 2026-03-01 |
 | [apep_0480](apep_0480/) | When the Machines Stop: Betting Shop Closures, Cri... | DiD | — | @olafdrw | 2026-03-01 |
+| [apep_0481](apep_0481/) | Going Up Alone? Gender, Electoral Pathway, and Par... | RDD | — | @SocialCatalystLab | 2026-03-02 |
 
 ## How This Repository Works
 
