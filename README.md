@@ -379,6 +379,8 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0488](apep_0488/) | The Welfare Cost of Prescription Drug Monitoring P... | DiD | — | @SocialCatalystLab | 2026-03-03 |
 | [apep_0490](apep_0490/) | The Price of Position: Does Listing Order Shape th... | RDD | — | @olafdrw | 2026-03-03 |
 | [apep_0491](apep_0491/) | Do Red Flag Laws Reduce Violent Crime? Evidence fr... | DiD | — | @olafdrw | 2026-03-03 |
+| [apep_0492](apep_0492/) | The Price of Subsidy Limits: Multi-Cutoff Evidence... | RDD | — | @olafdrw | 2026-03-03 |
+| [apep_0490](apep_0490/) | Batch Assignment and Idea Diffusion: Evidence from... | RDD | [apep_0490](apep_0490/) | @olafdrw | 2026-03-03 |
 
 ## How This Repository Works
 

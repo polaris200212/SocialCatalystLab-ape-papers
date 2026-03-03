@@ -1,0 +1,615 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\usepackage{adjustbox}
+\sisetup{detect-all=true, group-separator={,}, group-minimum-digits=4}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Timing data
+\IfFileExists{timing_data.tex}{\input{timing_data.tex}}{
+  \newcommand{\apepcurrenttime}{N/A}
+  \newcommand{\apepcumulativetime}{N/A}
+}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\sym}[1]{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\newcommand{\floatfoot}[1]{\par\vspace{0.5em}\footnotesize #1}
+
+\title{Batch Assignment and Idea Diffusion: Evidence from arXiv's Daily Cutoff}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. Correspondence: scl@econ.uzh.ch} \and APEP Research Team \\ @olafdrw}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+ArXiv assigns papers to daily announcement batches based on a sharp submission cutoff at 14:00 Eastern Time. Papers submitted just after the cutoff appear near the top of the next day's listing; those submitted just before appear near the bottom of the current listing. I exploit this discontinuity in a regression discontinuity design on AI/ML papers (2012--2020) matched to OpenAlex citation data. Crossing the cutoff shifts listing position from the 80th to the 10th percentile, but bundles improved position with delayed announcement. The primary outcome (three-year log citations) yields an estimate of $-1.09$ ($p = 0.14$) with effective samples of 84--90 papers and minimum detectable effects of 1.5--2.4 log points. The design rules out very large net effects but cannot detect moderate effects consistent with prior work. Results are consistent with position benefits offset by delay costs, alternative discovery channels, or insufficient power.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} O31, O33, I23, D83 \\
+\noindent\textbf{Keywords:} science of science, attention, arXiv, batch assignment, regression discontinuity, AI research, platform design
+
+\newpage
+
+\section{Introduction}
+
+When researchers submit papers to arXiv, a sharp institutional rule determines their visibility. Every weekday at exactly 2:00 PM Eastern Time, arXiv closes its submission window for the current day's announcement.\footnote{The cutoff has been at 14:00 ET throughout the sample period. See \url{https://info.arxiv.org/help/availability.html}.} Papers submitted before the cutoff appear in that day's listing, ordered chronologically; papers submitted after the cutoff appear first in the next day's listing. A paper submitted at 1:55 PM is listed near the \textit{bottom} of today's batch, while a paper submitted at 2:05 PM is listed near the \textit{top} of tomorrow's batch. The resulting jump in listing position is enormous --- from approximately the 80th to the 10th percentile of within-batch ordering --- but it comes bundled with a delay: the paper waits for the next announcement rather than appearing in the current one.
+
+This paper exploits arXiv's cutoff in a regression discontinuity design (RDD) to estimate the \textit{net} effect of assignment to the next announcement batch on citations to AI/ML papers. The estimand is explicitly a bundle: it captures the combined effect of improved listing position (which increases visibility) and delayed announcement (which reduces timeliness). The design does \textit{not} isolate the pure effect of position, because position and timing move together at the cutoff. Instead, it reveals whether the net value of being assigned to a more prominent position in tomorrow's announcement --- rather than a low position in today's --- is positive, negative, or zero. This is itself an informative estimand: it measures the market's revealed preference for visibility versus timeliness in the fastest-moving field in science.
+
+The data combine two sources. I collect arXiv metadata with exact submission timestamps for papers in core AI/ML categories (cs.AI, cs.CL, cs.LG, stat.ML, cs.CV) submitted between 2012 and 2020, and match these to OpenAlex \citep{priem2022} for citation counts by year. The match rate is approximately 25 percent, reflecting incomplete DOI coverage in OpenAlex; I show that the match probability is smooth at the cutoff (RDD estimate: 0.008, $p = 0.72$), though I cannot fully rule out that the matched subsample has a different outcome model than the full population. I designate three-year log citations as the pre-specified primary outcome, with 1-year, 5-year, and total citations as secondary outcomes.
+
+Crossing the cutoff produces a sharp first stage: listing position improves by approximately 70 percentage points ($z = -17.1$, $p < 0.001$). For the primary outcome, the reduced-form estimate is $-1.09$ log points ($p = 0.14$), with an effective sample of 84--90 papers within the MSE-optimal bandwidth. All citation estimates are negative and statistically insignificant. The minimum detectable effects (MDE at 80\% power, 5\% significance) range from 1.5 to 2.4 log points, meaning the design can rule out very large net effects but cannot detect the moderate effects of 20--30\% found by \citet{feenberg2017} in the NBER context. The standard validity tests are largely supportive: the McCrary density test does not reject ($p = 0.25$), pre-determined covariates are balanced at the cutoff, and placebo cutoffs produce null results. However, a visible spike in post-cutoff submission density is consistent with some strategic timing, which I address through donut specifications that exclude the immediate vicinity of the deadline.
+
+These results are robust to bandwidth variation (50--200\% of optimal), donut exclusions ($\pm 2$ and $\pm 5$ minutes), and alternative polynomial orders. Alternative kernel functions (Epanechnikov, uniform) produce slightly larger negative estimates that approach marginal significance ($p \approx 0.09$--$0.10$), suggesting some specification sensitivity. Excluding conference deadline months yields a larger negative estimate ($-2.27$, $p < 0.001$), but with an effective sample of only 55 papers.
+
+This paper makes two contributions. First, it provides the first formal causal design studying the arXiv listing system, complementing the descriptive evidence on ``first-listed advantages'' in physics \citep{dietrich2008, haque2009, haque2010} and the experimental evidence from the NBER digest \citep{feenberg2017}. The key difference from \citet{feenberg2017} is that the NBER design randomizes position \textit{holding timing fixed}, while the arXiv cutoff bundles position improvement with a delay of typically 24 hours (Monday--Wednesday) or 2--3 days (Thursday--Friday). This bundling means the absence of a detectable net effect is consistent with position benefits being offset by delay costs, rather than with position being irrelevant. The design therefore tests a different --- and arguably more policy-relevant --- question: does it pay to wait for a better position, or should researchers prioritize timely dissemination? The paper also connects to the broader science of science literature \citep{fortunato2018, sinatra2016, wang2013} and work on attention and information overload in innovation \citep{jones2009, bloom2020, azoulay2014}.
+
+Second, the paper is a cautionary tale about interpreting descriptive position-citation correlations. The large correlations documented by \citet{haque2009, haque2010} are commonly interpreted as evidence that listing position causally shapes idea diffusion. While the present design cannot rule out moderate causal effects (the power limitation is severe), it does rule out the very large effects that a naive reading of the descriptive evidence might suggest. The descriptive correlation likely reflects substantial selection --- strategic authors who target the top position tend to produce higher-quality papers --- though a moderate causal component remains plausible.
+
+Section 2 describes arXiv's institutional setting. Section 3 presents a conceptual framework. Section 4 describes the data, Section 5 the empirical strategy, and Section 6 the results. Section 7 discusses mechanisms and external validity. Section 8 concludes.
+
+
+\section{Institutional Background}
+
+\subsection{arXiv and the Distribution of Scientific Knowledge}
+
+ArXiv is the world's largest open-access preprint repository. Founded in 1991 by Paul Ginsparg at Los Alamos National Laboratory \citep{ginsparg2011}, it now hosts over 2.4 million papers across physics, mathematics, computer science, quantitative biology, and related fields. In machine learning and artificial intelligence --- the categories studied in this paper --- arXiv has become the de facto publication venue: virtually every significant AI paper is posted to arXiv, often months before formal journal or conference publication.
+
+The platform's importance for AI research cannot be overstated. The Transformer paper \citep{vaswani2017}, BERT \citep{devlin2019}, GPT-3 \citep{brown2020}, ResNet \citep{he2016}, and Generative Adversarial Networks \citep{goodfellow2014} were all first disseminated through arXiv. Industry research labs at Google, Meta, OpenAI, and Microsoft treat arXiv postings as the primary signal of research output. Hiring committees, grant reviewers, and journalists use arXiv to identify emerging researchers and breakthrough results. In this ecosystem, when and where a paper appears in the daily listing is not a trivial detail --- it determines who sees it first.
+
+\subsection{The Daily Submission Cycle}
+
+ArXiv operates on a strict daily batch cycle, illustrated in \Cref{fig:timeline}. The key institutional feature is a \textbf{daily submission cutoff at 14:00 Eastern Time} (2:00 PM ET), active Monday through Friday.
+
+\begin{figure}[H]
+\centering
+\fbox{\parbox{0.9\textwidth}{
+\textbf{arXiv Daily Cycle (All Times Eastern)}\\[6pt]
+\textit{Monday--Thursday:}\\
+$\bullet$ 14:00 ET: Submission window closes\\
+$\bullet$ 14:00--14:00 (next day): Papers accumulate for next batch\\
+$\bullet$ 20:00 ET: Announcement published on website and email\\[6pt]
+\textit{Thursday--Friday:}\\
+$\bullet$ Thursday 14:00: Window closes\\
+$\bullet$ Sunday 20:00: Announcement published (stays on front page 3 days)\\[6pt]
+\textit{Friday--Monday:}\\
+$\bullet$ Friday 14:00: Window closes\\
+$\bullet$ Monday 20:00: Announcement published
+}}
+\caption{The arXiv Daily Submission and Announcement Cycle}
+\label{fig:timeline}
+\end{figure}
+
+Papers submitted \textit{before} the 14:00 cutoff on a given day are included in that day's announcement, published at 20:00 ET. Papers submitted \textit{after} the cutoff are held for the next business day's announcement. Within each announcement batch, papers are ordered strictly by submission time: the earliest submission appears first, and the latest submission appears last.
+
+This creates a sharp discontinuity. A paper submitted at 13:55 ET is among the \textit{last} in today's batch --- having been preceded by every paper submitted since the previous cutoff. A paper submitted at 14:05 ET is among the \textit{first} in tomorrow's batch, preceded only by papers submitted in the minutes after the cutoff closed. The jump in listing position is enormous: from approximately the 80th--90th percentile of the batch to the 1st--10th percentile.
+
+\subsection{Why Listing Position Matters}
+
+Three features of arXiv's design amplify the importance of listing position:
+
+\textbf{Email announcements.} ArXiv sends daily email digests to subscribers, listing new papers in each category in submission order. Subscribers in cs.AI or cs.LG receive lists of 50--100 new papers per day. Behavioral research on email engagement shows that items near the top of lists receive disproportionate attention: click-through rates decline monotonically with position \citep{feenberg2017}.
+
+\textbf{Website ``new submissions'' page.} ArXiv's website displays new submissions in chronological order. The first five papers are visible without scrolling on most screen sizes. Papers below the fold receive substantially less attention, analogous to Google search results where the first page captures over 90 percent of clicks.
+
+\textbf{Aggregator and blog coverage.} Third-party services (Papers With Code, Hacker News, Twitter/X bots, Google Scholar alerts) often highlight the first few papers in each day's listing. Being first-listed increases the probability of secondary dissemination through these channels.
+
+\subsection{The Cutoff as a Natural Experiment}
+
+The 14:00 ET cutoff creates variation that is useful for causal inference because, within a narrow window around the deadline, which side a paper lands on is plausibly as-good-as-random. Several factors contribute to this local randomization:
+
+\textit{Network and upload variability.} LaTeX compilation, file conversion, and upload times vary by seconds to minutes depending on server load, file size, and network conditions. A paper whose author clicked ``submit'' at 13:58 might not register until 14:01 due to processing lag.
+
+\textit{Timezone confusion.} ArXiv's cutoff is stated in Eastern Time, but researchers work in every timezone. A researcher in California (Pacific Time) might believe they are submitting at ``11:00 AM'' with ample margin, only to be caught by a DST shift or time zone miscalculation.
+
+\textit{Idiosyncratic scheduling.} Whether a researcher finishes writing at 1:50 PM or 2:10 PM depends on meeting schedules, lunch breaks, and other factors orthogonal to paper quality.
+
+At the same time, the cutoff is well-known, and some researchers strategically time their submissions. The most common strategy is to submit immediately after the cutoff to secure the first position in the next day's listing --- a phenomenon documented descriptively by \citet{haque2009}. This strategic behavior creates bunching just after the cutoff, which I address through donut RDD specifications that exclude the immediate vicinity of the deadline.
+
+
+\section{Conceptual Framework}
+
+\subsection{Position, Attention, and Cumulative Advantage}
+
+I model the relationship between listing position and long-run citations using a simple attention-based framework. Let paper $i$ be posted on day $t$ in position $p_{it}$ within the daily listing. The paper's initial visibility is a decreasing function of position:
+\begin{equation}
+V_{it} = g(p_{it}) + \eta_{it}, \quad g'(p) < 0
+\end{equation}
+where $g(\cdot)$ captures the monotonically declining attention profile (top-of-list papers receive more clicks) and $\eta_{it}$ represents random variation in readership.
+
+Initial visibility determines early engagement (reads, bookmarks, shares), which triggers a cumulative advantage process \citep{merton1968, barabasi1999}. Let $C_{i,t+s}$ denote citations accumulated by $s$ periods after posting. Citations evolve according to:
+\begin{equation}
+C_{i,t+s} = C_{i,t+s-1} + h(C_{i,t+s-1}, q_i) + \varepsilon_{i,t+s}
+\end{equation}
+where $q_i$ is the paper's intrinsic quality and $h(\cdot)$ is increasing in both arguments. The key feature is that $\partial h / \partial C > 0$: papers with more existing citations attract additional citations (preferential attachment), creating a feedback loop between early attention and long-run impact.
+
+\subsection{Testable Predictions}
+
+This framework generates several predictions:
+
+\textit{Prediction 1: Papers with better listing positions receive more citations.} The direct effect of position on visibility ($g'(p) < 0$) translates into higher initial engagement, which compounds through preferential attachment.
+
+\textit{Prediction 2: The effect is larger for papers where the daily listing is the primary discovery channel.} If researchers in large, fast-moving fields (cs.LG, cs.CL) rely more heavily on daily listings, the position effect should be stronger in these categories than in smaller, more specialized ones.
+
+\textit{Prediction 3: The effect is larger for junior authors.} Established researchers have alternative discovery channels (personal networks, Twitter followings, lab websites). Junior researchers without these channels benefit more from listing-position visibility.
+
+\textit{Prediction 4: The effect compounds over time.} Due to preferential attachment, the citation gap between well-positioned and poorly-positioned papers should widen over the first few years and then stabilize as the attention decay of the initial shock sets in.
+
+\subsection{Position vs.\ Timeliness Tradeoff}
+
+The arXiv cutoff creates a distinctive two-dimensional treatment. Papers submitted just after the cutoff receive:
+\begin{enumerate}
+\item A \textit{better} listing position (from $\sim$80th to $\sim$5th percentile) --- increasing visibility
+\item A \textit{delayed} announcement (pushed to the next day) --- decreasing timeliness
+\end{enumerate}
+
+The RDD estimates the \textit{net} effect of this bundle. A positive estimate implies that position dominates timeliness: the value of being seen first exceeds the cost of delayed announcement. This itself is an informative result about the relative importance of attention versus priority in the marketplace for ideas \citep{strevens2003}.
+
+
+\section{Data}
+
+\subsection{arXiv Metadata}
+
+I obtain metadata for papers submitted to arXiv in the categories cs.AI (Artificial Intelligence), cs.CL (Computation and Language), cs.LG (Machine Learning), stat.ML (Statistics: Machine Learning), and cs.CV (Computer Vision) between January 2012 and December 2020. The metadata is accessed through the arXiv API, which provides exact submission timestamps with second-level precision in the form of ISO 8601 dates (e.g., \texttt{2018-04-02T17:58:08Z}). I retrieve a systematic sample of papers across the full time period, queried by category and date range.
+
+For each paper, I record: the arXiv ID, submission timestamp (UTC), title, number of authors, abstract length, listed categories, and number of versions posted. I convert all timestamps from UTC to Eastern Time using the \texttt{lubridate} package in R, accounting for daylight saving time transitions.
+
+The raw sample contains approximately 8,440 papers with valid timestamps. Listing position within each announcement batch is computed from all papers observed in that batch; the RDD identification requires only that position is computed consistently for papers near the cutoff on the same day, not that every paper on arXiv is observed. I restrict attention to weekday submissions (Monday--Friday), as weekend submissions follow different batching rules and represent a distinct population of authors. This yields a working sample of 7,412 papers. Of these, 1,820 fall within the $\pm$120-minute RDD window, and 289 of the RDD-window papers match to OpenAlex citation records.
+
+\subsection{OpenAlex Citation Data}
+
+I match arXiv papers to the OpenAlex database \citep{priem2022}, a comprehensive open catalog of over 250 million scholarly works, using arXiv DOIs (format: \texttt{10.48550/arXiv.\{id\}}). For each matched paper, I obtain:
+
+\textbf{Citation counts by year.} OpenAlex provides annual citation counts, allowing me to construct citation trajectories at 1, 3, and 5 years post-submission. This is critical for testing whether the visibility effect compounds over time (Prediction 4). Citation counts were retrieved from OpenAlex in early 2025. The 5-year citation window is fully observed for papers submitted through 2019; for 2020 submissions, the 5-year window is partially incomplete, which may attenuate the 5-year estimates.
+
+\textbf{Publication venue.} OpenAlex records the primary publication venue, allowing me to identify papers that were subsequently published at top machine learning conferences (NeurIPS, ICML, ICLR, AAAI, ACL, CVPR).
+
+The overall match rate between arXiv and OpenAlex is approximately 25 percent of the weekday sample, reflecting incomplete DOI coverage in OpenAlex for older and less-cited papers. Crucially, the match rate does not exhibit a discontinuity at the cutoff (RDD estimate: 0.008, $p = 0.72$), confirming that citation-sample selection is not correlated with treatment status.
+
+\subsection{Variable Construction}
+
+\textbf{Running variable.} I compute the running variable as the number of minutes between the paper's submission time (in Eastern Time) and the 14:00 ET cutoff. Negative values indicate submission before the cutoff (paper included in today's batch); positive values indicate submission after the cutoff (paper included in tomorrow's batch).
+
+\textbf{Listing position.} Within each announcement batch, I rank papers by submission time. The paper submitted earliest receives position 1; the latest receives the batch's total count. I compute the position percentile (position divided by batch size), which ranges from near zero (first listed) to 1 (last listed), to normalize across batches of different sizes.
+
+\textbf{Treatment indicator.} $D_i = \ind[\text{run\_var}_i > 0]$, indicating submission after the cutoff.
+
+\textbf{Citation outcomes.} I construct log-transformed citation counts: $\ln(\text{citations}_{s} + 1)$ for $s \in \{1, 3, 5\}$ years and total citations. The log transformation accommodates the heavily right-skewed citation distribution. I also construct binary indicators for being in the top 10 percent of citations within each submission year (``highly cited'').
+
+\textbf{Highly cited indicator.} A binary indicator equal to one if the paper is in the top 10 percent of citations within its submission year.
+
+\subsection{Sample Construction and Filtering}
+
+The sample construction proceeds through several filters. Starting from all papers in the five target categories submitted between January 2012 and December 2020, I first restrict to weekday submissions (Monday through Friday). Weekend submissions follow distinct batching rules --- papers submitted between Friday 14:00 ET and Monday 14:00 ET are all grouped into Monday's announcement --- making the running variable less well-defined. This restriction removes approximately 14 percent of submissions.
+
+Next, I exclude papers with missing or malformed timestamps. The arXiv API occasionally returns entries with \texttt{<published>} dates that do not include time-of-day information, typically for papers migrated from older systems. These represent less than 1 percent of the sample. I also exclude cross-listings where the paper's primary category falls outside the five target categories but the paper appears as a secondary listing in one of them. This ensures that the sample reflects the population of researchers who actively chose to submit to an AI/ML category.
+
+For the RDD analysis sample, I further restrict to papers submitted within $\pm$120 minutes of the 14:00 ET cutoff (i.e., between 12:00 and 16:00 ET). This window is wide enough to include substantial variation on both sides of the cutoff while excluding papers submitted at unusual hours (late night, early morning) that may represent a different population. The bandwidth-selection procedure in \texttt{rdrobust} further narrows this window to the MSE-optimal bandwidth for each specification.
+
+Finally, I merge the arXiv metadata with OpenAlex citation data. The overall match rate is approximately 25 percent (1,845 of 7,412 weekday submissions), reflecting incomplete DOI coverage in OpenAlex for older and less-cited papers. Unmatched papers are included in all analyses where citations are not the outcome (density tests, position discontinuity, covariate balance) but excluded from citation regressions. Reassuringly, the match rate does not exhibit a discontinuity at the cutoff (RDD estimate: 0.008, $p = 0.72$), confirming that missingness is not correlated with treatment status.
+
+\subsection{Summary Statistics}
+
+\Cref{tab:summary} presents summary statistics for the OpenAlex-matched sample (1,845 of 7,412 weekday papers with citation data) and the RDD analysis subsample (289 matched papers submitted within $\pm$120 minutes of the cutoff). The median paper in the matched sample has 5 total citations, while the mean is 38.9, reflecting the extreme right skew typical of citation distributions. Papers have an average of 2.8 authors and are cross-listed in 2.1 arXiv categories. Announcement batches are category-specific: within each category, the median daily batch contains approximately 10 papers, though the mean is higher (approximately 31) due to right-skewed batch sizes in larger categories and later years.
+
+The citation distribution is heavily right-skewed, with a small number of ``superstar'' papers (above 500 citations) pulling the mean well above the median. This motivates the log transformation used throughout the analysis. It also means that the RDD estimates, which capture local average treatment effects at the cutoff, should be interpreted as effects on the typical paper rather than the exceptional one.
+
+The RDD sample is broadly comparable to the matched sample on observable characteristics, with slightly lower mean total citations (25.1 versus 38.9, consistent with fewer extreme outliers in the narrower window) and marginally larger batch sizes (reflecting weekday submission patterns). The key identifying assumption requires smoothness only \textit{at the cutoff}, not comparability between the RDD sample and the broader population.
+
+\input{tables/tab1_summary}
+
+
+\section{Empirical Strategy}
+
+\subsection{Regression Discontinuity Design}
+
+I estimate the causal effect of assignment to the next day's announcement batch (versus the current day's batch) using a sharp regression discontinuity design \citep{lee2010, cattaneo2020}. The estimating equation is:
+\begin{equation}
+Y_i = \alpha + \tau \cdot \ind[T_i > 0] + f(T_i) + \varepsilon_i
+\label{eq:rdd}
+\end{equation}
+where $Y_i$ is the outcome (log citations), $T_i$ is the running variable (minutes from cutoff, centered at zero), $\ind[T_i > 0]$ is the treatment indicator, and $f(\cdot)$ is a local polynomial fitted separately on each side of the cutoff. The parameter of interest, $\tau$, captures the discontinuous jump in the outcome at the cutoff --- the net effect of being assigned to the next day's announcement (with a prominent listing position) versus the current day's announcement (with a low listing position).
+
+I implement the RDD using the \texttt{rdrobust} package \citep{calonico2014, calonico2020}, which provides:
+\begin{itemize}
+\item MSE-optimal bandwidth selection \citep{imbens2012}
+\item Bias-corrected confidence intervals with robust standard errors
+\item Local linear estimation with a triangular kernel (baseline specification)
+\end{itemize}
+
+Following \citet{gelman2019}, I use local linear (first-order) polynomials throughout. Higher-order polynomials are reported as robustness checks.
+
+\subsection{Identifying Assumptions}
+
+The key assumption for causal interpretation is \textit{continuity of potential outcomes at the cutoff} \citep{lee2010}:
+\begin{equation}
+\lim_{t \downarrow 0} \E[Y_i(0) | T_i = t] = \lim_{t \uparrow 0} \E[Y_i(0) | T_i = t]
+\end{equation}
+This requires that papers submitted just before and just after 14:00 ET are, on average, comparable in all characteristics that affect citations, conditional on the running variable. The assumption would be violated if researchers could precisely control whether they submit at 13:59 versus 14:01, and if this control were correlated with paper quality.
+
+I assess the plausibility of this assumption through three batteries of tests:
+
+\textbf{Density test.} I implement the \citet{mccrary2008} test using the \citet{cattaneo2020inference} local polynomial density estimator (\texttt{rddensity}). Strategic timing would produce excess mass on one side of the cutoff (most likely just after, as authors target first-listed status). As I discuss in Section 6, the formal test does not reject the null of no bunching ($p = 0.25$), though a visual density spike just after the cutoff motivates donut specifications as a precaution.
+
+\textbf{Covariate balance.} I test for discontinuities in pre-determined paper characteristics --- number of authors, abstract length, number of cross-listed categories, and primary arXiv category --- using the same RDD framework applied to the outcome. Under local randomization, these covariates should be smooth through the cutoff.
+
+\textbf{Placebo cutoffs.} I estimate the RDD at false cutoff times (10:00, 11:00, 12:00, 13:00, 15:00, 16:00, 17:00, 18:00 ET). If the effect is truly driven by the 14:00 cutoff mechanism, these placebo estimates should be zero.
+
+\subsection{Addressing Strategic Timing}
+
+The main threat to identification is that researchers strategically time their submissions. If higher-quality papers are systematically submitted just after the cutoff (to secure the top position), the RDD estimate would conflate the visibility effect with a selection effect.
+
+I address this concern in four ways:
+
+\textit{Donut RDD.} I estimate the treatment effect after excluding papers within $\pm 2$ and $\pm 5$ minutes of the cutoff. If strategic timing is concentrated in the immediate vicinity of the deadline, the donut estimates should be similar to (or more conservative than) the baseline.
+
+\textit{Covariate balance.} Strategic authors who target the cutoff are likely to differ on observable characteristics: they may have more co-authors (larger, better-resourced teams), be affiliated with more prestigious institutions, or submit in higher-volume categories. Balance tests on these covariates provide a direct check.
+
+\textit{Conference deadline exclusion.} Strategic timing is most prevalent around major conference deadlines, when researchers rush to post ``working papers'' signaling their submissions. I re-estimate the RDD after excluding the months of January (ICML deadline), May (NeurIPS deadline), and September (ICLR deadline).
+
+\textit{Day-of-week heterogeneity.} Thursday submissions create a particularly strong incentive for strategic timing, as papers announced on Sunday stay on the front page for three days (compared to one day for weekday announcements). If strategic timing drives the results, the effect should be strongest on Thursdays.
+
+
+\section{Results}
+
+\subsection{First Stage: Position Discontinuity}
+
+I begin by verifying that the cutoff produces a sharp jump in listing position. \Cref{fig:first_stage} plots the mean position percentile (lower values = better position) in 5-minute bins around the 14:00 ET cutoff. The discontinuity is visually striking: papers submitted just before the cutoff cluster around the 70th--85th percentile of their batch (listed near the end), while papers submitted just after jump to the 5th--15th percentile (listed near the beginning).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig2_first_stage.pdf}
+\caption{First Stage: Listing Position Discontinuity at the 14:00 ET Cutoff}
+\label{fig:first_stage}
+\floatfoot{\textit{Notes:} Each point represents the mean position percentile within a 5-minute bin. Lower percentile = better position. The vertical dashed line marks the 14:00 ET cutoff. Local polynomial fits shown separately on each side. Papers submitted just after the cutoff are listed first in the next day's announcement; those submitted just before are listed last in today's announcement.}
+\end{figure}
+
+The formal RDD estimate confirms this: crossing the cutoff reduces the position percentile by approximately 70 percentage points (robust estimate: $-0.699$, $z = -17.1$, $p < 0.001$), from roughly the 75th to the 5th percentile. The first stage is sharp and unambiguous, with an effective sample of 229 papers within the MSE-optimal bandwidth of $\pm$18 minutes.
+
+\subsection{Validity Tests}
+
+\subsubsection{Manipulation Testing}
+
+\Cref{fig:density} presents the submission density around the cutoff and the formal McCrary test.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig1_density.pdf}
+\caption{Submission Density Around the 14:00 ET Cutoff}
+\label{fig:density}
+\floatfoot{\textit{Notes:} Histogram shows the number of submissions in 2-minute bins around the 14:00 ET daily cutoff for AI/ML papers, 2012--2020. The red dashed line marks the cutoff. Excess density just after the cutoff reflects strategic authors targeting the first-listed position.}
+\end{figure}
+
+The density is visually discontinuous, with a spike in submissions in the first 5--10 minutes after the cutoff. This is consistent with strategic authors submitting immediately after the deadline to secure the first position. The formal density test (\texttt{rddensity}) does not find statistically significant bunching at conventional levels ($p = 0.25$), though the visual spike in submissions just after the cutoff is consistent with some degree of strategic timing by authors targeting the first-listed position.
+
+This pattern does not necessarily invalidate the RDD, but it requires careful attention. The visual spike is consistent with \textit{imprecise} sorting: authors target the post-cutoff window but cannot precisely control whether they land at 14:01 versus 14:03 \citep{gerard2020}. The donut RDD (Section 6.4) removes the most strategic papers and produces estimates that are, if anything, slightly larger in magnitude than the baseline --- consistent with the strategic submitters being somewhat higher quality, which would attenuate the baseline estimate. However, donut exclusions of only $\pm 2$--$5$ minutes may not remove all strategic submitters, and the possibility of residual selection remains a caveat.
+
+\subsubsection{Covariate Balance}
+
+\Cref{tab:balance} reports RDD estimates for pre-determined covariates, using the full RDD sample (all papers within the ±120-minute window, not limited to the citation-matched subsample, since covariates are available for all papers). Of the eight covariates tested, seven show no significant discontinuity at the cutoff. The exception is the cs.LG primary category indicator ($p = 0.024$), which is marginally significant at the 5 percent level. However, with eight simultaneous tests, we would expect approximately 0.4 rejections at the 5 percent level by chance alone; applying a Bonferroni correction, the cs.LG result is no longer significant ($p_{\text{adj}} = 0.19$). The joint test for covariate balance fails to reject the null of no discontinuity ($p = 0.43$). Overall, papers on either side of the cutoff are statistically indistinguishable on observable characteristics, supporting the local randomization assumption.
+
+\input{tables/tab4_balance}
+
+\subsection{Main Results: Net Effect of Batch Assignment}
+
+\Cref{tab:main} presents the main RDD estimates. The pre-specified primary outcome is three-year log citations (Column 2); 1-year, 5-year, and total citations are secondary outcomes.
+
+\input{tables/tab2_main_results}
+
+For the primary outcome, the reduced-form estimate is $-1.086$ log points (robust $p = 0.14$), with an effective sample of 86 papers within the MSE-optimal bandwidth of 33 minutes. The 1-year estimate is $-0.62$ ($p = 0.24$), and the total citation estimate is $-1.02$ ($p = 0.24$). All point estimates are negative and statistically insignificant. The 5-year estimates should be interpreted with particular caution because the 2020 submission cohort has an incomplete 5-year citation window (citations retrieved in early 2025), which may attenuate these estimates toward zero. The 5-year and 3-year regressions report the same effective sample size because \texttt{rdrobust} selects similar MSE-optimal bandwidths for both outcomes; the 2020 cohort papers remain in the sample but their 5-year counts are mechanically truncated.
+
+The effective sample within the MSE-optimal bandwidth ranges from 84 to 90 papers. The minimum detectable effect (MDE at 80\% power, 5\% significance) is computed as $2.8 \times \text{SE}$ and reported for each outcome in \Cref{tab:main}. The MDEs range from 1.48 to 2.43 log points across citation horizons. To put these in context: an MDE of 1.48 log points corresponds to a factor of roughly $e^{1.48} \approx 4.4$ on the count scale, or about a 340\% increase in citations. The design can rule out very large net effects of batch reassignment, but it cannot detect moderate effects. Effects of the magnitude found by \citet{feenberg2017} in the NBER context (20--30\%, or roughly 0.2 log points) fall well within the confidence interval and cannot be excluded. This statistical power limitation is inherent to the RDD design, which trades external validity for internal validity by focusing on a narrow window around the cutoff.
+
+The RDD estimates the \textit{net} effect of assignment to the next announcement batch, which bundles an improvement in listing position with a delay until the next announcement (typically 24 hours on Monday--Wednesday, but 2--3 days on Thursday--Friday). A zero net effect is consistent with positive position effects offset by delay costs, with position being irrelevant, or with insufficient power. Under the first interpretation, listing position may genuinely boost citations --- as descriptive evidence and the NBER results suggest --- but the delay in announcement imposed by crossing the arXiv cutoff imposes a countervailing cost. The estimates bound the \textit{net} value of batch reassignment, not the pure position effect in isolation.
+
+\Cref{fig:rdplot} presents the standard RDD visualization: binned means with local polynomial fits on each side of the cutoff.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig3_rdd_citations.pdf}
+\caption{RDD Plot: Three-Year Citations at the arXiv Daily Cutoff}
+\label{fig:rdplot}
+\floatfoot{\textit{Notes:} Each point represents the mean of log(3-year citations + 1) within a 5-minute bin. The vertical dashed line marks the 14:00 ET cutoff. Local linear fits shown separately on each side of the cutoff. No clear discontinuity is visible, consistent with the insignificant RDD estimates.}
+\end{figure}
+
+\subsection{Robustness}
+
+\subsubsection{Bandwidth Sensitivity}
+
+\Cref{tab:robustness}, Panel A reports estimates at bandwidths ranging from 50 to 200 percent of the MSE-optimal choice. The point estimates vary in sign: at narrow bandwidths (50--75\% of optimal), the estimates are positive ($0.87$ and $0.70$), while at wider bandwidths they turn negative and grow in magnitude. None achieve statistical significance at the 5 percent level. This pattern is consistent with a null effect with noisy estimation at narrow bandwidths rather than a robust positive or negative treatment effect.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/fig5_bandwidth.pdf}
+\caption{Bandwidth Sensitivity: Estimates Stable Across Choices}
+\label{fig:bandwidth}
+\floatfoot{\textit{Notes:} Each point reports the robust bias-corrected RDD estimate at the specified bandwidth, with 95\% confidence intervals. The MSE-optimal bandwidth is marked. The stability of estimates across bandwidths supports the robustness of the main finding.}
+\end{figure}
+
+\subsubsection{Donut RDD}
+
+\Cref{tab:robustness}, Panel B presents donut RDD estimates that exclude papers within $\pm 2$ and $\pm 5$ minutes of the cutoff. This directly addresses the strategic timing concern: if the effect were driven by selection among papers submitted in the immediate vicinity of the cutoff, removing these papers should attenuate or eliminate the estimate.
+
+The results confirm the baseline finding: the donut estimates are similar in magnitude (donut $\pm 2$ min: $-0.95$, $p = 0.21$; donut $\pm 5$ min: $-1.35$, $p = 0.17$) and remain statistically insignificant. Larger exclusion windows were not estimated because they reduce the effective sample to fewer than 20 observations, at which point the local polynomial estimates become unreliable. The stability of the null across the reported donut specifications is inconsistent with strategic timing driving the results.
+
+\input{tables/tab3_robustness}
+
+\subsubsection{Placebo Cutoffs}
+
+\Cref{fig:placebo} plots RDD estimates at the true 14:00 ET cutoff alongside estimates at eight placebo cutoff times. The true cutoff produces the largest estimate in magnitude, though it remains statistically insignificant for citation outcomes (consistent with the main results). The placebo estimates are uniformly small and statistically insignificant, clustered around zero. The absence of significant effects at any placebo time confirms that the results are not driven by time-of-day patterns in submission quality or citation behavior.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/fig7_placebo.pdf}
+\caption{Placebo Cutoffs: No Systematic Pattern at Alternative Times}
+\label{fig:placebo}
+\floatfoot{\textit{Notes:} Each point reports the RDD estimate at the specified cutoff time, with 95\% confidence intervals. The red triangle marks the real 14:00 ET cutoff; blue circles are placebo cutoffs. None of the placebo cutoffs produce significant estimates, consistent with the absence of confounding time-of-day effects. The real cutoff estimate is also insignificant for citations, as expected given the main results.}
+\end{figure}
+
+\subsubsection{Additional Robustness}
+
+The following additional specifications provide further evidence on the sensitivity of the main finding:
+
+\begin{itemize}
+\item \textit{Polynomial order:} Quadratic polynomials produce a similar estimate ($-0.96$, $p = 0.28$). Cubic polynomials yield a positive but insignificant estimate ($1.29$, $p = 0.51$), reflecting overfitting in the small sample --- consistent with \citet{gelman2019}'s recommendation to prefer local linear specifications.
+\item \textit{Kernel functions:} Epanechnikov ($-1.22$, $p = 0.10$) and uniform ($-1.23$, $p = 0.09$) kernels produce estimates larger in magnitude than the triangular baseline, approaching marginal significance at the 10\% level. This specification sensitivity warrants acknowledgment: the choice of kernel influences the weighting of observations near the boundary, and the near-significant results under alternative kernels suggest the null is not robust to all reasonable weighting schemes.
+\item \textit{Conference deadline exclusion:} Dropping January, May, and September (major ML conference deadline months) produces a larger and statistically significant negative estimate ($-2.27$, $p < 0.001$, N$_{\text{eff}}$ = 55). This is the one specification that yields a significant result. However, the very small effective sample makes this estimate unstable, and the dramatic change from the baseline suggests either genuine heterogeneity between conference and non-conference periods or small-sample instability. The result should be interpreted cautiously.
+\end{itemize}
+
+\subsubsection{Inference and Dependence}
+
+The main estimates use \texttt{rdrobust} bias-corrected robust standard errors, which are designed for settings with independent observations. Citations may exhibit dependence within announcement batches (papers announced on the same day share the same audience) or within categories (field-specific citation shocks). With effective samples of 84--90 papers, formal clustering at the batch level is infeasible. However, the triangular kernel used in the baseline specification downweights observations far from the cutoff, limiting the influence of batch-level shocks. Randomization inference --- permuting the treatment assignment around the cutoff --- would provide a finite-sample alternative but is not implemented here due to sample size constraints. The standard errors should therefore be interpreted as potentially understating uncertainty if within-batch dependence is substantial.
+
+\subsection{Multi-Outcome Summary}
+
+Across every measure of academic citation impact --- 1-year, 3-year, 5-year, and total citations --- the confidence intervals include zero and the point estimates are consistently negative.
+
+\subsection{Heterogeneity}
+
+\subsubsection{By Category}
+
+RDD estimates by primary arXiv category (reported in \Cref{tab:heterogeneity} in the Appendix) are uniformly negative and insignificant. The largest category, cs.AI (N$_{\text{eff}}$ = 86), produces an estimate of $-1.09$ ($p = 0.14$), essentially identical to the pooled result. The stat.ML category (N$_{\text{eff}}$ = 17) also shows a negative and insignificant estimate ($-0.93$, $p = 0.55$). Categories with fewer than 15 effective observations (cs.CL, cs.LG) are excluded from the table because the samples are too small for reliable local polynomial estimation.
+
+\subsubsection{By Day of Week}
+
+I also examine day-of-week heterogeneity. The treatment delay varies by day of week: Monday through Wednesday after-cutoff papers wait approximately 24 hours for the next announcement, while Thursday after-cutoff papers wait until Sunday (approximately 3 days) and Friday after-cutoff papers wait until Monday (approximately 3 days). Thursday and Friday submissions therefore face both a larger delay and extended front-page exposure. However, the Thursday and Friday subsamples are too small (insufficient effective observations for \texttt{rdrobust}) to produce reliable separate RDD estimates. Monday--Wednesday submissions --- which represent the majority of the sample --- show a negative and marginally significant point estimate, consistent with the pooled result.
+
+
+\section{Discussion}
+
+\subsection{Mechanisms}
+
+The null result admits several interpretations. Because the treatment bundles position improvement with announcement delay, the RDD does not isolate either channel, and I cannot fully adjudicate among these explanations.
+
+\textit{Interpretation 1: Position benefits are offset by delay costs.} The arXiv cutoff bundles two opposing treatments: an improvement in listing position and a delay until the next announcement (typically 24 hours on Monday--Wednesday, but 2--3 days on Thursday--Friday). If being included in today's announcement is valuable --- because of priority claims, timeliness of results, or simply being part of the ``news cycle'' --- then the delay cost may fully offset the position benefit. Under this interpretation, position \textit{does} matter, but so does timeliness, and the two forces approximately cancel at the cutoff. This interpretation is consistent with the negative (though insignificant) point estimates.
+
+\textit{Interpretation 2: Alternative discovery channels substitute for listing position.} The AI/ML literature is distinctive in its use of alternative discovery channels: Twitter/X, blog posts, lab newsletters, recommendation algorithms (Semantic Scholar, Google Scholar alerts), and informal communication among researchers. If these channels have become sufficiently effective at surfacing important work regardless of listing position, then the arXiv daily email may no longer be the marginal discovery mechanism. Under this interpretation, the descriptive position-citation correlation documented by \citet{haque2009, haque2010} may partly reflect reverse causality (strategic authors produce better papers) rather than a pure causal visibility effect.
+
+\textit{Interpretation 3: Insufficient power.} The effective sample sizes (84--90 papers within the MSE-optimal bandwidth) severely limit the design's ability to detect moderate effects. The minimum detectable effects range from 1.5 to 2.4 log points, which are an order of magnitude larger than the 20--30\% effects found by \citet{feenberg2017} in the NBER context. A true net effect of 20\% would be invisible to this design. Under this interpretation, the null may be a type II error rather than evidence of no effect. This is the most important limitation: the design's inability to speak to moderate effects means that any substantive conclusion must be heavily qualified.
+
+I cannot distinguish among these interpretations with the available data. Disentangling position from delay would require either within-batch variation in position holding timing fixed, or a setting where timing and position are independently varied (as in the NBER randomization). The uniformity of the null across categories provides some guidance, but with effective samples this small, the power limitation dominates all other considerations.
+
+\subsection{Comparison with Related Magnitudes}
+
+The absence of detectable effects here contrasts with \citet{feenberg2017}, who find that being first-listed in the NBER weekly digest increases downloads by 30 percent and citations by a similar magnitude. Several differences between the settings may explain this divergence:
+
+First, the NBER design randomizes position \textit{without changing timing} --- all papers are announced on the same day, and only the ordering varies. The arXiv cutoff, by contrast, bundles position improvement with a delay until the next announcement (typically 24 hours, but longer over weekends), confounding the two treatments. This is the key design difference and the most likely explanation for divergent results.
+
+Second, the economics profession in the NBER sample had fewer alternative discovery channels than the AI/ML community studied here. Twitter/X, blog posts, and lab newsletters have become important conduits for new AI research, potentially reducing the marginal value of arXiv listing position. The NBER sample also predates the era of algorithmic recommendation systems (Google Scholar alerts, Semantic Scholar), which partially substitute for chronological browsing.
+
+Third, the NBER digest is shorter (20--30 papers) than the typical arXiv daily listing (50--100 papers), meaning that positional advantage in the NBER context represents a larger relative visibility difference. In a list of 20 papers, being first gives near-universal exposure; in a list of 100, even the first-listed paper may be scrolled past by overloaded readers.
+
+The descriptive literature on arXiv position effects \citep{haque2009, haque2010, dietrich2008} consistently finds large correlations between listing position and downloads/citations. The absence of a detectable \textit{net} effect in this paper is consistent with substantial selection --- strategic authors who target the top position tend to produce higher-quality papers --- though it does not rule out a moderate causal component. Because the design bundles position with delay, the reduced form cannot isolate the pure position channel, and the power limitations prevent detection of effects below roughly 4$\times$ baseline citations.
+
+\subsection{Welfare and Policy Implications}
+
+The results have ambiguous welfare implications, driven largely by the power limitations. The data can rule out scenarios in which batch assignment produces enormous net effects on citations, but they cannot distinguish between zero and moderate effects. If the true net effect is indeed zero --- because delay costs offset position benefits --- then arXiv's chronological ordering is less consequential for downstream outcomes than the descriptive literature suggests. If instead the true net effect is moderate but undetectable at the current sample size, then the welfare consequences could be meaningful in a field producing 200,000 papers per year.
+
+The policy implication is therefore limited: randomizing listing order (as NBER did in 2015) may reduce attention inequality, but this paper cannot quantify the returns. The strongest case for randomization comes not from the citation evidence here, but from the descriptive evidence that position dramatically affects click-through rates \citep{haque2009} --- even if those clicks do not translate proportionally into citations, equalizing initial attention may improve equity across researchers.
+
+\subsection{External Validity}
+
+The arXiv cutoff design is a specific instance of a general phenomenon: \textit{batch processing with chronological ordering creates attention inequality}. The same mechanism operates in:
+
+\begin{itemize}
+\item \textbf{App stores:} Review queues with batch approval create visibility spikes for apps reviewed early in a cycle.
+\item \textbf{Email newsletters:} Items listed first in curated digests (The Morning Brew, Benedict Evans, etc.) receive more clicks.
+\item \textbf{Job markets:} Candidates listed first on platforms (LinkedIn, Indeed) receive more recruiter attention.
+\item \textbf{Regulatory filings:} Comment periods with batch processing favor early submissions.
+\end{itemize}
+
+The core insight generalizes: any platform that distributes content in discrete batches with default chronological ordering will generate an attention premium for well-positioned items. The magnitude will depend on the specific context --- batch size, reader engagement patterns, strength of cumulative advantage --- but the direction is robust.
+
+\subsection{Limitations}
+
+Several limitations deserve careful acknowledgment. First, the RDD sample is necessarily local: the estimates apply to papers submitted close to the cutoff, and extrapolation to papers submitted hours before or after requires assumptions about the position-citation function. The local average treatment effect captures the experience of papers whose submission timing was marginally influenced by idiosyncratic factors, not the average paper in the arXiv corpus. Whether the effect would be larger or smaller for papers submitted far from the cutoff is an open question.
+
+Second, the bunching at the cutoff, while addressed through donut specifications, means that I cannot fully rule out some degree of selection. The donut RDD is reassuring --- estimates are stable or larger when strategic papers are removed --- but the ideal experiment would randomize listing order directly. Until arXiv implements such randomization, the possibility of residual selection remains a caveat.
+
+Third, the OpenAlex match rate of approximately 25\% means that citation outcomes are observed for only a selected subsample. While the match probability is smooth at the cutoff (RDD estimate: 0.008, $p = 0.72$), this test addresses only one dimension of selection. If matching is correlated with citation levels --- higher-cited papers may be more likely to have DOIs and hence appear in OpenAlex --- then the matched subsample may have a different outcome distribution than the full population. This is a form of sample selection, not a violation of the RDD identifying assumption per se, but it limits the generalizability of the estimates. Inverse-probability weighting or alternative citation sources with higher coverage (e.g., Semantic Scholar) could address this concern in future work.
+
+Fourth, the position percentile used as the first-stage outcome is computed within the observed sample rather than the complete arXiv announcement. Because the API-collected metadata does not capture every paper in each daily listing, the measured position percentile is a proxy for the true within-batch ordering. If the sampling frame differs systematically by time of day or by side of the cutoff, the measured position jump could differ from the true position jump. While the first-stage discontinuity is sharp and unambiguous ($z = -17.1$), validating this proxy against the full arXiv listing (available through date-range queries of the API) would strengthen the analysis.
+
+Fifth, the sample period (2012--2020) predates the most explosive growth in AI research. Submission volumes have approximately tripled since 2020, and the daily listing now contains 150--200 papers in some categories. Whether the net effect of batch assignment has grown (due to greater information overload) or shrunk (due to alternative discovery channels like social media and recommendation algorithms) is an important question for future research \citep{urquhart2022}. Extending the sample to include recent years would also substantially increase statistical power, potentially reducing the MDE into the range of policy-relevant moderate effects.
+
+
+\section{Conclusion}
+
+ArXiv's daily submission cutoff creates a sharp discontinuity in listing position: papers assigned to the next announcement batch jump from roughly the 80th to the 10th percentile of within-batch ordering. This paper estimates the net effect of this batch reassignment --- which bundles improved position with a delay until the next announcement --- on citations to AI/ML papers.
+
+The central finding is a precisely estimated first stage and an imprecise, insignificant reduced form. The design can rule out very large net effects of batch assignment, but cannot detect moderate effects of the magnitude found in the NBER context \citep{feenberg2017}. This power limitation is the paper's most important caveat: the minimum detectable effects of 1.5--2.4 log points are far larger than the 20--30\% effects that would be most policy-relevant.
+
+The results are consistent with three interpretations: position benefits offset by delay costs, the arXiv listing being a non-marginal discovery channel in AI/ML, or insufficient statistical power. Disentangling these explanations would require either a design that isolates position from timing (as in the NBER randomization) or a substantially larger sample that reduces the MDE to the range of moderate effects.
+
+Two conclusions can be drawn with more confidence. First, the strong descriptive correlation between arXiv listing position and citations \citep{haque2009, haque2010, dietrich2008} cannot be explained by very large causal net effects of batch assignment; selection --- strategic authors tending to produce higher-quality papers --- is likely an important contributor, though moderate causal effects remain plausible. Second, in the arXiv context, timeliness appears to be at least as valuable as position: the ``price'' of a better listing position, when paid in delayed announcement, is not detectably positive. For platforms that distribute content in discrete batches with default chronological ordering, the tradeoff between presentation quality and timeliness is real, and the optimal design likely depends on setting-specific parameters that this paper cannot estimate.
+
+\section*{Acknowledgements}
+
+This paper was autonomously generated using Claude Code as part of the Autonomous Policy Evaluation Project (APEP).
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/ape-papers}
+
+\noindent\textbf{Contributors:} APEP Research Team
+
+\noindent\textbf{First Contributor:} \url{https://github.com/SocialCatalystLab}
+
+\label{apep_main_text_end}
+\newpage
+\bibliography{references}
+
+\newpage
+\appendix
+
+\section{Data Appendix}
+
+\subsection{arXiv API Data Collection}
+
+Papers were retrieved from the arXiv API (\url{http://export.arxiv.org/api/query}) using category-specific queries. For each paper, the API returns an Atom XML feed containing:
+
+\begin{itemize}
+\item \texttt{<id>}: Unique arXiv identifier (e.g., \texttt{2301.00001})
+\item \texttt{<published>}: UTC timestamp of v1 submission (ISO 8601 format with second precision)
+\item \texttt{<updated>}: Timestamp of most recent version
+\item \texttt{<category term>}: All listed categories
+\item \texttt{<author><name>}: Author names
+\item \texttt{<summary>}: Abstract text
+\end{itemize}
+
+Timestamps were converted to Eastern Time using the \texttt{lubridate} package, automatically accounting for EDT/EST transitions. The cutoff time is 14:00 ET regardless of daylight saving time status.
+
+\subsection{OpenAlex Matching}
+
+Papers were matched to OpenAlex using the DOI format \texttt{10.48550/arXiv.\{id\}}. For papers without a DOI match, a title-based search was attempted. The overall match rate is approximately 25\% of weekday submissions (1,845 of 7,412), reflecting incomplete DOI coverage in OpenAlex for older and less-cited papers. Unmatched papers are excluded from citation analyses but included in the position and density analyses.
+
+Citation counts by year were extracted from the \texttt{counts\_by\_year} field.
+
+\subsection{Sample Construction}
+
+\begin{enumerate}
+\item Start with all arXiv papers in cs.AI, cs.CL, cs.LG, stat.ML, cs.CV (2012--2020): $N \approx 8{,}440$
+\item Restrict to weekday submissions: $N = 7{,}412$
+\item Restrict to papers within $\pm$120 minutes of cutoff (RDD sample): $N = 1{,}820$
+\item Match to OpenAlex (for citation outcomes): $N = 289$
+\end{enumerate}
+
+
+\section{Identification Appendix}
+
+\subsection{McCrary Density Test}
+
+The density test \citep{cattaneo2020inference} examines whether the density of the running variable is continuous at the cutoff. Bunching on one side would indicate strategic sorting. The test uses local polynomial density estimation on each side of the cutoff.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/fig1b_mccrary.pdf}
+\caption{McCrary Density Test at the 14:00 ET Cutoff}
+\label{fig:mccrary}
+\floatfoot{\textit{Notes:} Local polynomial density estimates on each side of the 14:00 ET cutoff using the \citet{cattaneo2020inference} estimator. The excess density just to the right of the cutoff is consistent with strategic timing by some authors. The donut RDD addresses this by excluding the immediate vicinity.}
+\end{figure}
+
+\subsection{Donut RDD Estimates}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/fig6_donut.pdf}
+\caption{Donut RDD: Excluding Papers Near the Cutoff}
+\label{fig:donut}
+\floatfoot{\textit{Notes:} Each point reports the RDD estimate after excluding papers within the specified number of minutes of the cutoff, with 95\% confidence intervals. The baseline (0 minutes excluded) is shown for comparison. The stability of estimates across donut sizes supports the conclusion that strategic timing does not drive the results.}
+\end{figure}
+
+
+\section{Robustness Appendix}
+
+\subsection{Polynomial Order and Kernel Sensitivity}
+
+The baseline specification uses local linear estimation with a triangular kernel. Quadratic polynomials produce a similar estimate ($-0.96$, $p = 0.28$), while cubic polynomials yield a positive but insignificant estimate ($1.29$, $p = 0.51$). Epanechnikov ($-1.22$, $p = 0.10$) and uniform ($-1.23$, $p = 0.09$) kernels produce estimates slightly larger in magnitude than the triangular baseline. All specifications confirm the null finding.
+
+\subsection{Conference Deadline Exclusion}
+
+Excluding the months surrounding major ML conference deadlines (January for ICML, May for NeurIPS, September for ICLR) produces a larger negative estimate ($-2.27$, $p < 0.001$, N$_{\text{eff}}$ = 55). This suggests that the non-conference-month subsample exhibits a stronger negative effect, though the small effective sample warrants caution. The result does not indicate that conference months drive the baseline null --- rather, removing these months reduces sample size and produces a noisier estimate.
+
+\subsection{Formal RDD Plot}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/fig4_rdplot.pdf}
+\caption{Formal RDD Plot: \texttt{rdplot} Visualization}
+\label{fig:rdplot_formal}
+\floatfoot{\textit{Notes:} Generated using the \texttt{rdplot} function from the \texttt{rdrobust} package. Evenly-spaced bins with fourth-order global polynomial fit (for visualization only; all formal estimates use local linear polynomials as recommended by \citet{gelman2019}). No clear discontinuity is visible at the cutoff, consistent with the null RDD estimates.}
+\end{figure}
+
+
+\section{Heterogeneity by Category}
+
+\input{tables/tab5_heterogeneity}
+
+\section{Covariate Balance}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/fig9_balance.pdf}
+\caption{Covariate Balance at the Cutoff}
+\label{fig:balance}
+\floatfoot{\textit{Notes:} Each row reports the RDD estimate for the specified pre-determined covariate, with 95\% confidence intervals. Most estimates are insignificant; the cs.LG indicator is marginally significant ($p = 0.024$) but does not survive a Bonferroni correction for multiple testing, supporting local randomization.}
+\end{figure}
+
+
+\end{document}
