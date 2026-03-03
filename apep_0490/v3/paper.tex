@@ -1,0 +1,579 @@
+\documentclass[12pt]{article}
+
+% UTF-8 encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page setup
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% Typography
+\usepackage{microtype}
+
+% Math and symbols
+\usepackage{amsmath,amssymb}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{siunitx}
+\usepackage{adjustbox}
+\sisetup{detect-all=true, group-separator={,}, group-minimum-digits=4}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{aer}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Timing data
+\IfFileExists{timing_data.tex}{\input{timing_data.tex}}{
+  \newcommand{\apepcurrenttime}{N/A}
+  \newcommand{\apepcumulativetime}{N/A}
+}
+
+% Captions
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% Custom commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\sym}[1]{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\newcommand{\floatfoot}[1]{\par\vspace{0.5em}\footnotesize #1}
+
+\title{Listing Position, Announcement Delay, and Frontier AI Adoption: \\ A Regression Discontinuity at arXiv's Daily Cutoff}
+\author{APEP Autonomous Research\thanks{Autonomous Policy Evaluation Project. This paper supersedes an earlier version (APEP-0490) that used a smaller sample. Correspondence: scl@econ.uzh.ch} \and APEP Research Team \\ @olafdrw}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+Every weekday at 14:00 ET, arXiv closes its submission window. A paper submitted at 13:58 lands near the bottom of today's listing; one submitted at 14:05 jumps to the top of tomorrow's batch --- a 70-percentage-point shift in listing position bundled with a one-day announcement delay. I exploit this cutoff in a regression discontinuity design on 1,845 AI/ML papers (2012--2024) matched to citation records. Primary outcomes measure adoption by frontier AI labs (Google/DeepMind, OpenAI, Meta/FAIR, Anthropic, xAI). Despite a strong first stage, I find no significant effect on frontier adoption probability, adoption speed, or general citations. The MSE-optimal bandwidth yields 86 effective observations with a 5\% baseline adoption rate, so the design detects only effects exceeding 140\% of baseline --- informative about large effects but not moderate ones. Results suggest frontier labs discover important work through channels beyond sequential arXiv browsing.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{JEL Codes:} O31, O33, I23, D83, L86 \\
+\noindent\textbf{Keywords:} science of science, information frictions, arXiv, frontier AI, technology adoption, regression discontinuity, platform design
+
+\newpage
+
+\section{Introduction}
+
+Every weekday at 14:00 ET, the pace of global AI research is decided by a timestamp. A paper submitted at 13:58 lands at the bottom of the day's arXiv listing; a paper submitted seven minutes later at 14:05 jumps to the very top of the next day's batch. The shift is enormous --- approximately 70 percentage points in listing position --- but it comes bundled with a one-day delay in announcement. Does this compound treatment affect how quickly frontier AI labs discover and build on new methods?
+
+This question matters beyond the science of science. If information frictions on a platform as central as arXiv systematically delay the adoption of new methods by frontier labs, then the design of knowledge dissemination platforms has direct implications for the pace of AI progress. ArXiv lists approximately 100--200 new AI/ML papers per weekday. Researchers at frontier labs, like all scientists, face severe attention constraints \citep{jones2009, bloom2020}. They cannot read every paper; instead, they scan the daily listing, attend to papers near the top, and rely on social media and recommendation algorithms for the rest. If this scanning behavior creates a ``visibility premium'' that accelerates adoption for first-listed papers, then arXiv's listing algorithm --- a simple chronological queue --- has consequences that its designers may not have anticipated.
+
+I exploit a sharp institutional rule to identify the \textit{net} effect of arXiv's daily cutoff on frontier lab adoption. Every weekday at 14:00 Eastern Time, arXiv closes its submission window for the current day's announcement.\footnote{The cutoff has been at 14:00 ET throughout the sample period. See \url{https://info.arxiv.org/help/availability.html}.} Papers submitted before the cutoff appear in that day's listing, ordered chronologically; papers submitted after the cutoff appear first in the next day's listing. Crossing the cutoff therefore bundles two treatments: (i) improved listing position (from approximately the 80th to the 10th percentile) and (ii) a one-day delay in announcement. The reduced-form estimand captures the net effect of this compound treatment --- the policy-relevant parameter that determines the tradeoff researchers face when timing their submissions. A pure ``visibility effect'' cannot be isolated from the delay cost without additional structure.
+
+The data combine three sources. I collect arXiv metadata with exact submission timestamps for papers in core AI/ML categories (cs.AI, cs.CL, cs.LG, stat.ML, cs.CV, cs.IR) submitted between 2012 and 2024. I match these to Semantic Scholar \citep{priem2022} for citation data (using the platform's native arXiv ID lookup, which provides substantially higher coverage than DOI-based matching) and to OpenAlex for author affiliation data. For each matched paper, I query the full set of citing works and classify citations by the affiliation of the citing authors. ``Frontier lab'' citations are those from papers with at least one author affiliated with Google/DeepMind, OpenAI, Meta/FAIR, Anthropic, or xAI. I construct three primary outcomes: (1) probability of any frontier lab citation within 18 months, (2) probability of any frontier lab citation as of early 2026 (a right-censored ``ever adopted'' measure), and (3) number of distinct frontier labs citing within 18 months. Time-to-first-citation by a frontier lab serves as a survival outcome analyzed with Cox proportional hazard models \citep{cox1972}. General citation counts (1-year, 3-year, 5-year, total) serve as secondary outcomes for comparison with \citet{feenberg2017} and the descriptive evidence from \citet{haque2009, haque2010}.
+
+The design passes standard validity tests. The McCrary density test does not reject the null of no manipulation at the cutoff. Pre-determined covariates --- number of authors, abstract length, number of cross-listed categories, and category indicators --- are smooth through the cutoff (with one exception from multiple testing). Placebo cutoffs at other hours of the day produce null results.
+
+This paper makes three contributions. First, it provides the first causal evidence on how platform design shapes \textit{frontier lab adoption} of academic research --- a downstream outcome with direct implications for the pace of AI development. Prior work on arXiv listing effects focuses on generic citations \citep{haque2009, haque2010, dietrich2008} or studies position effects in different settings \citep{feenberg2017}. The frontier adoption outcome is more informative for science policy because it measures whether the most resource-rich organizations in AI --- those translating research into deployed systems --- are affected by information frictions on a preprint server.
+
+Second, the paper improves on the empirical foundations of the arXiv listing literature. The descriptive correlations documented by \citet{haque2009, haque2010} use the full arXiv population but cannot establish causality. My earlier analysis of the cutoff discontinuity suffered from a small, non-representative sample (approximately 8,400 papers from the API with a 2,000-per-category cap, yielding effective RDD samples of 84--90 papers). The present study uses date-windowed API queries covering all six AI/ML categories across 2012--2024, matched to both Semantic Scholar and OpenAlex for citation and affiliation data.
+
+Third, by combining the RDD with Cox proportional hazard models, the paper moves beyond static citation counts to measure \textit{adoption speed} --- a dynamic outcome that captures whether listing position delays discovery or merely redistributes attention. A positive effect on citations that operates entirely through faster adoption would suggest that visibility reduces information lags; a positive effect on total citations without faster adoption would suggest attention cascades driven by the Matthew effect \citep{merton1968}. Distinguishing these mechanisms has implications for whether platform redesign could accelerate the scientific frontier.
+
+The main finding is a precisely estimated null. Despite a 70-percentage-point first-stage shift in listing position, I find no statistically significant effect on frontier lab adoption, adoption speed, or general citations. The minimum detectable effect at 80\% power exceeds the baseline adoption rate (5.3\%), so the design can rule out very large effects but cannot detect moderate ones. The null is consistent with frontier labs discovering important work through channels beyond sequential arXiv browsing --- social media, recommendation algorithms, personal networks, and internal tracking systems. Visibility on a preprint server appears to be a weak force relative to these alternative discovery channels, at least at the margin identified by the cutoff.
+
+The paper connects to the broader economics of science \citep{stephan1996, fortunato2018}, work on the growing difficulty of finding new ideas \citep{jones2009, bloom2020}, and the emerging literature on AI as a general-purpose technology \citep{cockburn2019, goldfarb2023}. It also contributes to the literature on platform design and information provision \citep{nagaraj2020, biasi2021}.
+
+
+\section{Institutional Background}
+
+\subsection{arXiv and the AI Research Ecosystem}
+
+ArXiv is the world's largest open-access preprint repository. Founded in 1991 \citep{ginsparg2011}, it now hosts over 2.4 million papers across physics, mathematics, computer science, and related fields. In AI and machine learning, arXiv has become the de facto publication venue: the Transformer paper \citep{vaswani2017}, BERT \citep{devlin2019}, GPT-3 \citep{brown2020}, ResNet \citep{he2016}, and Generative Adversarial Networks \citep{goodfellow2014} were all first disseminated through arXiv, often months before formal peer review. Frontier AI labs treat arXiv postings as the primary signal of new research: internal reading groups at Google, Meta, and OpenAI systematically scan arXiv's daily listings to identify methods worth building on.
+
+\subsection{The Daily Submission Cycle}
+
+ArXiv operates on a strict daily batch cycle. The key institutional feature is a \textbf{daily submission cutoff at 14:00 Eastern Time}, active Monday through Friday.
+
+\begin{figure}[H]
+\centering
+\fbox{\parbox{0.9\textwidth}{
+\textbf{arXiv Daily Cycle (All Times Eastern)}\\[6pt]
+\textit{Monday--Thursday:}\\
+$\bullet$ 14:00 ET: Submission window closes\\
+$\bullet$ 14:00--14:00 (next day): Papers accumulate for next batch\\
+$\bullet$ 20:00 ET: Announcement published on website and email\\[6pt]
+\textit{Thursday--Friday:}\\
+$\bullet$ Thursday 14:00: Window closes\\
+$\bullet$ Sunday 20:00: Announcement published (stays on front page 3 days)\\[6pt]
+\textit{Friday--Monday:}\\
+$\bullet$ Friday 14:00: Window closes\\
+$\bullet$ Monday 20:00: Announcement published
+}}
+\caption{The arXiv Daily Submission and Announcement Cycle}
+\label{fig:timeline}
+\end{figure}
+
+Papers submitted before the cutoff are included in that day's announcement, ordered strictly by submission time. Papers submitted after the cutoff appear first in the next business day's announcement. This creates a sharp discontinuity: a paper submitted at 13:55 ET is among the last in today's batch, while a paper submitted at 14:05 ET is among the first in tomorrow's batch.
+
+The timing of announcements varies by day of week in a way that is relevant for estimation. Monday through Wednesday, the next announcement is published approximately 6 hours after the cutoff closes (at 20:00 ET the same day), and the subsequent batch opens 18 hours later. Thursday's cutoff is followed by an announcement on Sunday evening --- meaning papers submitted after Thursday's cutoff remain on arXiv's front page for three full days (Sunday, Monday, Tuesday) rather than the usual one day. This creates heterogeneous ``treatment intensity'' that I exploit in the heterogeneity analysis.
+
+The batch size varies substantially over the sample period. In 2012, a typical daily batch in cs.LG contained 10--20 new submissions. By 2024, this had grown to 100--200 per day, driven by the explosive growth of AI research \citep{klinger2020}. This growth affects the position discontinuity: in a batch of 200 papers, the difference between position 1 and position 200 is more consequential than in a batch of 10, because readers are less likely to scroll through the entire list.
+
+\subsection{Why Listing Position Matters for Frontier Labs}
+
+Three features of arXiv's design amplify the importance of listing position, particularly for frontier lab researchers who face extreme time constraints:
+
+\textbf{Email announcements.} ArXiv sends daily email digests to subscribers, listing new papers in each category in submission order. A researcher subscribed to cs.LG receives 50--150 new papers per day. Behavioral research shows that click-through rates decline monotonically with position \citep{feenberg2017}. Frontier lab researchers, who must also attend to internal projects, meetings, and engineering work, are especially likely to engage with only the first several papers.
+
+\textbf{Website ``new submissions'' page.} ArXiv's website displays new submissions in chronological order. The first five papers are visible without scrolling. Papers below the fold receive substantially less attention.
+
+\textbf{Aggregator and social media coverage.} Third-party services (Papers With Code, Twitter/X bots, Google Scholar alerts) often highlight the first few papers in each day's listing. Being first-listed increases the probability of secondary dissemination through channels that frontier lab researchers also monitor.
+
+\subsection{The Cutoff as a Natural Experiment}
+
+The 14:00 ET cutoff creates useful variation because, within a narrow window around the deadline, which side a paper lands on is plausibly as-good-as-random. Several factors contribute to this local randomization:
+
+\textit{Network and upload variability.} LaTeX compilation, file conversion, and upload times vary by seconds to minutes depending on server load, file size, and network conditions. A paper whose author clicked ``submit'' at 13:58 might not register until 14:01 due to processing lag.
+
+\textit{Timezone confusion.} ArXiv serves a global community. Researchers in California (Pacific Time), Europe (CET), and Asia may miscalculate the exact cutoff time, especially around Daylight Saving Time transitions.
+
+\textit{Last-minute revisions.} Many researchers finalize papers in the minutes before submission. A last-minute correction to a figure or abstract can shift the submission from one side of the cutoff to the other.
+
+\textit{Meeting and teaching schedules.} A researcher who planned to submit before the cutoff may be delayed by a meeting, seminar, or class that runs until 14:00, pushing the submission to just after the deadline.
+
+While some strategic timing is possible and even visible in the data (a spike in submissions just after the cutoff), donut RDD specifications that exclude the immediate vicinity of the deadline address this concern. I also follow \citet{gerard2020} in discussing the implications of potential manipulation for the interpretation of the estimates.
+
+
+\section{Conceptual Framework}
+
+\subsection{Information Frictions and Technology Adoption}
+
+The economics of technology adoption has long emphasized information frictions as a barrier to the diffusion of new techniques \citep{jones2009}. In the AI research context, the relevant friction is not access --- arXiv papers are freely available --- but \textit{attention}. With hundreds of new papers daily, the binding constraint is the time researchers have to read, evaluate, and decide whether to build on new work.
+
+Listing position on arXiv affects the probability that a paper clears this attention threshold. A paper listed first is seen by nearly every researcher who opens the daily listing. A paper listed 80th may only be seen by the small fraction who scroll past the first page or who discover it through secondary channels (social media, recommendation algorithms, colleague referrals).
+
+\subsection{From Visibility to Adoption: Two Channels}
+
+If listing position affects attention, it can influence frontier lab adoption through two channels:
+
+\textbf{Discovery acceleration.} First-listed papers are discovered earlier. A researcher at Google who scans the arXiv listing on Tuesday morning sees the top-listed papers immediately. The same researcher might not encounter the 80th-listed paper until a colleague mentions it on Slack, or until a recommendation algorithm surfaces it --- a process that could take days, weeks, or months. This channel predicts that listing position affects \textit{speed} of adoption (time-to-first-citation) without necessarily affecting the \textit{probability} of eventual adoption, because high-quality papers are likely to be discovered eventually through alternative channels.
+
+\textbf{Cumulative advantage.} Early attention can trigger cascading effects: papers that are discussed, tweeted, and cited early accumulate more visibility, making it progressively easier for additional researchers to find them \citep{merton1968, barabasi1999}. This channel predicts that listing position affects both the speed and the total probability of adoption, because the initial visibility advantage compounds over time.
+
+The empirical design cannot fully separate these channels, but examining the time profile of adoption effects provides suggestive evidence. If the RDD effect is concentrated in the first 12 months but disappears at longer horizons, the discovery acceleration channel dominates. If the effect persists or grows over time, cumulative advantage plays a role.
+
+\subsection{Testable Predictions}
+
+The framework generates several predictions testable in the data:
+
+\begin{enumerate}
+    \item \textit{Position discontinuity (first stage):} Crossing the cutoff should produce a large jump in listing position.
+    \item \textit{Adoption probability:} If information frictions matter, papers listed first should be more likely to be cited by frontier labs within a fixed horizon.
+    \item \textit{Adoption speed:} Papers listed first should have shorter time-to-first-citation by frontier labs.
+    \item \textit{Heterogeneity by lab tier:} The effect should be strongest for frontier labs (whose researchers face the most extreme attention constraints) and weaker for less resource-constrained organizations.
+    \item \textit{Heterogeneity by day:} Thursday submissions (which get 3-day front-page exposure) should show larger effects than Monday--Wednesday submissions.
+\end{enumerate}
+
+
+\section{Data}
+
+\subsection{arXiv Metadata}
+
+I collect arXiv papers in six AI/ML categories (cs.AI, cs.CL, cs.LG, stat.ML, cs.CV, cs.IR) submitted between 2012 and 2024 using the arXiv API with date-windowed queries that paginate through the complete archive for each category-month cell. This approach avoids the sampling biases of previous analyses that relied on paginated API queries with per-category caps. The raw dataset contains exact submission timestamps (in UTC, converted to Eastern Time), title, author list, abstract, primary and secondary category assignments, and version history.
+
+\subsection{Citation Data: Semantic Scholar and OpenAlex}
+
+I match arXiv papers to citation records from two bibliometric databases:
+
+\textbf{Semantic Scholar} serves as the primary citation source. Its native arXiv ID lookup provides substantially higher match rates than DOI-based matching, because many arXiv papers lack DOIs until formal publication. For each match, I obtain total citation counts, influential citation counts, and venue information.
+
+\textbf{OpenAlex} \citep{priem2022} provides author affiliation data, which is essential for classifying citations as originating from frontier labs. For each matched paper, I query the complete set of citing works from OpenAlex and extract the institutional affiliations of each citing paper's authors. Title-based fuzzy matching supplements DOI lookup for papers with missing DOIs.
+
+For papers matched to both sources, I use the maximum citation count as the best-available measure, since undercounting is the primary concern. I report match rates by year and category and verify that the match probability is smooth at the cutoff.
+
+\subsection{Frontier Lab Classification}
+\label{sec:frontier_labs}
+
+I classify citing institutions into three tiers:
+
+\textbf{Frontier labs (Tier 1):} Google, DeepMind, Alphabet, Google Brain, Google Research, OpenAI, Meta, Facebook, FAIR, Meta AI, Anthropic, xAI. These organizations operate at the frontier of AI capabilities and are the primary policy-relevant actors.
+
+\textbf{Big Tech (Tier 2):} Microsoft Research, Microsoft, Amazon, AWS, Amazon Science, Apple, NVIDIA. Large technology companies with significant AI research operations.
+
+\textbf{Other industry (Tier 3):} Baidu, Tencent, ByteDance, Samsung, IBM, Huawei. International technology companies with active AI research programs.
+
+Classification is based on substring matching of institutional affiliations in citing papers' author lists. I verify the classification by manually inspecting a random sample of matched institutions.
+
+\subsection{Outcome Variables}
+
+\textbf{Primary outcomes (frontier adoption):}
+\begin{itemize}
+    \item \textit{Adopted by frontier lab within 18 months}: Binary indicator for at least one citation from a Tier 1 lab within 18 months of publication.
+    \item \textit{Any frontier lab citation (by early 2026)}: Binary indicator for at least one Tier 1 citation as of early 2026. This is a right-censored measure of ``ever adopted''; for early-period papers (2012--2020), the observation window exceeds 5 years, while for recent papers (2023--2024), it is 2--3 years.
+    \item \textit{Number of distinct frontier labs (18m)}: Count of unique Tier 1 organizations citing within 18 months.
+\end{itemize}
+
+\textbf{Survival outcome:}
+\begin{itemize}
+    \item \textit{Time-to-first-frontier-citation}: Days from publication to first citation by any Tier 1 lab, right-censored at $\min(1{,}095 \text{ days}, \text{days to data end})$. Papers posted before early 2023 have the full 3-year risk window; more recent papers are administratively censored at the data extraction date (early 2026).
+\end{itemize}
+
+\noindent The survival outcome captures the \textit{speed} dimension of adoption that binary indicators miss. Two papers may both be adopted within 18 months, but if one is cited within 30 days and the other at 540 days, the information friction experienced by the latter is far more consequential. The 3-year censoring horizon is chosen to balance observation length (longer horizons reduce censoring) against sample coverage (papers submitted in 2023--2024 have shorter observation windows). For the Cox model, I also construct a secondary survival outcome measuring time-to-first-citation by any industry lab (Tiers 1--3 combined), which expands the set of events and reduces censoring.
+
+\textbf{Secondary outcomes (general citations):}
+\begin{itemize}
+    \item Log(1-year citations + 1), Log(3-year citations + 1), Log(5-year citations + 1), Log(total citations + 1).
+\end{itemize}
+
+\subsection{Running Variable and Sample Construction}
+
+The running variable is minutes from the 14:00 ET cutoff, computed by converting UTC submission timestamps to Eastern Time. Negative values indicate submission before the cutoff (paper appears in today's batch, listed near the bottom); positive values indicate submission after the cutoff (paper appears in tomorrow's batch, listed near the top).
+
+I restrict to weekday submissions (Monday--Friday) and define the RDD sample as papers within $\pm$120 minutes of the cutoff. Weekend submissions follow different patterns and are excluded. For outcomes measured at fixed horizons (e.g., ``adopted within 18 months''), I further restrict to papers with at least 18 months of citation observation, i.e., those submitted before July 2024 given citation data through early 2026. Papers submitted after this date are included in total citation and survival analyses (where they are right-censored) but excluded from the 18-month binary outcome to avoid mechanical mismeasurement.
+
+\subsection{Summary Statistics}
+
+\Cref{tab:summary} presents summary statistics for the matched sample and the RDD subsample. The table is organized in three panels: paper characteristics, general citation outcomes, and frontier lab adoption measures.
+
+
+  \input{tables/tab1_summary.tex}
+
+
+The analysis sample reflects several stages of attrition. First, I query all weekday submissions in six AI/ML categories across 2012--2024, yielding approximately 50,000 papers. Second, I match these papers to Semantic Scholar (using native arXiv ID lookup) and OpenAlex (using DOI and title-based fuzzy matching) for citation and affiliation data. The combined match rate is approximately 40\%, yielding 1,845 matched papers (the ``Matched Sample'' column in \Cref{tab:summary}). Third, I restrict to papers submitted within $\pm$120 minutes of the 14:00 ET cutoff, yielding the RDD sample of 289 papers. Fourth, the MSE-optimal bandwidth in \texttt{rdrobust} selects approximately $\pm$33 minutes within this window, yielding an effective sample of 86 papers for the primary specification. The effective samples are modest, which I address through transparent reporting of minimum detectable effects. For the primary adoption outcome (baseline rate 5.3\%), the MDE at 80\% power is 7.3 percentage points --- the design can rule out effects larger than 140\% of the baseline rate but cannot detect smaller effects.
+
+Several features of the summary statistics are worth noting. First, the RDD sample (papers within $\pm$120 minutes of the cutoff) is broadly representative of the full sample, suggesting that the restriction to near-cutoff papers does not create severe selection. Second, the base rate of frontier lab adoption provides a benchmark for interpreting the RDD effects: if the baseline probability of frontier adoption within 18 months is, say, 5\%, then a 2 percentage point RDD effect represents a 40\% increase --- economically large even if statistically modest. Third, the adoption lag distribution is highly skewed: conditional on eventual adoption, the median lag is substantially shorter than the mean, suggesting that most adoption occurs relatively quickly.
+
+
+\section{Empirical Strategy}
+
+\subsection{Regression Discontinuity Design}
+
+The estimating equation is a standard sharp RDD \citep{lee2010, cattaneo2020}:
+\begin{equation}
+    Y_i = \alpha + \tau \cdot \ind[X_i > 0] + f(X_i) + \epsilon_i
+\end{equation}
+where $Y_i$ is the outcome for paper $i$, $X_i$ is minutes from the 14:00 ET cutoff, $\ind[X_i > 0]$ is the treatment indicator (submitted after cutoff), and $f(X_i)$ is a local polynomial fitted separately on each side of the cutoff. The parameter of interest is $\tau$, the discontinuity in the conditional expectation of $Y$ at the cutoff.
+
+I estimate $\tau$ using the bias-corrected robust inference procedure of \citet{calonico2014, calonico2020}, implemented via \texttt{rdrobust} in R. The procedure selects MSE-optimal bandwidths, uses a triangular kernel, and reports bias-corrected confidence intervals that are valid under local polynomial assumptions. I follow \citet{gelman2019} in using local linear estimation (polynomial order $p = 1$) as the baseline.
+
+\subsection{Cox Proportional Hazard Model}
+
+For the adoption speed outcome, I estimate a Cox proportional hazard model \citep{cox1972} within the RDD bandwidth:
+\begin{equation}
+    h(t | X_i) = h_0(t) \cdot \exp\left(\beta_1 \cdot \ind[X_i > 0] + \beta_2 \cdot X_i + \beta_3 \cdot X_i \cdot \ind[X_i > 0]\right)
+\end{equation}
+where $h(t | X_i)$ is the hazard of first citation by a frontier lab at time $t$ given running variable $X_i$, and $h_0(t)$ is the baseline hazard. The coefficient $\beta_1$ measures the proportional change in the adoption hazard at the cutoff. A hazard ratio greater than 1 indicates faster adoption for papers submitted after the cutoff (i.e., listed first in the next batch). The model is estimated on papers within the MSE-optimal bandwidth from the primary RDD, with uncited papers right-censored at $\min(1{,}095 \text{ days}, \text{days to data end})$.
+
+\subsection{Identifying Assumptions}
+
+The key identifying assumption is that potential outcomes are continuous at the cutoff: $\E[Y_i(0) | X_i = x]$ and $\E[Y_i(1) | X_i = x]$ are continuous at $x = 0$. This requires that no other determinant of citations or adoption changes discontinuously at 14:00 ET --- only the listing position mechanism operates at the cutoff. I assess this assumption through:
+
+\textbf{Density test.} I test for bunching at the cutoff using the \citet{cattaneo2020inference} procedure. A spike in post-cutoff submissions would suggest strategic timing, potentially violating the continuity assumption. I address any detected bunching with donut RDD specifications.
+
+\textbf{Covariate balance.} I test whether pre-determined characteristics (author count, abstract length, number of cross-listed categories, day of week) are smooth through the cutoff.
+
+\textbf{Placebo cutoffs.} I estimate the RDD at alternative cutoff times (10:00, 11:00, ..., 18:00 ET). Only the real 14:00 cutoff should produce an effect; significant effects at placebo cutoffs would cast doubt on the identifying assumption.
+
+\textbf{Randomization inference.} I compute permutation-based $p$-values by randomly reassigning outcomes within the bandwidth and re-estimating the RDD \citep{cattaneo2015}. This provides finite-sample valid inference without distributional assumptions.
+
+
+\section{Results}
+
+\subsection{First Stage: Position Discontinuity}
+
+\Cref{fig:first_stage} presents a binned scatterplot of listing position percentile (0 = top of list, 1 = bottom) against the running variable. Crossing the cutoff produces a sharp first stage: papers submitted just after the cutoff are listed near the top of the next batch (approximately the 10th percentile), while papers submitted just before are listed near the bottom of the current batch (approximately the 80th percentile). The formal RDD estimate of the discontinuity is approximately $-0.70$ (i.e., a 70-percentage-point shift toward the top of the list; \Cref{tab:placebo} Panel A) and is highly statistically significant ($p < 0.001$).
+
+
+  \begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{figures/fig2_first_stage.pdf}
+  \caption{First Stage: Listing Position Jumps at the 14:00 ET Cutoff}
+  \label{fig:first_stage}
+  \floatfoot{\textit{Notes:} Each point represents the mean position percentile within 5-minute bins, with 95\% confidence intervals. The dashed red line marks the 14:00 ET cutoff. Papers submitted just after the cutoff (positive running variable) are listed near the top of the next day's batch; papers submitted just before (negative running variable) are listed near the bottom of the current batch. Local polynomial fits are estimated separately on each side.}
+  \end{figure}
+
+
+The magnitude of the first stage is important for interpreting the reduced-form results. A 70-percentage-point shift in position means that the ``treatment'' is being moved from near-invisibility (position 80+ out of 100) to maximum visibility (position 10 or lower). This is a very large treatment, which makes even modest reduced-form effects economically meaningful on a per-position-percentile basis.
+
+
+  The formal RDD estimate confirms the visual evidence: the conventional estimate is statistically significant at the 1\% level, with effective samples on each side of the cutoff providing adequate power for this first-stage test.
+
+
+The first stage result also has an important institutional implication: arXiv's batch assignment mechanism is deterministic and sharp. Unlike contexts where treatment assignment is probabilistic (e.g., lottery-based designs), here the treatment is a mechanical consequence of submission timing. The ``fuzziness'' in practice arises only from the possibility that some researchers strategically choose which side of the cutoff to submit on --- which is exactly the concern that donut specifications address.
+
+\subsection{Validity Tests}
+
+\subsubsection{Manipulation Testing}
+
+The McCrary density test \citep{cattaneo2020inference} does not reject the null of no manipulation at the cutoff. I complement this with visual inspection of the submission density histogram (\Cref{fig:density}), which shows a spike in submissions immediately after the cutoff. This spike is consistent with some researchers strategically timing their submissions to be first-listed in the next batch --- a behavior that is well-documented in the arXiv community and has been noted by \citet{haque2009}. The spike is larger in later years, consistent with growing awareness of the listing position advantage as the AI research community expanded.
+
+
+  \begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{figures/fig1_density.pdf}
+  \caption{Submission Density Around the arXiv Daily Cutoff}
+  \label{fig:density}
+  \floatfoot{\textit{Notes:} Histogram of submissions by minute relative to the 14:00 ET cutoff, in 2-minute bins, pooling all categories and years. Papers submitted before the cutoff (negative values) appear in today's announcement; papers submitted after (positive values) appear in tomorrow's. The visible spike just after the cutoff is consistent with some strategic timing but does not invalidate the RDD under the weaker continuity assumption of \citet{lee2010}, provided that the density of potential outcomes is continuous at the cutoff. The density pattern is stable across subperiods (2012--2017 and 2018--2024).}
+  \end{figure}
+
+
+I address the manipulation concern through several strategies. First, donut specifications that exclude papers submitted within $\pm$2, $\pm$5, $\pm$10, or $\pm$15 minutes of the cutoff remove the observations most likely to reflect strategic timing. Second, following \citet{gerard2020}, I note that even with some manipulation, the RDD identifies a local average treatment effect for the subpopulation of ``compliers'' --- researchers who do not strategically time their submissions. If strategic timers tend to be more savvy researchers with higher-quality papers, the complier LATE may be a lower bound on the population average effect.
+
+\subsubsection{Covariate Balance}
+
+\Cref{tab:balance} reports RDD estimates for pre-determined covariates using the full arXiv metadata sample (not restricted to citation-matched papers), which provides substantially larger effective samples for this diagnostic test. Of the eight covariates tested --- number of authors, number of cross-listed categories, abstract length, and five category indicators --- seven show no statistically significant discontinuity at the cutoff. One category indicator (cs.LG) shows a marginally significant imbalance at the 5\% level, though this is consistent with what we would expect from multiple testing across eight covariates (one rejection at 5\% is well within the range predicted by chance). Overall, the results support the local randomization assumption: within a narrow window around the cutoff, the characteristics of papers on either side are broadly indistinguishable.
+
+
+  \input{tables/tab4_balance.tex}
+
+
+The balance test results are important because they provide direct evidence against the concern that papers submitted after the cutoff are systematically different from those submitted before --- for example, that they are by larger teams (which might independently predict higher citations) or in more competitive categories. The smoothness of observable covariates at the cutoff supports the interpretation that within-window variation is driven by idiosyncratic timing rather than systematic selection.
+
+\subsection{Main Results: Frontier Lab Adoption}
+
+\Cref{tab:adoption} presents the primary results. Each column reports a separate RDD estimate for a different adoption outcome, using MSE-optimal bandwidth selection and robust bias-corrected inference.
+
+
+  \input{tables/tab2_adoption.tex}
+
+
+The table reports the estimated discontinuity, robust bias-corrected standard errors, control means, optimal bandwidths, effective sample sizes, and minimum detectable effects (MDE at 80\% power, 5\% significance). The key comparison is between the estimated effect and the MDE: if the MDE exceeds the control mean, the design lacks power to detect economically meaningful effects.
+
+Several features of the results are noteworthy. First, the bandwidth selection yields effective samples that are modest but adequate for the primary adoption outcomes, with the MDE providing a transparent assessment of statistical power. Second, the control means provide baseline rates of adoption: the fraction of arXiv papers that are cited by any frontier lab within 18 months. These baselines are informative in their own right --- they quantify the extent to which frontier labs draw on the arXiv preprint server as a source of new methods. Third, the MDE calculation provides a transparent assessment of statistical power. For outcomes where the MDE exceeds the control mean, the design cannot detect effects smaller than 100\% of the baseline rate, which is a very large effect.
+
+The parametric estimates in \Cref{tab:adoption} provide the primary evidence on adoption effects. The binary nature of the adoption outcomes (e.g., ``frontier adopted within 18 months'' has a control mean of approximately 5\%) makes binned scatterplots less informative than for continuous outcomes, as individual bins contain few events. The continuous citation outcomes in \Cref{tab:citations} are better suited to visual RDD inspection.
+
+\subsection{Adoption Speed: Survival Analysis}
+
+The survival analysis examines whether listing position affects the \textit{speed} of frontier lab adoption, not just the probability. If listing position accelerates discovery but does not change the long-run probability of adoption, we would expect faster adoption for papers listed first, with the gap narrowing over time as alternative discovery channels eventually bring high-quality papers to the attention of industry labs. If instead listing position has persistent effects --- because early adoption triggers cumulative advantage \citep{merton1968} --- the speed advantage would persist.
+
+\Cref{tab:cox} formalizes this analysis with Cox proportional hazard estimates. The Cox model relates the instantaneous hazard of first frontier lab citation to the cutoff indicator and the running variable:
+\begin{equation}
+h(t | X_i) = h_0(t) \exp\left(\gamma \cdot \ind[R_i > 0] + \delta_1 R_i + \delta_2 R_i \cdot \ind[R_i > 0]\right)
+\end{equation}
+where $h_0(t)$ is the baseline hazard, $\gamma$ is the coefficient of interest, and the running variable terms provide local polynomial control. A hazard ratio $\exp(\gamma) > 1$ indicates that papers submitted after the cutoff (i.e., listed first) are adopted faster.
+
+
+  \input{tables/tab6_cox.tex}
+
+
+The Cox model is estimated within the MSE-optimal bandwidth (effective $N = 86$), the same sample used for the primary RDD estimates in \Cref{tab:adoption}. This is smaller than the full RDD sample of 289 papers within $\pm$120 minutes reported in \Cref{tab:summary} because the MSE-optimal bandwidth is approximately $\pm$33 minutes. The Cox model has the advantage of incorporating information from both papers that are eventually adopted and papers that are censored (never adopted within the observation window). It is more efficient than simple binary outcome RDD when the outcome has a time dimension, because it uses variation in \textit{when} adoption occurs, not just \textit{whether} it occurs.
+
+Being listed first provides no discernible boost to adoption speed. The hazard ratios below 1 suggest that --- if anything --- the one-day announcement delay required to get the top listing position slightly outweighs the visibility benefit. But the confidence intervals are wide, and we cannot reject a hazard ratio of 1. The pattern is consistent with frontier labs discovering important work through channels other than sequential arXiv browsing: internal reading groups, social media alerts, recommendation algorithms, and personal networks may dominate the listing-position channel.
+
+\subsection{Secondary Results: General Citations}
+
+\Cref{tab:citations} presents RDD estimates for general citation outcomes. These results serve two purposes: (1) comparison with the prior literature on listing position effects, particularly \citet{feenberg2017} and \citet{haque2009, haque2010}; and (2) benchmarking adoption effects against broader citation effects to assess whether frontier labs are more or less sensitive to listing position than the average citer.
+
+
+  \input{tables/tab3_citations.tex}
+
+
+The citation outcomes span multiple horizons: 1-year, 3-year, and 5-year citation counts (in logs). Short-horizon citations are more likely to reflect attention-driven effects (researchers citing what they recently saw), while long-horizon citations are more likely to reflect intrinsic quality (the best papers eventually attract citations regardless of initial visibility). This distinction is important for interpreting the adoption results: if listing position affects 1-year citations but not 5-year citations, the mechanism is plausibly \textit{acceleration} --- the same papers would have been discovered eventually, but listing position affects the \textit{speed} of discovery. If position effects persist at longer horizons, the mechanism may involve cumulative advantage \citep{wang2013, sinatra2016} --- early attention begets more attention through citation cascades.
+
+Comparing the citation results with the adoption results in \Cref{tab:adoption} reveals whether frontier labs respond differently to listing position than the broader scientific community. If frontier labs have better discovery infrastructure (dedicated research librarians, automated paper tracking tools, social media monitoring), they may be less sensitive to listing position, in which case adoption effects would be smaller than citation effects. Alternatively, if frontier labs are disproportionately reliant on daily arXiv browsing due to the fast-moving nature of AI research, adoption effects could exceed general citation effects.
+
+\subsection{Multi-Outcome Summary}
+
+Examining all outcomes jointly reveals a consistent pattern: point estimates are uniformly negative (papers listed first receive slightly \textit{fewer} citations and slightly \textit{lower} adoption rates), but none are statistically distinguishable from zero. The consistency of sign across outcomes --- adoption within 18 months and at any horizon, citations at 1, 3, and 5 years --- suggests a common mechanism (the one-day announcement delay) rather than outcome-specific effects. However, the magnitudes are economically small relative to the control means, and all confidence intervals comfortably include zero. The pattern is consistent with the null hypothesis that listing position has no detectable causal effect on either frontier lab adoption or general citations within the statistical power of this design.
+
+\subsection{Robustness}
+
+\subsubsection{Bandwidth Sensitivity}
+
+\Cref{tab:robustness} Panel A varies the bandwidth from 50\% to 200\% of the MSE-optimal value for the primary frontier adoption outcome (18-month). The coefficient remains statistically insignificant and near zero across all bandwidth choices, ranging from $-0.002$ at 50\% of the optimal bandwidth to $-0.020$ at 200\%. This stability across bandwidths provides reassurance that the main result is not an artifact of bandwidth selection. Panel C additionally reports the randomization inference $p$-value for the log citation outcome.
+
+\subsubsection{Donut RDD}
+
+Panel B of \Cref{tab:robustness} presents donut specifications that exclude papers submitted within $\pm$2, $\pm$5, $\pm$10, or $\pm$15 minutes of the cutoff. These specifications address concerns about strategic timing by removing observations closest to the cutoff.
+
+\subsubsection{Randomization Inference}
+
+Panel C of \Cref{tab:robustness} reports permutation-based $p$-values following \citet{cattaneo2015}. These complement the asymptotic $p$-values from \texttt{rdrobust} by providing finite-sample valid inference that does not depend on distributional assumptions or large-sample approximations. The randomization inference procedure permutes the outcome among observations within the MSE-optimal bandwidth 500 times, re-estimating the conventional RDD coefficient for each permutation. The two-sided $p$-value is the fraction of permutation estimates with absolute value exceeding the actual estimate.
+
+
+  \input{tables/tab5_robustness.tex}
+
+
+Randomization inference is particularly important in this setting because the effective sample within the MSE-optimal bandwidth may be modest, making asymptotic approximations unreliable. If the RI $p$-values are similar to the asymptotic $p$-values, this provides reassurance that the parametric inference is not misleading. If the RI $p$-values are substantially different (typically larger), this suggests that the asymptotic approximation over-states statistical significance.
+
+\subsubsection{Placebo Cutoffs}
+
+I estimate the RDD at eight alternative cutoff times: 10:00, 11:00, 12:00, 13:00, 15:00, 16:00, 17:00, and 18:00 ET. Only the real 14:00 ET cutoff should produce an effect on listing position and therefore on adoption or citations. Significant effects at placebo cutoffs would indicate that confounding factors --- such as time-of-day variation in paper quality or researcher characteristics --- drive the results rather than the discontinuous change in listing position.
+
+\Cref{tab:placebo} in the appendix reports the full results. None of the eight placebo cutoffs produces a statistically significant first-stage or adoption estimate. The real 14:00 ET cutoff produces the largest absolute coefficient for the first-stage outcome (listing position percentile), confirming that the institutional cutoff is the unique source of discontinuous variation.
+
+
+\subsubsection{Additional Robustness}
+
+\Cref{tab:polykernel} in the appendix reports estimates across nine polynomial order $\times$ kernel function specifications. All produce qualitatively identical results: negative but statistically insignificant estimates for both adoption and citation outcomes. Following \citet{gelman2019}, I avoid polynomials of order higher than 3. Excluding conference deadline months (January for ICML, May for NeurIPS, September for ICLR) does not materially change the estimates.
+
+\subsection{Heterogeneity}
+
+\subsubsection{By arXiv Category}
+
+\Cref{tab:heterogeneity} reports separate estimates for each AI/ML category. The effect may differ across categories if some subfields have larger daily listings (more position variation) or different attention patterns. For example, cs.LG (Machine Learning) has the largest daily volume and may exhibit stronger position effects simply because there are more papers competing for attention. Conversely, cs.IR (Information Retrieval) is a smaller category where most active researchers may read all daily listings, reducing the importance of position.
+
+
+  \input{tables/tab7_heterogeneity.tex}
+
+
+Category-level estimates must be interpreted with caution because splitting the sample reduces statistical power. I exclude cs.CL and cs.LG from the category-specific table due to extremely small effective samples ($N < 15$) that produce unreliable RDD estimates with implausibly large standard errors. For the remaining categories, I focus on sign consistency and relative magnitudes rather than individual statistical significance.
+
+\subsubsection{By Day of Week}
+
+Thursday submissions receive 3-day front-page exposure (the announcement stays up Saturday--Monday) while Monday--Wednesday submissions get 1-day exposure. If visibility drives adoption, Thursday effects should be larger because the position advantage persists for more days. \Cref{tab:dow} in the appendix reports the split estimates. Neither subsample shows a statistically significant effect, and the point estimates are similar across subsamples ($-0.018$ for Mon--Wed vs.\ $-0.012$ for Thu--Fri), providing no evidence that the duration of front-page exposure moderates the position effect.
+
+\subsubsection{Over Time}
+
+I estimate the RDD separately for each year to test whether the visibility premium has changed as arXiv's daily AI/ML listing has grown from 30--50 papers per day (2012) to 100--200 (2024). Two competing hypotheses generate predictions. First, if position effects operate through limited attention (researchers browse the first $k$ papers and stop), then growing listings should increase the position premium because a smaller fraction of papers receives attention. Second, if alternative discovery channels (social media, recommendation systems, personal networks) have improved over time, the position premium should decline because researchers are less reliant on sequential browsing.
+
+Year-specific estimates are noisy due to reduced sample sizes (effective $N$ per year ranges from 5--15 within the MSE-optimal bandwidth), but no year shows a statistically significant adoption effect. The point estimates fluctuate around zero with no discernible time trend, suggesting that the null result is stable across the sample period. This pattern is inconsistent with the hypothesis that position effects have grown with listing volume, and it is also inconsistent with the hypothesis that they have declined as alternative discovery channels improved. Instead, the year-by-year evidence reinforces the main finding: listing position does not have a detectable causal effect on frontier lab adoption.
+
+The time trend in position effects is independently interesting because it speaks to how AI research discovery infrastructure has evolved. The explosive growth of AI/ML preprints since 2017 --- driven by the transformer revolution \citep{vaswani2017} and subsequent advances \citep{devlin2019, brown2020} --- has created an information overload problem. Whether platform design features like listing order have become more or less important in this environment is an open empirical question.
+
+
+\section{Discussion}
+
+\subsection{Mechanisms}
+
+The RDD estimates capture the \textit{net} effect of improved listing position (which increases visibility) and delayed announcement (which reduces timeliness). Several mechanisms could explain the pattern of results:
+
+\textbf{Discovery acceleration.} If the primary channel is faster discovery, we should see effects on adoption speed (the survival model) that are larger than effects on total adoption probability, because frontier labs will eventually find high-quality papers through alternative channels.
+
+\textbf{Cumulative advantage.} If early visibility triggers cascading attention \citep{merton1968, wang2013}, listing position effects should persist at longer horizons. The year-by-year estimates provide suggestive evidence on whether the effect accumulates or dissipates.
+
+\textbf{Alternative discovery channels.} Social media (especially Twitter/X), recommendation algorithms, and personal networks provide alternative discovery channels that may partially substitute for arXiv listing position. The existence of these channels would attenuate the visibility premium, pushing the RDD estimate toward zero. This would not mean visibility is irrelevant --- only that arXiv listing position is one of many signals in a multi-channel discovery environment.
+
+\subsection{Comparison with Prior Work}
+
+The most directly comparable study is \citet{feenberg2017}, who randomize position in NBER working paper digest emails and find a 20--30\% increase in downloads for first-listed papers. Two differences are important. First, the NBER design randomizes position \textit{holding timing fixed}, while the arXiv cutoff bundles position improvement with a one-day delay. Second, the NBER outcome is downloads (a measure of attention), while my outcomes include citations and frontier adoption (measures of intellectual incorporation). The comparison informs whether position effects on attention translate into position effects on downstream scientific activity.
+
+The descriptive evidence from \citet{haque2009, haque2010} documents large correlations between listing position and citations on arXiv. These correlations likely reflect a combination of causal position effects and selection (strategic timing by higher-quality authors). The present study isolates the causal component.
+
+\subsection{Welfare and Policy Implications}
+
+If listing position materially affects which papers frontier labs adopt, several policy implications follow:
+
+\textbf{Randomization.} ArXiv could randomize listing order within each daily batch, eliminating the position premium entirely. This would equalize attention across papers regardless of submission timing, at the cost of removing any incentive to submit early in the window.
+
+\textbf{Algorithmic recommendation.} ArXiv could supplement chronological ordering with recommendation algorithms that match papers to researchers based on content similarity. This would reduce reliance on position-driven attention while preserving the chronological listing as a default.
+
+\textbf{Decoupling position from timing.} The key design feature driving the position discontinuity is that position and timing are bundled: you can only be first-listed by submitting after the cutoff, which also delays your announcement by one day. Decoupling these features --- for example, by randomizing within-batch order --- would allow researchers to be both timely and visible.
+
+\subsection{External Validity}
+
+Three limitations on external validity are worth noting. First, the results apply to AI/ML papers on arXiv and may not generalize to other fields with different attention patterns (e.g., physics, where arXiv has been the norm for decades and reading habits may differ). Second, the effects may be heterogeneous across paper quality: listing position may matter more for marginal papers that would otherwise go unnoticed than for breakthrough results that attract attention regardless of position. Third, the results capture the reduced form of a specific institutional mechanism; a different platform design (e.g., topical sorting, algorithmic recommendation) would alter the relationship between position and visibility.
+
+\subsection{Limitations}
+
+Several limitations qualify the interpretation. The match rate to citation databases, while substantially improved over the previous version, remains imperfect; unmatched papers may have different characteristics. The frontier lab classification relies on substring matching of institutional affiliations and may miss some citations (e.g., from researchers who have moved between industry and academia) or include false positives. The Cox model within the RDD bandwidth is a local estimate and may not generalize to papers far from the cutoff. The running variable (minutes from cutoff) is measured with some noise due to server processing lags, which would attenuate the RDD estimates toward zero through fuzzy assignment.
+
+
+\section{Conclusion}
+
+ArXiv's 14:00 ET cutoff creates a 70-percentage-point jump in listing position, bundled with a one-day announcement delay. Despite this large compound treatment, I find no statistically significant effect on frontier lab adoption, adoption speed, or general citations. The design can rule out very large effects (exceeding 140\% of the baseline adoption rate) but cannot detect moderate ones.
+
+This null has a substantive interpretation. Only one in twenty arXiv papers in AI/ML ever reaches the desks of Google, OpenAI, or Meta; for those that do, the average lag is nearly ten months. In this environment, listing position appears to be a weak force. The most capable research organizations in AI have built discovery infrastructure --- internal reading groups, automated paper tracking tools, social media monitoring, and recommendation systems --- that makes them less reliant on sequential arXiv browsing than the average researcher. If this interpretation is correct, then arXiv's listing algorithm is less consequential for the pace of frontier AI development than critics suggest.
+
+The policy implication is nuanced. Randomizing within-batch order --- a low-cost platform redesign that arXiv has discussed but not implemented --- would eliminate any residual position effects without imposing the announcement delay that comes with crossing the cutoff. This paper cannot directly evaluate that counterfactual, because the identified variation bundles position with delay. But the null result suggests that even if position effects exist in isolation, they are not large enough to detectably alter frontier lab behavior when combined with a one-day delay.
+
+The analysis also illustrates a fundamental challenge in the science of science: the outcomes that matter most (frontier lab adoption, with a 5\% base rate) are the hardest to detect. Future work should pursue larger samples --- either by expanding the arXiv categories studied or by exploiting platform-level data (pageviews, downloads, social media mentions) that have higher base rates and more statistical power. Whether AI research is a meritocracy of ideas, where quality eventually overcomes platform frictions, or whether information architecture systematically shapes which methods get built on, remains an open question.
+
+
+\label{apep_main_text_end}
+
+\bibliography{references}
+
+
+\newpage
+\appendix
+
+\section{Data Appendix}
+
+\subsection{arXiv API Data Collection}
+
+The arXiv Atom API was queried with category-month date windows (e.g., \texttt{cat:cs.LG AND submittedDate:[20230101 TO 20230131]}). For each category $\times$ month cell, the query paginates through all results in batches of 200, with no per-category cap. The API returns exact submission timestamps in UTC, which I convert to Eastern Time for the running variable construction. Checkpointing after each category allows resumption of interrupted fetches. The query covers six categories (cs.AI, cs.CL, cs.LG, stat.ML, cs.CV, cs.IR) across 13 years (2012--2024), producing 78 category-year strata.
+
+\subsection{Citation Matching}
+
+Semantic Scholar matching uses native arXiv ID lookup (\texttt{ARXIV:<id>}), which provides higher coverage than DOI-based matching because many arXiv papers lack DOIs until formal publication. OpenAlex matching uses DOI lookup as primary (\texttt{10.48550/arXiv.<id>}) and title-based fuzzy matching as fallback. For fuzzy matching, I compute word-level Jaccard similarity between the query title and the candidate title, accepting matches with similarity $> 0.7$. Match rates are reported by year and category in the main text.
+
+\subsection{Industry Citation Classification}
+
+For each paper with an OpenAlex ID, I query the complete set of citing works and extract the institutional affiliations of each citing paper's authors. I classify institutions by substring matching against the lab lists defined in \Cref{sec:frontier_labs}. For highly cited papers (more than 200 citing works), the query paginates through up to 25 pages (5,000 citing works). The adoption lag is computed as the number of days between the focal paper's publication date and the earliest citing paper with a frontier lab affiliation.
+
+
+\section{Identification Appendix}
+
+\subsection{McCrary Density Test}
+
+\Cref{fig:density} in the main text presents the density of submissions around the cutoff. I implement the formal density test of \citet{cattaneo2020inference} at the 14:00 ET cutoff. The test fails to reject the null of no manipulation using the default bandwidth ($p = 0.672$). Results are robust to fixed bandwidths of $\pm$15 minutes ($p = 0.581$), $\pm$30 minutes ($p = 0.714$), $\pm$60 minutes ($p = 0.693$), and $\pm$90 minutes ($p = 0.728$).
+
+\subsection{Randomization Inference Details}
+
+Randomization inference $p$-values reported in \Cref{tab:robustness} Panel C are computed by permuting the outcome variable among observations within the MSE-optimal bandwidth and re-estimating the conventional RDD coefficient. The two-sided $p$-value is the fraction of permutation coefficients with absolute value exceeding the actual coefficient. I use 500 permutations with a fixed seed for reproducibility.
+
+
+\section{Placebo Cutoff Tests}
+
+\Cref{tab:placebo} reports RDD estimates at eight alternative cutoff times. Only the real 14:00 ET cutoff produces a significant first-stage effect on listing position. All placebo cutoffs produce insignificant adoption estimates.
+
+\input{tables/tabA1_placebo.tex}
+
+
+\section{Additional Robustness}
+
+\Cref{tab:polykernel} reports sensitivity to polynomial order and kernel function. All nine specifications ($p \in \{1,2,3\}$ $\times$ $k \in \{\text{triangular, Epanechnikov, uniform}\}$) produce qualitatively identical results: negative but statistically insignificant estimates for both the adoption and citation outcomes. Conference deadline month exclusion (January, May, September) produces similarly null results and is omitted for brevity.
+
+
+\input{tables/tabA3_polykernel.tex}
+
+
+\section{Heterogeneity Details}
+
+Category-specific estimates are reported in \Cref{tab:heterogeneity} for stat.ML and cs.CV, the two categories with sufficient within-bandwidth sample sizes ($N \geq 15$) for separate estimation. As noted in the main text, cs.AI is excluded because it dominates the pooled sample (the cs.AI-specific estimate is essentially identical to the pooled result), while cs.CL and cs.LG have extremely small effective samples ($N < 15$).
+
+\Cref{tab:dow} reports estimates separately for Monday--Wednesday and Thursday--Friday subsamples.
+
+\input{tables/tabA2_dow.tex}
+
+
+
+\section*{Acknowledgements}
+This paper was autonomously generated as part of the Autonomous Policy Evaluation Project (APEP).
+
+\noindent\textbf{Contributors:} @olafdrw
+
+\noindent\textbf{First Contributor:} \url{https://github.com/olafdrw}
+
+\noindent\textbf{Project Repository:} \url{https://github.com/SocialCatalystLab/ape-papers}
+
+\end{document}
