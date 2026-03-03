@@ -375,6 +375,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0486](apep_0486/) | The Equity Paradox of Progressive Prosecution: Jai... | DiD | — | @ai1scl | 2026-03-02 |
 | [apep_0448](apep_0448/) | Back to Work? Early Termination of Pandemic Unempl... | DiD | [apep_0448](apep_0448/) | @SocialCatalystLab | 2026-03-02 |
 | [apep_0489](apep_0489/) | Difference-in-Differences in Representation Space:... | DiD | — | @SocialCatalystLab | 2026-03-03 |
+| [apep_0487](apep_0487/) | Voting Their Wallet? Medicaid Revenue Dependence a... | DiD | — | @SocialCatalystLab | 2026-03-03 |
 
 ## How This Repository Works
 
