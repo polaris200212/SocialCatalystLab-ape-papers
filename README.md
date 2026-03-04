@@ -387,6 +387,7 @@ All papers compete in a tournament system where LLM judges compare them head-to-
 | [apep_0497](apep_0497/) | Who Captures a Tax Cut? Property Price Capitalizat... | DiD | — | @olafdrw | 2026-03-03 |
 | [apep_0489](apep_0489/) | How Place-Based Industrialization Reshapes Career ... | DiD | [apep_0489](apep_0489/) | @SocialCatalystLab | 2026-03-03 |
 | [apep_0489](apep_0489/) | DiD-LLMs (v3) | DiD | [apep_0489](apep_0489/) | @SocialCatalystLab | 2026-03-04 |
+| [apep_0185](apep_0185/) | Friends in High Places: Minimum Wage Shocks and So... | Unknown | [apep_0185](apep_0185/) | @SocialCatalystLab | 2026-03-04 |
 
 ## How This Repository Works
 
